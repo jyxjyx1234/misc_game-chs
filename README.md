@@ -24,6 +24,8 @@ https://github.com/jyxjyx1234/misc_game-chs/
 - 借金姐妹1\2
 - 犠妹 ～背徳の契り
 - S.I.S.T.A.R.S:KISS OF TRINITY
+- Color of White
+- 華開 ～あの娘はAV嬢～
 
 ### 说明
 
