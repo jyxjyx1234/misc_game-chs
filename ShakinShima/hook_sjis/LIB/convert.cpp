@@ -3,6 +3,7 @@
 #include <sstream>
 #include "convert.h"
 #include <iomanip>
+#include <vector>
 
 LPCWSTR string2LPCWSTR(std::string str)
 {
@@ -192,4 +193,30 @@ void ShowCharArrayAsBytes(const char* data, size_t length)
 
 	// ÏÔÊ¾MessageBox
 	MessageBoxA(NULL, hexString.c_str(), "Byte Representation", MB_OK);
+}
+
+std::string GBKToSJIS(const std::string& gbk_str) {
+	// ²½Öè1: GBKµ½Unicode
+	int len = MultiByteToWideChar(936, 0, gbk_str.c_str(), -1, NULL, 0);
+	if ( len == 0 ) {
+		return ""; // ×ª»»Ê§°Ü
+	}
+
+	std::vector<wchar_t> unicode_str(len);
+	if ( MultiByteToWideChar(936, 0, gbk_str.c_str(), -1, &unicode_str[ 0 ], len) == 0 ) {
+		return ""; // ×ª»»Ê§°Ü
+	}
+
+	// ²½Öè2: Unicodeµ½Shift-JIS
+	len = WideCharToMultiByte(932, 0, &unicode_str[ 0 ], -1, NULL, 0, NULL, NULL);
+	if ( len == 0 ) {
+		return ""; // ×ª»»Ê§°Ü
+	}
+
+	std::vector<char> sjis_str(len);
+	if ( WideCharToMultiByte(932, 0, &unicode_str[ 0 ], -1, &sjis_str[ 0 ], len, NULL, NULL) == 0 ) {
+		return ""; // ×ª»»Ê§°Ü
+	}
+
+	return std::string(&sjis_str[ 0 ]);
 }

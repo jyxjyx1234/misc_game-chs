@@ -20,11 +20,9 @@ std::map<LPCSTR, LPCSTR, CStringCompare> readKeyValuePairs(const std::string& fi
 
 struct ChangeTextOutput {
 	LPCSTR transed_text_;
-	LPCSTR idx_;
-	int printed_len_;
-	BOOL flag;
+	int flag;
 };
 
-ChangeTextOutput ChangeText(LPCSTR ori_text, int y, int len, LPCSTR idx, int printed_l, std::map<LPCSTR, LPCSTR, CStringCompare> ChangeMap);
+ChangeTextOutput ChangeText(LPCSTR ori_text, int y, std::map<LPCSTR, LPCSTR, CStringCompare> ChangeMap);
 
 #endif

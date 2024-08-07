@@ -11,6 +11,9 @@ DWORD returnAddress_dumptext;
 DWORD originalFuncAddr_changetext;
 DWORD returnAddress_changetext;
 
+DWORD originalFuncAddr_changetext2;
+DWORD returnAddress_changetext2;
+
 
 void SaveTextToFile(const char* text) {
     std::ofstream file("output.txt", std::ios::app);
@@ -114,4 +117,40 @@ void InstallHook_changetext()
 
     // 恢复内存保护
     VirtualProtect((LPVOID)originalFuncAddr_changetext, 5, oldProtect, &oldProtect);
+}
+
+void __declspec(naked) HookFunction_changetext2() {
+    __asm {
+        pushad
+        pushfd
+
+        push 0x44e010
+        call ReplaceString
+        add esp, 4
+
+        // 恢复寄存器
+        popfd
+        popad
+
+        push 0x44e010
+        jmp dword ptr[returnAddress_changetext2]
+    }
+}
+
+void InstallHook_changetext2()
+{
+    DWORD oldProtect;
+
+    originalFuncAddr_changetext2 = 0x417618;
+    returnAddress_changetext2 = 0x41761d;
+
+    // 修改内存保护
+    VirtualProtect((LPVOID)originalFuncAddr_changetext2, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
+
+    // 写入跳转指令
+    *(BYTE*)originalFuncAddr_changetext2 = 0xE9;  // JMP
+    *(DWORD*)(originalFuncAddr_changetext2 + 1) = (DWORD)HookFunction_changetext2 - originalFuncAddr_changetext2 - 5;
+
+    // 恢复内存保护
+    VirtualProtect((LPVOID)originalFuncAddr_changetext2, 5, oldProtect, &oldProtect);
 }

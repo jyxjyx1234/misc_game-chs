@@ -7,7 +7,6 @@
 #include "CONTRY_CHANGE.h"
 #include "dump_text.h"
 #include "HOOK_MAIN.h"
-#include "changefont.h"
 
 void CreateConsole()
 {
@@ -46,5 +45,4 @@ VOID WINAPI HOOK_MAIN() {
 	if (config.ReadInt("DUMPTEXT", "ENABLE", 0) == 1) {
 		dump_text(config);
 	}
-	//change_font();//ÓÐbug
 }

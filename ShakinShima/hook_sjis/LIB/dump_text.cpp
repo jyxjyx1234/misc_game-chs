@@ -9,15 +9,15 @@
 #include <io.h>
 #include <fcntl.h>
 #include "changetext.h"
+#include "drawt.h"
 #pragma comment( lib, "detours.lib")
 
 LPCSTR idx = "";
 int printed_len = 0;
 char app[1024] = { 0 };
 char* a = GetAppPath(app, sizeof(app));
-std::map<LPCSTR, LPCSTR, CStringCompare> Changemap = readKeyValuePairs(std::string(app) + "\\" + "trans.dat");
-
-
+std::map<LPCSTR, LPCSTR, CStringCompare> Changemap;
+int flag = 0;
 
 void Print_LPCSTR_to_File(LPCSTR str, UINT len, UINT y)
 {
@@ -78,57 +78,6 @@ int WINAPI newExtTextOutA_dumptxt(
 	}
 
 	Print_LPCSTR_to_File(lpString, c, y);
-
-	//测试用，输出文本和函数信息到控制台
-	/*
-	printf("message:");
-	print_LPCSTR(lpString,c);
-	printf("\nx:%d\ny:%d\nc:%d\n\n",x,y,c);
-	*/
-
-	//测试用，用messageBOX显示文本
-	/*
-	LPCWSTR out1 = L"message:";
-	LPCWSTR message = ConvertAnsiToWide(lpString);
-	LPCWSTR out2 = L" c:";
-	LPCWSTR opt = UintToLPCWSTR(options);
-	std::wstring out1_(out1);
-	std::wstring message_(message);
-	std::wstring out2_(out2);
-	std::wstring opt_(UintToLPCWSTR(c));
-	std::wstring res_ = out1_ + message_ + out2_ + opt_;
-	LPCWSTR res = res_.c_str();
-	if (options == 0) {
-		MessageBoxW(NULL, res, NULL, NULL);
-	}
-	*/
-
-	//测试用，输出任意文本
-	/*
-	HFONT hNewFont = CreateFont(
-	   0,                     // 字体高度
-	   0,                      // 字体宽度
-	   0,                      // 字体倾斜角度
-	   0,                      // 字体倾斜角度
-	   FW_SEMIBOLD,              // 字体粗细
-	   FALSE,                  // 是否使用斜体
-	   FALSE,                  // 是否使用下划线
-	   FALSE,                  // 是否使用删除线
-	   GB2312_CHARSET,        // 字符集
-	   OUT_DEFAULT_PRECIS,     // 输出精度
-	   CLIP_DEFAULT_PRECIS,    // 裁剪精度
-	   DEFAULT_QUALITY,        // 输出质量
-	   DEFAULT_PITCH | FF_MODERN,  // 字体间距和字体族
-	   L"Microsoft YaHei UI"                // 字体名称
-	);
-	HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
-	char text[] = "汉化测试汉化测试";
-	
-	BOOL result = T_ExtTextOutA(hdc, x, y, options, lprect, text, 16, lpDx);
-	SelectObject(hdc, hOldFont);
-	DeleteObject(hNewFont);
-	return result;
-	*/
 	return T_ExtTextOutA(hdc, x, y, options, lprect, lpString, c, lpDx);
 	
 }
@@ -144,39 +93,29 @@ int WINAPI newExtTextOutA_changetxt(
    const INT* lpDx
 )
 {
+	if ( flag == 0 ) {
+		StartOverlay(L"SKS_CHS");
+		flag = 1;
+	}
+
 	if (options != 0) {
 		return T_ExtTextOutA(hdc, x, y, options, lprect, lpString, c, lpDx);
 	}
+	print_LPCSTR(lpString, c);
 
-	ChangeTextOutput out = ChangeText(lpString, y, c, idx, printed_len, Changemap);
+	ChangeTextOutput out = ChangeText(SubString(lpString, c), y, Changemap);
 
-	if (not out.flag) {
+	if ( out.flag == 0 ) {//未找到译文
+		printf("Not found in trans file!\n");
 		return T_ExtTextOutA(hdc, x, y, options, lprect, lpString, c, lpDx);
 	}
-
-	idx = out.idx_;
-	printed_len = out.printed_len_;
-	LPCSTR transed_text = out.transed_text_;
-	c = strlen(out.transed_text_);
-
-
-
-	HFONT hNewFont_ = (HFONT)GetStockObject(ANSI_VAR_FONT);
-	HFONT hPrevFont = ( HFONT ) SelectObject(hdc, hNewFont_);
-	LOGFONT lf = { 0 };
-	GetObject(hPrevFont, sizeof(LOGFONT), &lf);
-	wcscpy_s(lf.lfFaceName, LF_FACESIZE, L"Shakinashima_font");
-	HFONT hNewFont = CreateFontIndirect(&lf);
-	SelectObject(hdc, hNewFont);
-	
-	//int extraSpace = 2; // 根据需要调整
-	//SetTextCharacterExtra(hdc, extraSpace);//会导致回想界面崩溃
-
-	BOOL result = T_ExtTextOutA(hdc, x, y, options, lprect, transed_text, c, lpDx);
-	SelectObject(hdc, hPrevFont);
-	DeleteObject(hNewFont);
-	DeleteObject(hNewFont_);
-	return result;
+	if ( out.flag == 2 ) {//不是第一行
+		return 1;
+	}
+	if ( out.flag == 1 ) {
+		DrawOverlayText(ConvertAnsiToWide(out.transed_text_,936));
+	}
+	return 1;
 }
 
 int dump_text(rr::RConfig config) {
@@ -188,28 +127,10 @@ int dump_text(rr::RConfig config) {
 			DetourAttach(&(PVOID&)T_ExtTextOutA, newExtTextOutA_dumptxt);
 		}
 		if (config.ReadInt("DUMPTEXT", "MODE", 0) == 2) {
-			AddFontResourceEx(L"Shakinashima.ttf", FR_PRIVATE, 0);
+			Changemap = readKeyValuePairs(std::string(app) + "\\" + "trans.dat");
 			DetourAttach(&(PVOID&)T_ExtTextOutA, newExtTextOutA_changetxt);
 		}
 	}
 	DetourTransactionCommit();
 	return 0;
 }
-
-/*
-HFONT hNewFont = CreateFontA(
-		  0,//高度
-		  0,//宽度
-		  0,//转角
-		  0,//转角
-		  700,//粗细
-		  0,
-		  0,
-		  0,
-		  GB2312_CHARSET,
-		  OUT_DEFAULT_PRECIS,
-		  CLIP_DEFAULT_PRECIS,
-		  PROOF_QUALITY,
-		  DEFAULT_PITCH| FF_MODERN,
-		  "Microsoft YaHei UI"
-);*/
