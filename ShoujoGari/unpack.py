@@ -1,0 +1,13 @@
+from Majiro_arc_file import *
+
+
+oripath = "scenario.arc"
+outpath = "scenario\\"
+
+a = Majiro_arc_file()
+a.unpack(oripath, outpath)
+
+'''
+scenario1:
+['snr010.mjo', 'snr009e.mjo', 'snr002xb.mjo', 'snr002bb2z.mjo', 'snr005eaz.mjo', 'snr002czz.mjo', 'x_mikaend.mjo', 'snr009ac.mjo', 'snr009ecz.mjo', 'buttonmenu.mjo', 'snr002bb2a.mjo', 'x_rinoyumiend.mjo', 'snr002daab.mjo', 'start.mjo', 'snr002ca.mjo', 'console.mjo', 'snr009ca.mjo', 'snr002abb.mjo', 'snr008z.mjo', 'snr005ba.mjo', 'snr002ab.mjo', 'snr005dbz.mjo', 'config.mjo', 'game.mjo', 'snr002cab.mjo', 'snr002xc.mjo', 'snr005ea.mjo', 'snr002da.mjo', 'snr009d.mjo', 'snr011.mjo', 'snr008a.mjo', 'snr004.mjo', 'snr009dc.mjo', 'snr005ecz.mjo', 'snr006.mjo', 'snr005d.mjo', 'snr005bbz.mjo', 'snr002xa.mjo', 'x_sibou2end.mjo', 'snr005ec.mjo', 'snr005bc.mjo', 'snr003d5.mjo', 'kosihata.mjo', 'cgmode.mjo', 'snr002d.mjo', 'yazlib.mjo', 'snr002bb2b.mjo', 'load_sysdata.mjo', 'snr002aba.mjo', 'snr009cb.mjo', 'message_box.mjo', 'snr002cb.mjo', 'x_sinjyuuend.mjo', 'snr002daaa.mjo', 'snr002aa.mjo', 'snr002e.mjo', 'loadsave.mjo', 'snr005caz.mjo', 'snr002ezz.mjo', 'snr005bb.mjo', 'x_kisaairiend.mjo', 'snr003d4.mjo', 'snr005eb.mjo', 'snr002caa.mjo', 'x_rinoend.mjo', 'transit_top.mjo', 'game.mjs念のためバックアップ', 'snr005e.mjo', 'snr002abz.mjo', 'snr008b.mjo', 'snr007.mjo', 'snr005abz.mjo', 'snr002az.mjo', 'snr002db.mjo', 'kazlib.mjo', 'snr005a.mjo', 'snr002ya.mjo', 'snr005dc.mjo', 'snr005bcz.mjo', 'usertrans.mjo', 'snr005ebz.mjo', 'snr009ec.mjo', 'snr009c.mjo', 'snr002bab.mjo', 'snr002cabc.mjo', 'x_yumiend.mjo', 'snr009bc.mjo', 'snr002azz.mjo', 'snr002cbbb.mjo', 'snr002a.mjo', '$~x_sinjyuuend.mjo', 'gaizi.mjo', 'snr002aab.mjo', 'x_isumend.mjo', 'snr005cb.mjo', 'snr002dabb.mjo', 'snr003d1.mjo', 'snr002bb.mjo', 'snr002bzz.mjo', 'snr005daz.mjo', 'snr002cabb.mjo', 'snr005aa.mjo', 'snr002cbb.mjo', 'snr009b.mjo', 'snr009dcz.mjo', 'snr002daa.mjo', 'snr002eb.mjo', 'menu.mjo', 'snr005acz.mjo', 'snr005db.mjo', 'staffroll.mjo', 'snr002baz.mjo', 'history.mjo', 'snr002yb.mjo', 'pic.mjo', 'x_sibou1end.mjo', 'snr005b.mjo', 'x_airiend.mjo', 'snr002dzz.mjo', 'snr005baz.mjo', 'snr000.mjo', 'novelsample.mjo', 'snr009bcz.mjo', 'snr005ac.mjo', 'snr002baa.mjo', 'snr002b.mjo', 'snr002cbba.mjo', 'snr003d3.mjo', 'snr003d2.mjo', 'snr009acz.mjo', 'snr005ca.mjo', 'snr002daba.mjo', 'snr005dcz.mjo', 'snr002c.mjo', 'transit.mjo', 'snr002aaa.mjo', 'snr005cbz.mjo', 'snr005ab.mjo', 'snr002caba.mjo', 'x_kisaend.mjo', 'snr002ba.mjo', 'snr002aaz.mjo', 'snr002ea.mjo', 'snr002dab.mjo', 'snr009a.mjo', 'snr001.mjo', 'snr002cba.mjo', 'snr005c.mjo', 'snr005aaz.mjo', 'snr002yc.mjo', 'snr005da.mjo', 'snr002cabz.mjo', '']
+'''
