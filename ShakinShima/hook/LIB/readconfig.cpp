@@ -132,7 +132,7 @@ namespace rr
 		std::map<std::string, std::map<std::string, std::string> >::iterator it;
 		while (getline(infile, line))
 		{
-			std::string str = UTF8ToGB(line.c_str()).c_str();
+			std::string str = UTF8ToANSI(line.c_str(),936).c_str();
 			if (AnalyseLine(str, section, key, value))
 			{
 				it = settings_.find(section);

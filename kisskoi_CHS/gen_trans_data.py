@@ -17,11 +17,7 @@ for dic in trans:
 
 hanzireplacer = HanziReplacer()
 hanzireplacer.ReadTransAndGetHanzidict([replacementdict,namedict])
-<<<<<<< HEAD
 hanzireplacer.ChangeFont('WenQuanYi.ttf','release\\kissoifont.ttf',font_name='kissoifont')
-=======
-hanzireplacer.ChangeFont('WenQuanYi.ttf','release\\GuardianPlaceFont.ttf',font_name='GuardianPlaceFont')
->>>>>>> 305a01429aeb061fbf1bc78e9ab5c94ecca341b1
 
 i = 0
 for dic in trans:
@@ -30,7 +26,6 @@ for dic in trans:
         print(dic["index"])
         exit()
 
-<<<<<<< HEAD
     name = dic["name"]
     t = hanzireplacer.hanzitihuan(dic['pre_zh']).replace('@','').replace('K','').replace('F','')
     if name != "" and name != " ":    
@@ -39,17 +34,10 @@ for dic in trans:
         res = f'={t}'
     #t = dic['pre_zh'].replace("♪", "").replace("・","·")
     #res = f'={t}'
-=======
-    t = hanzireplacer.hanzitihuan(dic['pre_zh']).replace('@','').replace('K','').replace('F','')
-    res = f'={t}'
->>>>>>> 305a01429aeb061fbf1bc78e9ab5c94ecca341b1
     res = res.encode(encoding='sjis')
     res += b'\x0a'
     out.write(ori + res)
     i += 1
-<<<<<<< HEAD
-=======
 
 for n in namedict:
     out.write(f'{n}={hanzireplacer.hanzitihuan(namedict[n])}\n'.encode(encoding='sjis').replace(b'\x0d\x0a',b'\x0a'))
->>>>>>> 305a01429aeb061fbf1bc78e9ab5c94ecca341b1

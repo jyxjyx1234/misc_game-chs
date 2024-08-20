@@ -9,6 +9,7 @@
 #include <vector>
 #include "text_process.h"
 #include "readconfig.h"
+#include "convert.h"
 
 DWORD originalFuncAddr;
 DWORD returnAddress;
@@ -82,6 +83,43 @@ void ChangeText(char* text)
     }
 }
 
+void ChangeText_addname(char* text, char* name)
+{
+    if (text == nullptr) return;
+    printf("%s\n", text);
+    std::string str(text);
+    auto it = replacementMap.find(str);
+    if (it != replacementMap.end())
+    {
+        std::string n;
+        std::string transstr;
+        if (name == nullptr) { n = ""; transstr = n + it->second;}
+        else {
+            n = name;
+            auto n_trans = replacementMap.find(n);
+            if (n_trans != replacementMap.end()) {
+                
+                transstr = n_trans->second + ANSIToANSI("¡¡¡¸", 936, 932) + it->second + ANSIToANSI("¡¹", 936, 932);
+                transstr = replaceSubString(transstr, ANSIToANSI("¡¸¡¸", 936, 932), ANSIToANSI("¡¸", 936, 932));
+                transstr = replaceSubString(transstr, ANSIToANSI("¡¹¡¹", 936, 932), ANSIToANSI("¡¹", 936, 932));
+            }
+            else {
+                transstr = n + it->second;
+            }
+        }
+        printf("%s Repalce: sucess!\n", transstr.c_str());
+        strcpy_s(text, transstr.length() + 1, transstr.c_str());
+    }
+    else {
+        std::ofstream file("output.txt", std::ios::app);
+        if (file.is_open())
+        {
+            file << text << std::endl;
+            file.close();
+        }
+    }
+}
+
 void __declspec(naked) HookFunction_replacetext()
 {
     __asm
@@ -121,12 +159,14 @@ void __declspec(naked) HookFunction_replacetext_removename()
         pushad
         pushfd
 
+        mov ebx, dword ptr[esp + 0x2C]
         mov dword ptr[esp + 0x28], 0
         mov dword ptr[esp + 0x2C], 0
         mov eax, [esp + 0x30]
+        push ebx
         push eax
-        call ChangeText
-        add esp, 4
+        call ChangeText_addname
+        add esp, 8
 
         popfd
         popad

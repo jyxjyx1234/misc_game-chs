@@ -7,7 +7,7 @@ with open("yiwen.json",'r',encoding='utf8') as f:
 with open("MultipleLineTexts_ori.json",'r',encoding='utf8') as f:
     yuanwen=json.load(f)
 
-outfile=open("release_sjis\\trans_sjis.dat",'w',encoding='sjis')
+outfile=open("release\\trans.dat",'w',encoding='sjis')
 
 def replace_halfwidth_with_fullwidth(string):
     # 将半角符号替换为全角符号
@@ -27,21 +27,27 @@ transdict = {}
 ori_list = []
 nameset = []
 for i in range(len(yiwen)):
-    ori_full = yiwen[i]['pre_jp']
+    ori = ""
+    for _ in yuanwen[i+1]:
+        if _:
+            ori += _
     tra = yiwen[i]['pre_zh']
     name = yiwen[i]['name']
-    transdict[ori_full] = tra
+    transdict[ori] = tra
     if name not in nameset:
         nameset.append(name)
-    ori_list.append(ori_full)
+    ori_list.append(ori)
 
 hanzireplacer = HanziReplacer()
 hanzireplacer.ReadTransAndGetHanzidict([ori_list,nameset,transdict])
-hanzireplacer.ChangeFont("WenQuanYi.ttf","release_sjis\\Shakinashima.ttf","Shakinashima_font")
+hanzireplacer.ChangeFont("simsun.ttc","release\\Shakinashima.ttf","Shakinashima_font")
 
 for i in range(len(yiwen)):
-    ori = yuanwen[i+1][0]
-    ori_full = yiwen[i]['pre_jp']
+    ori = ""
+    for _ in yuanwen[i+1]:
+        if _:
+            ori += _
+    ori = ori.replace("　","")
     tra = yiwen[i]['pre_zh']
     name = yiwen[i]['name']
     if name != "":

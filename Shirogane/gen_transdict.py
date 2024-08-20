@@ -1,0 +1,32 @@
+from gen_transdict_LIB import *
+
+a = transdict()
+
+#a.addname(jp_name=[],chs_name=[],sex="",role="",other="",reverse=False)
+
+a.addname(jp_name=["ハガル・ヴァルキリー"],chs_name=["夏甲・瓦尔基里"],sex="girl",role="",other="",reverse=True)
+a.addname(jp_name=["ソル・ヴァルキリー"],chs_name=["索尔・瓦尔基里"],sex="girl",role="",other="",reverse=True)
+a.addname(jp_name=["ペイオース"],chs_name=["佩欧斯"],sex="girl",role="",other="",reverse=True)
+a.addname(jp_name=["来島 詩帆"],chs_name=["来岛 诗帆"],sex="girl",role="",other="",reverse=False)
+a.addname(jp_name=["浅海 澪璃"],chs_name=["浅海 澪璃"],sex="girl",role="",other="",reverse=False)
+a.addname(jp_name=["村上 珠子"],chs_name=["村上 珠子"],sex="girl",role="elder sister of 琉平",other="",reverse=False)
+a.addname(jp_name=["村上 琉平"],chs_name=["村上 琉平"],sex="boy",role="",other="",reverse=False)
+a.addname(jp_name=["鳳条 刹那"],chs_name=["凤条 刹那"],sex="woman",role="teacher",other="",reverse=False)
+a.addname(jp_name=["ジークルーネ"],chs_name=["吉可露妮"],sex="girl",role="",other="",reverse=False)
+a.addname(jp_name=["海良宜 深吾"],chs_name=["海良宜 深吾"],sex="man",role="",other="",reverse=False)
+a.addname(jp_name=["九鬼 蓮十朗"],chs_name=["九鬼 连十朗"],sex="man",role="",other="",reverse=False)
+a.addname(jp_name=["北条 兵衛"],chs_name=["北条 兵卫"],sex="man",role="",other="",reverse=False)
+a.addname(jp_name=["鴻埜 郁人"],chs_name=["鸿埜 郁人"],sex="man",role="teacher",other="",reverse=False)
+a.addname(jp_name=["ベルセルク"],chs_name=["狂战士"],sex="",role="",other="",reverse=False)
+a.addname(jp_name=["ファフナー"],chs_name=["法夫纳"],sex="",role="",other="",reverse=False)
+a.addname(jp_name=["ファゾルト"],chs_name=["法索特"],sex="",role="",other="",reverse=False)
+a.addname(jp_name=["ニーズヘッグ"],chs_name=["尼德霍格"],sex="",role="",other="",reverse=False)
+a.addname(jp_name=["フェンリル"],chs_name=["芬里尔"],sex="girl",role="",other="",reverse=False)
+a.addname(jp_name=["みおり"],chs_name=["澪璃"],sex="girl",role="",other="",reverse=False)
+a.addname(jp_name=["しほ"],chs_name=["诗帆"],sex="girl",role="",other="",reverse=False)
+a.addword("ヴァルハラ","瓦尔哈拉","")
+a.addword("マスター","主人","")
+
+a.gen_dict()
+a.savetxt("soleil_dict.txt")
+a.savejson("soleil_dict.json")

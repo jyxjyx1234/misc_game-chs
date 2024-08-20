@@ -216,3 +216,20 @@ void ShowCharArrayAsBytes(const char* data, size_t length)
 	// 显示MessageBox
 	MessageBoxA(NULL, hexString.c_str(), "Byte Representation", MB_OK);
 }
+
+std::string replaceSubString(const std::string& ori, const std::string& a, const std::string& b) {
+	std::string result = ori;
+	std::size_t pos = 0; // 开始搜索的位置
+
+	// 检查a是否为空，如果为空，则不进行任何操作，直接返回原字符串
+	if (a.empty()) {
+		return result;
+	}
+
+	while ((pos = result.find(a, pos)) != std::string::npos) { // 查找子串a
+		result.replace(pos, a.length(), b); // 替换找到的子串
+		pos += b.length(); // 更新位置至新插入字符串的后面，防止替换后的字符串引发无限循环
+	}
+
+	return result;
+}

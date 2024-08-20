@@ -19,7 +19,7 @@ LPCWSTR string2LPCWSTR(std::string str)
 	return buffer;
 }
 
-std::string UTF8ToGB(const char* str)
+std::string UTF8ToANSI(const char* str,int codepage)
 {
 	std::string result;
 	WCHAR* strSrc;
@@ -31,9 +31,32 @@ std::string UTF8ToGB(const char* str)
 	MultiByteToWideChar(CP_UTF8, 0, str, -1, strSrc, i);
 
 	//获得临时变量的大小
-	i = WideCharToMultiByte(936, 0, strSrc, -1, NULL, 0, NULL, NULL);
+	i = WideCharToMultiByte(codepage, 0, strSrc, -1, NULL, 0, NULL, NULL);
 	szRes = new CHAR[i + 1];
-	WideCharToMultiByte(936, 0, strSrc, -1, szRes, i, NULL, NULL);
+	WideCharToMultiByte(codepage, 0, strSrc, -1, szRes, i, NULL, NULL);
+
+	result = szRes;
+	delete[]strSrc;
+	delete[]szRes;
+
+	return result;
+}
+
+std::string ANSIToANSI(const char* str, int codepage1, int codepage2)
+{
+	std::string result;
+	WCHAR* strSrc;
+	LPSTR szRes;
+
+	//获得临时变量的大小
+	int i = MultiByteToWideChar(codepage1, 0, str, -1, NULL, 0);
+	strSrc = new WCHAR[i + 1];
+	MultiByteToWideChar(codepage1, 0, str, -1, strSrc, i);
+
+	//获得临时变量的大小
+	i = WideCharToMultiByte(codepage2, 0, strSrc, -1, NULL, 0, NULL, NULL);
+	szRes = new CHAR[i + 1];
+	WideCharToMultiByte(codepage2, 0, strSrc, -1, szRes, i, NULL, NULL);
 
 	result = szRes;
 	delete[]strSrc;
@@ -192,4 +215,21 @@ void ShowCharArrayAsBytes(const char* data, size_t length)
 
 	// 显示MessageBox
 	MessageBoxA(NULL, hexString.c_str(), "Byte Representation", MB_OK);
+}
+
+std::string replaceSubString(const std::string& ori, const std::string& a, const std::string& b) {
+	std::string result = ori;
+	std::size_t pos = 0; // 开始搜索的位置
+
+	// 检查a是否为空，如果为空，则不进行任何操作，直接返回原字符串
+	if (a.empty()) {
+		return result;
+	}
+
+	while ((pos = result.find(a, pos)) != std::string::npos) { // 查找子串a
+		result.replace(pos, a.length(), b); // 替换找到的子串
+		pos += b.length(); // 更新位置至新插入字符串的后面，防止替换后的字符串引发无限循环
+	}
+
+	return result;
 }

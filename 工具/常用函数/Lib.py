@@ -1,4 +1,5 @@
 import json
+import subprocess
 
 def open_file_b(path)->bytes:
     return open(path,'rb').read()
@@ -20,7 +21,6 @@ def open_json(path:str):
 
 def to_bytes(num:int,length:int)->bytes:
     return num.to_bytes(length,byteorder='little')
-<<<<<<< HEAD
 
 def replace_symbol_for_gbk(text):
     text = text.replace("〜","～")
@@ -37,5 +37,17 @@ def replace_halfwidth_with_fullwidth(string):
     fullwidth_chars = "！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝～０１２３４５６７８９ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ"
     mapping = str.maketrans(halfwidth_chars, fullwidth_chars)
     return string.translate(mapping)
-=======
->>>>>>> 305a01429aeb061fbf1bc78e9ab5c94ecca341b1
+
+def copyfontinfo(ori_font,info_provider,outpath):
+    ori = subprocess.check_output(('otfccdump.exe', '-n', '0', '--hex-cmap', '--no-bom', ori_font)).decode('utf8',errors='ignore')
+    ori = json.loads(ori)
+    infoprov = subprocess.check_output(('otfccdump.exe', '-n', '0', '--hex-cmap', '--no-bom', info_provider)).decode('utf8',errors='ignore')
+    infoprov = json.loads(infoprov)
+
+    ori['name'] = infoprov['name']
+    for i in ori['OS_2']:
+        if type(ori['OS_2'][i]) !=type(1):
+            ori['OS_2'][i] = infoprov['OS_2'][i]
+
+    subprocess.run(['otfccbuild.exe', '-O3', '-o', outpath], input=json.dumps(ori), encoding='utf-8')
+    

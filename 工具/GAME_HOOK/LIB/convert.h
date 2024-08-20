@@ -16,4 +16,5 @@ LPCSTR SubString(LPCSTR originalStr, int n);
 LPCSTR WideStringToSJISLPCSTR(std::wstring str);
 void ShowCharArrayAsBytes(const char* data, size_t length);
 std::string ANSIToANSI(const char* str, int codepage1, int codepage2);
+std::string replaceSubString(const std::string& ori, const std::string& a, const std::string& b);
 #endif

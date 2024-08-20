@@ -25,11 +25,7 @@ class HanziReplacer(object):
                 if char not in self.tempdict:
                     self.tempdict[char]=len(self.tempdict)
             if char in self.charlist:
-<<<<<<< HEAD
                 self.charlist = self.charlist.replace(char,'')
-=======
-                self.charlist.replace(char,'')
->>>>>>> 305a01429aeb061fbf1bc78e9ab5c94ecca341b1
     
     def _Createhanzidict(self):
         for char in self.tempdict:
@@ -69,33 +65,28 @@ class HanziReplacer(object):
             replaced_string += self.hanzidict.get(char, char)
         return replaced_string
     
-    def ChangeFont(self,ori_font,outpath,font_name,ori_font_zh=None):
-        obj=json.loads(subprocess.check_output(('otfccdump.exe', '-n', '0', '--hex-cmap', '--no-bom', ori_font)))
+    def ChangeFont(self,ori_font,outpath,font_name):
+        a = subprocess.check_output(('otfccdump.exe', '-n', '0', '--hex-cmap', '--no-bom', ori_font)).decode('utf8',errors='ignore')
+        obj=json.loads(a)
         
-        if not ori_font_zh:
-            obj_zh=obj
-        else:
-            obj_zh=json.loads(subprocess.check_output(('otfccdump.exe', '-n', '0', '--hex-cmap', '--no-bom', ori_font_zh)))
+        obj2=json.loads(subprocess.check_output(('otfccdump.exe', '-n', '0', '--hex-cmap', '--no-bom', "wenquanyi.ttf")))
         
         for i in range(len(obj['name'])):
             obj['name'][i]["nameString"]=font_name
+        for i in obj['OS_2']:
+            if type(obj['OS_2'][i]) !=type(1):
+                obj['OS_2'][i] = obj2['OS_2'][i]
         f={}
         for i in range(len(self.source_chars)):
             f[self.source_chars[i]]=self.target_chars[i]
-
+        json.dump(f,open("temp.json",'w',encoding='utf8'),ensure_ascii=False,indent=2)
         for key, value in f.items():
             if key == value:
                 continue
             s = f'U+{ord(key):04X}'
             j = f'U+{ord(value):04X}'
             #try:
-            obj['cmap'][s] = obj_zh['cmap'][j]
-            if ori_font_zh:
-                obj["glyf"][j]=obj_zh["glyf"][j]
-                if j not in obj["glyph_order"]:
-                    obj["glyph_order"].append(j)
-                if j not in obj["GDEF"]["glyphClassDef"]:
-                    obj["GDEF"]["glyphClassDef"][j]=1
+            obj['cmap'][s] = obj['cmap'][j]
             #except:
             #    print('字体中不存在:', key, value)
 

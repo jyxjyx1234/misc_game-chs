@@ -24,6 +24,16 @@ typedef HFONT(WINAPI* pCREATEFONTA)(
     );
 pCREATEFONTA TrueCreateFontA = CreateFontA;
 
+bool ifchange(
+    int    cHeight,
+    int    cWidth,
+    int    cWeight,
+    LPCSTR pszFaceName) {
+    if (cWeight == 400) {
+        return true;
+    }
+    return false;
+}
 
 HFONT WINAPI HookedCreateFontA_changefont(
     int    cHeight,
@@ -43,12 +53,23 @@ HFONT WINAPI HookedCreateFontA_changefont(
 {
     rr::RConfig config;
     config.ReadConfig("hook.ini");
+
+    if (config.ReadInt("FONT", "PRINTINFO", 0) == 1) printf("Create font info:\n%d\n%d\n%d\n%s\n%d\n\n", cHeight, cWidth, cWeight, pszFaceName, iOutPrecision);
+
+    if (config.ReadInt("FONT", "ConditCHANGEFONT", 0) == 1) {
+        if (!ifchange(cHeight,cWidth, cWeight,pszFaceName)) {
+            printf("FONT NOT CHANGE!\n\n");
+            return TrueCreateFontA(cHeight,cWidth,cEscapement,cOrientation,cWeight,bItalic,bUnderline,bStrikeOut,iCharSet,iOutPrecision,iClipPrecision,iQuality,iPitchAndFamily,pszFaceName);
+        }
+    }
+
     if (config.ReadInt("FONT", "CHANGEFONT", 0) == 1) {
         std::string fontfn = config.ReadString("FONT", "FONTFILENAME", "");
         std::string fontn = config.ReadString("FONT", "FONTNAME", "");
 
         if (AddFontResourceExA(fontfn.c_str(), FR_PRIVATE, 0) != 0) {
-            printf("Load Font %s: Sucessful!\n", fontn.c_str());
+            
+            printf("Load Font %s: Sucessful!\n", fontfn.c_str());
         }
         else {
             printf("Fail to Load Font!\n");
@@ -62,8 +83,9 @@ HFONT WINAPI HookedCreateFontA_changefont(
     }
 
     if (config.ReadInt("FONT", "CHANGESIZE", 0)==1) {
-        cHeight = config.ReadInt("FONT", "HEIGHT", cHeight);
-        cWidth = config.ReadInt("FONT", "WIDTH", cWidth);
+        //cHeight = config.ReadInt("FONT", "HEIGHT", cHeight);
+        //cWidth = config.ReadInt("FONT", "WIDTH", cWidth);
+        cWidth = cWidth * 2;
         printf("Change font size sucess!\n");
     }
 

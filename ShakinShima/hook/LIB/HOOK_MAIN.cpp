@@ -5,9 +5,11 @@
 #include "readconfig.h"
 #include "convert.h"
 #include "CONTRY_CHANGE.h"
-#include "dump_text.h"
+#include "text_process.h"
 #include "HOOK_MAIN.h"
 #include "changefont.h"
+#include "hook_LoadLib.h"
+#include "hook_createfontindrectA.h"
 
 void CreateConsole()
 {
@@ -16,7 +18,7 @@ void CreateConsole()
 	{
 		FILE* fp;
 		freopen_s(&fp, "CONOUT$", "w", stdout);
-		setlocale(LC_CTYPE, "zh-CH");
+		setlocale(LC_CTYPE, "ja-jp");
 		// 设置控制台代码页为UTF-8
 		//_setmode(_fileno(stdout), _O_U16TEXT);
 		SetConsoleOutputCP(0);
@@ -30,21 +32,17 @@ VOID WINAPI HOOK_MAIN() {
 		CreateConsole();
 	}
 
-	//启动时消息
-	std::string STARTMESSAGE = config.ReadString("STARTMESSAGE", "MESSAGE", "");
-	if (config.ReadInt("STARTMESSAGE", "ENABLE", 0) == 1) {
-		MessageBoxW(NULL, string2LPCWSTR(STARTMESSAGE), L"信息", NULL);
-	}
+	hook_createfontindirectA_changefont_main("Shakinashima_font","Shakinashima.ttf");
 
-	//转区
-	if (config.ReadInt("LE", "ENABLE", 0) == 1) {
-		CONTRY_C(config);
-		//test
-		//MessageBoxW(NULL, string2LPCWSTR("GetACP():" + std::to_string(GetACP())), L"test", NULL);
-	}
+	MessageBoxW(NULL, L"本补丁使用sakura-32b-qwen2beta-v0.9.1-q3km进行翻译，由jyxjyx1234/ALyCE免费制作并发行于github/2dfan。如有bug欢迎在2dfan评论区或github项目下反馈。", L"信息", NULL);
 
-	if (config.ReadInt("DUMPTEXT", "ENABLE", 0) == 1) {
-		dump_text(config);
+	HMODULE a = GetModuleHandleA("Text Asset.x32");
+
+	if ( a ) {
+		InstallHook_replacetext();
 	}
-	//change_font();//有bug
+	else {
+		HOOK_LL_main();
+		printf("Try to hook loadlibrary!\n");
+	}
 }
