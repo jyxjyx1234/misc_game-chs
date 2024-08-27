@@ -25,10 +25,12 @@ def to_bytes(num:int,length:int)->bytes:
 def replace_symbol_for_gbk(text):
     text = text.replace("〜","～")
     text = text.replace("♪", "")
-    text = text.replace("・", "·")
+    text = text.replace("♡", "")
+    text = text.replace("・", "·").replace("･･･", "…")
     text = text.replace("「「", "「")
     text = text.replace("」」", "」")
-    
+    text = text.replace("「「", "「")
+    text = text.replace("」」", "」")
     return text
 
 def replace_halfwidth_with_fullwidth(string):
@@ -51,3 +53,31 @@ def copyfontinfo(ori_font,info_provider,outpath):
 
     subprocess.run(['otfccbuild.exe', '-O3', '-o', outpath], input=json.dumps(ori), encoding='utf-8')
     
+class OriJsonOutput():
+    def __init__(self) -> None:
+        self.savefilter = lambda x: True
+        self.textcount = 0
+        self.messageset = set()
+        self.outlist = []
+        self.dic = {}
+    
+    def save_json(self, path, split = 0):
+        if not split:
+            save_json(path, self.outlist)
+        else:
+            l = len(self.outlist) // split
+            for i in range(split):
+                outlist = self.outlist[i*l : i*l + l] if i+1 != split else self.outlist[i*l : ]
+                save_json(f'{i+1}_{path}', outlist)
+    
+    def append_dict(self, quchong = True):
+        if quchong:
+            if self.dic['message'] in self.messageset:
+                self.dic = {}
+                return
+        if self.savefilter(self.dic):
+            self.outlist.append(self.dic)
+            self.textcount += len(self.dic['message'])
+            self.messageset.add(self.dic['message'])
+            self.dic = {}
+            

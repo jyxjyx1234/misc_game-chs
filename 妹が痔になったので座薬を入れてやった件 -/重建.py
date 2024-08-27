@@ -42,6 +42,6 @@ for file in filelist:
         out_file.write(l.trans(transdict))
     out_file.close()
 
-copyfontinfo("msyh.ttc","GenJyuuGothicX-Bold.ttf","patch/GenJyuuGothicX-Bold.ttf",changename=True)
+#copyfontinfo("msyh.ttc","GenJyuuGothicX-Bold.ttf","patch/GenJyuuGothicX-Bold.ttf",changename=True)
 os.system("arc_conv --pack xp3 patch patch.xp3")
 os.system("move patch.xp3 release/")

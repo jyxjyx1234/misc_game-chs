@@ -40,7 +40,7 @@ for i in range(len(yiwen)):
 
 hanzireplacer = HanziReplacer()
 hanzireplacer.ReadTransAndGetHanzidict([ori_list,nameset,transdict])
-hanzireplacer.ChangeFont("simsun.ttc","release\\Shakinashima.ttf","Shakinashima_font")
+hanzireplacer.ChangeFont("simsun.ttc","release\\Shakinashima.ttf","Shakinashima")
 
 for i in range(len(yiwen)):
     ori = ""

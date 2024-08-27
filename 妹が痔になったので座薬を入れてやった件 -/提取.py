@@ -32,7 +32,7 @@ class Line(object):
 
     def trans(self, transdict):
         if self.type == "message":
-            transtext = transdict[self.content]
+            transtext = transdict[self.content].replace("」」","」").replace("「「","「")
             if "indent" in self.ori_text:
                 transtext = transtext[0] + "[indent]" + transtext[1:] + "[endindent]"
             return transtext + "\n"
