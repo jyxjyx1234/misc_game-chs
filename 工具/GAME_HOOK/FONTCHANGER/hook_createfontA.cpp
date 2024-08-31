@@ -113,7 +113,7 @@ HFONT WINAPI HookedCreateFontA_changefont(
     int scale_factor = config.ReadInt("FONT", "ScaleFactor", 10);
 
     HFONT newfont =  TrueCreateFontA(cHeight * scale_factor / 10,
-        cWidth * scale_factor / 10,
+        cWidth * scale_factor / 10 * 2,
         cEscapement,
         cOrientation,
         cWeight,

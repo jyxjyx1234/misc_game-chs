@@ -6,6 +6,8 @@
 #include "winnls.h"
 #include "readconfig.h"
 #include "convert.h"
+#include "timer.h"
+#include "readconfig.h"
 
 VOID __declspec(dllexport) stratmessage()
 {
@@ -24,6 +26,7 @@ VOID __declspec(dllexport) stratmessage()
     MessageBoxW(NULL, t1.c_str(), L"信息", NULL);
 }
 
+rr::RConfig config1;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -33,14 +36,17 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        stratmessage();
         HOOK_main();
+        stratmessage();
+        config1.ReadConfig("hook.ini");
+        if (config1.ReadInt("GLOBAL", "TIMER", 0) == 1) InitializeTimer();
         break;
     case DLL_THREAD_ATTACH:
         break;
     case DLL_THREAD_DETACH:
         break;
     case DLL_PROCESS_DETACH:
+        if (config1.ReadInt("GLOBAL", "TIMER", 0) == 1) FinalizeTimer();
         break;
     }
     return TRUE;

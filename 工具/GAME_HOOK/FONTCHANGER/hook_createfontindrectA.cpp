@@ -40,11 +40,11 @@ HFONT WINAPI HookedCreateFontIndirectA(CONST LOGFONTA* lplf)
 
         if (AddFontResourceExA(fontfn.c_str(), FR_PRIVATE, 0) != 0) {
             printf("Load Font %s: Sucessful!\n", fontfn.c_str());
-            strcpy_s(modifiedLf.lfFaceName, LF_FACESIZE, fontn.c_str());
         }
         else {
             printf("Fail to Load Font!\n");
         }
+        strcpy_s(modifiedLf.lfFaceName, LF_FACESIZE, fontn.c_str());
     }
 
     if (config.ReadInt("FONT", "CHANGECHARSET", 0) == 1) {

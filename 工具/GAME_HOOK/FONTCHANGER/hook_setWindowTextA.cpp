@@ -86,6 +86,8 @@ void hook_setWindowTextA_main() {
 
     DetourUpdateThread(GetCurrentThread());
 
+    printf("Window Text func HOOKED!\n");
+
     DetourAttach(&(PVOID&)TruesetWindowTextA, HookedsetWindowTextA);
     DetourAttach(&(PVOID&)TrueCreateWindowExA, HOOKEDCreateWindowExA);
 

@@ -7,6 +7,7 @@
 #include "hook_createfontA.h"
 #include "hook_createfontindrectA.h"
 #include "hook_setWindowTextA.h"
+#include "LE.h"
 
 void CreateConsole()
 {
@@ -40,5 +41,8 @@ void HOOK_main() {
 	}
 	if (config.ReadInt("GLOBAL", "CHANGEWINDOW", 0) == 1) {
 		hook_setWindowTextA_main();
+	}
+	if (config.ReadInt("GLOBAL", "LE", 0) == 1) {
+		install_LE();
 	}
 }
