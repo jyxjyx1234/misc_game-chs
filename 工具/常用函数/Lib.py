@@ -76,8 +76,15 @@ class OriJsonOutput():
                 self.dic = {}
                 return
         if self.savefilter(self.dic):
+            
             self.outlist.append(self.dic)
             self.textcount += len(self.dic['message'])
             self.messageset.add(self.dic['message'])
             self.dic = {}
-            
+    
+    def get_names(self):
+        namedict = {}
+        for i in self.outlist:
+            if 'name' in i:
+                namedict[i['name']] = i['name']
+        return namedict
