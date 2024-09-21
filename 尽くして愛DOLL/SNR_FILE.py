@@ -55,11 +55,15 @@ class Line():
 
     def trans(self, namedict, transdict):
         if self.type == "msg":
-            plain_text = transdict[remove_nested_brackets(self.text)]
+            plain_text = remove_nested_brackets(self.text)
             if plain_text not in self.text:
                 print(self.text)
                 raise RuntimeError
-            self.text = self.text.replace(plain_text, transdict[plain_text])
+            
+            trans_text = transdict[plain_text]
+            while trans_text != "" and (trans_text[0] == " " or trans_text[0] == "　"):
+                trans_text = trans_text[1:]
+            self.text = self.text.replace(plain_text, trans_text)
 
 
 class KS_FILE():
@@ -97,10 +101,9 @@ class KS_FILE():
                 try:
                     l.trans(namedict, transdict)
                 except KeyError:
-                    print(l.text)
                     l2 = self.lines[i + 1]
                     i += 1
-                    while l2.type == "msg":
+                    while l2.type != "msg":
                         l2 = self.lines[i + 1]
                         i += 1
                     oritext = l.text + l2.text

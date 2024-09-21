@@ -7,6 +7,7 @@
 #include "readconfig.h"
 #include "convert.h"
 #include "timer.h"
+#include <thread>
 #include "readconfig.h"
 
 VOID __declspec(dllexport) stratmessage()
@@ -33,11 +34,15 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
                      )
 {
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH){
+        std::thread newt(stratmessage);
+        newt.detach();
+    }
+
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
         HOOK_main();
-        stratmessage();
         config1.ReadConfig("hook.ini");
         if (config1.ReadInt("GLOBAL", "TIMER", 0) == 1) InitializeTimer();
         break;

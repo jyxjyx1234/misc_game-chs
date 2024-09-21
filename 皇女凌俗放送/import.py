@@ -14,7 +14,13 @@ for file in fileslist:
     try:
         transf = open_json(trans_path + file + ".json")
     except:
-        transf = []
+        f = open(ori_path + file, "r", encoding="cp932").readlines()
+        with open(out_path + file, "w", encoding="utf16") as outf:
+            for i in f:
+                outf.write(i)
+        #os.system(f"copy {ori_path + file} {out_path + file}")
+        continue
+
     transdict = {}
     for i in transf:
         transdict[i['pre_jp']] = replace_halfwidth_with_fullwidth(i['pre_zh'])

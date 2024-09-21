@@ -21,14 +21,14 @@ for file in fileslist:
     f.trans(namedict,transdict)
     f.save(out_path + file.replace(".json",''))
 
-f = open(out_path + "scene01.ks", "r", encoding='utf16').readlines()
-fw = open(out_path + "scene01.ks", "w", encoding='utf16')
+f = open(out_path + "プロローグ.ks", "r", encoding='utf16').readlines()
+fw = open(out_path + "プロローグ.ks", "w", encoding='utf16')
 for i in range(len(f)):
     fw.write(f[i])
-    if i == 21:
+    if i == 30:
         fw.write('''
 　本补丁为AI翻译补丁，使用Claude-3-5-sonnet进行翻译，由ALyCE\jyxjyx1234制作，免费发布于2dfan\github。如果从 网赚盘（如飞猫云） or 付费下载到本补丁，请顺手点个举报。
-[p2]
+[cpg]
 
 ''')
 fw.close()

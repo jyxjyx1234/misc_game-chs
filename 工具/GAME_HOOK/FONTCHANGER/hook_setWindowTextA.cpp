@@ -16,6 +16,9 @@ BOOL WINAPI HookedsetWindowTextA(HWND hWnd, LPCSTR lpString)
     rr::RConfig config;
     config.ReadConfig("hook.ini");
     std::string WindowName = config.ReadString("WINDOW", "WINDOWNAME", "");
+    if (lpString != ANSIToANSI(WindowName.c_str(), 936, GetACP())) {
+        return TruesetWindowTextA(hWnd, lpString);
+    }
     std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3-haiku");
     WindowName = WindowName + " " + modeltype + "»ú·­ by ALyCE/jyxjyx1234";
     WindowName = ANSIToANSI(WindowName.c_str(), 936, GetACP());

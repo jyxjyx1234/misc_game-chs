@@ -79,6 +79,7 @@ HFONT WINAPI HookedCreateFontA_changefont(
 {
     rr::RConfig config;
     config.ReadConfig("hook.ini");
+    char newFontName[50];
 
     if (config.ReadInt("FONT", "PRINTINFO", 0) == 1) printf("Create font info:\ncHeight: %d\ncWidth: %d\ncWeight: %d\npszFaceName: %s\niOutPrecision: %d\niPitchAndFamily: %d\n\n", cHeight, cWidth, cWeight, pszFaceName, iOutPrecision, iPitchAndFamily);
 
@@ -100,7 +101,8 @@ HFONT WINAPI HookedCreateFontA_changefont(
         else {
             printf("Fail to Load Font!\n");
         }
-        pszFaceName = fontname;
+        strcpy_s(newFontName, 50, fontname);
+        pszFaceName = newFontName;
         printf("Try to use font %s.\n", fontname);
     }
 
@@ -110,13 +112,15 @@ HFONT WINAPI HookedCreateFontA_changefont(
     }
 
     printf("Change Font: Sucessful!\n\n");
-    int scale_factor = config.ReadInt("FONT", "ScaleFactor", 10);
+    int Height_scale_factor = config.ReadInt("FONT", "HeightScaleFactor", 100);
+    int Width_scale_factor = config.ReadInt("FONT", "WidthScaleFactor", 100);
+    int cWeight_new = config.ReadInt("FONT", "cWeight", cWeight);
 
-    HFONT newfont =  TrueCreateFontA(cHeight * scale_factor / 10,
-        cWidth * scale_factor / 10,
+    HFONT newfont =  TrueCreateFontA(cHeight * Height_scale_factor / 100,
+        cWidth * Width_scale_factor / 100,
         cEscapement,
         cOrientation,
-        cWeight,
+        cWeight_new,
         bItalic,
         bUnderline,
         bStrikeOut,
