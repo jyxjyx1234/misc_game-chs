@@ -1,0 +1,280 @@
+;-----------------------------------------------
+; ‘I‘ðŽˆ
+;-----------------------------------------------
+; ‹N“®
+
+/jump	[$menu==1]	@1
+/jump	[$menu==2]	@2
+/jump	[$menu==3]	@3
+/jump	[$menu==4]	@4
+/end
+
+;-----------------------------------------------
+; ˆê‘ñ‹N“®
+#1
+/calc	[$mode=1]
+/Calc	[$answer=0]
+/calc	[$menu=1]
+/SePlay	[902]
+/Default	<SEL_1>
+/call		@mkbtn1
+/SetPos		(0,220)
+
+/Default	<-1>
+
+/Init	<SEL_2>
+/Init	<SEL_3>
+/Init	<SEL_4>
+
+/FadeIn	<SEL_1>
+/Wait
+/FadeWait
+
+/ChangeButton	<SEL_1>
+
+/jump	@loop
+
+;-----------------------------------------------
+; “ñ‘ñ‹N“®
+#2
+/calc	[$mode=1]
+/Calc	[$answer=0]
+/calc	[$menu=2]
+/SePlay	[902]
+/Default	<SEL_1>
+/call		@mkbtn1
+/SetPos		(0,200)
+
+/Default	<SEL_2>
+/call		@mkbtn2
+/SetPos		(0,250)
+
+/Init	<SEL_3>
+/Init	<SEL_4>
+
+/Default	<-1>
+
+/FadeIn	<SEL_1>
+/Wait
+/FadeIn	<SEL_2>
+/Wait
+/FadeWait
+
+/ChangeButton	<SEL_1>
+/ChangeButton	<SEL_2>
+
+/jump	@loop
+
+;-----------------------------------------------
+; ŽO‘ñ‹N“®
+#3
+/calc	[$mode=1]
+/Calc	[$answer=0]
+/calc	[$menu=3]
+/SePlay	[902]
+/Default	<SEL_1>
+/call		@mkbtn1
+/SetPos		(0,180)
+
+/Default	<SEL_2>
+/call		@mkbtn2
+/SetPos		(0,230)
+
+/Default	<SEL_3>
+/call		@mkbtn3
+/SetPos		(0,280)
+
+/Default	<-1>
+
+/Init	<SEL_4>
+
+/FadeIn	<SEL_1>
+/Wait
+/FadeIn	<SEL_2>
+/Wait
+/FadeIn	<SEL_3>
+/Wait
+/FadeWait
+
+/ChangeButton	<SEL_1>
+/ChangeButton	<SEL_2>
+/ChangeButton	<SEL_3>
+
+/jump	@loop
+
+;-----------------------------------------------
+; Žl‘ñ‹N“®
+#4
+/calc	[$mode=1]
+/Calc	[$answer=0]
+/calc	[$menu=4]
+/SePlay	[902]
+/Default	<SEL_1>
+/call		@mkbtn1
+/SetPos		(0,150)
+
+/Default	<SEL_2>
+/call		@mkbtn2
+/SetPos		(0,200)
+
+/Default	<SEL_3>
+/call		@mkbtn3
+/SetPos		(0,250)
+
+/Default	<SEL_4>
+/call		@mkbtn4
+/SetPos		(0,300)
+
+/Default	<-1>
+
+/FadeIn	<SEL_1>
+/Wait
+/FadeIn	<SEL_2>
+/Wait
+/FadeIn	<SEL_3>
+/Wait
+/FadeIn	<SEL_4>
+/Wait
+/FadeWait
+
+/ChangeButton	<SEL_1>
+/ChangeButton	<SEL_2>
+/ChangeButton	<SEL_3>
+/ChangeButton	<SEL_4>
+
+/jump	@loop
+;-----------------------------------------------
+
+
+#loop
+/calc	[$mode=0]
+/MesSkip		[0]
+/SysSet	'auto'	[0]
+
+#loop2
+/KeyWait
+/Jump	<SEL_1>		@a1
+/Jump	<SEL_2>		@a2
+/Jump	<SEL_3>		@a3
+/Jump	<SEL_4>		@a4
+/jump				@loop2
+
+#a1
+/Calc	[$answer=0]
+/jump	@close
+
+#a2
+/Calc	[$answer=1]
+/jump	@close
+
+#a3
+/Calc	[$answer=2]
+/jump	@close
+
+#a4
+/Calc	[$answer=3]
+/jump	@close
+
+#close
+/SePlay	[902]
+/calc	[$mode=1]
+
+/if	[$menu==1]
+	/Fadeout	<SEL_1>	[83]
+/Endif
+
+/if	[$menu==2]
+	/Fadeout	<SEL_1>	[83]
+	/Fadeout	<SEL_2>	[83]
+/Endif
+
+/if	[$menu==3]
+	/Fadeout	<SEL_1>	[83]
+	/Fadeout	<SEL_2>	[83]
+	/Fadeout	<SEL_3>	[83]
+/Endif
+
+/if	[$menu==4]
+	/Fadeout	<SEL_1>	[83]
+	/Fadeout	<SEL_2>	[83]
+	/Fadeout	<SEL_3>	[83]
+	/Fadeout	<SEL_4>	[83]
+/Endif
+
+/if	[$answer==0]	/Default	<SEL_1>	/endif
+/if	[$answer==1]	/Default	<SEL_2>	/endif
+/if	[$answer==2]	/Default	<SEL_3>	/endif
+/if	[$answer==3]	/Default	<SEL_4>	/endif
+/FadeOut	[16]
+/fadeWait
+
+/Default	<-1>
+
+/Init	<SEL_1>
+/Init	<SEL_2>
+/Init	<SEL_3>
+/Init	<SEL_4>
+
+
+/calc	[$mode=0]
+/End
+
+;-----------------------------------------------
+#mkbtn1
+/GetText
+/CreateButton	"obj\select_0_off.tga"
+/SetButton	[1]	"obj\select_0_on.tga"
+/SetTextAlign	(CENTER)
+/SetTextArea	{64,12,736,68}
+/SetFont		'‚l‚r ƒSƒVƒbƒN'	[24]	(0,0)
+/SetTextColor	[0]
+/SetTextEdge	[0]
+/PutText
+/ChangeButton	[0]
+/DispOff
+/return
+
+;-----------------------------------------------
+#mkbtn2
+/GetText
+/CreateButton	"obj\select_1_off.tga"
+/SetButton	[1]	"obj\select_1_on.tga"
+/SetTextAlign	(CENTER)
+/SetTextArea	{64,12,736,68}
+/SetFont		'‚l‚r ƒSƒVƒbƒN'	[24]	(0,0)
+/SetTextColor	[0]
+/SetTextEdge	[0]
+/PutText
+/ChangeButton	[0]
+/DispOff
+/return
+
+;-----------------------------------------------
+#mkbtn3
+/GetText
+/CreateButton	"obj\select_2_off.tga"
+/SetButton	[1]	"obj\select_2_on.tga"
+/SetTextAlign	(CENTER)
+/SetTextArea	{64,12,736,68}
+/SetFont		'‚l‚r ƒSƒVƒbƒN'	[24]	(0,0)
+/SetTextColor	[0]
+/SetTextEdge	[0]
+/PutText
+/ChangeButton	[0]
+/DispOff
+/return
+
+;-----------------------------------------------
+#mkbtn4
+/GetText
+/CreateButton	"obj\select_3_off.tga"
+/SetButton	[1]	"obj\select_3_on.tga"
+/SetTextAlign	(CENTER)
+/SetTextArea	{64,12,736,68}
+/SetFont		'‚l‚r ƒSƒVƒbƒN'	[24]	(0,0)
+/SetTextColor	[0]
+/SetTextEdge	[0]
+/PutText
+/ChangeButton	[0]
+/DispOff
+/return

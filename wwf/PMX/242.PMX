@@ -1,0 +1,80 @@
+NonStop=0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,0,BGM\D04WA.wav,0,0,0
+Wait 0,@CtrlKey OFF,2000
+SetSfc 0,,0,ED\ED4A_R.PMP,800,0,0,255,1,0,0,0
+New 0,,0,X,800,0
+Label 0,,P1
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,242,P1,5
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED4A_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED4B_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P2
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,242,P2,17
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED4B_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED4C_R.PMP,800,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P3
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,242,P3,29
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED4C_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED4D_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P4
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,242,P4,41
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED4D_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED4E_R.PMP,800,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P5
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,242,P5,53
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED4E_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED4F_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P6
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,242,P6,65
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED4F_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+WavPlay 0,,0,,0,0,1
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Del 0,,X
+Calc 2,,END5 = ON
+Save 0,,CLEAR_5,END5
+Jump 0,,186,,-1

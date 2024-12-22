@@ -1,0 +1,32 @@
+;-----------------------------------------------
+; ショートカット、実行部
+;-----------------------------------------------
+; 起動 (起動時に自動的にmemoryBuff[0]に状態がセーブされる)
+
+/MesSkip		[0]
+/SysSet	'auto'	[0]
+
+/calc	[$mode=1]	; システムモードに移行
+
+
+/Black		<BASE>
+/BgLock		<BG>
+/InitAll	<BG>
+
+/call	"scx\S_DATALOAD.scx"
+
+/if		[$ret==-1]	;ロードは行わなかった
+	/Restore	[0]			; 実行時の画面イメージを復元
+	/calc	[$mode=0]		; メニューモード終了
+	/SystemMode	[0]			; 主制御にプロセスを戻す
+/else
+	/FadeOut	<BG>
+	/FadeWait		; 暗転
+
+	/Rebuild	<BG>	[0]	; ロードデータの画面イメージをBGに復元
+	/FadeIn		<BG>
+	/FadeWait
+	/LoadData	[0]			; ロードしてしまったらもう戻ってきません
+/endif
+
+/end

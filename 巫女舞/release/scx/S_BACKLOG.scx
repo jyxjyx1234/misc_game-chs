@@ -1,0 +1,281 @@
+;-----------------------------------------------
+; データロードインターフェイス、実行部
+;-----------------------------------------------
+; 起動
+/calc		[$mode=5]	; バックログモード
+/Calc		[$page=0]
+
+/call	@open
+/call	@log
+
+/Default	<DATA1>
+
+;-------------------
+#loop
+/KeyWait
+/jump	<DATA1>		@1
+/jump	<DATA2>		@2
+/jump	<DATA3>		@3
+/jump	<DATA4>		@4
+/jump	<DATA5>		@5
+
+/jump	<PAGE1>		@up5
+/jump	<PAGE2>		@up1
+/jump	<PAGE5>		@cancel
+/jump	<PAGE3>		@down1
+/jump	<PAGE4>		@down5
+
+/jump	<CMD_UP>		@up1
+/jump	<CMD_DOWN>		@down1
+/jump	<CMD_CANCEL>	@cancel
+/jump	@loop
+
+;-------------------
+; ロードせずに終了
+#cancel
+/SePlay	[900]	;キャンセル
+/call	@close
+/Calc	[$ret=0]
+/jump	@exit
+
+;-----------------------------------------------
+#1
+/LogVoice	[$page+4]
+/jump	@loop
+
+;-----------------------------------------------
+#2
+/LogVoice	[$page+3]
+/jump	@loop
+
+;-----------------------------------------------
+#3
+/LogVoice	[$page+2]
+/jump	@loop
+
+;-----------------------------------------------
+#4
+/LogVoice	[$page+1]
+/jump	@loop
+
+;-----------------------------------------------
+#5
+/LogVoice	[$page]
+/jump	@loop
+
+;-----------------------------------------------
+#up5
+/jump	[$num<4]	@loop
+/changebutton	<PAGE1>	[1]
+/wait
+/if	[$num>9]
+	/add	'page'	[5]
+/else
+	/add	'page'	[$num]
+	/sub	'page'	[4]
+/endif
+
+/if	[$page>95]
+	/Calc	[$page=95]
+/Endif
+
+/call	@log
+/changebutton	<PAGE1>
+/jump	@loop
+
+;-----------------------------------------------
+#up1
+/changebutton	<PAGE2>	[1]
+/wait
+/if	[$num>4]
+	/add	'page'	[1]
+/endif
+/if	[$page>95]
+	/Calc	[$page=95]
+/Endif
+/call	@log
+/changebutton	<PAGE2>
+/jump	@loop
+
+
+;-----------------------------------------------
+#down1
+/jump	[$page==0]	@cancel
+/changebutton	<PAGE3>	[1]
+/wait
+/sub	'page'	[1]
+/call	@log
+/changebutton	<PAGE3>
+/jump	@loop
+
+;-----------------------------------------------
+#down5
+/jump	[$page==0]	@cancel
+/changebutton	<PAGE4>	[1]
+/wait
+/sub	'page'	[5]
+/if	[$page<0]
+	/calc	[$page=0]
+/endif
+/call	@log
+/changebutton	<PAGE4>
+/jump	@loop
+
+;-----------------------------------------------
+; UIオープン・サブルーチン
+#open
+
+/FadeOut	<BG>	(255,64)
+/FadeWait
+
+/CreateButton	<DATA1>		{0,0,640,96}	(78,60)		ログ５
+/CreateButton	<DATA2>		{0,0,640,96}	(78,156)	ログ４
+/CreateButton	<DATA3>		{0,0,640,96}	(78,252)	ログ３
+/CreateButton	<DATA4>		{0,0,640,96}	(78,348)	ログ２
+/CreateButton	<DATA5>		{0,0,640,96}	(78,444)	ログ１
+
+/ChangeButton	<DATA1>
+/ChangeButton	<DATA2>
+/ChangeButton	<DATA3>
+/ChangeButton	<DATA4>
+/ChangeButton	<DATA5>
+
+/Fill	<DATA1>	
+
+/default		<DATA1>
+/Fill	[536870912]
+/SetTextAlign	(LEFT)
+/SetTextColor	[-1]	;白
+/SetFont		'ＭＳ ゴシック'	[22]	(0,0)	;明朝22pts Bold/NoItalic
+
+/default		<DATA2>
+/Fill	[536870912]
+/SetTextAlign	(LEFT)
+/SetTextColor	[-1]	;白
+/SetFont		'ＭＳ ゴシック'	[22]	(0,0)	;明朝22pts Bold/NoItalic
+
+/default		<DATA3>
+/Fill	[536870912]
+/SetTextAlign	(LEFT)
+/SetTextColor	[-1]	;白
+/SetFont		'ＭＳ ゴシック'	[22]	(0,0)	;明朝22pts Bold/NoItalic
+
+/default		<DATA4>
+/Fill	[536870912]
+/SetTextAlign	(LEFT)
+/SetTextColor	[-1]	;白
+/SetFont		'ＭＳ ゴシック'	[22]	(0,0)	;明朝22pts Bold/NoItalic
+
+/default		<DATA5>
+/Fill	[536870912]
+/SetTextAlign	(LEFT)
+/SetTextColor	[-1]	;白
+/SetFont		'ＭＳ ゴシック'	[22]	(0,0)	;明朝22pts Bold/NoItalic
+
+/Default	<PAGE1>
+/CreateButton	"obj\LOG_PAGEUP_0.tga"
+/SetButton	[1]	"obj\LOG_PAGEUP_1.tga"
+/SetPos		(740,230)
+/ChangeButton
+
+/Default	<PAGE2>
+/CreateButton	"obj\LOG_UP_0.tga"
+/SetButton	[1]	"obj\LOG_UP_1.tga"
+/SetPos		(740,262)
+/ChangeButton
+
+/Default	<PAGE5>
+/CreateButton	"obj\MESBTN_HIDE_0.tga"
+/SetButton	[1]	"obj\MESBTN_HIDE_1.tga"
+/SetPos		(740,380)
+/ChangeButton
+
+/Default	<PAGE3>
+/CreateButton	"obj\LOG_DOWN_0.tga"
+/SetButton	[1]	"obj\LOG_DOWN_1.tga"
+/SetPos		(740,294)
+/ChangeButton
+
+/Default	<PAGE4>
+/CreateButton	"obj\LOG_PAGEDOWN_0.tga"
+/SetButton	[1]	"obj\LOG_PAGEDOWN_1.tga"
+/SetPos		(740,326)
+/ChangeButton
+
+/Default	<-1>
+
+/return
+
+;-----------------------------------------------
+#log
+/Default	<-1>
+
+/ResetText
+/GetLogName	[$page+4]
+/AddText
+/GetLog		[$page+4]
+/PutText	<DATA1>
+
+/ResetText
+/GetLogName	[$page+3]
+/AddText
+/GetLog		[$page+3]
+/PutText	<DATA2>
+
+/ResetText
+/GetLogName	[$page+2]
+/AddText
+/GetLog		[$page+2]
+/PutText	<DATA3>
+
+/ResetText
+/GetLogName	[$page+1]
+/AddText
+/GetLog		[$page+1]
+/PutText	<DATA4>
+
+/ResetText
+/GetLogName	[$page]
+/AddText
+/GetLog		[$page]
+/PutText	<DATA5>
+/calc	[$num=$ret]
+/return
+
+;-----------------------------------------------
+; UIクローズ・サブルーチン
+#close
+/DispOff	<DATA1>
+/DispOff	<DATA2>
+/DispOff	<DATA3>
+/DispOff	<DATA4>
+/DispOff	<DATA5>
+/DispOff	<PAGE1>
+/DispOff	<PAGE2>
+/DispOff	<PAGE3>
+/DispOff	<PAGE4>
+/DispOff	<PAGE5>
+/Fadein	[83]	<BG>
+/FadeWait
+
+/return
+
+;-----------------------------------------------
+; 終了
+#exit
+/Default	<-1>
+
+;後片付け
+/Init	<DATA1>
+/Init	<DATA2>
+/Init	<DATA3>
+/Init	<DATA4>
+/Init	<DATA5>
+
+/Init	<PAGE1>
+/Init	<PAGE2>
+/Init	<PAGE3>
+/Init	<PAGE4>
+/Init	<PAGE5>
+
+/end

@@ -1,0 +1,71 @@
+NonStop=0
+Calc 2,,@NoTextWait = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+Calc 2,,スキップ中 = OFF
+TextCol 0,,0
+TextSCol 0,,12632256
+IntCall 0,,6,228
+IntCall 0,,3,225
+IntCall 0,,4,225
+IntCall 0,,1,246
+SetSfc 0,エフェクト ON,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,1,SE\SE20.wav,0,0,0
+Calc 2,,GRPName = BG40B
+Calc 2,,DrawEffect = 1
+Call 0,,215,,-1
+Wait 0,エフェクト ON,1000
+WavPlay 0,@Vol3 > 0,2,SE\SE17.wav,0,0,0
+Call 0,,214,,-1
+WavPlay 0,,0,BGM\YO00.wav,1,0,0
+Calc 2,,CHARNAME = PC10A
+Call 0,,213,,-1
+PutText 0,,\i(224)[咲　子]\n「……」
+WavPlay 0,@Vol3 > 0,2,SE\SE19.wav,0,0,0
+Calc 2,,CHARNAME = PC05BE
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「あっ！、咲子様がこんなところに」
+WavPlay 0,@Vol3 > 0,2,SE\SE19.wav,0,0,0
+Calc 2,,CHARNAME = PC10D
+Call 0,,213,,-1
+PutText 0,,\i(224)[咲　子]\n「はっ！　ここは何処？　私は誰？」
+Calc 2,,CHARNAME = PC05BD
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「前回と掴みが同じですよ、咲子様」
+Calc 2,,CHARNAME = PC10A
+Call 0,,213,,-1
+PutText 0,,\i(224)[咲　子]\n「……」
+WavPlay 0,@Vol3 > 0,2,SE\SE18.wav,0,0,0
+Calc 2,,CHARNAME = PC05BE
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「だから、寝て誤魔化さないで下さい」
+Calc 2,,CHARNAME = PC10B
+Call 0,,213,,-1
+PutText 0,,\i(224)[咲　子]\n「テンションが高いのね」
+WavPlay 0,@Vol3 > 0,2,SE\SE19.wav,0,0,0
+Calc 2,,CHARNAME = PC05BD
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「……そんなことは無いと思われますが」
+WavPlay 0,@Vol3 > 0,2,SE\SE15.wav,0,0,0
+Calc 2,,CHARNAME = PC10A
+Call 0,,213,,-1
+PutText 0,,\i(224)[咲　子]\n「問題です」
+Calc 2,,CHARNAME = PC05BD
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「えっ、何ですか？」
+Calc 2,,CHARNAME = PC10A
+Call 0,,213,,-1
+PutText 0,,\i(224)[咲　子]\n「猫面相が、当家より盗み出そうとしたモノは何でしょう？」
+PutText 0,,\i(224)[咲　子]\n「１ばん　黄金の眼」
+PutText 0,,\i(224)[咲　子]\n「２ばん　うおの眼」
+PutText 0,,\i(224)[咲　子]\n「３ばん　賢者の眼」
+Calc 2,,CHARNAME = PC10B
+Call 0,,213,,-1
+PutText 0,,\i(224)[咲　子]\n「正解者には５０ポイント！」
+WavPlay 0,@Vol3 > 0,2,SE\SE15.wav,0,0,0
+Calc 2,,CHARNAME = PC05BD
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「えっ、５０ポイント！？」
+Jump 0,,192,,-1

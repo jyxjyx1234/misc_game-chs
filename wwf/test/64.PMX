@@ -1,0 +1,12 @@
+NonStop=0
+OverSfc 2,,5,@Sfc8,18,@SfcX8,@SfcY8,0,255,0,0,0
+OverSfc 0,,5,@Sfc7,19,@SfcX7,@SfcY7,0,255,1,0,0
+Calc 0,,YesNoMes = "ゲームを終了しますか"
+Call 0,,61,,-1
+Jump 0,YesNoFlag OFF; @Sfc5 = SYSCG\SAVE_N.PMP,41,,-1
+Jump 0,YesNoFlag OFF; @Sfc5 = SYSCG\LOAD_N.PMP,43,,-1
+Jump 0,YesNoFlag OFF; @Sfc5 = SYSCG\SYSTEM.PMP,17,,-1
+Jump 0,YesNoFlag OFF; @Sfc5 = SYSCG\SYSTEM2.PMP,4563,,-1
+Jump 0,YesNoFlag OFF,6,コンティニューデータなし,43
+Label 0,,タイトル画面より
+Exit 0,

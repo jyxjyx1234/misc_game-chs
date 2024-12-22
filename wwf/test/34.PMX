@@ -1,0 +1,15 @@
+NonStop=0
+Jump 0,@FullScr ON,34,フルスクリーンOFF,7
+SetFullScr 0,,ON
+Calc 0,,FULLSCREEN = @FullScr
+Save 0,,FULLSCR,FULLSCREEN
+OverSfc 2,@FullScr ON,5,SYSCG\CHIP\SELECTED.PMP,8,349,253,1,255,0,0,1
+SetCursor 2,,CURSOR
+Jump 0,,4563,クリック待ち,23
+Label 0,,フルスクリーンOFF
+SetFullScr 0,,OFF
+Calc 0,,FULLSCREEN = @FullScr
+Save 0,,FULLSCR,FULLSCREEN
+OverSfc 2,@FullScr OFF,5,SYSCG\CHIP\SELECTED.PMP,8,480,253,1,255,0,0,1
+SetCursor 2,,CURSOR
+Jump 0,,4563,クリック待ち,23

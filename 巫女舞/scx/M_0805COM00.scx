@@ -1,0 +1,117 @@
+;-------------------------
+;8月5日　メインシーケンス
+;-------------------------
+
+/calc	[$day=5]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+
+;=============================
+/call	"scx\B_MORNING03.scx"
+/call	"scx\B_MORSEL.scx"
+/jump	[$answer==0]	@NK00
+/jump	[$answer==1]	@HN00
+/jump	[$answer==2]	@KH00
+/jump	[$answer==3]	@AK00
+
+;-------------------------
+#NK00
+/call	"scx\C_CLS0NK99.scx"
+/jump	@HIRU
+
+;-------------------------
+#HN00
+/call	"scx\C_CLS0HN99.scx"
+/jump	@HIRU
+
+;-------------------------
+#KH00
+/call	"scx\C_CLS0KH99.scx"
+/jump	@HIRU
+
+;-------------------------
+#AK00
+/call	"scx\C_CLS0AK99.scx"
+/jump	@HIRU
+;=============================
+
+
+;=============================
+#HIRU
+/if	[$clear]	;	１度以上クリアしている
+	/call	"scx\A_0805SP04.scx"
+/endif
+/call	"scx\B_HIRU0805.scx"
+/jump	[$answer==0]	@NK01
+/jump	[$answer==1]	@HN01
+/jump	[$answer==2]	@KH01
+/jump	[$answer==3]	@AK01
+
+;-------------------------
+#NK01
+/call	"scx\C_JOB0NK99.scx"
+/jump	@YUU
+
+;-------------------------
+#HN01
+/call	"scx\C_JOB0HN99.scx"
+/jump	@YUU
+
+;-------------------------
+#KH01
+/call	"scx\C_JOB0KH99.scx"
+/jump	@YUU
+
+;-------------------------
+#AK01
+/call	"scx\C_JOB0AK99.scx"
+/jump	@YUU
+;=============================
+
+
+;=============================
+#YUU
+/call	"scx\B_YUU0805.scx"
+/jump	[$answer==0]	@NK02
+/jump	[$answer==1]	@HN02
+/jump	[$answer==2]	@KH02
+/jump	[$answer==3]	@AK02
+
+;-------------------------
+#NK02
+/if	[$1005]	;野球をした
+	/call	"scx\A_0805NK05.scx"
+/else
+	/call	"scx\C_FREENK99.scx"
+/endif
+/jump	@YORU
+
+;-------------------------
+#HN02
+/call	"scx\C_FREEHN99.scx"
+/jump	@YORU
+
+;-------------------------
+#KH02
+/call	"scx\C_FREEKH99.scx"
+/jump	@YORU
+
+;-------------------------
+#AK02
+/call	"scx\C_FREEAK99.scx"
+/jump	@YORU
+;=============================
+
+
+;=============================
+#YORU
+/if	[$hnpts>4]	; 好感度5以上
+	/call	"scx\A_0805HN06.scx"
+/else
+	/call	"scx\B_NIGHT0805.scx"
+/endif
+;=============================
+
+/end
+;_____________________________
+

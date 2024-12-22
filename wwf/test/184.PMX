@@ -1,0 +1,62 @@
+NonStop=0
+Calc 2,,@NoTextWait = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+Calc 2,,スキップ中 = OFF
+TextCol 0,,0
+TextSCol 0,,12632256
+IntCall 0,,6,228
+IntCall 0,,3,225
+IntCall 0,,4,225
+IntCall 0,,1,246
+SetSfc 0,エフェクト ON,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,1,SE\SE20.wav,0,0,0
+Calc 2,,GRPName = BG40C
+Calc 2,,DrawEffect = 1
+Call 0,,215,,-1
+Wait 0,エフェクト ON,1000
+WavPlay 0,@Vol3 > 0,2,SE\SE17.wav,0,0,0
+Call 0,,214,,-1
+WavPlay 0,,0,BGM\YO00.wav,1,0,0
+Calc 2,,CHARNAME = PC13B
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「閙好，我是乙松」
+Calc 2,,CHARNAME = PC14B
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　覺]\n「我是閙的真覺」
+WavPlay 0,@Vol3 > 0,2,SE\SE17.wav,0,0,0
+Calc 2,,CHARNAME = PC13A
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「墾在出个韃韜」
+Calc 2,,CHARNAME = PC14D
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　覺]\n「踴，已澆要出韜了誡？」
+Calc 2,,CHARNAME = PC13B
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「人顯常鑛趁憫打磯，趁硬插入，不是誡？」
+WavPlay 0,@Vol3 > 0,2,SE\SE19.wav,0,0,0
+Calc 2,,CHARNAME = PC14A
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　覺]\n「后半句我不知道」
+WavPlay 0,@Vol3 > 0,2,SE\SE15.wav,0,0,0
+Calc 2,,CHARNAME = PC13A
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「那頒，韃韜来了」
+Calc 2,,CHARNAME = PC13B
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「大家荳命闍找的那个地下店叫什頒名字？」
+PutText 0,,\i(223)[乙　松]\n「１号　夜雀屋」
+PutText 0,,\i(223)[乙　松]\n「２号　夜幟屋」
+Calc 2,,CHARNAME = PC13E
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「３号　夜狸屋」
+Calc 2,,CHARNAME = PC14A
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　覺]\n「４号……」
+WavPlay 0,@Vol3 > 0,2,SE\SE16.wav,0,0,0
+Calc 2,,CHARNAME = PC13E
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「桟随便加賤嬪閖」
+Jump 0,,197,,-1

@@ -1,0 +1,347 @@
+NonStop=0
+HistoryClear 
+Calc 2,,DAY = 3
+Call 0,,4610,,-1
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,,0,0,1
+WavPlay 0,,0,BGM\syo1.wav,0,0,0
+Calc 2,,GRPName = BLACK
+Call 0,,9,,-1
+Calc 2,,GRPName = BGT04
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WaitClick 0,
+WavPlay 0,,0,BGM\BGM06.wav,1,0,0
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+PutText 0,,暗い夢を見る。
+PutText 0,,このところ、いつもこの夢だ。
+PutText 0,,静寂、闇、そして冷たい空間。
+PutText 0,,あの日を境に、その先が見えない。
+PutText 0,,どうにかしなくては……。
+PutText 0,,どうにかしないと、あの暗い場所から出ることが出来ない。
+PutText 0,,あの暗い場所から……。
+PutText 0,,水の音がする。
+PutText 0,,水の音が……。
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM03.wav,1,0,0
+WavPlay 0,,3,SE\SE01.wav,1,0,0
+Calc 2,,GRPName = BG01B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「いた、猫面相だ！」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = EV07R
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+Call 0,,222,//●猫面相■笑い　※エコー有り,0
+Calc 2,,GRPName = BG01B
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「遠山検事！　早く突入だ！」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「そうですねえ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,3,,0,0,1
+Calc 2,,GRPName = EV07
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+Call 0,,222,//●猫面相■笑い　※エコー有り,0
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\NE\NE042.WAV,0,0,0
+PutText 0,,[猫面相]\n「無駄！　無駄！　無駄にゃん！」
+Calc 2,,GRPName = BG01B
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「早くしないと逃げられるぞ！」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「皆さん！　突入して下さい！」
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+WavPlay 0,,2,SE\SE24.wav,0,0,0
+WavPlay 0,,3,SE\SE26.wav,1,0,0
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+WavPlay 0,,3,,0,0,1
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK123.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「逮捕だ♪」
+Calc 2,,CHARNAME = CE25B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,,3,SE\SE26.wav,1,0,0
+PutText 0,,[野次馬]\n「あっちだ！　あっちだ！　あっちだ！」
+Calc 2,,CHARNAME = CE25C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[野次馬]\n「こっちだ！　こっちだ！　こっちだ！」
+WavPlay 0,,3,,0,0,1
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「静麻が指揮を取ってる」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = EV07
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+Call 0,,222,//●猫面相■決め台詞,15
+Calc 2,,GRPName = BG01B
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あっ、あれは！」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「また、気球のようですね」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG39B
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+SetMovie 0,,MOV02R.AVI,0,0,800,600,1,0,0
+Calc 2,,GRPName = BG38R
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW07B
+Call 0,,66,,-1
+Call 0,,222,//●猫面相■笑い　※エコー有り,0
+Calc 2,,GRPName = BG01B
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あっ、コラ！　ずるいぞ！」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ずるいですねえ」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「追わないのかい？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「当然、追います」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「皆さん、追跡しますよ！」
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+WavPlay 0,,2,SE\SE24.wav,0,0,0
+WavPlay 0,,3,SE\SE26.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+WavPlay 0,,3,,0,0,1
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG39B
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW07B
+Call 0,,66,,-1
+Call 0,,222,//●猫面相■笑い　※エコー有り,0
+WavPlay 0,,0,BGM\BGM07.wav,1,0,0
+Calc 2,,GRPName = BG01B
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「やっぱ、無理か」
+PutText 0,,静麻も付き合いで猫面相の捕り物に参加していた。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「空に逃げられた時点で駄目だね」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「まあな」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「飛ぶモノで追い掛けないと」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「飛ぶモノね」
+Calc 2,,CHARNAME = CE01AH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ミコミコに行って貰ったらどうだ」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「そいつは、もう試した」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……駄目なのか？」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「お菓子を餌に追い返された」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK124.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「美味しかったよ」
+Calc 2,,CHARNAME = CE01AH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……それは良かったな」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM05.wav,1,0,0
+Calc 2,,GRPName = BG39B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE99D
+Calc 2,,DrawEffect = 20
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　影　]\n「はあ、はあ、はあ……」
+Calc 2,,GRPName = BG07D
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,DLG = ON
+Calc 2,,CHARNAME = CE99D
+Call 0,,66,,-1
+PutText 0,,[　影　]\n「はあ、はあ、はあ……」
+Calc 2,,GRPName = BG26D
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,DLG = ON
+Calc 2,,CHARNAME = CE99D
+Call 0,,66,,-1
+PutText 0,,[　影　]\n「はあ、はあ、はあ……」
+Calc 2,,GRPName = BG24D
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,DLG = ON
+Calc 2,,CHARNAME = CE99D
+Call 0,,66,,-1
+PutText 0,,[　影　]\n「はあ、はあ、はあ……」
+Calc 2,,CHARNAME = 
+Calc 2,,DrawEffect = 20
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+WavPlay 0,,0,BGM\BGM06.wav,1,0,0
+WavPlay 0,,3,SE\SE28.wav,1,0,0
+Calc 2,,GRPName = EV03
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME021.WAV,0,0,0
+PutText 0,,[　澪　]\n「ああ、何かが動き始めたわ」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「アレが呼び寄せたのかな」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME022.WAV,0,0,0
+PutText 0,,[　澪　]\n「わからないわ」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「僕たちに止められるだろうか？」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME023.WAV,0,0,0
+PutText 0,,[　澪　]\n「それは、神のみぞ知るね」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「冷たいな」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME024.WAV,0,0,0
+PutText 0,,[　澪　]\n「仕方ないわ。私たちは神様じゃないもの」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「神様なんてのは、金をせびるだけで何もしてくれないよ」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME025.WAV,0,0,0
+PutText 0,,[　澪　]\n「ふふ、相変わらず口が悪いわね」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「父さん譲りさ」
+WavPlay 0,,3,,0,0,1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = BG06B
+Calc 2,,DrawEffect = 27
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME026.WAV,0,0,0
+PutText 0,,[　澪　]\n「静麻さん、今晩は」
+Calc 2,,CHARNAME = CE01AH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あっ、澪さん……どうしました？」
+Calc 2,,CHARNAME = CE03B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME027.WAV,0,0,0
+PutText 0,,[　澪　]\n「静麻さんにちょっとわけて貰いたいモノがあるの」
+Calc 2,,CHARNAME = CE01AH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……なんでしょう？」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME028.WAV,0,0,0
+PutText 0,,[　澪　]\n「咲子さんにもわけてあげたもの」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「それは……」
+Calc 2,,CHARNAME = CE03C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME029.WAV,0,0,0
+PutText 0,,[　澪　]\n「恥ずかしいこと、言わせないで」
+PutText 0,,澪の手が静麻に触れ、そのまま……。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,106,,-1

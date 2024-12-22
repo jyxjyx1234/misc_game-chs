@@ -1,0 +1,191 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 05_汎用アダルト_ユニーク部分5_2_昼■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+
+playBgm("08-Lunch.ogg")
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+::block_00001::
+-- 黒_出欠判定
+if(IsPresentKuro>=1) then
+    goto block_00002
+else
+    goto block_00009
+end
+
+
+::block_00002::
+-- ▽昼_黒出席:・昼_黒出席
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+--背景：教室（昼）
+::block_00003::
+cls1()
+setname("透")
+text("「昼休み！」")
+
+
+::block_00004::
+cls1()
+noname()
+text("午前の授業で疲れた頭をリフレッシュさせるように、\n昼休みの喜びを声に出してみる。")
+
+
+::block_00005::
+cls1()
+noname()
+text("それにしても、俺でも疲れるこの学校の授業に\n黒はついていけてるんだろうか。")
+
+
+::block_00006::
+cls1()
+noname()
+text("黒は頭が良いから普通なら問題ないとは思うけど、\n通ってなかった時間もあるし、体力の問題もある。")
+
+
+::block_00007::
+cls1()
+setname("透")
+text("「ま、放課後にでも、\nそれとなく話を聞いてみるか」")
+
+
+::block_00008::
+goto block_00021 --末端へ
+
+
+::block_00009::
+-- ▽昼_黒欠席:・昼_黒欠席
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile07.png", "non.png",1.5,2000,30)
+fade(0.5)
+setmsEx(1,0.5,-1500,0)
+
+--背景：教室（昼）
+::block_00010::
+cls1()
+setname("白")
+playVoice("SI_0552_0000.ogg")
+text("「白ちゃんターイム！」")
+
+
+::block_00011::
+cls1()
+noname()
+text("今日も白は元気だ。")
+
+
+::block_00012::
+cls1()
+setname("透")
+text("「おう。どこで食べる？」")
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+setEx(1,"N-ShiroBase-03.png", "N-ShiroFacial-01-normal.png", "non.png",1,50,-60)
+fade(0.5)
+
+::block_00013::
+cls1()
+setname("白")
+playVoice("SI_0552_0001.ogg")
+text("「あれ？　可愛い彼女がやってきたのに、\nちょっとそっけなくない？」")
+
+
+::block_00014::
+cls1()
+setname("透")
+text("「そんなことないって。\nいつでも100％幸せだから、\n変化がわからないだけ」")
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile03.png", "non.png",1.5,-50,60)
+fade(0.5)
+repeEx(1,0.2,0,30)
+wait(0.2)
+
+::block_00015::
+cls1()
+setname("白")
+playVoice("SI_0552_0002.ogg")
+text("「あ、そういうのちょっといいかも。\nずっと変わらなくても幸せって、\nなんか究極って感じするし♪」")
+
+
+::block_00016::
+cls1()
+setname("透")
+text("「そんなおおげさな話じゃないけどな。\nで、どこで食べる？」")
+
+fade_set(C2,"ShiroFacial-01-eyes01.png",0.3)
+
+::block_00017::
+cls1()
+setname("白")
+playVoice("SI_0552_0003.ogg")
+text("「やっぱり……中庭かな？」")
+
+
+::block_00018::
+cls1()
+setname("透")
+text("「よし、それじゃあ今日は中庭ランチで」")
+
+
+::block_00019::
+cls1()
+noname()
+text("こうやって白と過ごすなにげない時間は、\n本当に楽しい。")
+
+
+::block_00020::
+cls1()
+noname()
+text("今日の昼休みも幸せを満喫しよう。")
+
+
+::block_00021::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2昼_出欠分岐_判定■.lua")
+
+
+-- 終了
+end
+
+

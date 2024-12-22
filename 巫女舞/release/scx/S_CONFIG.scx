@@ -1,0 +1,682 @@
+;-----------------------------------------------
+; コンフィグ総合
+;
+; 起動時<BG>を背景とする。
+; 呼び出し元で輝度を調整し、それ以外の部分は
+; 消去しておいてください。
+;-----------------------------------------------
+; 起動
+
+/calc	[$menu=$mode]
+/calc	[$mode=4]	; コンフィグモード
+
+/call	@open
+
+/Calc	[$ret=0]
+
+#loop
+/KeyWait
+/jump	<CMD_CANCEL>	@cancel
+/jump	<SEL_1>		@cancel
+/jump	<SEL_2>		@title
+/jump	<SEL_3>		@gameend
+
+/jump	<QSAVE>		@spddown
+/jump	<QLOAD>		@spdup
+/jump	<SKIP>		@autodown
+/jump	<AUTOREAD>	@autoup
+/jump	<VIEW>		@alpdown
+/jump	<BACKLOG>	@alpup
+
+/jump	<PAGE1>		@bgmvol
+/jump	<PAGE2>		@sevol
+/jump	<PAGE3>		@voicevol
+/jump	<PAGE4>		@speed
+/jump	<PAGE5>		@autotime
+/jump	<PAGE6>		@alpha
+
+/jump	<PAGE7>		@bvoldown
+/jump	<PAGE8>		@bvolup
+/jump	<DATA1>		@svoldown
+/jump	<DATA2>		@svolup
+/jump	<DATA3>		@vvoldown
+/jump	<DATA4>		@vvolup
+
+/jump	<DATA5>		@full
+/jump	<DATA6>		@window
+/jump	<DATA7>		@effon
+/jump	<DATA8>		@effoff
+/jump	<DATA9>		@mvoiceon
+/jump	<DATA10>	@mvoiceoff
+/jump	<DATA11>	@fvoiceon
+/jump	<DATA12>	@fvoiceoff
+/jump	<DATA13>	@kidokuon
+/jump	<DATA14>	@kidokuoff
+
+/jump	@loop
+
+;-------------------
+; 終了
+#cancel
+/SePlay	[900]	;決定
+
+/call	@close
+/Calc	[$ret=0]
+/jump	@exit
+
+;-----------------------------------------------
+; ゲームの終了
+#gameend
+/SePlay	[902]	;決定
+/call	"scx\S_DIALOG.scx"	@exitdlg
+/jump	@loop
+;-----------------------------------------------
+; タイトルへ
+#title
+/SePlay	[902]	;決定
+/if	[$menu==0]
+	/call	"scx\S_DIALOG.scx"	@titledlg
+	/jump	@loop
+/Else
+	/jump	@cancel
+/Endif
+
+
+
+;-----------------------------------------------
+#svoldown
+/SysGet	'mvs'
+/if	[$ret<11]	/calc	[$ret=1]
+/else			/add	'ret'	[-10]
+/endif
+/SetBar	<PAGE2>	[$ret]
+/MasterVolume	<SE>	[$ret]
+/SePlay	[902]
+/jump	@loop
+
+#svolup
+/SysGet	'mvs'
+/add	'ret'	[+10]
+/if	[$ret>100]	/calc	[$ret=100]	/endif
+/SetBar	<PAGE2>	[$ret]
+/MasterVolume	<SE>	[$ret]
+/SePlay	[902]
+/jump	@loop
+
+#sevol
+/MasterVolume	<SE>	[$value]
+/SePlay	[902]
+/jump	@loop
+
+;-----------------------------------------------
+#bvoldown
+/SysGet	'mvb'
+/if	[$ret<11]	/calc	[$ret=1]
+/else			/add	'ret'	[-10]
+/endif
+/SetBar	<PAGE1>	[$ret]
+/MasterVolume	<BGM>	[$ret]
+/jump	@loop
+
+#bvolup
+/SysGet	'mvb'
+/add	'ret'	[+10]
+/if	[$ret>100]	/calc	[$ret=100]	/endif
+/SetBar	<PAGE1>	[$ret]
+/MasterVolume	<BGM>	[$ret]
+/jump	@loop
+
+#bgmvol
+/MasterVolume	<BGM>	[$value]
+/jump	@loop
+
+;-----------------------------------------------
+#vvoldown
+/SysGet	'mvv'
+/if	[$ret<11]	/calc	[$ret=1]
+/else			/add	'ret'	[-10]
+/endif
+/SetBar	<PAGE3>	[$ret]
+/MasterVolume	<VOICE>	[$ret]
+/jump	@loop
+
+#vvolup
+/SysGet	'mvv'
+/add	'ret'	[+10]
+/if	[$ret>100]	/calc	[$ret=100]	/endif
+/SetBar	<PAGE3>	[$ret]
+/MasterVolume	<VOICE>	[$ret]
+/jump	@loop
+
+#voicevol
+/MasterVolume	<VOICE>	[$value]
+/jump	@loop
+
+;-----------------------------------------------
+#spddown
+/SysGet	'speed'
+/if	[$ret<11]	/calc	[$ret=1]
+/else			/add	'ret'	[-10]
+/endif
+/SetBar	<PAGE4>	[$ret]
+/SysSet	'speed'	[$ret]
+/jump	@loop
+
+#spdup
+/SysGet	'speed'
+/add	'ret'	[+10]
+/if	[$ret>100]	/calc	[$ret=100]	/endif
+/SetBar	<PAGE4>	[$ret]
+/SysSet	'speed'	[$ret]
+/jump	@loop
+
+#speed
+/SysSet	'speed'	[$value]
+/jump	@loop
+
+;-----------------------------------------------
+#autodown
+/SysGet	'timeout'
+/if	[$ret<11]	/calc	[$ret=1]
+/else			/add	'ret'	[-10]
+/endif
+/SetBar	<PAGE5>	[$ret]
+/SysSet	'timeout'	[$ret]
+/jump	@loop
+
+#autoup
+/SysGet	'timeout'
+/add	'ret'	[+10]
+/if	[$ret>100]	/calc	[$ret=100]	/endif
+/SetBar	<PAGE5>	[$ret]
+/SysSet	'timeout'	[$ret]
+/jump	@loop
+
+;-----------------------------------------------
+#alpdown
+/SysGet	'alpha'
+/if	[$ret<11]	/calc	[$ret=1]
+/else			/add	'ret'	[-10]
+/endif
+/SetBar	<PAGE6>	[$ret]
+/SysSet	'alpha'	[$ret]
+/jump	@loop
+
+#alpup
+/SysGet	'alpha'
+/add	'ret'	[+10]
+/if	[$ret>100]	/calc	[$ret=100]	/endif
+/SetBar	<PAGE6>	[$ret]
+/SysSet	'alpha'	[$ret]
+/jump	@loop
+
+#effon
+/SePlay	[902]	;
+/SysSet	'effect'	[1]
+/call	@tgleff
+/jump	@loop
+
+#effoff
+/SePlay	[902]	;
+/SysSet	'effect'	[0]
+/call	@tgleff
+/jump	@loop
+
+
+#full
+/SePlay	[902]	;
+/ScreenMode	[1]
+/call	@tglwin
+/jump	@loop
+
+#window
+/SePlay	[902]	;
+/ScreenMode	[0]
+/call	@tglwin
+/jump	@loop
+
+#autotime
+/SysSet	'timeout'	[$value]
+/jump	@loop
+
+#alpha
+/SysSet	'alpha'	[$value]
+/jump	@loop
+
+#mvoiceon
+/SePlay	[902]	;
+/SysSet	'mvoice'	[1]
+/call	@tglmvoice
+/jump	@loop
+
+#mvoiceoff
+/SePlay	[902]	;
+/SysSet	'mvoice'	[0]
+/call	@tglmvoice
+/jump	@loop
+
+#fvoiceon
+/SePlay	[902]	;
+/SysSet	'fvoice'	[1]
+/call	@tglfvoice
+/jump	@loop
+
+#fvoiceoff
+/SePlay	[902]	;
+/SysSet	'fvoice'	[0]
+/call	@tglfvoice
+/jump	@loop
+
+#kidokuon
+/SePlay	[902]	;
+/SysSet	'kidoku'	[0]
+/call	@tglkdq
+/jump	@loop
+
+#kidokuoff
+/SePlay	[902]	;
+/SysSet	'kidoku'	[1]
+/call	@tglkdq
+/jump	@loop
+
+;-----------------------------------------------
+; UIオープン・サブルーチン
+#open
+/Default	<CHR_1>
+/Read		"obj\mode_config.tga"
+/SetPos		(0,0)
+
+;-------------------------
+/default	<PAGE1>
+/CreateBar	{0,0,180,31}
+/Read	[1]	"obj\slider_1.tga"
+/Read	[2]	"obj\slider_0.tga"
+/SetPos		(504,284)
+/SysGet	'mvb'
+/SetBar	[$ret]
+
+/default	<PAGE7>
+/CreateButton	"obj\slider_left0.tga"
+/Read	[1]		"obj\slider_left1.tga"
+/SetPos			(474,282)
+/ChangeButton	[0]
+/DispOff
+
+/default	<PAGE8>
+/CreateButton	"obj\slider_right0.tga"
+/Read	[1]		"obj\slider_right1.tga"
+/SetPos			(686,282)
+/ChangeButton	[0]
+/DispOff
+
+;-------------------------
+
+/default	<PAGE2>
+/CreateBar	{0,0,180,31}
+/Read	[1]	"obj\slider_1.tga"
+/Read	[2]	"obj\slider_0.tga"
+/SetPos		(504,322)
+/SysGet	'mvs'
+/SetBar	[$ret]
+
+/default	<DATA1>
+/CreateButton	"obj\slider_left0.tga"
+/Read	[1]		"obj\slider_left1.tga"
+/SetPos			(474,320)
+/ChangeButton	[0]
+/DispOff
+
+/default	<DATA2>
+/CreateButton	"obj\slider_right0.tga"
+/Read	[1]		"obj\slider_right1.tga"
+/SetPos			(686,320)
+/ChangeButton	[0]
+/DispOff
+
+;-------------------------
+
+/default	<PAGE3>
+/CreateBar	{0,0,180,31}
+/Read	[1]	"obj\slider_1.tga"
+/Read	[2]	"obj\slider_0.tga"
+/SetPos		(504,360)
+/SysGet	'mvv'
+/SetBar	[$ret]
+
+/default	<DATA3>
+/CreateButton	"obj\slider_left0.tga"
+/Read	[1]		"obj\slider_left1.tga"
+/SetPos			(474,358)
+/ChangeButton	[0]
+/DispOff
+
+/default	<DATA4>
+/CreateButton	"obj\slider_right0.tga"
+/Read	[1]		"obj\slider_right1.tga"
+/SetPos			(686,358)
+/ChangeButton	[0]
+/DispOff
+
+;-------------------------
+
+;/jump	<QSAVE>		@spddown
+;/jump	<QLOAD>		@spdup
+
+/default	<PAGE4>
+/CreateBar	{0,0,180,31}
+/Read	[1]	"obj\slider_1.tga"
+/Read	[2]	"obj\slider_0.tga"
+/SetPos		(504,132)
+/SysGet	'speed'
+/SetBar	[$ret]
+
+/default	<QSAVE>
+/CreateButton	"obj\slider_left0.tga"
+/Read	[1]		"obj\slider_left1.tga"
+/SetPos			(474,132)
+/ChangeButton	[0]
+/DispOff
+
+/default	<QLOAD>
+/CreateButton	"obj\slider_right0.tga"
+/Read	[1]		"obj\slider_right1.tga"
+/SetPos			(686,132)
+/ChangeButton	[0]
+/DispOff
+
+;-------------------------
+;/jump	<SKIP>		@autodown
+;/jump	<AUTOREAD>	@autoup
+
+/default	<PAGE5>
+/CreateBar	{0,0,180,31}
+/Read	[1]	"obj\slider_1.tga"
+/Read	[2]	"obj\slider_0.tga"
+/SetPos		(504,170)
+/SysGet	'timeout'
+/SetBar	[$ret]
+
+/default	<SKIP>
+/CreateButton	"obj\slider_left0.tga"
+/Read	[1]		"obj\slider_left1.tga"
+/SetPos			(474,168)
+/ChangeButton	[0]
+/DispOff
+
+/default	<AUTOREAD>
+/CreateButton	"obj\slider_right0.tga"
+/Read	[1]		"obj\slider_right1.tga"
+/SetPos			(686,168)
+/ChangeButton	[0]
+/DispOff
+
+;-------------------------
+;/jump	<VIEW>		@alpdown
+;/jump	<BACKLOG>	@alpup
+
+/default	<PAGE6>
+/CreateBar	{0,0,180,31}
+/Read	[1]	"obj\slider_1.tga"
+/Read	[2]	"obj\slider_0.tga"
+/SetPos		(504,208)
+/SysGet	'alpha'
+/SetBar	[$ret]
+
+/default	<VIEW>
+/CreateButton	"obj\slider_left0.tga"
+/Read	[1]		"obj\slider_left1.tga"
+/SetPos			(474,206)
+/ChangeButton	[0]
+/DispOff
+
+/default	<BACKLOG>
+/CreateButton	"obj\slider_right0.tga"
+/Read	[1]		"obj\slider_right1.tga"
+/SetPos			(686,206)
+/ChangeButton	[0]
+/DispOff
+
+;-------------------------
+
+/if	[$menu==0]
+	/Default		<SEL_1>
+	/CreateButton	"obj\BTN_ゲーム戻る_0.tga"
+	/Read	[1]		"obj\BTN_ゲーム戻る_1.tga"
+	/SetPos			(210,530)
+	/ChangeButton	[0]
+	/DispOff
+/endif
+
+/Default		<SEL_2>
+/CreateButton	"obj\BTN_タイトル戻る_0.tga"
+/Read	[1]		"obj\BTN_タイトル戻る_1.tga"
+/SetPos			(400,530)
+/ChangeButton	[0]
+/DispOff
+
+/Default		<SEL_3>
+/CreateButton	"obj\BTN_ゲーム終了_0.tga"
+/Read	[1]		"obj\BTN_ゲーム終了_1.tga"
+/SetPos			(590,530)
+/ChangeButton	[0]
+/DispOff
+
+;-------------------------
+
+/Default	<DATA5>
+/CreateButton	"obj\CFG_full0.tga"
+/SetButton	[1]	"obj\CFG_full2.tga"
+/SetButton	[2]	"obj\CFG_full1.tga"
+/SetPos		(448,96)
+
+/Default	<DATA6>
+/CreateButton	"obj\CFG_win0.tga"
+/SetButton	[1]	"obj\CFG_win2.tga"
+/SetButton	[2]	"obj\CFG_win1.tga"
+/SetPos		(540,96)
+/call	@tglwin
+
+/Default	<DATA7>
+/CreateButton	"obj\CFG_on0.tga"
+/SetButton	[1]	"obj\CFG_on2.tga"
+/SetButton	[2]	"obj\CFG_on1.tga"
+/SetPos		(448,478)
+
+/Default	<DATA8>
+/CreateButton	"obj\CFG_off0.tga"
+/SetButton	[1]	"obj\CFG_off2.tga"
+/SetButton	[2]	"obj\CFG_off1.tga"
+/SetPos		(540,478)
+
+/call	@tgleff
+
+/Default	<DATA9>
+/CreateButton	"obj\CFG_on0.tga"
+/SetButton	[1]	"obj\CFG_on2.tga"
+/SetButton	[2]	"obj\CFG_on1.tga"
+/SetPos		(448,402)
+
+/Default	<DATA10>
+/CreateButton	"obj\CFG_off0.tga"
+/SetButton	[1]	"obj\CFG_off2.tga"
+/SetButton	[2]	"obj\CFG_off1.tga"
+/SetPos		(540,402)
+
+/call	@tglmvoice
+
+/Default	<DATA11>
+/CreateButton	"obj\CFG_on0.tga"
+/SetButton	[1]	"obj\CFG_on2.tga"
+/SetButton	[2]	"obj\CFG_on1.tga"
+/SetPos		(448,440)
+
+/Default	<DATA12>
+/CreateButton	"obj\CFG_off0.tga"
+/SetButton	[1]	"obj\CFG_off2.tga"
+/SetButton	[2]	"obj\CFG_off1.tga"
+/SetPos		(540,440)
+
+/call	@tglfvoice
+
+/Default	<DATA13>
+/CreateButton	"obj\CFG_all0.tga"
+/SetButton	[1]	"obj\CFG_all2.tga"
+/SetButton	[2]	"obj\CFG_all1.tga"
+/SetPos		(448,248)
+
+/Default	<DATA14>
+/CreateButton	"obj\CFG_kidoku0.tga"
+/SetButton	[1]	"obj\CFG_kidoku2.tga"
+/SetButton	[2]	"obj\CFG_kidoku1.tga"
+/SetPos		(540,248)
+
+/call	@tglkdq
+
+/default	<-1>
+
+/FadeIn	<CHR_1>		[64]
+/FadeIn	<QSAVE>		[64]
+/FadeIn	<QLOAD>		[64]
+/FadeIn	<SKIP>		[64]
+/FadeIn	<AUTOREAD>	[64]
+/FadeIn	<VIEW>		[64]
+/FadeIn	<BACKLOG>	[64]
+/FadeIn	<PAGE1>		[64]
+/FadeIn	<PAGE2>		[64]
+/FadeIn	<PAGE3>		[64]
+/FadeIn	<PAGE4>		[64]
+/FadeIn	<PAGE5>		[64]
+/FadeIn	<PAGE6>		[64]
+/FadeIn	<PAGE7>		[64]
+/FadeIn	<PAGE8>		[64]
+/FadeIn	<DATA1>		[64]
+/FadeIn	<DATA2>		[64]
+/FadeIn	<DATA3>		[64]
+/FadeIn	<DATA4>		[64]
+/FadeIn	<DATA5>		[64]
+/FadeIn	<DATA6>		[64]
+/FadeIn	<DATA7>		[64]
+/FadeIn	<DATA8>		[64]
+/FadeIn	<DATA9>		[64]
+/FadeIn	<DATA10>	[64]
+/FadeIn	<DATA11>	[64]
+/FadeIn	<DATA12>	[64]
+/FadeIn	<DATA13>	[64]
+/FadeIn	<DATA14>	[64]
+
+/if	[$menu==0]
+	/FadeIn	<SEL_1>	[64]
+/endif
+
+/FadeIn	<SEL_2>	[64]
+/FadeIn	<SEL_3>	[64]
+
+/FadeWait
+
+/if	[$menu==0]
+	/ChangeButton	<SEL_1>
+/Endif
+/ChangeButton	<SEL_2>
+/ChangeButton	<SEL_3>
+
+
+/ChangeButton	<PAGE7>
+/ChangeButton	<PAGE8>
+/ChangeButton	<DATA1>
+/ChangeButton	<DATA2>
+/ChangeButton	<DATA3>
+/ChangeButton	<DATA4>
+
+/ChangeButton	<QSAVE>
+/ChangeButton	<QLOAD>
+/ChangeButton	<SKIP>
+/ChangeButton	<AUTOREAD>
+/ChangeButton	<VIEW>
+/ChangeButton	<BACKLOG>
+
+
+/default	<-1>
+
+/return
+
+;--------------------------------------
+#tglwin
+/SysGet	'full'
+/if	[$ret]
+	/ChangeButton	[1]	<DATA5>
+	/ChangeButton		<DATA6>
+/Else
+	/ChangeButton		<DATA5>
+	/ChangeButton	[1]	<DATA6>
+/Endif
+/return
+
+;--------------------------------------
+#tgleff
+/SysGet	'effect'
+/if	[$ret]
+	/ChangeButton	[1]	<DATA7>
+	/ChangeButton		<DATA8>
+/Else
+	/ChangeButton		<DATA7>
+	/ChangeButton	[1]	<DATA8>
+/Endif
+/return
+
+;--------------------------------------
+#tglmvoice
+/SysGet	'mvoice'
+/if	[$ret]
+	/ChangeButton	[1]	<DATA9>
+	/ChangeButton		<DATA10>
+/Else
+	/ChangeButton		<DATA9>
+	/ChangeButton	[1]	<DATA10>
+/Endif
+/return
+
+;--------------------------------------
+#tglfvoice
+/SysGet	'fvoice'
+/if	[$ret]
+	/ChangeButton	[1]	<DATA11>
+	/ChangeButton		<DATA12>
+/Else
+	/ChangeButton		<DATA11>
+	/ChangeButton	[1]	<DATA12>
+/Endif
+/return
+
+;--------------------------------------
+#tglkdq
+/SysGet	'kidoku'
+/if	[$ret]
+	/ChangeButton		<DATA13>
+	/ChangeButton	[1]	<DATA14>
+/Else
+	/ChangeButton	[1]	<DATA13>
+	/ChangeButton		<DATA14>
+/Endif
+/return
+
+
+;-----------------------------------------------
+; UIクローズ・サブルーチン
+#close
+/BgLock		<CHR_1>
+/InitAll	<BG>	<CHR_1>
+/FadeOut	<CHR_1>	[64]
+/FadeWait
+
+/return
+
+
+;-----------------------------------------------
+; 終了
+#exit
+/Default	<-1>
+
+;後片付け
+/InitAll	<BG>
+
+/end

@@ -1,0 +1,932 @@
+; OriginalFile: 0_KH070.txt
+;■ターン:070
+;■タイトル:祠で男に襲われる
+;■発生条件:必須
+;■あらすじ
+;　・足をくじいた琥珀は今日も神社を休んだ。
+;　・昼時、主人公が湖へ行ってみると、案の定、琥珀は岸辺に立っていた。
+;　　供物の三方を持って。
+;　・主人公が代わりに祠に供物を届ける。と、祭壇から男が飛び出してきて
+;　　主人公に襲いかかる。
+;　・琥珀の助けで難を逃れる主人公。
+;■使用予定1枚絵
+;　・なし
+;■使用予定BG
+;　・朝日
+;　・草壁神社　境内　御神木
+;　・宮合の村中
+;　・宮合　森
+;　・湖
+;　・湖　祠
+;■収得する進行フラグ
+;　・
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:必須
+;・発生ターン:070
+;・タイトル:祠で男に襲われる
+;===========================================
+;◇000:本筋その1
+;フェードイン
+;■BG01:朝日
+/MesCls
+/Wait	[2000]
+/SePlay	[053]	; 小鳥のさえずり。（気分いい朝のカンジ）
+/Wait	[1000]
+
+/Mes	[8698]
+今朝もまた、琥珀は朝稽古に姿を現さなかった。
+/MesWait
+
+/FadeIn	<BG>	"bg\bg004D.bmp"	;BG02:草壁神社　境内　御神木
+/BgmPlay	[02]	; 懐古系
+/ChrIn	<CHR_1>	"stand\ヒナコ＿通常.tga"	;雛子on
+
+/Mes	[8699]	'雛子'	"voice\07882.ogg"
+「琥珀ちゃん、今日も休みだって」
+/MesWait
+
+
+/Mes	[8700]
+琥珀が足をくじいたことは昨日、俺の口からみんなに伝えて
+あった。
+/MesWait
+
+
+/Mes	[8701]	'$name'
+「昨日の時点で足の状態、相当悪かったですからね。
+　完治するまでは時間がかかるかもしれない……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\ヒナコ＿笑い.tga"
+
+/Mes	[8702]	'雛子'	"voice\07884.ogg"
+「ふふ、残念ね。あなたがここにいられるのもあとわずか
+　だっていうのに」
+/MesWait
+
+
+/SePlay	[053]	; 小鳥のさえずり。（気分いい朝のカンジ）
+
+/Mes	[8703]	'$name'
+「……残念って？　い、いえ、そんな事は……」
+/MesWait
+
+
+/Mes	[8704]	'雛子'	"voice\07886.ogg"
+「いってらっしゃい」
+/MesWait
+
+
+/Mes	[8705]	'$name'
+「ど、どこにですか？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\ヒナコ＿通常.tga"
+
+/Mes	[8706]	'雛子'	"voice\07888.ogg"
+「琥珀ちゃんのところへ、でしょ？」
+/MesWait
+
+
+/Mes	[8707]	'$name'
+「な、ななんで俺が……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\ヒナコ＿笑い.tga"
+
+/Mes	[8708]	'雛子'	"voice\07890.ogg"
+「男の子だからよ。$nameくん」
+/MesWait
+
+
+/Mes	[8709]	'$name'
+「雛子さん、ちょ、ちょっと……」
+/MesWait
+
+/ChrOut	<CHR_1>	;雛子off
+
+/Mes	[8710]
+……男の子だからって……分かるような分かんないような理
+由だけどさ……
+/MesWait
+
+
+/Mes	[8711]
+でも、気になっているのは確かだし、それに……
+/MesWait
+
+
+
+/Mes	[8712]
+……昨日は琥珀のケガもあって、思わずいい雰囲気なってし
+まった。もしも今日もふたりっきりになったら……。
+/MesWait
+
+
+/Mes	[8713]
+いや、琥珀はそんなことは望んでいないだろう。
+だいたい、サポート役の俺が邪心満々で鬼に勝てるわけない。
+/MesWait
+
+
+/Mes	[8714]
+とりあえず、足のケガが心配だな。たいしたことないと思う
+んだけど、昨日歩けなかったわけだし……。やっぱり会いに
+行こう。
+/MesWait
+
+/AllFadeOut
+
+/Mes	[8715]
+そんなことを考えながら、俺は午前中のおつとめを片っ端か
+らこなしていった。
+/MesWait
+
+/BgmFade	[-1]
+
+/Mes	[8716]
+そして昼――。
+/MesWait
+
+/FadeIn	<BG>	"bg\bg013D.bmp"	;BG02:草壁神社　境内　御神木
+
+/Mes	[8717]
+……さて、行ってみるかな。
+/MesWait
+
+;▼選択肢001
+/SetQuestion	<SEL_1>	琥珀の家に行く	;①001-1:琥珀の家に行く
+/SetQuestion	<SEL_2>	湖の祠に行く	;②001-2:湖の祠に行く
+/call	"scx\S_QUESTION.scx"	@2
+/jump	[$answer==0]	@0001
+/jump	[$answer==1]	@0002
+#0001
+;◆001-1:①琥珀の家に行く　の場合
+;フェードイン
+/ExFadeOut	[0] ;横に流れる演出
+
+/BgmPlay	[09]	; 田園系
+/Wait	[1500]
+
+/FadeIn	<BG>	"bg\bg002D.bmp"	;BG03:宮合の村中
+
+
+/Mes	[8718]
+琥珀は家でおとなしくしているだろうか……。	
+/MesWait
+
+
+/Mes	[8719]
+あいつ、普段家ではどんな生活をしてるのだろう？　ひとり
+暮らしだよな……。料理なんかも作るんだろうか。
+/MesWait
+
+
+/Mes	[8720]
+エプロン姿というか、家の中のことをやっている琥珀のイメ
+ージが浮かんで来ない。こんな話を本人にしたら怒られそう
+だが、修行というか神社にいるイメージが強すぎて……。
+/MesWait
+
+
+/Mes	[8721]
+琥珀はどんな顔で迎えてくれるのだろう……。どんな部屋に
+住んでいるんだろうか……。
+/MesWait
+
+
+/Mes	[8722]
+何を期待してるんだ、俺は……。
+俺はつまらない考えを振り払うように早足で琥珀の家に向っ
+た。
+/MesWait
+
+/BgmFade	[-2]
+
+/Mes	[8723]
+が、留守だった。
+/MesWait
+
+
+/SoundFadein	<ENV>	[057]	; ジーワジーワジーワとセミの声
+
+/Mes	[8724]
+昼過ぎだから……やっぱ通常通り、祠に供物を捧げに行った
+のかもしれない。しかしあの足で、杭の上を渡れるのか？
+/MesWait
+
+
+/Mes	[8725]	'$name'
+「だいじょぶなのかよ、あいつ……」
+/MesWait
+
+
+/Mes	[8726]
+だいじょうぶじゃないに決まってる。
+相変わらず無茶するな……。
+/MesWait
+
+
+/Mes	[8727]
+……仕方ない。湖に行ってやるか。
+/MesWait
+
+/SoundFadeout	<ENV>	[-3]
+/ExFadeOut	[0] ;横に流れる演出
+
+/jump	@0009	;▽001:本筋その2へ
+#0002
+;◆001-2:②湖の祠に行く　の場合
+;フェードイン
+/ExFadeOut	[0] ;横に流れる演出
+/Wait	[1500]
+/FadeIn	<BG>	"bg\bg027D.bmp"	;BG04:宮合　森
+
+/SePlay	[071]	
+
+/Mes	[8728]
+昼過ぎだから、琥珀はいつものように供物を持って湖に向かっ
+たはずだ。
+/MesWait
+
+/SoundFadein	<ENV>	[062]	; カッコウなど、森閑とした森で鳴く鳥の声。
+
+/Mes	[8729]
+……ただ、あいつ、あの足で杭を渡れるのかな？
+/MesWait
+
+
+/Mes	[8730]
+腫れがひいてればなんてことはないだろうが、昨日の状態か
+らは、とても一日で治るようには思えない。
+/MesWait
+
+
+/Mes	[8731]
+無茶なことをしてなければいいが……
+/MesWait
+
+
+/Mes	[8732]
+あいつのことだから無茶をするに決まってる。
+湖に落ちてないだろうな。
+/MesWait
+
+
+/Mes	[8733]
+そんな心配をしながら俺は、琥珀が足をひきずって通ったで
+あろう森の細道を急いだ。
+/MesWait
+
+/SoundFadeout	<ENV>	[-3]
+/ExFadeOut	[0] ;横に流れる演出
+
+/jump	@0009	;▽001:本筋その2へ
+#0009
+;◇000:本筋その２
+;フェードイン
+
+/Wait	[1500]
+/BgmPlay	[13]	; 環境系（湖）
+/FadeIn	<BG>	"bg\bg023D.bmp"	;BG05:湖
+
+/Mes	[8734]
+湖のほとりに出ると、案の定、岸辺に琥珀が立っているのが
+見えた。
+/MesWait
+
+
+/Mes	[8735]
+やはり杭を渡れないのだろう、供物を捧げ持ったまま、祠を
+見つめてじっとしている。
+/MesWait
+
+
+/Mes	[8736]	'$name'
+「しょーがないな……」
+/MesWait
+
+
+/Mes	[8737]
+ひと言つぶやき、俺は琥珀のもとへ向かう。
+/MesWait
+
+
+/SePlay	[020]	; 砂利を踏みしめる足音。「ザッザッ……」
+/wait	[1500]
+
+/SEStop
+/ChrIn	<CHR_1>	"stand\０５コハク巫女＿嘆願.tga"
+
+/Mes	[8738]	'琥珀'	"voice\07915.ogg"
+「あ、$name……」
+/MesWait
+
+
+
+
+/Mes	[8739]	'$name'
+「やっぱりここにいたか。足はだいじょぶなのか？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０５コハク巫女＿楽.tga"	
+
+/Mes	[8740]	'琥珀'	"voice\07917.ogg"
+「なんとか歩けるくらいにはな……でも祠に渡るのは、無理
+　だ」
+/MesWait
+
+
+/Mes	[8741]	'$name'
+「そうか」
+/MesWait
+
+
+/Mes	[8742]
+今までの琥珀なら、『無理だ』なんて言わずに、強引にでも
+ひとりで渡ろうとしただろうな……
+/MesWait
+
+
+/Mes	[8743]	'$name'
+「なんなら、俺が代わりにいってきてやろうか？」
+/MesWait
+
+/Change	<CHR_1>	"stand\０５コハク巫女＿考え中.tga"	;;暫定入れ込み　sakae
+
+/Mes	[8744]	'琥珀'	"voice\07921.ogg"
+「お前が？　……」
+/MesWait
+
+
+/Mes	[8745]	'$name'
+「巫女じゃないとマズいか？　あるいは橘の家の者じゃない
+　とダメとか？」
+/MesWait
+
+
+/Mes	[8746]	'琥珀'	"voice\07923.ogg"
+「どうだろう……生前は父がやっていたが、それ以外は前例
+　がない」
+/MesWait
+
+
+/Mes	[8747]	'$name'
+「前例がないなら、作ってみようか」
+/MesWait
+
+;笑顔で。
+/Change	<CHR_1>	"stand\０５コハク巫女＿嘲笑.tga"	;;暫定入れ込み　sakae
+
+/Mes	[8748]	'琥珀'	"voice\07925.ogg"
+「軽々しく言うなお前は……」
+/MesWait
+
+
+/Mes	[8749]	'$name'
+「まぁな」
+/MesWait
+
+
+/Mes	[8750]
+俺は笑顔で答えた。琥珀は呆れたように、小さくため息をつ
+いた。
+/MesWait
+
+/Change	<CHR_1>	"stand\０５コハク巫女＿楽.tga"	;;暫定入れ込み　sakae
+
+/Mes	[8751]	'琥珀'	"voice\07927.ogg"
+「なんだかずっと、前例通りにやってきた私が、バカバカし
+　く思える」
+/MesWait
+
+
+/Mes	[8752]	'$name'
+「バカにしてるつもりはないぞ」
+/MesWait
+
+;優しい、素直なかんじの。
+
+/Change	<CHR_1>	"stand\０５コハク巫女＿嘲笑.tga"	;;暫定入れ込み　sakae
+
+/Mes	[8753]	'琥珀'	"voice\07929.ogg"
+「うん」
+/MesWait
+
+
+/Mes	[8754]
+そう返事する琥珀の表情は柔らかい。
+/MesWait
+
+
+/AllFadeout
+/FadeIn	<BG>	'gauss' "cg\KH001a.bmp"	;BG01:草壁神社　境内
+/SysSet	[188]	; ■□KH001a.bmp
+
+/Mes	[8755]
+琥珀は供物を俺に渡して手短に捧げ方を教えてくれた。
+/MesWait
+
+
+/FadeIn	<BG>	"bg\bg023D.bmp"	;BG05:湖
+
+/Mes	[8756]	'$name'
+「それじゃ、行ってくるよ」
+/MesWait
+
+
+/ChrIn	<CHR_1>	"stand\０５コハク巫女＿キリッ.tga"
+
+/Mes	[8757]	'琥珀'	"voice\07932.ogg"
+「頼む」
+/MesWait
+
+
+/Mes	[8758]
+琥珀の手から三方を受け取り、俺は最初の杭に飛び乗った。
+/MesWait
+
+/ChrOut	<CHR_1>	;琥珀off
+/ExFadeOut	[4] ;上下
+/FadeIn	<BG>	"cg\KH001a.bmp"	;BG01:草壁神社　境内
+/SysSet	[188]	; ■□KH001a.bmp
+;/FadeIn	<BG>	"bg\bg024D.bmp"	;BG08:湖　祠
+
+/Mes	[8759]
+昨日と違い、晴れている。たゆたう湖水の中に突き立つ杭が
+はっきり見える。
+/MesWait
+
+
+/Mes	[8760]
+それでも俺は慎重に杭の上を進んでいった。
+/MesWait
+
+;声と文字表示のみ
+
+/FadeIn	<BG>	"bg\bg023D.bmp"	;BG05:湖
+/ChrIn	<CHR_1>	"stand\０５コハク巫女＿キリッ.tga"
+
+/Mes	[8761]	'琥珀'	"voice\07936.ogg"
+「捧げる前に、二拝二拍手一礼を忘れないでくれ」
+/MesWait
+
+/AllFadeout
+/FadeIn	<BG>	"cg\KH001a.bmp"	;BG01:草壁神社　境内
+/SysSet	[188]	; ■□KH001a.bmp
+
+/Mes	[8762]	'$name'
+「ああ」
+/MesWait
+
+
+/Mes	[8763]
+岸辺から琥珀が念を押したが、毎朝の拝礼で作法は心得てい
+る。
+/MesWait
+
+
+/Mes	[8764]	'$name'
+「よっ…と」
+/MesWait
+
+
+/FadeIn	<BG>	"bg\bg024D.bmp"	;BG08:湖　祠
+
+/Mes	[8765]
+最後まで気を抜かずに杭をまたいで、俺は祠へと辿りついた。
+/MesWait
+
+
+/Mes	[8766]
+扉を開けて二拝二拍手一礼。
+/MesWait
+
+
+/Mes	[8767]
+三方を捧げ持って祭壇へと近づく。
+/MesWait
+
+/BgmFade	[-3]
+
+/Mes	[8768]
+と、その時――。
+/MesWait
+
+
+/Mes	[8769]
+鼻をつく腐臭がして、祭壇の背後に黒い影がゆらめいた。
+/MesWait
+
+;/Coment SE:『ガタガタバタン！！』
+/SePlay	[038]	; 木製のドアがバタンバタンとさらに強風に煽られるかんじ『ガ
+/tateyure
+/allfadeout
+;●男on
+
+/Mes	[8770]	'$name'
+「うわあッ！！？？」
+/MesWait
+
+/BgmPlay	[16]	; ダンジョン系（戦闘？）
+;/chrin	<CHR_1>	"stand\亡霊＿攻撃.tga"
+
+
+/FadeIn	<BG>	"bg\BG023N.bmp"	;BG01:草壁神社　境内
+
+/Mes	[8771]
+異様な雰囲気に、俺の身体は金縛りに遭ったように動かなく
+なってしまった。
+/MesWait
+
+
+/FadeIn	<BG>	"bg\BG032N.bmp"	;BG01:草壁神社　境内
+
+/Mes	[8772]
+霧のような黒い影はみるみるうちに濃くなり、次第に人の形
+を成していく。
+/MesWait
+
+
+/allfadeout
+
+/Mes	[8773]
+人間じゃない、と、とっさに感じた。
+/MesWait
+
+
+/chrin	<CHR_1>	"stand\亡霊＿攻撃.tga"
+
+/Mes	[8774]
+『鬼』だ。
+/MesWait
+
+/FadeIn	<BG>	"bg\bg024D.bmp"	;BG08:湖　祠
+
+/Mes	[8775]
+コイツが鬼だ！
+/MesWait
+
+;★鬼の声（エヴァの暴走時の声みたいなやつ）
+
+/AllFadeOut
+/black	<BG>
+/Fadein	<BG>	; 白画面をフェードイン
+/Fadewait		; 描画待ち
+;/Fadeout	<BG>	"bg\bg024D.bmp"	;BG08:湖　祠
+;/Coment SE:『ガタガタガタガタ！！』
+;/SePlay	[038]	; 木製のドアがバタンバタンとさらに強風に煽られるかんじ『ガ
+
+/SePlay	[044]	; 落雷「ガラガラガラドーン！！」
+/White	<BASE>
+/DispOff	<BG>	/Wait
+/DispOn		<BG>	/Wait
+/DispOff	<BG>	/Wait
+/DispOn		<BG>	/Wait
+;/tateyure
+
+
+;/SePlay	[025]	; 舞で、床板を踏み鳴らす音「ダンッ！！」
+
+/chrin	<CHR_1>	"stand\亡霊＿攻撃.tga"
+
+/Mes	[8776]
+鬼から手が伸びてきた。だが、俺の身体は恐怖で動けない。
+俺の手から三方が払い落とされる。
+/MesWait
+
+/Read	<BG>	"bg\bg024D.bmp"
+;/White	<BASE>
+/Black	<BASE>
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/Black		<BASE>
+/DispOff	<BG>
+
+/SePlay	[120]	;ガッシャーン（食器とかクラッシュ音）
+
+/Mes	[8777]
+カラカラーン……。
+/MesWait
+
+
+/FadeIn	<BG>	"bg\bg024D.bmp"	;BG08:湖　祠
+
+/Mes	[8778]
+供物が落ちた音のショックで、俺の身体に自由が戻った。
+逃げなきゃ……俺は足を思いっきり蹴る。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\亡霊＿通常.tga"
+
+;/Read	<BG>	"bg\bg024D.bmp"
+;/White	<BASE>
+/Black	<BASE>
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/Black		<BASE>
+/DispOff	<BG>
+
+/Mes	[8779]
+祠から逃げようとする俺の首を、鬼が押さえつけた。
+/MesWait
+
+/Change	<CHR_1>	"stand\亡霊＿攻撃.tga"
+/Tateyure
+/SePlay	[061]	; 噴火の音「ドドドーーーーーーン！！！」
+
+/Read	<BG>	"bg\bg024D.bmp"
+;/White	<BASE>
+/Black	<BASE>
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/Black		<BASE>
+/DispOff	<BG>
+
+/Wait	[1500]
+
+/Mes	[8780]
+後ろから、物凄い力で俺の首が絞められる。
+/MesWait
+
+;/Coment SE:『バタンバタンバタン！！』
+/SePlay	[039]	; 木製のドアがバタンバタンとさらに激しく強風に煽られるかん
+
+/Mes	[8781]
+手足をバタつかせ、必死にもがいて祠の扉を開けた。
+そのとき、鈍い感触を手の甲に感じた。
+/MesWait
+
+/MesCls
+/SePlay	[126]	;ヒュン（素振り音）
+/Change	<CHR_1>	"stand\亡霊＿通常.tga"
+;/Read <CHR_1>	"stand\亡霊＿通常.tga"
+/White	<BG>
+/DispOn	<BG>
+/Wait
+/DispOff	<BG>
+/tateyure
+/Wait	[200]
+
+
+/FadeIn	<BG>	"bg\bg024D.bmp"	;BG08:湖　祠
+
+/Mes	[8782]	'$name'
+「あ、当たった……！？」
+/MesWait
+
+
+/SePlay	[042]	; 暴風の音。「ビョオウ……」
+
+/Mes	[8783]
+力いっぱいに振った拳が、偶然にも鬼の顔に当たった。
+/MesWait
+
+/chrout	<CHR_1>
+
+
+
+/Mes	[8784]
+鬼がのけぞり、俺は勢いで反転した。
+しかし、鬼は容赦なく俺の上にのしかかってきた。
+/MesWait
+
+
+/AllFadeout
+/chrin	<CHR_1>	"stand\亡霊＿攻撃.tga"
+
+
+/SePlay	[061]	; 噴火の音「ドドドーーーーーーン！！！」
+
+/Read	<BG>	"bg\bg024D.bmp"
+;/White	<BASE>
+/Black	<BASE>
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/DispOff	<BG>	/Wait	/DispOn		<BG>	/Wait
+/Black		<BASE>
+/DispOff	<BG>
+
+/Tateyure
+
+/Mes	[8785]	'$name'
+「うわあああーーーっ！！」
+/MesWait
+
+
+/FadeIn	<BG>	"bg\bg024D.bmp"	;BG08:湖　祠
+
+/MesCls
+/ChrOut	<CHR_1>
+/tateyure
+
+/SePlay	[131]	;ハデにつっぱいる水音。
+/AllFadeout
+
+/Mes	[8786]
+段差を転げ落ち、湖水の中へ、俺は落ちてしまった。
+/MesWait
+
+;/allfadeout
+;/chrout	<CHR_1>
+;/Coment SE:『ザッパーーン！！』と水音
+;ブラック
+/SePlay	[099]	; 水中の呼吸が洩れる音。『ゴボゴボっ』
+
+/SoundFadein	<ENV>	[060]	; 地鳴り。大地の鳴動。噴火の前触れ。『ゴごごごごー』
+
+/Mes	[8787]
+水の中に落ちたおかげで、鬼と俺の身体が少し離れた。
+/MesWait
+
+/chrin	<CHR_1>	"stand\亡霊＿通常.tga"
+
+/Mes	[8788]
+とにかく、離れたい。その一心で、鬼の身体に向かって無茶
+苦茶に手足を振り回す。
+/MesWait
+
+;/Coment SE:『ゴボゴボゴボゴボ……』と水中で叫ぶような音
+/change	<CHR_1>	"stand\亡霊＿攻撃.tga"
+;●男on
+
+/Mes	[8789]
+コイツから…この鬼から離れなくては……！
+/MesWait
+
+/chrout	<CHR_1>
+
+/Mes	[8790]
+死に物狂いで鬼を蹴りつけ、さらに間をあける。
+/MesWait
+
+/SePlay	[099]	; 水中の呼吸が洩れる音。『ゴボゴボっ』
+
+/Mes	[8791]
+と、俺は気がついた。
+/MesWait
+
+
+/Mes	[8792]
+湖底に沈む、たくさんの目に。
+/MesWait
+
+
+/Mes	[8793]
+湖の中では、おびただしい数の若宮が……亡者が、俺を引き
+込もうと待ち構えていたのだ。
+/MesWait
+
+
+;/SePlay	[067]	; 戦争の鬨の声、剣が交わる音など、戦争のＳＥ。ちょい長めで。
+;★若宮の声（死霊の声みたいな、戦争の鬨の声など）
+
+/Mes	[8794]
+この間落ちたときに感じた、身体に絡み付くような冷たくて
+生温かい水の感触は、嘘じゃなかった。
+/MesWait
+
+/SePlay	[099]	; 水中の呼吸が洩れる音。『ゴボゴボっ』
+
+/Mes	[8795]
+四方八方から……今度は真っ黒い手が伸びてきた。
+/MesWait
+
+
+/Mes	[8796]
+骨だけの手、骨にふやけた腐肉がまとわりついた手、刃物で
+切断された手……
+/MesWait
+
+
+/Mes	[8797]
+真っ黒だった手は、目前に迫るとそういった細部が鮮烈に網
+膜に染み込んできた。
+/MesWait
+
+;/Coment SE:『ゴボゴボゴボゴボ……』と水中で叫ぶような音
+/SePlay	[099]	; 水中の呼吸が洩れる音。『ゴボゴボっ』
+
+/Mes	[8798]
+――イヤだ！
+/MesWait
+
+
+/Mes	[8799]
+しゃにむに暴れて水面に出ようとするのだが、どっちが上で
+どっちが下なのかもわからない。
+/MesWait
+
+
+/Mes	[8800]
+ついに、俺はひとつの手に襟首をガッとつかまれてしまった。
+/MesWait
+
+
+;/Coment SE:『ゴボゴボゴボゴボ……』と水中で叫ぶような音
+/SePlay	[099]	; 水中の呼吸が洩れる音。『ゴボゴボっ』
+
+/BgmFade	[-2]
+
+/Mes	[8801]
+その手に凄い力で引っぱられた俺は……
+/MesWait
+
+/SoundFadeout	<ENV>	[-4]
+
+;/AllFadeOut	[1]
+/white	<BG>	; BGを白に
+/Fadein	<BG>	; 白画面をフェードイン
+/Fadewait		; 描画待ち
+;★/Coment SE:『ザバァーーーッ！！』と水音
+
+/Wait	[1000]
+
+/Mes	[8802]
+水面を突き破って新鮮な大気を吸った。
+/MesWait
+
+
+/Mes	[8803]	'$name'
+「うはあッ！！　げほっ！　げほげほっ！」
+/MesWait
+
+/ChrIn	<CHR_1>	"stand\０５コハク巫女＿激昂.tga"		;派手にお怒り
+;声のみ
+
+/Mes	[8804]	'琥珀'	"voice\07974.ogg"
+「あがれ！！　早く水からあがれッ！！」
+/MesWait
+
+
+/Mes	[8805]	'$name'
+「琥珀……」
+/MesWait
+
+
+/ChrOut	<CHR_1>
+/White	<BASE>	;下地白に
+/Read	<BG>	"bg\bg023D.bmp"	;BG05:湖
+/Fadein	<BG>
+/Fadewait
+/Black	<BASE>
+
+/BgmPlay	[15]	; ダンジョン系（中階層）
+
+/Mes	[8806]
+とっさのことに、何がなんだかわからない。とにかく夢中で、
+俺は声の方向にもがき、そして岸に上がった。
+/MesWait
+
+
+/ChrIn	<CHR_1>	"stand\０５コハク巫女＿くじき.tga"	
+
+
+/Mes	[8807]
+足を引きずりながら琥珀が駆け寄ってきてくれた。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０５コハク巫女＿激昂.tga"
+
+/Mes	[8808]	'琥珀'	"voice\21558.ogg"
+「逃げるぞ！　やつはまだ岸にはあがってこれない！」
+/MesWait
+
+
+/Mes	[8809]	'$name'
+「あ、ああ……わかった……」
+/MesWait
+
+/ChrOut	<CHR_1>
+/AllFadeOut
+
+
+/SePlay	[080]	; 藪をかき分けて走る音「ザッザッザッ……」
+/wait	[2000]
+
+/Mes	[8810]
+足を痛めている琥珀をかばいながら、俺たちは振り返らずに
+走り続けた……
+/MesWait
+
+
+/Mes	[8811]
+背中に感じる圧倒的な禍々しさに、何も考えることは出来な
+かった……
+/MesWait
+
+
+/BGMFade
+
+
+;END
+;==============================
+/End
+/end

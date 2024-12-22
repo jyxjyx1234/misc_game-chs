@@ -1,0 +1,44 @@
+NonStop=0
+Jump 0,AutoMode ON,54,,-1
+IntCall 0,,1,-1
+ShowSfc 0,,5
+Calc 2,,@NoTextWait = OFF
+Calc 2,,スキップ中 = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+New 0,,1,セーブ時テキスト,,0
+Calc 2,,セーブ時テキスト = @Text
+SetSfc 2,,7,,0,0,1,255,0,0,0,0
+HideSfc 2,,9
+HideSfc 2,,4
+SetSfc 2,,8,,0,0,1,255,0,0,0,0
+SetSfc 2,,5,,0,0,1,255,0,0,0,0
+OverSfc 2,@NoTextWait OFF,4,,3,0,0,1,255,0,0,0
+SetSfc 2,,4,,0,0,1,255,0,0,0,0
+OverSfc 2,,0,,1,0,0,1,255,0,0,0
+OverSfc 2,,1,,1,0,0,1,255,1,0,0
+Call 0,回想モード ON,17,,-1
+Call 0,回想モード OFF,41,,-1
+Wait 0,@NoTextWait OFF,1
+Call 0,winerase ON,52,,-1
+SetSfc 0,@Sfc4 <> SYSCG\MESEV.pmp;HScene ON,4,SYSCG\MESEV.pmp,-1,473,1,255,1,0,1,0
+HideSfc 0,@Sfc4 <> SYSCG\MES.pmp;HScene OFF,4
+SetSfc 2,@Sfc4 <> SYSCG\MES.pmp;HScene OFF;DLG OFF,4,SYSCG\MES.pmp,43,87,1,255,1,0,1,0
+SetSfc 2,@Sfc4 <> SYSCG\MESDG.pmp;HScene OFF;DLG ON,4,SYSCG\MESDG.PMP,43,87,1,255,1,0,1,0
+ShowSfc 0,,4
+Call 0,HScene OFF,4561,,-1
+ClrText 0,選択肢 OFF
+New 0,選択肢 OFF,0,即席履歴,,0
+Calc 2,選択肢 OFF,即席履歴 = @HistoryCount - 1
+TextPos 0,HScene ON,12,479,25,30,4,0,0
+TextPos 0,HScene OFF,57,113,25,16,6,0,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+HistoryCall 即席履歴,選択肢 OFF
+Del 0,選択肢 OFF,即席履歴
+ShowSfc 2,,9
+SetSfc 2,,8,,0,0,1,255,0,0,0,0
+SetSfc 0,HScene ON,7,CAS.PMA,765,540,1,255,1,0,1,0
+SetSfc 0,HScene OFF,7,CAS.PMA,410,235,1,255,1,0,1,0
+Jump 0,HScene OFF,8,,-1
+Jump 0,HScene ON,79,,-1

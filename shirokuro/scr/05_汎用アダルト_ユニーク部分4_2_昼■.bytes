@@ -1,0 +1,226 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 05_汎用アダルト_ユニーク部分4_2_昼■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+
+playBgm("08-Lunch.ogg")
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+::block_00001::
+-- 黒_出欠判定
+if(IsPresentKuro>=1) then
+    goto block_00002
+else
+    goto block_00012
+end
+
+
+::block_00002::
+-- ▽昼_黒出席:・昼_黒出席
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+--背景：教室（昼）
+::block_00003::
+cls1()
+setname("透")
+text("「あちー」")
+
+
+::block_00004::
+cls1()
+noname()
+text("空調が利いているとはいえ、\n日が当たると汗が流れる程度には暑い。")
+
+
+::block_00005::
+cls1()
+noname()
+text("まあでも、ようやく午前の授業も終了だ。\n昼休み、昼休み……っと。")
+
+
+::block_00006::
+cls1()
+noname()
+text("そんなことを思いながら、窓の外に目を向ける。")
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1.5,1.5)
+set_gblur(BG,0)
+fade(0.8)
+
+::block_00007::
+cls1()
+noname()
+text("そこには、クラスメイトらしき女子と談笑しながら歩く\n黒の姿があった。")
+
+
+::block_00008::
+cls1()
+setname("透")
+text("「お、クラスには馴染んでるみたいだな」")
+
+
+::block_00009::
+cls1()
+noname()
+text("そんな光景を見ただけで、\nなんだか自分の気分も良くなってしまう。")
+
+
+::block_00010::
+cls1()
+setname("透")
+text("「我ながら単純だな」")
+
+
+::block_00011::
+goto block_00026 --末端へ
+
+
+::block_00012::
+-- ▽昼_黒欠席:・昼_黒欠席
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+--背景：教室（昼）
+::block_00013::
+cls1()
+setname("透")
+text("「よ、白」")
+
+
+::block_00014::
+cls1()
+noname()
+text("俺の教室に入ってくる白を見つけたので、\n今日は自分から声をかけてみる。")
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile04.png", "non.png",1.5,500,30)
+fade(0.5)
+repeEx(1,0.2,0,30)
+wait(0.2)
+
+::block_00015::
+cls1()
+setname("白")
+playVoice("SI_0542_0000.ogg")
+text("「透♪」")
+
+
+::block_00016::
+cls1()
+noname()
+text("白からは明るい声が返ってくる。\n表情は満面の笑顔だ。")
+
+fade_set(C2,"ShiroFacial-02-smile07.png",0.3)
+
+::block_00017::
+cls1()
+setname("白")
+playVoice("SI_0542_0001.ogg")
+text("「私の姿を見てすぐに声をかけるなんて、\n白ちゃんを待ちわびてたのかな～？」")
+
+
+::block_00018::
+cls1()
+setname("透")
+text("「もちろん」")
+
+fade_set(C2,"ShiroFacial-07-surprise01.png",0.3)
+repeEx(1,0.2,0,-30)
+wait(0.2)
+
+::block_00019::
+cls1()
+setname("白")
+playVoice("SI_0542_0002.ogg")
+text("「え？　ちょっ！？\nそんなに真っすぐ答えられると照れるんですけど？」")
+
+
+::block_00020::
+cls1()
+setname("透")
+text("「知ってる。\nだから、わざともちろんって答えた」")
+
+--◆漫符使用予定
+fade_set(C2,"ShiroFacial-03-scared01.png",0.3)
+
+::block_00021::
+cls1()
+setname("白")
+playVoice("SI_0542_0003.ogg")
+text("「もー！」")
+
+
+::block_00022::
+cls1()
+noname()
+text("ちょっとだけ頬を膨らませる白。\nこういう表情も、すごく可愛い。")
+
+fade_set(C2,"ShiroFacial-04-angry01.png",0.3)
+
+::block_00023::
+cls1()
+setname("白")
+playVoice("SI_0542_0004.ogg")
+text("「じゃあ、今日はここでご飯食べる！\n教室で透にあーんしてもらうんだから」")
+
+
+::block_00024::
+cls1()
+setname("透")
+text("「はいはい」")
+
+
+::block_00025::
+cls1()
+noname()
+text("あーんは冗談だとしても、\n今日のお昼は、白の機嫌取りに徹した方がよさそうだ。")
+
+
+::block_00026::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2昼_出欠分岐_判定■.lua")
+
+
+-- 終了
+end
+
+

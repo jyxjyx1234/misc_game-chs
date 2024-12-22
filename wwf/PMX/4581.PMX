@@ -1,0 +1,13 @@
+NonStop=0
+Label 0,,ON
+SetCursor 0,,CUR.ANI
+Calc 2,,CURSOR = @Cursor
+Save 0,,defcur,CURSOR
+OverSfc 2,@Cursor = CUR.ANI,5,SYSCG\CHIP\SELECTED.PMP,10,349,395,1,255,0,0,1
+Jump 0,,4563,クリック待ち,23
+Label 0,,OFF
+SetCursor 0,,CUR.CUR
+Calc 2,,CURSOR = @Cursor
+Save 0,,defcur,CURSOR
+OverSfc 2,@Cursor = CUR.CUR,5,SYSCG\CHIP\SELECTED.PMP,10,480,395,1,255,0,0,1
+Jump 0,,4563,クリック待ち,23

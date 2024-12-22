@@ -1,0 +1,347 @@
+; OriginalFile: 0_AH012.txt
+;■ターン:012
+;■タイトル:迷う③
+;■発生条件:必須
+;■あらすじ
+;　・朝、気を失ったまま眠り込んでいた主人公は、
+;　　夢うつつの中で女の子の笑い声を聞いたような気が
+;　　して目を覚ます。
+;　・顔を上げると前方に光が見え、そちらに向かって
+;　　フラフラと歩き出す。
+;■使用予定1枚絵
+;　・01:
+;■使用予定BG
+;　・宮合　森
+;■収得する進行フラグ
+;　・
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:必須
+;・発生ターン:012
+;・タイトル:迷う③
+;===========================================
+;◇000:本筋その1
+/Wait	[2000]
+;日暮らしのSE
+/SoundFadein	<ENV>	[056]	; ヒグラシの鳴き声。「シシシシシ……」
+/Wait	[2000]
+;ダム湖
+
+/FadeIn	'gauss'	<BG>	"cg\TA005.bmp"
+/SysSet	[252]	; ■□TA005.bmp
+
+
+/Mes	[19532]
+白い闇が消えて視界が戻ったとき、目の前にはまったく違う
+景色が広がっていた。
+/MesWait
+
+
+/Disolve	<BG>	"cg\TA005.bmp"
+/SysSet	[252]	; ■□TA005.bmp
+
+
+/Mes	[19533]
+……ダム？　どこだろう、ここ？
+/MesWait
+
+
+/Mes	[19534]
+いや、俺は……どうしたんだろう？
+/MesWait
+
+
+/allfadeout
+/SoundFadeout	<ENV>
+/Wait	[2000]
+;清之介と雛子の総括。
+/FadeIn	<BG>	"bg\bg012D.bmp"	;BG:居間
+
+
+/Mes	[19535]
+……ここは？　居間だ……草壁神社の……
+/MesWait
+
+
+/ChrIn	<CHR_1>	(LEFT)	"stand\セイノスケ＿通常.tga"	;清之介on
+/ChrIn	<CHR_2>	(RIGHT)	"stand\ヒナコ＿通常.tga"	;雛子on
+;/BgmPlay	[09]	; 神社日中
+
+
+/Mes	[19536]
+清之介さん……雛子さん………
+/MesWait
+
+
+/Mes	[19537]	'清之介'	"voice\05611.ogg"
+「……ところで、どうして宮合がダム湖に沈むのか、その経
+　緯は知っているかな？」
+/MesWait
+
+
+/Mes	[19538]
+……沈む？　宮合が？
+/MesWait
+
+
+/Mes	[19539]	'清之介'	"voice\05619.ogg"
+「色々、言う人もあるだろうけど、人がいて、神がいて、神
+　社の意味はある。どれか一つでも欠けてしまえば、神社の
+　意味はない」
+/MesWait
+
+
+/Mes	[19540]	'雛子'	"voice\05620.ogg"
+「それと、森もね」
+/MesWait
+
+
+/Mes	[19541]
+そうか……沈んでしまうのか………
+/MesWait
+
+
+/ChrOut	<CHR_1>
+/ChrOut	<CHR_2>
+
+
+/AllFadeOut
+/BgmFade
+/Wait	[2000]
+
+
+/Soundfadein	<BGM>	[12]	(0,25)
+/Wait	[2000]
+
+
+/Mes	[19542]
+この音楽は……？
+/MesWait
+
+
+/MesCls
+/Wait	[1000]
+/WhiteFadeIn	<BG>	"cg\NK007.bmp"
+/SysSet	[227]	; ■□NK007.bmp
+;/Read	<BG>	"cg\NK007.bmp";□CG00:NK007　表示
+/SysSet	[227]	; ■□NK007.bmp
+;/WhiteFadeIn	<BG>
+
+
+/Mes	[19543]
+夏希……？
+/MesWait
+
+
+/WhiteFadeout	<BG>
+/MesCls
+/Wait	[1000]
+/WhiteFadeIn	<BG>	"cg\HE008.bmp"
+/SysSet	[165]	; ■□HE008.bmp
+;/Read	<BG>	"cg\HE008.bmp";□CG00:NK007　表示
+/SysSet	[165]	; ■□HE008.bmp
+;/WhiteFadeIn	<BG>
+
+
+/Mes	[19544]
+久音さん……？
+/MesWait
+
+
+/WhiteFadeout	<BG>
+/MesCls
+/Wait	[1000]
+/WhiteFadeIn	<BG>	"cg\KH005.bmp"
+/SysSet	[195]	; ■□KH005.bmp
+;/Read	<BG>	"cg\KH005.bmp";□CG00:NK007　表示
+/SysSet	[195]	; ■□KH005.bmp
+;/WhiteFadeIn	<BG>
+
+
+/Mes	[19545]
+琥珀……？
+/MesWait
+
+
+/WhiteFadeout	<BG>
+/MesCls
+/Wait	[1000]
+/WhiteFadeIn	<BG>	"cg\AK005.bmp"
+/SysSet	[128]	; ■□AK005.bmp
+;/Read	<BG>	"cg\AK005.bmp";□CG00:NK007　表示
+/SysSet	[128]	; ■□AK005.bmp
+;/WhiteFadeIn	<BG>
+
+
+/Mes	[19546]
+茜……？
+/MesWait
+
+
+/Wait	[1000]
+/WhiteFadeout	<BG>
+/Fadein	<BG>	"bg\white.bmp"
+
+
+/Mes	[19547]
+みんな舞っている……どうして？
+/MesWait
+
+
+/ChrIn	<CHR_1>	"stand\葉造.tga"
+
+
+/Mes	[19548]	'葉造'	"voice\16418.ogg"
+「みな、忘れていることがある。それを思い出させることが
+　できれば、この地は救われる」
+/MesWait
+
+
+/Mes	[19549]
+葉造……？
+/MesWait
+
+
+/Mes	[19550]
+忘れていること？
+/MesWait
+
+
+/ChrOut	<CHR_1>
+/WhiteFadeout	<BG>
+/FadeIn	'gauss'	<BG>	"bg\bg009D.bmp"	;BG:居間
+/ChrIn	<CHR_1>	"stand\葉造.tga"
+
+
+
+/Mes	[19551]	'葉造'	"voice\16420.ogg"
+「この地だけではない。この地と、ここの民のために、自ら
+　のイノチを捧げた者も、救われる」
+/MesWait
+
+
+/BgmFade
+
+
+/Mes	[19552]
+……自らの命を捧げた者？
+/MesWait
+
+
+/Mes	[19553]	'葉造'	"voice\16422.ogg"
+「そうだ」
+/MesWait
+
+
+/Mes	[19554]
+俺は……どうすればいいんだ？
+/MesWait
+
+
+/ChrOut	<CHR_1>
+/WhiteFadeout
+
+
+/Mes	[19555]
+……あっ、葉造！
+/MesWait
+
+
+/Mes	[19556]	'葉造'	"voice\16479.ogg"
+「……お前が成すべきことを成せ。そうすれば俺という存在
+　は消えるだろう」
+/MesWait
+
+
+/Mes	[19557]
+……待て、待ってくれ、葉造！
+/MesWait
+
+
+/Mes	[19558]
+…………………………
+/MesWait
+
+
+/Mes	[19559]
+………………
+/MesWait
+
+
+/Mes	[19560]
+………
+/MesWait
+
+
+/Mes	[19561]
+……だめだ。
+/MesWait
+
+
+/Mes	[19562]
+……気が…意識が………
+/MesWait
+
+
+/Mes	[19563]
+………遠くなっていく………
+/MesWait
+
+
+/Mes	[19564]	'少女の声'	"voice\00149.ogg"
+『ふふ…………ふふふふ…………』
+/MesWait
+
+
+/Mes	[19565]	'$name'
+「ん……？　誰だ……？」
+/MesWait
+
+
+/Mes	[19566]
+強烈な白い光。
+/MesWait
+
+
+/Mes	[19567]
+起きているのか、気絶しているのか、夢を見ているのか、あ
+るいは死んでいるのか。
+/MesWait
+
+
+/Mes	[19568]
+そんなことはもう意味はなかった。
+/MesWait
+
+
+/Mes	[19569]	'少女の声'	"voice\00190.ogg"
+『こっち、こっち、ふふふ』
+/MesWait
+
+
+/Mes	[19570]
+光のほうへ……
+/MesWait
+
+
+/Mes	[19571]	'女の声'	"voice\00201.ogg"
+『私は光の中よ、来て、ふふふっ』
+/MesWait
+
+
+/Mes	[19572]
+声のほうへ……
+/MesWait
+
+
+/Mes	[19573]
+彼女に届いてくれるように……俺は思いっきり手を伸ばした。
+/MesWait
+
+
+;ホワイトフェードアウト
+;END
+;============================================
+/End
+/end

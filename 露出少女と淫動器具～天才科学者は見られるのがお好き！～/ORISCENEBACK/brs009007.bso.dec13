@@ -1,0 +1,75 @@
+(a3:define-set (0 0)
+(a3:call-sub 0)
+) ;; end of define-set 
+(a3:define-sub (0 2)
+(a3:call-user-func 2051 -1)
+(a3:call-far 9020 4)
+(a3:eval-noeffect (a3:assign-local 0 0))
+(a3:eval-noeffect (a3:assign-local 1 0))
+(a3:call-user-func 4110 16)
+(a3:eval-noeffect (a3:assign-local 0 (a3:idref-reflag))
+)
+(a3:call-user-func 4110 17)
+(a3:eval-noeffect (a3:assign-local 1 (a3:idref-reflag))
+)
+(a3:eval (a3:boolean-not (a3:bop-logical-and (a3:bop-not-equal? (a3:idref-local 0) 0) (a3:bop-not-equal? (a3:idref-local 1) 0)) ))
+(a3:if 2)
+;; begin then-clause 
+(a3:call-far (a3:idref-local 0) (a3:idref-local 1))
+;; end then-clause 
+(a3:label 2)
+;; end of if statement 
+(a3:call-user-func 2120)
+(a3:call-user-func 2021 0)
+(a3:call-user-func 2026 0 0 0 0 0 0 0)
+;; begin do-while 
+(a3:label 3)
+(a3:eval-noeffect (a3:assign-reflag 0)
+)
+(a3:call-user-func 4000 24576 50000 0)
+(a3:eval (a3:boolean-not (a3:bop-logical-and (a3:bop-less-equal? 65536 (a3:idref-reflag)) (a3:bop-less? (a3:idref-reflag) 131072)) ))
+(a3:if 6)
+;; begin then-clause 
+(a3:eval (a3:boolean-not (a3:bop-bit-and (a3:idref-reflag) 1) ))
+(a3:if 7)
+;; begin then-clause 
+(a3:eval-noeffect (a3:assign-reflag 0)
+)
+(a3:goto 8)
+;; end then-clause 
+(a3:label 7)
+;; begin else-clause 
+(a3:eval-noeffect (a3:assign-reflag 1)
+)
+;; end else-clause 
+(a3:label 8)
+;; end of if statement 
+;; end then-clause 
+(a3:label 6)
+;; end of if statement 
+(a3:eval (a3:boolean-not (a3:bop-logical-and (a3:bop-less-equal? 131072 (a3:idref-reflag)) (a3:bop-less? (a3:idref-reflag) 196608)) ))
+(a3:if 9)
+;; begin then-clause 
+(a3:eval (a3:boolean-not (a3:bop-logical-or (a3:bop-equal? (a3:bop-bit-and (a3:idref-reflag) 15) 1) (a3:bop-equal? (a3:bop-bit-and (a3:idref-reflag) 15) 8)) ))
+(a3:if 10)
+;; begin then-clause 
+(a3:eval-noeffect (a3:assign-reflag 1)
+)
+(a3:goto 11)
+;; end then-clause 
+(a3:label 10)
+;; begin else-clause 
+(a3:eval-noeffect (a3:assign-reflag 0)
+)
+;; end else-clause 
+(a3:label 11)
+;; end of if statement 
+;; end then-clause 
+(a3:label 9)
+;; end of if statement 
+(a3:eval (a3:bop-equal? (a3:idref-reflag) 0))
+(a3:if 3)
+;; end do-while 
+(a3:call-user-func 2020 0)
+(a3:call-user-func 2021 1)
+) ;; end of define-sub 

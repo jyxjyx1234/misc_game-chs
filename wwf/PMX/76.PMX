@@ -1,0 +1,103 @@
+NonStop=0
+HistoryClear 
+Call 0,,4610,,-1
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,BGM\BGM05.wav,1,0,0
+WavPlay 0,,3,SE\SE09.wav,1,0,0
+Calc 2,,GRPName = BG09A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE99B
+Calc 2,,DrawEffect = 20
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　影　]\n「……」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「いったい何人いるんだ？」
+Calc 2,,CHARNAME = CE99B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　影　]\n「……」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「次々と沸いて来やがる」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「昆野先生も見えるんですね」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「子供の頃、天狗に浚われて以来、余計なモノが見えるようになった」
+Calc 2,,CHARNAME = CE99B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　影　]\n「……」
+PutText 0,,二人が話している間もゆらゆらと行き来する。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「かなりの数ですね」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「こいつら、普通の仏さんじゃないな」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「殺されてもなお休む事もゆるされず、辱めを受けているんですね」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「怖い事をしてるねえ」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「怖いところに来ているんですから、それなりの覚悟をしないといけませんね」
+Calc 2,,CHARNAME = CE08B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「そいつは言えてる」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,3,,1,0,0
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG21A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE11AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[香　月]\n「間もなくですね」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = BG15A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「おっと……」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「いま、出て行くわけにはいかないな」
+PutText 0,,夏来は柱の影に身を隠した。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,95,,-1

@@ -1,0 +1,20 @@
+NonStop=0
+Jump 0,AutoMode ON,54,,-1
+Calc 2,,@NoTextWait = OFF
+Calc 2,@NoTextWait OFF,スキップ中 = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+OverSfc 0,@NoTextWait OFF;@CtrlKey OFF,4,,3,0,0,1,255,1,0,0
+OverSfc 0,@NoTextWait OFF;@CtrlKey OFF,6,,3,0,0,1,255,1,0,0
+Calc 2,@MouseX >= 576;@MouseX <= 649;@MouseY >= 578;@MouseY <= 597,AutoMode = ON
+OverSfc 2,AutoMode ON;@Attach4_2 <>,4,,2,403,88,0,255,0,0,0
+OverSfc 0,AutoMode ON;@Attach4_1 <> SYSCG\AUTO_SEH.PMP,4,SYSCG\AUTO_SEH.PMP,1,577,105,0,255,1,0,1
+Jump 0,AutoMode ON,7,,-1
+Calc 2,@MouseX >= 650;@MouseX <= 723;@MouseY >= 578;@MouseY <= 597,@NoTextWait = ON
+Calc 2,@MouseX >= 650;@MouseX <= 723;@MouseY >= 578;@MouseY <= 597,スキップ中 = ON
+Calc 2,@NoTextWait ON,エフェクト = OFF
+Calc 2,@NoTextWait ON,@Vol2 = 0
+OverSfc 2,@NoTextWait ON;@Attach4_2 <> ,4,,2,468,88,0,255,0,0,1
+OverSfc 2,@NoTextWait ON;@Attach4_3 <> SYSCG\SKIP_SEH.PMP,4,SYSCG\SKIP_SEH.PMP,3,651,105,0,255,1,0,1
+Jump 2,@MouseX >= 724;@MouseX <= 797;@MouseY >= 578;@MouseY <= 597,55,,-1
+Jump 0,,5,,-1

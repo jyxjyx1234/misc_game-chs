@@ -1,0 +1,101 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,GRPName = BG11K
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE11BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[香　月]\n「吾妻さんは、そろそろ限界のようですね」
+PutText 0,,梨花の身体を弾き飛ばした。
+Calc 2,,CHARNAME = KW05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI218.WAV,0,0,0
+PutText 0,,\i(235)[梨　花]\n「きゃあ！」\i(237)
+Calc 2,,GRPName = EV06R
+Calc 2,,DrawEffect = 29
+Call 0,,19,,-1
+Calc 2,,CHARNAME = KW11BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[香　月]\n「吾妻さん、あなたはもう、用済みです」
+Calc 2,,CHARNAME = KW05AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI219.WAV,0,0,0
+PutText 0,,[梨　花]\n「はあ、はあ……覚えてらっしゃい」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,梨花は、脱がされた衣服を抱えると部屋を飛び出した。
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あっ、おい……」
+Calc 2,,CHARNAME = KW11BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[香　月]\n「ふふふ、さっきも言いましたよ。外には出ない方がいいと。戻れなくなります」
+Calc 2,,CHARNAME = KW01E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ちっ……」
+PutText 0,,舌を鳴らして立ち止まる。
+Calc 2,,CHARNAME = KW11BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[香　月]\n「そう、留まっていて下さい」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG11K
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM03.wav,1,0,0
+Call 0,,222,//●　？　■笑い　※エコー有り,5
+PutText 0,,扉の向こうから笑い声がした。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……何だ？」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = EV06R
+Calc 2,,DrawEffect = 29
+Call 0,,19,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SA\SA130.WAV,0,0,0
+PutText 0,,[咲　子]\n「はあ、はあ、はあ……なに……はあ、はあ……」
+Calc 2,,CHARNAME = KW11BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[香　月]\n「……」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「もしかして、猫面相か……」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Call 0,,222,//●　？　■笑い　※エコー有り,5
+Calc 2,,GRPName = BG11K
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE07B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\NE\NE010.WAV,0,0,0
+PutText 0,,[猫面相]\n「にゃははははは～！　賢者の眼、頂戴に参上したのだ！」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……ややこしくなって来たぜ」
+PutText 0,,頭痛がして来た。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,231,,-1

@@ -1,0 +1,20 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,GRPName = BG16C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE15A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA236.WAV,0,0,0
+PutText 0,,[　楓　]\n「いえ、たぶん右だと思います」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,174,,-1

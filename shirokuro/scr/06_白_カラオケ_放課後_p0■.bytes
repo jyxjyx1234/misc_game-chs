@@ -1,0 +1,804 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 06_白_カラオケ_放課後_p0■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+-- プレイ回数追加
+PlaySiro=PlaySiro+1
+
+
+-- sample_image
+playBgm("icyalove_03_nomal.ogg")
+
+capture()
+set(BG, "view_049.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile01.png", "non.png",1.5,500,30)
+fade(0.8)
+
+
+-- message_window_open
+winopen(0.5)
+
+fade_set(C2,"ShiroFacial-02-smile02.png",0.3)
+
+--Phase0
+--背景：カラオケ（昼）
+::block_00001::
+cls1()
+setname("白")
+playVoice("SI_0680_0000.ogg")
+text("「カラオケっていいよねー」")
+
+
+::block_00002::
+cls1()
+setname("透")
+text("「ほんと、白はカラオケ好きだよな」")
+
+
+::block_00003::
+cls1()
+noname()
+text("白はカラオケが好きで、歌も上手い。\nだから、白とのカラオケはすごく楽しい。")
+
+
+::block_00004::
+cls1()
+noname()
+text("でも、今日は……。")
+
+winclose(0.5)
+
+::block_00005::
+-- 選択肢://選択肢１
+item={}
+item[1]="会話"
+item[2]="バードキス"
+--item[3]="胸を揉む"
+--item[4]="スカートをめくる"
+sel("",item)
+-- 選択結果
+ret=get_sel_result()
+-- インモ値追加
+InmoSiro = InmoSiro + getInmo('H',1,item[ret])
+-- 選択肢分岐
+if ret==1 then goto block_00006 end
+if ret==2 then goto block_00019 end
+--if ret==3 then goto block_00033 end
+--if ret==4 then goto block_00045 end
+
+
+::block_00006::
+-- ▽会話
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_001.png")
+fade(0.8)
+
+::block_00007::
+cls1()
+setname("透")
+text("「白、こっちにきて」")
+
+capture()
+set(BG, "ev-H-siro003_003.png")
+fade(0.5)
+
+::block_00008::
+cls1()
+setname("白")
+playVoice("SI_0684_0002.ogg")
+text("「んー、なになに？」")
+
+
+::block_00009::
+cls1()
+setname("透")
+text("「いや、ただくっついてるほうが楽しいから」")
+
+capture()
+set(BG, "ev-H-siro003_001.png")
+fade(0.5)
+
+::block_00010::
+cls1()
+setname("白")
+playVoice("SI_0684_0003.ogg")
+text("「この距離なのにー？\nもぉ～、寂しがり屋なんだから」")
+
+capture()
+set(BG, "ev-H-siro003_001.png")
+sets(BG,1.3,1.3)
+fade(0.8)
+
+::block_00011::
+cls1()
+noname()
+text("口ではそう言いつつも、白が体を寄せてきてくれる。")
+
+
+::block_00012::
+cls1()
+noname()
+text("……嬉しい。")
+
+capture()
+set(BG, "ev-H-siro003_003.png")
+fade(0.5)
+
+::block_00013::
+cls1()
+setname("白")
+playVoice("SI_0684_0004.ogg")
+text("「でも、エッチなことしちゃダメだよ？」")
+
+
+::block_00014::
+cls1()
+setname("透")
+text("「さあ、それはどうかな」")
+
+capture()
+set(BG, "ev-H-siro003_001.png")
+fade(0.5)
+
+::block_00015::
+cls1()
+setname("白")
+playVoice("SI_0684_0005.ogg")
+text("「あ、これはエッチなこと考えてる顔だー」")
+
+
+::block_00016::
+cls1()
+noname()
+text("白がにんまりとした表情を浮かべる。")
+
+
+::block_00017::
+cls1()
+noname()
+text("さて、次はどうしようか……。")
+
+
+::block_00018::
+goto block_00058 --共通へ
+
+
+::block_00019::
+-- ▽バードキス
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_001a.png")
+fade(0.8)
+
+::block_00020::
+cls1()
+setname("透")
+text("「白……」")
+
+capture()
+set(BG, "ev-H-siro003_004.png")
+sets(BG,1.4,1.4)
+fade(0.8)
+
+::block_00021::
+cls1()
+setname("白")
+playVoice("SI_0684_0006.ogg")
+text("「えっ？　あ…………んんっ」")
+
+
+::block_00022::
+cls1()
+noname()
+text("白の体を引き寄せて、唇に軽くキスをする。")
+
+capture()
+set(BG, "ev-H-siro003_006.png")
+sets(BG,1.4,1.4)
+fade(0.5)
+
+::block_00023::
+cls1()
+setname("白")
+playVoice("SI_0684_0007.ogg")
+text("「こんなとこで……ん、んんっ……！」")
+
+
+::block_00024::
+cls1()
+noname()
+text("抗議を無視して、何度もキスを繰り返す。")
+
+
+::block_00025::
+cls1()
+noname()
+text("そうしているうちに、白もちょっとその気になってきた。")
+
+capture()
+set(BG, "ev-H-siro003_004.png")
+sets(BG,1.4,1.4)
+fade(0.5)
+
+::block_00026::
+cls1()
+setname("白")
+playVoice("SI_0684_0008.ogg")
+text("「んっ、んんっ……ちゅっ……ふ、うぅっ……んんっ」")
+
+capture()
+set(BG, "ev-H-siro003_001a.png")
+sets(BG,1.4,1.4)
+fade(0.5)
+
+::block_00027::
+cls1()
+setname("白")
+playVoice("SI_0684_0009.ogg")
+text("「ぷはぁ……。\nもう、いきなりなんだから……」")
+
+
+::block_00028::
+cls1()
+setname("透")
+text("「嫌いじゃないだろ？」")
+
+
+::block_00029::
+cls1()
+setname("白")
+playVoice("SI_0684_0010.ogg")
+text("「それはそうだけど……ん、ちゅっ……ちゅっ……」")
+
+capture()
+set(BG, "ev-H-siro003_004.png")
+sets(BG,1.4,1.4)
+fade(0.5)
+
+::block_00030::
+cls1()
+noname()
+text("ノッてきたのか、積極的にキスを返してくれる白。")
+
+
+::block_00031::
+cls1()
+noname()
+text("さて、お次は……。")
+
+
+::block_00032::
+goto block_00058 --共通へ
+
+
+::block_00058::
+-- ▽共通:スクリプト追加
+
+winclose(0.5)
+
+::block_00059::
+-- 選択肢://選択肢２
+item={}
+item[1]="ディープキス"
+item[2]="乳首いじり"
+--item[3]="手マン"
+--item[4]="エロ撮影"
+sel("",item)
+-- 選択結果
+ret=get_sel_result()
+-- インモ値追加
+InmoSiro = InmoSiro + getInmo('H',2,item[ret])
+-- 選択肢分岐
+if ret==1 then goto block_00060 end
+if ret==2 then goto block_00073 end
+--if ret==3 then goto block_00091 end
+--if ret==4 then goto block_00114 end
+
+
+::block_00060::
+-- ▽ディープキス
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_004.png")
+sets(BG,1.6,1.6)
+fade(1)
+
+::block_00061::
+cls1()
+setname("白")
+playVoice("SI_0684_0020.ogg")
+text("「んんぅっ！？」")
+
+
+::block_00062::
+cls1()
+noname()
+text("白の唇に、俺の唇を強く押し付ける。")
+
+
+::block_00063::
+cls1()
+noname()
+text("そして、そのまま舌を伸ばして、\n白の口内を責め立てていく。")
+
+capture()
+set(BG, "ev-H-siro003_006.png")
+sets(BG,1.6,1.6)
+fade(0.5)
+
+::block_00064::
+cls1()
+setname("白")
+playVoice("SI_0684_0021.ogg")
+text("「んぷぁ、うっ、んああぁっ、も、もう……\nこんな場所で……れろぉっ」")
+
+
+::block_00065::
+cls1()
+setname("白")
+playVoice("SI_0684_0022.ogg")
+text("「れろっ！　んちゅ、ちゅ……ん、ぷぁっ、れろれろっ」")
+
+
+::block_00066::
+cls1()
+noname()
+text("抵抗の素振りを見せたのは最初だけ。\nすぐに、白が舌を絡め返してくれる。")
+
+
+::block_00067::
+cls1()
+setname("透")
+text("「白の唾液……美味しい」")
+
+capture()
+set(BG, "ev-H-siro003_004.png")
+sets(BG,1.6,1.6)
+fade(0.5)
+
+::block_00068::
+cls1()
+setname("白")
+playVoice("SI_0684_0023.ogg")
+text("「もう、透、んちゅ、変態みたい……れる。\nでも……私も、ちゅ、透の味、れる、嫌いじゃない……」")
+
+
+::block_00069::
+cls1()
+noname()
+text("お互いの舌の動きに熱がこもっていく。")
+
+capture()
+set(BG, "ev-H-siro003_006.png")
+sets(BG,1.6,1.6)
+fade(0.5)
+
+::block_00070::
+cls1()
+setname("白")
+playVoice("SI_0684_0024.ogg")
+text("「んちゅ、ちゅ、ちゅる……とおるぅ……ん、んちゅ、\nちゅ、れるれる……んじゅう、ちゅ」")
+
+
+::block_00071::
+cls1()
+noname()
+text("俺達は、互いの体を抱き合うようにしながら、\nしばらくディープなキスを続けていった。")
+
+
+::block_00072::
+goto block_00149 --共通へ
+
+
+::block_00073::
+-- ▽乳首いじり
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_007a.png")
+sets(BG,1.3,1.3)
+setp(BG,-150,0)
+setms(BG,100,0,60)
+fade(0.8)
+
+::block_00074::
+cls1()
+setname("白")
+playVoice("SI_0684_0025.ogg")
+text("「んひっ！？」")
+
+
+::block_00075::
+cls1()
+noname()
+text("白の上半身に手を伸ばして、\n乳首と思しき部分に指で触れる。")
+
+capture()
+set(BG, "ev-H-siro003_006.png")
+sets(BG,1.3,1.3)
+fade(0.5)
+
+::block_00076::
+cls1()
+setname("白")
+playVoice("SI_0684_0026.ogg")
+text("「ちょっ……何やってんの！」")
+
+
+::block_00077::
+cls1()
+setname("透")
+text("「乳首当てゲーム」")
+
+
+::block_00078::
+cls1()
+setname("白")
+playVoice("SI_0684_0027.ogg")
+text("「なんでいきなり！？\nていうか、透は知ってるでしょ……\nその、私の……乳首の位置」")
+
+
+::block_00079::
+cls1()
+noname()
+text("白が、恥じらいながら言葉を紡ぐ。")
+
+
+::block_00080::
+cls1()
+noname()
+text("可愛すぎる。\n俺の彼女最高。")
+
+
+::block_00081::
+cls1()
+setname("透")
+text("「知ってるような……知らないような……」")
+
+capture()
+set(BG, "ev-H-siro003_005.png")
+sets(BG,1.3,1.3)
+fade(0.5)
+
+::block_00082::
+cls1()
+noname()
+text("わざと乳首そのものを避けて、\n周辺を指でなぞっていく。")
+
+
+::block_00083::
+cls1()
+setname("白")
+playVoice("SI_0684_0028.ogg")
+text("「あ、んっ、そんなの……ああ、ダメ」")
+
+
+::block_00084::
+cls1()
+setname("白")
+playVoice("SI_0684_0029.ogg")
+text("「ダメだけど……焦らすのは、もっとダメ……。\n触るなら、ちゃんと触っ――」")
+
+
+::block_00085::
+cls1()
+noname()
+text("白が「ちゃんと触って」と言おうとした瞬間。")
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_007a.png")
+sets(BG,1,1)
+fade(0.8)
+
+::block_00086::
+cls1()
+noname()
+text("キュッと乳首をつまみ上げる。")
+
+
+::block_00087::
+cls1()
+setname("白")
+playVoice("SI_0684_0030.ogg")
+text("「んひゃっ！　もう！　もう！　信じらんない！\n透の意地悪……ん、んくっ」")
+
+
+::block_00088::
+cls1()
+noname()
+text("そのまま乳首を弄っていくと、\n非難の声はすぐにトーンダウンする。")
+
+
+::block_00089::
+cls1()
+setname("白")
+playVoice("SI_0684_0031.ogg")
+text("「はあぁ……もう、ばか……」")
+
+
+::block_00090::
+goto block_00149 --共通へ
+
+
+::block_00149::
+-- ▽共通:スクリプト追加
+
+winclose(0.5)
+
+::block_00150::
+-- 選択肢://選択肢３
+item={}
+item[1]="抱き寄せる"
+--item[2]="フェラチオ"
+--item[3]="膣内挿入"
+--item[4]="マイク持たせて声我慢セックス"
+sel("",item)
+-- 選択結果
+ret=get_sel_result()
+-- インモ値追加
+InmoSiro = InmoSiro + getInmo('H',3,item[ret])
+-- 選択肢分岐
+if ret==1 then goto block_00151 end
+--if ret==2 then goto block_00181 end
+--if ret==3 then goto block_00269 end
+--if ret==4 then goto block_00354 end
+
+
+::block_00151::
+-- ▽抱き寄せる
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_006.png")
+sets(BG,1.4,1.4)
+--setp(BG,-100,-50)
+--setms(BG,100,50,60)
+fade(0.8)
+
+::block_00152::
+cls1()
+setname("透")
+text("「白……」")
+
+
+::block_00153::
+cls1()
+setname("白")
+playVoice("SI_0684_0056.ogg")
+text("「あ……」")
+
+
+::block_00154::
+cls1()
+noname()
+text("白の身体を抱き寄せる。")
+
+
+::block_00155::
+cls1()
+noname()
+text("ちょっと強めに腕に力を込めると、\n白は身体の力を抜いて俺に身を任せてくれる。")
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_010.png")
+sets(BG,1.5,1.5)
+fade(0.8)
+
+::block_00156::
+cls1()
+setname("白")
+playVoice("SI_0684_0057.ogg")
+text("「どうしたの？」")
+
+
+::block_00157::
+cls1()
+setname("透")
+text("「なんか、抱き締めたくなって」")
+
+
+::block_00158::
+cls1()
+setname("白")
+playVoice("SI_0684_0058.ogg")
+text("「カラオケは歌うところなんだけど？」")
+
+--capture()
+--alldel()
+--set(BG, "ev-H-siro003_010.png")
+--sets(BG,1.5,1.5)
+--fade(0.8)
+
+::block_00159::
+cls1()
+setname("白")
+playVoice("SI_0684_0059.ogg")
+text("「でもまあ、悪い気分じゃないから、\nしばらくこのままでいてあげよう♪」")
+
+
+::block_00160::
+cls1()
+noname()
+text("なんだか楽しそうにちょっと笑って、\n白が俺のほうに体重をかけてくる。")
+
+
+::block_00161::
+cls1()
+noname()
+text("こういう時間もいいな。")
+
+
+::block_00162::
+cls1()
+noname()
+text("白と体を密着させていると、心が安らぐ気がする。")
+
+
+::block_00163::
+cls1()
+setname("透")
+text("「白の身体……柔らかくて温かくて、安心する」")
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_006.png")
+sets(BG,1.4,1.4)
+fade(0.8)
+
+::block_00164::
+cls1()
+setname("白")
+playVoice("SI_0684_0060.ogg")
+text("「ちょっと、匂い嗅がないでよ。\n汗臭いかもしんないし……」")
+
+
+::block_00165::
+cls1()
+setname("透")
+text("「なんで？　いい匂いだけど？」")
+
+
+::block_00166::
+cls1()
+setname("白")
+playVoice("SI_0684_0061.ogg")
+text("「……だったらいいけど、\nそういうのは先に許可取って」")
+
+
+::block_00167::
+cls1()
+setname("透")
+text("「オトメゴコロっていうやつ？」")
+
+
+::block_00168::
+cls1()
+setname("白")
+playVoice("SI_0684_0062.ogg")
+text("「オトメゴコロっていうやつ！」")
+
+
+::block_00169::
+cls1()
+setname("透")
+text("「わかったよ、白」")
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_010.png")
+sets(BG,1.6,1.6)
+setp(BG,-100,0)
+setms(BG,100,0,60)
+fade(0.8)
+
+::block_00170::
+cls1()
+noname()
+text("そんな会話を交わしながら、さらに腕に力を込める。")
+
+
+::block_00171::
+cls1()
+noname()
+text("白の弾力とぬくもりが、腕の中にはっきりと感じられた。")
+
+
+::block_00172::
+cls1()
+setname("白")
+playVoice("SI_0684_0063.ogg")
+text("「……大丈夫？」")
+
+
+::block_00173::
+cls1()
+setname("透")
+text("「何が？」")
+
+
+::block_00174::
+cls1()
+setname("白")
+playVoice("SI_0684_0064.ogg")
+text("「最近、なんか疲れてるみたいだから」")
+
+
+::block_00175::
+cls1()
+setname("透")
+text("「そんな事ないよ」")
+
+
+::block_00176::
+cls1()
+setname("白")
+playVoice("SI_0684_0065.ogg")
+text("「それならいいけど……」")
+
+capture()
+alldel()
+set(BG, "ev-H-siro003_010.png")
+sets(BG,1,1)
+fade(0.8)
+
+::block_00177::
+cls1()
+setname("白")
+playVoice("SI_0684_0066.ogg")
+text("「透はいい加減に見えて、責任感強過ぎなんだから……。\n一人で抱え込んじゃダメだよ？」")
+
+
+::block_00178::
+cls1()
+setname("透")
+text("「……うん、わかってる」")
+
+
+::block_00179::
+cls1()
+noname()
+text("そんな白の言葉が、妙に嬉しかった。")
+
+
+::block_00180::
+goto block_00413 --末端へ
+
+
+::block_00413::
+-- ▽末端:スクリプト追加
+
+
+-- message_window_close
+fadeBgm(1)
+stopSe()
+
+winclose(0.5)
+capture()
+alldel()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_3夜_判定■.lua")
+
+
+-- 終了
+end
+
+

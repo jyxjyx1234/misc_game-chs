@@ -1,0 +1,36 @@
+NonStop=0
+Label 0,,次の曲へ
+SetSfc 0,,4,SYSCG\CHIP\ON_NEXT.PMP,625,565,0,255,1,0,0,0
+Calc 2,,曲番号 = 曲番号 + 1
+Calc 2,曲番号 >= 9,曲番号 = 1
+SetSfc 2,曲番号 = 1,2,SYSCG\CHIP\BGM_NO01.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 2,2,SYSCG\CHIP\BGM_NO02.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 3,2,SYSCG\CHIP\BGM_NO03.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 4,2,SYSCG\CHIP\BGM_NO04.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 5,2,SYSCG\CHIP\BGM_NO05.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 6,2,SYSCG\CHIP\BGM_NO06.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 7,2,SYSCG\CHIP\BGM_NO07.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 8,2,SYSCG\CHIP\BGM_NO08.PMP,265,569,0,255,1,0,0,0
+Jump 0,モード = 0;@Wav1 =,29,S,53
+Jump 0,モード = 1;@Wav1 =,38,S,20
+Jump 0,,4532,曲再生,29
+Label 0,,前の曲へ
+SetSfc 0,,4,SYSCG\CHIP\ON_BACK.PMP,574,565,0,255,1,0,0,0
+Calc 2,,曲番号 = 曲番号 - 1
+Calc 2,曲番号 <= 0,曲番号 = 8
+SetSfc 2,曲番号 = 1,2,SYSCG\CHIP\BGM_NO01.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 2,2,SYSCG\CHIP\BGM_NO02.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 3,2,SYSCG\CHIP\BGM_NO03.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 4,2,SYSCG\CHIP\BGM_NO04.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 5,2,SYSCG\CHIP\BGM_NO05.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 6,2,SYSCG\CHIP\BGM_NO06.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 7,2,SYSCG\CHIP\BGM_NO07.PMP,265,569,0,255,1,0,0,0
+SetSfc 2,曲番号 = 8,2,SYSCG\CHIP\BGM_NO08.PMP,265,569,0,255,1,0,0,0
+Jump 0,モード = 0;@Wav1 =,29,S,53
+Jump 0,モード = 1;@Wav1 =,38,S,20
+Label 0,,曲再生
+Call 0,,4531,A,1
+Label 0,,S
+OverSfc 0,,0,,3,0,0,1,255,1,0,0
+Jump 0,モード = 0,29,S,53
+Jump 0,モード = 1,38,S,20

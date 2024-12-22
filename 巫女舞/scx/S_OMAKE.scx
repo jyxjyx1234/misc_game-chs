@@ -1,0 +1,252 @@
+;-----------------------------------------------
+; コンフィグ総合
+;
+; 起動時<BG>を背景とする。
+; 呼び出し元で輝度を調整し、それ以外の部分は
+; 消去しておいてください。
+;-----------------------------------------------
+; 起動
+
+/calc	[$mode=4]	; おまけモード
+
+/call	@open
+
+
+#active
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>
+/ChangeButton	<PAGE3>
+/ChangeButton	<SEL_1>
+/ChangeButton	<SEL_2>
+
+#loop
+/MesWait
+/Jump	<PAGE1>			@cgmode
+/Jump	<PAGE2>			@scene
+/Jump	<PAGE3>			@music
+/Jump	<SEL_1>			@cancel
+/Jump	<SEL_2>			@gameend
+/jump	<CMD_CANCEL>	@cancel
+
+/jump	@loop
+
+;-----------------------------------------------
+; ゲームの終了
+#gameend
+/SePlay	[902]	;決定
+/call	"scx\S_DIALOG.scx"	@exitdlg
+/jump	@loop
+
+;-----------------------------------------------
+#cgmode
+/SePlay	[902]	;決定
+/FadeOut	<PAGE1>
+/FadeOut	<PAGE2>
+/FadeOut	<PAGE3>
+/FadeWait
+/FadeIn		<SEL_3>
+/Disolve	<CHR_1>	"obj\mode_garou.tga"
+/FadeWait
+/Init	<PAGE1>
+/Init	<PAGE2>
+/Init	<PAGE3>
+/ChangeButton	<SEL_3>
+/call	"scx\S_GALLERY.scx"
+
+/jump	[$ret==0]	@cancel
+
+/call	@reopen
+/jump	@active
+
+;-----------------------------------------------
+#scene
+/SePlay	[902]	;決定
+/FadeOut	<PAGE1>
+/FadeOut	<PAGE2>
+/FadeOut	<PAGE3>
+/FadeWait
+/FadeIn		<SEL_3>
+/Disolve	<CHR_1>	"obj\mode_kaisou.tga"
+/FadeWait
+/Init	<PAGE1>
+/Init	<PAGE2>
+/Init	<PAGE3>
+/ChangeButton	<SEL_3>
+/call	"scx\S_SCENE.scx"
+/jump	[$ret==0]	@cancel
+
+/call	@reopen
+/jump	@active
+
+;-----------------------------------------------
+#music
+/SePlay	[902]	;決定
+/FadeOut	<PAGE1>
+/FadeOut	<PAGE2>
+/FadeOut	<PAGE3>
+/FadeWait
+/FadeIn		<SEL_3>
+/Disolve	<CHR_1>	"obj\mode_ongaku.tga"
+/FadeWait
+/Init	<PAGE1>
+/Init	<PAGE2>
+/Init	<PAGE3>
+/ChangeButton	<SEL_3>
+
+/call	"scx\S_MUSIC.scx"
+/jump	[$ret==0]	@cancel
+
+/call	@reopen
+/jump	@active
+
+;-------------------
+; 終了
+#cancel
+/BgLock		<BG>
+/InitAll	<BG>
+/FadeOut	<BG>
+/FadeWait
+
+/return
+/jump	@exit
+
+
+;-----------------------------------------------
+; UIオープン・サブルーチン
+#open
+/Default	<CHR_1>
+/Read		"obj\mode_omake.tga"
+/SetPos		(0,0)
+/Fadein
+/Fadewait
+/default	<-1>
+;-------------------------
+
+/Default		<SEL_1>
+/CreateButton	"obj\BTN_タイトル戻る_0.tga"
+/Read	[1]		"obj\BTN_タイトル戻る_1.tga"
+/SetPos			(400,530)
+/ChangeButton	[0]
+/DispOff
+/FadeIn
+
+/Default		<SEL_2>
+/CreateButton	"obj\BTN_ゲーム終了_0.tga"
+/Read	[1]		"obj\BTN_ゲーム終了_1.tga"
+/SetPos			(590,530)
+/ChangeButton	[0]
+/DispOff
+/FadeIn
+
+/Default		<SEL_3>
+/CreateButton	"obj\BTN_戻る_0.tga"
+/Read	[1]		"obj\BTN_戻る_1.tga"
+/SetPos			(210,530)
+/ChangeButton	[0]
+/DispOff
+
+/Default	<PAGE1>
+/CreateButton	"obj\OMK_GARO0.tga"
+/SetButton	[1]	"obj\OMK_GARO2.tga"
+/SetButton	[2]	"obj\OMK_GARO1.tga"
+/SetPos		(220,120)
+/ChangeButton	[0]
+/FadeIn
+/Wait	/Wait
+
+/Default	<PAGE2>
+/CreateButton	"obj\OMK_KAISO0.tga"
+/SetButton	[1]	"obj\OMK_KAISO2.tga"
+/SetButton	[2]	"obj\OMK_KAISO1.tga"
+/SetPos		(250,230)
+/ChangeButton	[0]
+/FadeIn
+/Wait	/Wait
+
+/Default	<PAGE3>
+/CreateButton	"obj\OMK_MUSIC0.tga"
+/SetButton	[1]	"obj\OMK_MUSIC2.tga"
+/SetButton	[2]	"obj\OMK_MUSIC1.tga"
+/SetPos		(280,340)
+/ChangeButton	[0]
+/FadeIn
+/Wait	/Wait
+
+/default	<-1>
+/FadeWait
+/return
+
+;-----------------------------------------------
+; 終了
+#exit
+/Default	<-1>
+
+/end
+
+;-----------------------------------------------
+; 終了
+#reopen
+/BgLock		<DATA1>
+/InitAll	<DATA1>
+/Default	<CHR_1>
+/Read	<CHR_1>	"obj\mode_omake.tga"
+/SetPos	<CHR_1>	(0,0)
+/DispOn	<CHR_1>
+
+/Default		<SEL_1>
+/CreateButton	"obj\BTN_タイトル戻る_0.tga"
+/Read	[1]		"obj\BTN_タイトル戻る_1.tga"
+/SetPos			(400,530)
+/ChangeButton
+/DispOn
+
+/Default		<SEL_2>
+/CreateButton	"obj\BTN_ゲーム終了_0.tga"
+/Read	[1]		"obj\BTN_ゲーム終了_1.tga"
+/SetPos			(590,530)
+/ChangeButton
+/DispOn
+
+/Default		<SEL_3>
+/CreateButton	"obj\BTN_戻る_0.tga"
+/Read	[1]		"obj\BTN_戻る_1.tga"
+/SetPos			(210,530)
+/ChangeButton	[0]
+/DispOff
+
+/FadeOut	<DATA1>
+/FadeWait
+/Init	<DATA1>
+
+/Default	<PAGE1>
+/CreateButton	"obj\OMK_GARO0.tga"
+/SetButton	[1]	"obj\OMK_GARO2.tga"
+/SetButton	[2]	"obj\OMK_GARO1.tga"
+/SetPos		(220,120)
+/ChangeButton	[0]
+/FadeIn
+/Wait	/Wait
+
+/Default	<PAGE2>
+/CreateButton	"obj\OMK_KAISO0.tga"
+/SetButton	[1]	"obj\OMK_KAISO2.tga"
+/SetButton	[2]	"obj\OMK_KAISO1.tga"
+/SetPos		(250,230)
+/ChangeButton	[0]
+/FadeIn
+/Wait	/Wait
+
+/Default	<PAGE3>
+/CreateButton	"obj\OMK_MUSIC0.tga"
+/SetButton	[1]	"obj\OMK_MUSIC2.tga"
+/SetButton	[2]	"obj\OMK_MUSIC1.tga"
+/SetPos		(280,340)
+/ChangeButton	[0]
+/FadeIn
+/Wait	/Wait
+
+/default	<-1>
+/FadeWait
+
+/return
+

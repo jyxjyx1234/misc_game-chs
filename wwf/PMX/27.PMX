@@ -1,0 +1,21 @@
+NonStop=0
+Label 0,,瞬間
+Calc 0,,AutoSpeed = 1
+Save 0,,AutoSpeed,AutoSpeed
+Jump 0,,27,ボタン切り替え,15
+Label 0,,速い
+Calc 0,,AutoSpeed = 6
+Save 0,,AutoSpeed,AutoSpeed
+Jump 0,,27,ボタン切り替え,15
+Label 0,,普通
+Calc 0,,AutoSpeed = 12
+Save 0,,AutoSpeed,AutoSpeed
+Jump 0,,27,ボタン切り替え,15
+Label 0,,遅い
+Calc 0,,AutoSpeed = 18
+Save 0,,AutoSpeed,AutoSpeed
+Label 0,,ボタン切り替え
+OverSfc 2,AutoSpeed = 18,5,SYSCG\CHIP\SELECTED.PMP,4,287,181,1,255,0,0,1
+OverSfc 2,AutoSpeed = 12,5,SYSCG\CHIP\SELECTED.PMP,4,399,181,1,255,0,0,1
+OverSfc 2,AutoSpeed = 6,5,SYSCG\CHIP\SELECTED.PMP,4,511,181,1,255,0,0,1
+Jump 0,,17,クリック待ち,56

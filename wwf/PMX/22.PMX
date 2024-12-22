@@ -1,0 +1,23 @@
+NonStop=0
+Jump 0,@SelIdx = 1;最新セーブ番号 = -1,6,コンティニューデータなし,43
+SetSfc 0,@SelIdx = 0,1,SYSCG\CHIP\TITLE01.PMP,126,166,0,255,1,0,0,0
+SetSfc 0,@SelIdx = 1,1,SYSCG\CHIP\TITLE02.PMP,126,212,0,255,1,0,0,0
+SetSfc 0,@SelIdx = 2,1,SYSCG\CHIP\TITLE03.PMP,126,258,0,255,1,0,0,0
+SetSfc 0,@SelIdx = 3,1,SYSCG\CHIP\TITLE04.PMP,126,304,0,255,1,0,0,0
+SetSfc 0,@SelIdx = 4,1,SYSCG\CHIP\TITLE05.PMP,126,350,0,255,1,0,0,0
+SetSfc 0,@SelIdx = 5,1,SYSCG\CHIP\TITLE06.PMP,126,396,0,255,1,0,0,0
+SetSfc 2,,2,,0,0,1,255,0,0,0,0
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 2,@SelIdx = 0;エフェクト OFF,0,BG\WHITE.PMP,0,0,0,255,1,0,0,0
+SetSfc 2,@SelIdx = 0;エフェクト ON,0,BG\WHITE.PMP,0,0,0,255,2,0,0,0
+SetSfc 2,@SelIdx = 1;エフェクト OFF,8,SYSCG\SAVING.PMP,0,0,0,255,1,0,0,0
+SetSfc 2,@SelIdx = 1;エフェクト ON,8,SYSCG\SAVING.PMP,0,0,0,255,2,0,0,0
+SetSfc 2,@SelIdx > 1;エフェクト OFF;@SelIdx < 4,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+SetSfc 2,@SelIdx > 1;エフェクト ON;@SelIdx < 4,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Jump 0,@SelIdx = 0;END1 ON,217,,-1
+Jump 0,@SelIdx = 0;END1 OFF,20,,-1
+Jump 0,@SelIdx = 1,0,,-1
+Jump 0,@SelIdx = 2,43,,-1
+Jump 0,@SelIdx = 3,29,,-1
+Jump 0,@SelIdx = 4,17,,-1
+Jump 0,@SelIdx = 5,64,,-1

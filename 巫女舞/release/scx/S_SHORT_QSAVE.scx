@@ -1,0 +1,24 @@
+;-----------------------------------------------
+; クイックセーブ
+;-----------------------------------------------
+; 起動 (起動時に自動的にmemoryBuff[0]に状態がセーブされる)
+/MesSkip		[0]
+/SysSet	'auto'	[0]
+
+/DispOff	<PAGE1>
+/DispOff	<PAGE2>
+/DispOff	<PAGE3>
+/DispOff	<PAGE4>
+/DispOff	<PAGE5>
+;/DispOff	<PAGE6>
+/DispOff	<PAGE7>
+/DispOff	<PAGE8>
+/DispOff	<PAGE9>
+/SePlay	[902]	;決定
+/wait
+
+/SaveData	[0]	'メモリセーブ'	(99,9)
+/wait	[500]
+
+/SystemMode	[0]			; 主制御にプロセスを戻す
+

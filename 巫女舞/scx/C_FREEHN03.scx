@@ -1,0 +1,206 @@
+; OriginalFile: COM_YUU0.txt
+;■時間　　:夕方
+;■タイトル:夕方初回
+;■発生条件:夕方のターンで久音を選択（1回目）。
+;■アラスジ
+;　　・自由時間のヒトコマ
+;■使用予定1枚絵
+;　　・なし。
+;■使用予定BG
+;　　・境内拝殿前
+;■収得する進行フラグ
+;　　・
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:汎用（初回:夕方）
+;・発生ターン:夕方
+;・タイトル:夕方初回
+;============================================
+;◇000:本筋その1
+/FadeIn	<BG>	"bg\bg012D.bmp"	;BG:母屋。居間。
+/BgmPlay	[02]	; 懐古系
+/ChrIn	<CHR_1>	"stand\ヒナコ＿通常.tga"	;雛子on
+
+
+/Mes	[13918]	'雛子'	"voice\16276.ogg"
+「……$nameさん。久音なら、自分の部屋にいると思いま
+　すよ」
+/MesWait
+
+
+/Mes	[13919]	'$name'
+「あ、そうですか。それじゃ行ってみます」
+/MesWait
+
+
+/ChrOut	<CHR_1>
+/allfadeout
+/Wait	[500]
+/SePlay	[029]	; フスマ開く「すっ」
+/Wait	[500]
+/FadeIn	<BG>	"bg\bg015D.bmp"	;BG:久音久奈の部屋。
+
+
+/Mes	[13920]
+久音さん、いるかな？
+/MesWait
+
+
+/ChrIn	<CHR_1>	"stand\０４ヒサネ現代＿楽.tga"	;久音on
+
+
+/Mes	[13921]	'久音'	"voice\16279.ogg"
+「えっと……$nameさん、何かご用でしょうか？」
+/MesWait
+
+
+/Mes	[13922]
+久音さんは、スケッチブックを広げていたが、俺が入ってく
+ると、それを閉じて、そう訊いてきた。
+/MesWait
+
+
+/Mes	[13923]	'$name'
+「いや。用ってワケじゃないんだけど、時間ができたからさ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿疑問.tga"		;流し目でブリッコ手
+
+
+/Mes	[13924]	'久音'	"voice\16282.ogg"
+「そうなんですか？」
+/MesWait
+
+
+/Mes	[13925]
+……やっぱりズレてるよな、なんか…………
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿楽.tga"
+
+
+/Mes	[13926]	'$name'
+「絵を、書いてたの？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿笑い.tga"		;両手正面で「ぽん」
+
+
+/Mes	[13927]	'久音'	"voice\16285.ogg"
+「いえ。見てただけです」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿微笑.tga"
+
+
+/Mes	[13928]	'$name'
+「久音さんは、絵を描くのが好きなの？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿儚げ.tga"		;斜めから上目使い
+
+
+/Mes	[13929]	'久音'	"voice\16287.ogg"
+「不安なんです」
+/MesWait
+
+
+/Mes	[13930]	'$name'
+「えっ？」
+/MesWait
+
+
+/Mes	[13931]	'久音'	"voice\16289.ogg"
+「思い付いたのをすぐ描いておかないと、忘れてしまうかも
+　しれません」
+/MesWait
+
+
+/Mes	[13932]	'$name'
+「ふーん。なんつーか……芸術家みたいだね」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿微笑.tga"
+
+
+/Mes	[13933]	'久音'	"voice\16291.ogg"
+「いえ。私は巫女です」
+/MesWait
+
+
+/Mes	[13934]
+う、うん。そうだけどね………
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿笑い.tga"		;両手正面で「ぽん」
+
+
+/Mes	[13935]	'久音'	"voice\16293.ogg"
+「それと、看板娘でもありますよ」
+/MesWait
+
+
+/Mes	[13936]	'$name'
+「そ、そうだね、久音さん」
+/MesWait
+
+
+/MesCls
+/SePlay	[031]	; フスマ開く。閉じる（強）「すたぁん！」
+/Wait	[500]
+/SetPos	<CHR_1>	(LEFT)
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿楽.tga"	
+/ChrIn	<CHR_2>	(RIGHT)	"stand\０３ヒサナ現代＿楽.tga"	;久奈on
+
+
+/Mes	[13937]	'久奈'	"voice\16295.ogg"
+「おーい！　ゴハンだよー！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿微笑.tga"	
+
+
+/Mes	[13938]	'$name'
+「お、メシか！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代＿ニッコリ.tga"	
+
+
+/Mes	[13939]	'久音'	"voice\16297.ogg"
+「いきましょう」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０３ヒサナ現代＿楽しい.tga"		;両目とじでジャンプ
+
+
+/Mes	[13940]	'久奈'	"voice\16298.ogg"
+「いこー！」
+/MesWait
+
+
+/bgmfade
+/ChrOut	<CHR_1>	;久音off
+/ChrOut	<CHR_2>	;久奈off
+
+
+/Mes	[13941]	'$name'
+「……俺もいくか……………」
+/MesWait
+
+
+/allfadeout
+;end
+;=========================================
+/End

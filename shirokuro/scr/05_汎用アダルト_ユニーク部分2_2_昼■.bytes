@@ -1,0 +1,181 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 05_汎用アダルト_ユニーク部分2_2_昼■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+
+-- sample_image
+playBgm("08-Lunch.ogg")
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+::block_00001::
+-- 黒_出欠判定
+if(IsPresentKuro>=1) then
+    goto block_00002
+else
+    goto block_00011
+end
+
+
+::block_00002::
+-- ▽昼_黒出席:・昼_黒出席
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+--背景：教室（昼）
+::block_00003::
+cls1()
+setname("透")
+text("「午前の授業、終わり……っと」")
+
+
+::block_00004::
+cls1()
+noname()
+text("授業を受けている間も\nどうしても黒のことが気にかかっていた。")
+
+
+::block_00005::
+cls1()
+noname()
+text("学校は人の多い場所だし、\n急に症状が出てるんじゃないか。")
+
+
+::block_00006::
+cls1()
+noname()
+text("そんなことが頭に浮かんでしまう。")
+
+
+::block_00007::
+cls1()
+setname("透")
+text("「俺が教室で悩んでても\nしょうがないんだけどな……」")
+
+
+::block_00008::
+cls1()
+noname()
+text("放課後に会ったら話を聞いてみよう。")
+
+
+::block_00009::
+cls1()
+setname("透")
+text("「とりあえず、飯でも食うか」")
+
+
+::block_00010::
+goto block_00021 --末端へ
+
+
+::block_00011::
+-- ▽昼_黒欠席:・昼_黒欠席
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile06.png", "non.png",1.5,2000,30)
+fade(0.5)
+setmsEx(1,0.5,-1500,0)
+
+--背景：教室（昼）
+::block_00012::
+cls1()
+setname("白")
+playVoice("SI_0522_0000.ogg")
+text("「透～！」")
+
+
+::block_00013::
+cls1()
+noname()
+text("昼休みになると教室に響く、白の元気な声。")
+
+
+::block_00014::
+cls1()
+noname()
+text("白のクラスからここまで、急いで来てくれたんだろう。")
+
+fade_set(C2,"ShiroFacial-02-smile01.png",0.3)
+
+::block_00015::
+cls1()
+setname("白")
+playVoice("SI_0522_0001.ogg")
+text("「今日は、屋上でご飯食べない？」")
+
+
+::block_00016::
+cls1()
+setname("透")
+text("「いいけど、屋上はちょっと暑くないか？」")
+
+fade_set(C2,"ShiroFacial-02-smile07.png",0.3)
+repeEx(1,0.2,0,30)
+wait(0.2)
+
+::block_00017::
+cls1()
+setname("白")
+playVoice("SI_0522_0002.ogg")
+text("「日陰なら大丈夫でしょ！\nそれに、暑い日だからこそ他に人いないかなって」")
+
+
+::block_00018::
+cls1()
+noname()
+text("どうやら、白は邪魔の入らない空間で\nご飯を食べたいようだった。")
+
+
+::block_00019::
+cls1()
+noname()
+text("可愛い彼女が、ふたりの時間を希望するなら、\n俺がそれを断る理由はない。")
+
+
+::block_00020::
+cls1()
+setname("透")
+text("「だな。\nそれじゃあ、行くか」")
+
+
+::block_00021::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2昼_出欠分岐_判定■.lua")
+
+
+-- 終了
+end
+
+

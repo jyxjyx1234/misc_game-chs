@@ -1,0 +1,50 @@
+NonStop=0
+Calc 2,,CHECK2_B = ON
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「錐里，我顯閧瀏跟学校里最有贐威的人隨隨」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[輒　山]\n「明白了，那就是校軼或理事軼諦」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「閧瀏是諦」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[輒　山]\n「謨稍等」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,輒山鑼向了教学楼。
+Wait 0,エフェクト ON,1000
+PutText 0,,顋了一会儿，他又鑼了回来。
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[輒　山]\n「不行」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「什頒？」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[輒　山]\n「校軼和理事軼都不在」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「那我顯得想桟的錵法」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,113,,-1

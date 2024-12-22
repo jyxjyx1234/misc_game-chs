@@ -1,0 +1,100 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = BG17A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「今晩は少々騒がしくなりますね」
+PutText 0,,夏来は遠山検事と合流した。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「猫面相の出る晩はいつも騒がしいですよ」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「それもそうでした」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「今夜こそ捕まえて下さい」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ふふふ、お任せ下さい」
+PutText 0,,自信たっぷりに宣言した。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM06.wav,1,0,0
+Calc 2,,GRPName = BG11A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE10AC
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SA\SA010.WAV,0,0,0
+PutText 0,,[咲　子]\n「あうっ……」
+PutText 0,,咲子の身体が揺らめいた。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「どうした？」
+PutText 0,,彼女の身体を抱き留める。
+Calc 2,,CHARNAME = CE10AC
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SA\SA011.WAV,0,0,0
+PutText 0,,[咲　子]\n「アレが……身体に……あっ……」
+PutText 0,,身体を硬直させる。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「身体だって？　何も無いぞ」
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「とにかく、横になるんだ」
+Calc 2,,CHARNAME = CE10AC
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SA\SA012.WAV,0,0,0
+PutText 0,,[咲　子]\n「はあ、はあ、はあ……あっ……はあ、はあ、はあ……」
+PutText 0,,呼吸を荒くする。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「『みず』は……違うな……ちょっと待ってろ、いま直人さんを……」
+Calc 2,,CHARNAME = CE10AC
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SA\SA013.WAV,0,0,0
+PutText 0,,[咲　子]\n「はあ、はあ、待って、待って下さい……何処にも行かないでここにいて下さい」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「それにしたって……」
+PutText 0,,呼び止められた静麻は、寝台の傍らに戻った。
+Calc 2,,CHARNAME = CE10AC
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SA\SA014.WAV,0,0,0
+PutText 0,,[咲　子]\n「鍵を掛けて……誰も入らないようにして下さい……ああっ！」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「わかった」
+PutText 0,,言われるままに扉の鍵を下ろした。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,97,,-1

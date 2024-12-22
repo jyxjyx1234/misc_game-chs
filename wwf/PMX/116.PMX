@@ -1,0 +1,148 @@
+NonStop=0
+Del 0,,CHECK2_A
+Del 0,,CHECK2_B
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ここはひとつ、検事らしく警官隊を引き連れて乗り込むというのは」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「あまり威圧的な行為はしたくなかったんですが……仕方有りませんね」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「そのぐらいしないと、あの女には効かないぜ」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「少々お待ち下さい」
+PutText 0,,無線機を使って何やら合図を送る。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……んっ？」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,3,SE\SE26.wav,1,0,0
+PutText 0,,何か聞こえてくる。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「到着したようだね」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……おっ！」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK146.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「逮捕だ！」
+PutText 0,,妖精も踊り始めた。
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……旦那方も相変わらずだな」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「では、行きますか」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,今度は警官隊も一緒なので、更にゾロゾロした感じになった。
+WavPlay 0,,3,,0,0,1
+Calc 2,,GRPName = BG25C
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI010.WAV,0,0,0
+PutText 0,,[　静　]\n「わかりました……」
+PutText 0,,警官隊の姿に寮母は一行の入館を許した。
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI011.WAV,0,0,0
+PutText 0,,[　静　]\n「ですが、学生が戻るまでにはお引き取り下さい」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「たぶん、大丈夫でしょう」
+PutText 0,,こともなげに約束してしまう。
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「大山田楓さん、今朝はどうされていました？」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI012.WAV,0,0,0
+PutText 0,,[　静　]\n「大山田ですか……私は今朝、見てはいませんが……たぶん教室にいると思いますが」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「点呼はされないのですか？」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI013.WAV,0,0,0
+PutText 0,,[　静　]\n「点呼は夕食後に行っています」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「まずは部屋に行こうぜ」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI272.WAV,0,0,0
+PutText 0,,[梨　花]\n「涼宮さんの言ったとおり、教室じゃないの？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「さきほど職員室で確認したところ欠席だそうです」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI014.WAV,0,0,0
+PutText 0,,[　静　]\n「本当ですか？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「昼休みに担任の先生が確認に来るつもりだったそうです」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI015.WAV,0,0,0
+PutText 0,,[　静　]\n「通常は私から連絡を入れることになっていましたから」
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「部屋にいないとヤバいな」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI016.WAV,0,0,0
+PutText 0,,[　静　]\n「直ぐにご案内します」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,早足で歩き出した。
+HideSfc 0,,4
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,68,,-1

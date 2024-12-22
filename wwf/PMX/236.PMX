@@ -1,0 +1,83 @@
+NonStop=0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,0,BGM\D00WA.wav,0,0,0
+Wait 0,@CtrlKey OFF,2000
+SetSfc 0,,0,ED\EDPA_R.PMP,800,0,0,255,1,0,0,0
+New 0,,0,X,800,0
+Label 0,,P1
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,236,P1,5
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\EDPA_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\EDPB_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P2
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,236,P2,17
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\EDPB_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\EDPC_R.PMP,800,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P3
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,236,P3,29
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\EDPC_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\EDPD_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P4
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,236,P4,41
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\EDPD_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\EDPE_R.PMP,800,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P5
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,236,P5,53
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\EDPE_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\EDPF_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P6
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,236,P6,65
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\EDPF_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+WavPlay 0,,0,,0,0,1
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Del 0,,X
+Calc 2,,END1 = ON
+Save 0,,CLEAR_1,END1
+SoundOff 0,
+SetMovie 0,,OP.avi,0,0,800,600,1,1,0
+SoundOn 0,
+Jump 0,,182,,-1

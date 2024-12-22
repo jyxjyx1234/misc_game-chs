@@ -1,0 +1,816 @@
+//==========================================================================
+// stdio.mjh MAJIRO内部関数のヘッダ
+//==========================================================================
+
+#group push
+#group "MAJIRO_INTER"		// MAJIRO_INTERはマジロ組み込み関数です。
+
+//==========================================================================
+// 麻雀拡張
+//==========================================================================
+void $pi_kakimaze(void);
+void $kaze_set(void);
+void $set_com_end(void);
+void $my_haipai_kettei(void);
+void $dora_add_atrnd(void);
+void $pi_sort(_no);
+func $get_player_pi(void);
+
+
+func $get_player_can_reach(void);
+func $get_player_can_kan(_mo);
+func $get_player_can_agari(void);
+func $pi_kan(_side, _pi);
+func $pi_pon(_side, _pi);
+func $pi_chi(_side, _pi, _here);	// _piないたパイ _hereココからなくところ(パイ/10)
+func $is_furiten(_side);
+
+func $think_com_sute(_no);
+func $get_sutepos(_no);
+func $com_set_tenpai(_no, _sute);
+void $hyouka_comend_set(_no);
+func $chk_yaku_hantei(_no);
+func $com_nakenake_pon(_no);
+func $com_nakenake_chi(_no);
+void $get_yaku_stat(void);
+func $score_chg_noten(void);
+func $chk_is_tenpai(_no);
+func $com_set_agari(_no);
+func $pi_get_atrnd(void);
+func $pi_put2yama(_pno);
+
+
+
+
+
+
+
+
+
+//==========================================================================
+// イベント一覧
+//==========================================================================
+//
+//
+//
+//
+//
+//==========================================================================
+// キー入力関係
+//==========================================================================
+func $mk_wait(void);			// 1:left 2:right 4:middle 足し算されて戻ります。
+func $mk_read(void);			// 上記の読むだけ
+void $mk_unwait(void);
+void $prevent_rapid([_param]);	// 指定されているキーが連射されている間はキー入力を抑制します。1:left 2:right 4:middle足し算で def=1
+//==========================================================================
+// イベント関係
+// イベントは割り込み実行と似ています。
+// 一つのイベントに対して複数の関数を起動することが可能です。
+//==========================================================================
+void $event_hook(_eventid$, $func);			// イベントで起動する関数を設定します。
+void $event_hook_after(_eventid$, $func);		// イベントで起動する関数を設定します(もっとも遅く呼ばれます)
+void $event_release(_eventid$, $func);		// 呼び出し設定した関数を解放します。自身のスレッドのイベントしか削除できません
+
+
+//--------------------------------------------------------------------------
+// イベントの起動
+//--------------------------------------------------------------------------
+// 全てのスレッドにてイベントを起動します。
+void $do_event(_evntid$[, all, all, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+// 指定したスレッド以外ではイベントは発生しません。_threadidが０で自分のスレッドのみです。
+void $do_event_single(_threadid, _eventid$[, all, all, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+
+//--------------------------------------------------------------------------
+// 各種ファイルの存在チェック
+//--------------------------------------------------------------------------
+func $sound_is_exist(_fn$);
+func $voice_is_exist(_fn$);
+func $pic_is_exist(_fn$);
+
+//==========================================================================
+// グラフィック関係
+//==========================================================================
+//--------------------------------------------------------------------------
+// 画像ファイルの展開
+//--------------------------------------------------------------------------
+func $pic_unpack(_page, _file$[, _x, _y]);
+func $pic_len_x(_file$);
+func $pic_len_y(_file$);
+//--------------------------------------------------------------------------
+// グラフィックページの作成／解放
+//--------------------------------------------------------------------------
+func $page_create(_width, _height[, _is_truecolor]);
+func $page_create_file(_fn$);
+func $page_create_withalfa(_width, _height[, _is_truecolor]);
+func $page_create_file_withalfa(_fn$);
+func $page_release(_page);
+
+//--------------------------------------------------------------------------
+// グラフィックページ情報
+//--------------------------------------------------------------------------
+func $page_len_x(_page);
+func $page_len_y(_page);
+func $page_is_exist(_p);			// ページの存在を調べる
+
+//--------------------------------------------------------------------------
+// グラフィックページ更新/更新情報制御
+//--------------------------------------------------------------------------
+void $invalidate_rect(_n, [_x, _y, _xl, _yl]);		// ページバッファｎの指定領域の無効化
+void $invalidate_disable(void);			// 画面の更新を禁止
+void $invalidate_enable(void);			// 画面の更新許可
+//--------------------------------------------------------------------------
+// 点を打つ/点の色を取る
+//--------------------------------------------------------------------------
+func $grp_point_get(_p, _x, _y);		// ページバッファの場所に対する色を取る(RGB値が戻る)
+void $grp_point_set(_p, _x, _y, _c);	// ページバッファの場所に対する色の設定(cはRGB値)
+func $rgb(_r, _g, _b);				// RGB値を作成
+
+//--------------------------------------------------------------------------
+// αページを関連付け
+//--------------------------------------------------------------------------
+void $page_set_antidata(_pageOwner, _pageAlfa);			// ページにαデータを関連付ける
+
+//--------------------------------------------------------------------------
+// 関連付けられたαページを得る
+//--------------------------------------------------------------------------
+func $get_alfapage(_pageOwner);				// 関連付けされたページを戻す。無ければ0
+
+//--------------------------------------------------------------------------
+// フロントバッファを得る
+//--------------------------------------------------------------------------
+func $get_frontbuffer(void);		// 画面出力のフロントバッファが戻る
+func $set_frontbuffer(_page);		// 出力のフロントバッファを_pageに設定
+// 出力が_pageのスプライトは_pageが解放されたときに自動的に解放時の
+// フロントバッファに関連される
+
+//--------------------------------------------------------------------------
+// 箱を描画
+//--------------------------------------------------------------------------
+void $grp_boxfill(_p, _x, _y, _xl, _yl, _c);			// 箱をかくcが描画色
+void $grp_extboxfill(_p, _x, _y, _xl, _yl, _c, _tp);		// 箱をかくtpが透明度(不透明:0-255:透明)
+void $grp_mulboxfill(_p, _x, _y, _xl, _yl, _c);			// 箱をかく。乗算
+
+
+//--------------------------------------------------------------------------
+// 色をリバース
+//--------------------------------------------------------------------------
+void $grp_reverse(_p, _x, _y, _xl, _yl);				// 指定範囲を反転j
+//--------------------------------------------------------------------------
+// セピア色に変換
+//--------------------------------------------------------------------------
+void $grp_sepia(_p, _x, _y, _xl, _yl, _clow, _chigh[, _alfa]);		// 指定範囲をclow->chighのセピア調に変換
+
+//--------------------------------------------------------------------------
+// コピー
+//--------------------------------------------------------------------------
+void $grp_copy(_fp, _x, _y, _xl, _yl, _tp, _x, _y);			// 単純コピー
+void $grp_swap(_fp, _x, _y, _xl, _yl, _tp, _x, _y);			// グラフィック画面の入れ換え
+void $grp_extcopy(_fp, _x, _y, _xl, _yl, _tp, _x, _y[, _alfa]);	// 属性に従った動作alfaが透明度(不透明:0-255:透明)
+
+//--------------------------------------------------------------------------
+// αテーブル拡張コピー
+//--------------------------------------------------------------------------
+void $grp_alfa_tabled_copy(_fp, _x, _y, _xl, _yl, _tp, _tx, _ty, _alfabase, _alfa_tbl#);
+
+//--------------------------------------------------------------------------
+// αテーブル作成
+//--------------------------------------------------------------------------
+void $make_alfa_table(_fp, _tp, _alfa_tbl#);
+
+//--------------------------------------------------------------------------
+// モザイク作成
+//--------------------------------------------------------------------------
+void $make_mosaic(_fp, _x, _y, _xl, _yl, _tp, _tx, _ty, _size);	// モザイク画像を作成
+
+//--------------------------------------------------------------------------
+// 表示画面の球面スクロール
+//--------------------------------------------------------------------------
+void $grp_home(_ofx, _ofy);			// クライアントエリアの左上の座標を指示
+
+//--------------------------------------------------------------------------
+// 回転拡大縮小コピー(重いです)
+// _angle%	: 度数 右回りに360.000で一回転
+// _modx%	: Ｘ方向の拡大比率1.00で当倍2.00で倍(マイナス可能)
+// _mody%	: Ｙ方向の拡大比率1.00で当倍2.00で倍(マイナス可能)
+//--------------------------------------------------------------------------
+void $grp_modify_copy(_fp, _x, _y, _xl, _yl, _tp, _x, _y, _xl, _yl, _angle%, _modx%, _mody%);
+
+//----------------------------------------------------------------------------
+// grp_modcopy 回転しないmodifycopy
+//----------------------------------------------------------------------------
+void $grp_modcopy(_fp, _x, _y, _xl, _yl, _tp, _x, _y, _xl, _yl);
+
+//==========================================================================
+// 文字出力(コンソール以外)関係
+//==========================================================================
+void $fontout_push(void);
+void $fontout_pop(void);							// フォント状態のPUSH/POP
+
+void $fontout_font(_font$[, _height, _wdith, _is_proportional]);	// フォント出力のフォント設定 console_fontと違う注意
+void $fontout_locate(_page, _x, _y);					// フォント出力用の座標とページを決定
+void $fontout_color(_fc, [_bc]);						// フォントの色指定
+void $fontout(_str$[, _xl, _yl, _mode]);						// フォントを指定座標に出力(_xl, _ylを指定すれば_mode) _mode:0センタ1左2右詰
+void $load_font(_fn$);								// 外部フォントをロード
+func $font_dialog$(_fontname$, _isp);					// フォントダイアログを開く 旧フォント名、プロポーショナルフラグ
+
+void $set_font_cache(_fn$, _height, _width);				// フォントキャッシュの使用を開始する
+
+//==========================================================================
+// コンソール文字出力関係
+//==========================================================================
+void $console_set(_page, _x, _y, _xl, _yl);
+void $console_font(_font$, _height, _width, _vstep[, _is_proportional]);	// コンソール出力のフォント設定
+void $console_locate(_x, _y);
+void $console_locate_force(_x, _y);
+void $console_color(_fc, [_bc]);						// 色指定
+void $console_cls(void);
+void $console_setzerotime(void);		// キー入力でキャンセルされたので\p\wまでスキップ設定
+void $console_resetzerotime(void);		// 上記zerotine設定をキャンセル
+func $console_curpos_x(void);
+func $console_curpos_y(void);
+void $set_anti_use(_f);				// 文字のアンチエイリアスの使用 0:使用せず 1:使用(def) 2:高速時なし
+void $histbuff_disable();			// ヒストリバッファに文字入力を入れるのを禁止します
+void $histbuff_enable();			// ヒストリバッファに文字入力を入れるのを許可します 必ず対で使ってください
+func $get_last_msg$();				// 最後に出力したメッセージを得る
+
+func $console_font_height_get(void);	// 現在のコンソールフォントの高さを得ます
+void $skip_next_blank_newline(void);	// 次にHOME状態で\nがきた場合は無視
+//--------------------------------------------------------------------------
+// コンソールの表示､非表示を設定します。
+// _fast : 0:通常(default) 1:瞬時
+// _nowait : 0:コンソールが変化している間ウエイト有り(default) 1:ウエイト無し
+//--------------------------------------------------------------------------
+void $console_on([_fast, _nowait]);
+void $console_off([_fast, _nowait]);
+
+void $console_redraw(_p);
+void $console_replay(_p);
+func $console_prev(_p);
+func $console_next(_p);
+func $console_prev_wipe(_p);
+func $console_next_wipe(_p);
+func $console_num_hist(void);
+func $console_num_hist_wipe(void);
+func $console_hist_pos(_pos);
+
+func $caret_x(void);		// キャレット座標Ｘ
+func $caret_y(void);		// キャレット座標Ｙ
+
+func $console_is_on();		// コンソールは表示状態か？
+
+func $voicerect_num(void);	// ヒストリ上に何個のvoiceが有るか。
+func $voicerect_name$(_n);	
+func $voicerect_top(_n);	
+func $voicerect_height(_n);	
+
+
+
+//==========================================================================
+// 音楽、効果音関係
+// _fn$	ファイル名
+// _loop	0:ループしない(default) 1:ループ
+// _vol	ボリューム 0-1000
+//
+// fadeoutコマンドを実行すればFOを開始しますが、即時で次を再生できます。
+//==========================================================================
+
+void $music(_fn$[, _loop]);		// 音楽はループがデフォルトになります。
+void $extmusic(_fn$, _fn2$);		// A->B->B->B...のループ音楽
+void $music_stop(void);			// 音楽を停止します。
+void $music_vol(_vol);			// ボリュームを変化させます。再生中の音楽がある場合は再生中の、無いなら次回再生する音楽のvolを変更
+void $music_fade(_vol, _time);	// ボリュームをフェードします。
+void $music_fadeout(_time);		// フェードアウト後、再生を停止します。(命令実行直後に次の再生はＯＫです)
+void $music_fadeout_wait(_time);	// フェードアウト後、再生を停止します。再生終了まで待ちます。
+func $music_stat(void);			// 現在音楽は再生中ですか？ ret0:再生していない 1:再生中 -1:ループに突入
+void $music_wait(void);			// 音楽の再生が終わるまで(またはループ開始まで)待ちます。
+
+
+void $music_push(void);
+void $music_pop(void);			// 音楽のpush/pop１段階のみ
+
+
+void $set_voice_male(void);		// 次に発声する音声は男性です。
+void $set_voice_skip(_sf);		// _sf=1で次に発生する音声はログに入力のみ(_sf=0は通常)
+
+
+void $voice(_fn$[, _loop]);		// voice/soundはループ無しがデフォルトです。
+void $voice_raw(_fn$[, _loop]);	// バックログ中の再生に使用してください。ログを乱しません。
+void $voice_stop(void);
+void $voice_vol(_vol);
+void $voice_fade(_vol, _time);
+void $voice_fadeout(_time);
+func $voice_stat(void);
+void $voice_wait(void);
+func $voice_get_fn$(void);		// いつでも最新の音声ファイル名を返します
+
+void $sound(_fn$[, _loop]);
+void $extsound(_fn$, _fn2$);
+void $sound_stop(void);
+void $sound_vol(_vol);
+void $sound_fade(_vol, _time);
+void $sound_fadeout(_time);
+func $sound_stat(void);
+void $sound_wait(void);
+func $sound_get_fn$(void);		// 現在再生中のサウンドのファイル名を返す(1ショットサウンドのみ)
+
+
+void $sound2(_fn$[, _loop]);
+void $extsound2(_fn$, _fn2$);
+void $sound2_stop(void);
+void $sound2_vol(_vol);
+void $sound2_fade(_vol, _time);
+void $sound2_fadeout(_time);
+func $sound2_stat(void);
+void $sound2_wait(void);
+func $sound2_get_fn$(void);		// 現在再生中のサウンドのファイル名を返す(1ショットサウンドのみ)
+
+void $sound3(_fn$[, _loop]);
+void $extsound3(_fn$, _fn2$);
+void $sound3_stop(void);
+void $sound3_vol(_vol);
+void $sound3_fade(_vol, _time);
+void $sound3_fadeout(_time);
+func $sound3_stat(void);
+void $sound3_wait(void);
+func $sound3_get_fn$(void);		// 現在再生中のサウンドのファイル名を返す(1ショットサウンドのみ)
+
+void $sound4(_fn$[, _loop]);
+void $extsound4(_fn$, _fn2$);
+void $sound4_stop(void);
+void $sound4_vol(_vol);
+void $sound4_fade(_vol, _time);
+void $sound4_fadeout(_time);
+func $sound4_stat(void);
+void $sound4_wait(void);
+func $sound4_get_fn$(void);		// 現在再生中のサウンドのファイル名を返す(1ショットサウンドのみ)
+
+// set_~~_enable関係は廃止。各禁止はボリュームを０で対応してください
+// void $set_voice_enable(_mode);		// ボイスを許可するか
+// void $set_sound_enable(_mode);		// サウンドを許可するか
+// void $set_music_enable(_mode);		// 音楽を許可するか
+
+func $get_voice_enable(void);		// ボイスを許可するか
+func $get_sound_enable(void);		// サウンドを許可するか
+func $get_music_enable(void);		// 音楽を許可するか
+
+// chを手動指定のサウンド、ボイス chは0-19voiceやsound計とは独立しています
+void $sound_ch(_ch, _fn$[, _loop]);
+void $sound_ch_stop(_ch);
+void $sound_ch_vol(_ch, _vol);
+void $sound_ch_fade(_ch, _vol, _time);
+void $sound_ch_fadeout(_ch, _time);
+void $sound_ch_stat(_ch);
+void $sound_ch_wait(_ch);
+func $sound_ch_get_fn$(_ch);		// 現在再生中のサウンドのファイル名を返す(1ショットサウンドのみ)
+
+void $voice_ch(_ch, _fn$[, _loop]);
+void $voice_ch_stop(_ch);
+void $voice_ch_vol(_ch, _vol);
+void $voice_ch_fade(_ch, _vol, _time);
+void $voice_ch_fadeout(_ch, _time);
+void $voice_ch_stat(_ch);
+void $voice_ch_wait(_ch);
+func $voice_ch_get_fn$(_ch);		// 現在再生中のサウンドのファイル名を返す(1ショットサウンドのみ)
+
+
+//==========================================================================
+// 進行管理
+//==========================================================================
+//--------------------------------------------------------------------------
+// void $wait(_n);
+//	_nミリ秒時間待ち。描画､スレッド切り替え発生。★
+//--------------------------------------------------------------------------
+void $wait(_n);			// 時間待ち★
+void $draw_wait([_n]);		// 画面の描画待ち★	_n=0(defalut):即時描画 1:描画タイミングに描画
+
+void $fast_mode_config(_mode);		// 0:強制スキップ 1:既読をスキップ
+void $auto_mode_config(_mode);		// 0:既読を通常 1:既読をスキップ
+
+func $is_fast_mode(void);	// 現在高速実行モードですか？
+func $is_auto_mode(void);	// オートモードですか？
+void $set_auto_mode();				// 自動再生モードに入る
+void $set_fast_mode();				// スキップモードに入る($fast_mode_config()の指定動作)
+void $set_fast_mode_force();			// 強制スキップモードに入る
+void $set_fast_mode_ar();			// 既読スキップモードに入る
+func $is_read_marked();				// 既読マークが付いているか
+void $reset_fast_mode();			// 高速モード、オートモードを中止
+
+void $fast_mode_disable();			// fastモードの動作をしないように
+void $fast_mode_enable();			// fastモードの動作を許可(通常)
+
+void $system_end(void);		// MAJIRO.exeを終了します。
+void $exit(void);			// exitですが､再起動します。(タイトルに戻る)
+
+void $mouse_disable(void);
+void $mouse_enable(void);
+
+//==========================================================================
+// 実行制御
+//==========================================================================
+// "file.mjs"をライブラリとしてロード(実は下と同じ)
+func $load_library(_file$[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+// "file.mjs"をロードし、実行関数をコール
+func $call(_file$[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+// "file.mjs"をロードし、実行関数をコール
+func $call_sub(_file$, $func[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $call_sub_str(_file$, $func$[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+
+// "file.mjs"をロードし、実行関数に制御を移す★(イベント中可能)
+void $exec(_file$[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+// 関数の頭から実行(Globalなgoto)★(イベント中可能)
+void $exec_func($func[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+
+//==========================================================================
+// 配列作成、破棄
+//==========================================================================
+//--------------------------------------------------------------------------
+// 配列作成
+//
+// 配列は宣言しただけでは作成されません。
+// dim_create系の関数にて明示的に作成してください。
+//
+// 例) @dim# = $dim_create#(30); // 大きさ30のintの配列を作成します。
+// 例) @dim#[2] = @dim$[0];      // 参照、代入はこの様に行います。
+//--------------------------------------------------------------------------
+func $dim_create#(_z[, _y, _x]);
+func $dim_create%#(_z[, _y, _x]);
+func $dim_create$#(_z[, _y, _x]);
+
+//--------------------------------------------------------------------------
+// 配列破棄。実際には$dim_create#(1, 1, 1)と同じです。
+// ローカル変数の配列は自動的に破棄されます。
+//--------------------------------------------------------------------------
+func $dim_release#(void);
+func $dim_release%#(void);
+func $dim_release$#(void);
+
+//==========================================================================
+// 簡易ファイルアクセス
+//==========================================================================
+func $file_open(_fn$);		// 簡易open
+void $file_close(_fp);		// 簡易close
+func $file_read(_fp);
+func $file_read$(_fp);
+func $file_read_line$(_fp);	// 一行read
+
+//==========================================================================
+// 簡易レジストリアクセス
+//==========================================================================
+void $reg_write(_key$, _val);
+void $reg_write_string(_key$, _val$);
+func $reg_read(_key$[, _defalut]);
+func $reg_read$(_key$[, _defalut$]);
+
+//==========================================================================
+// ロード/セーブ関係
+//==========================================================================
+void $save_point([_info$]);	// セーブポイントと注釈を設定します。
+func $do_save(_no);		// _noの番号のファイルに保存します。(-1は最新？)
+func $do_load(_no);		// _noの番号のファイルに保存します。(-1は最新？)
+
+func $do_extload(void);	// ロードするファイル名の名前を指定してロードします。
+func $do_extsave(void);	// 名前を付けて保存
+
+
+void $capture_thumbnail(_x, _y[, _page]);	// セーブデータ用のサムネイルをキャプチャ
+func $get_save_info$(_no);			// セーブデータの情報文字列を取得
+func $copy_thumbnail(_no, _page, _x, _y);	// セーブデータ中のサムネイル画像をページにコピーします。0で成功
+func $get_save_time$(_no);			// セーブファイルが保存された日付を戻します。
+
+func $copy_current_thumbnail(_page, _x, _y);	// 現在の状況のサムネイル画像をページにコピーします。0で成功
+func $get_current_time$();				// 現在の時刻文字列を戻します。
+func $get_current_info$();				// 現在のセーブ情報文字列を取得
+
+//==========================================================================
+// ロード/セーブ補助
+//==========================================================================
+void $enter_loadsave_menu();			// ロードセーブ関連のメニューを実行しています。
+void $leave_loadsave_menu();			// ロードセーブ関連のメニューの実行を終了しました。
+
+void $save_disable();				// セーブを禁止にする(save_pointが無視される)
+void $save_enable();				// セーブを許可する
+void $save_menu_disable();			// セーブメニューを禁止する(セーブ自体も禁止)
+void $save_menu_enable();			// セーブメニューを許可する(セーブ自体も許可)
+func $is_save_menu_disable();			// セーブメニューの許可状態を戻す(真で禁止)
+
+
+
+
+//==========================================================================
+// ＣＧモード用フラグ
+//==========================================================================
+func $set_view(_fn$);			// "_fn$を見た" フラグを立てる
+func $is_view(_fn$);			// "_fn$を見た" フラグが立っているか？
+func $is_read(_fn$);			// "_fn$を読んだ" フラグが立っているか？(_fnはスクリプトファイル名)
+
+
+//==========================================================================
+// スレッド処理
+//==========================================================================
+//--------------------------------------------------------------------------
+// スレッド作成
+//
+// スレッドを作成し、スレッドＩＤを返します。
+// func : スレッドの開始関数
+// 残りのパラメータは、そのままスレッド関数に渡されます。間違いに注意
+//--------------------------------------------------------------------------
+func $thread_begin($func[, all, all, all, all, all, all, all, all, all, all, all, all, all, all]);
+
+//--------------------------------------------------------------------------
+// スレッド作成(子スレッド)
+//
+// 子スレッドは親スレッドが終了すると、同時に終了します。
+//--------------------------------------------------------------------------
+func $thread_begin_child($func[, all, all, all, all, all, all, all, all, all, all, all, all, all, all]);
+
+//--------------------------------------------------------------------------
+// スレッド終了時割り込みの登録
+// $func: スレッド終了時に呼ばれる関数を登録します。
+// $funcの実行が終わってからスレッドが終了します。
+// 現在、複数の関数を登録することは出来ません。
+//--------------------------------------------------------------------------
+func $thread_atend($func);
+
+//--------------------------------------------------------------------------
+// スレッド終了
+//
+// 指定したスレッドを終了します。
+// _threadidが指定されなければ自身のスレッドを終了します。
+//--------------------------------------------------------------------------
+func $thread_end([_threadid]);
+
+//--------------------------------------------------------------------------
+// スレッドの存在を見る 0:非存在 1:存在
+//--------------------------------------------------------------------------
+func $thread_is_exist(_threadid);
+
+// スレッド間の連絡をつけな…イベントで良いか。
+//==========================================================================
+// マウス/メニュー用関数
+//==========================================================================
+// threadidで設定された_uidのareaeventを全解除
+void $areaevent_reset(void);
+
+// areaeventを設定
+void $areaevent_set(_uid, _x, _y, _xl, _yl, $func, $func, $func);
+
+// areaeventのデフォルトを設定
+void $areaevent_setdefault($func, $func[, $func, $func]);	// r, l, m, roll
+
+// areaeventをチェック/発生
+void $areaevent_check(void);
+
+func $curpos_x(void);
+func $curpos_y(void);
+func $mk_stat(void);
+//==========================================================================
+// 文字列関係
+//==========================================================================
+func $strmid$(_str$, _pos, _len);
+func $strlen(_str$);
+func $strleft$(_str$, _len);
+func $strright$(_str$,_len);
+func $strcmp(_str$, _str2$);
+func $stricmp(_str$, _str2$);
+func $itoa$(_n);
+func $atoi(_str$);
+func $strsplit$(_str$, _num);		// 文字列を','で区切ったのを戻します
+func $num_strsplit(_str$);		// 文字列を何個に区切れるかを戻します
+func $strlwr$(_str$);			// 文字列を小文字へ変換したものを戻す(_str$が変化するわけではない)
+func $strupr$(_str$);			// 文字列を大文字へ変換したものを戻す(_str$が変化するわけではない)
+func $strstr(_str$, _find$);		// 文字列の中から文字列を見つける(発見した文字の場所が戻る、無ければ-1)
+func $crc32str(_str$);			// 文字列のcrc32を求める
+//==========================================================================
+// その他関数
+//==========================================================================
+func $sin%(_angle%);
+func $cos%(_angle%);
+func $tan%(_angle%);			// _angle%は360.0で一回転
+
+func $rand(_max);
+func $rand%(void);
+
+func $max(_a, _b);
+func $min(_a, _b);
+func $abs(_a);
+
+func $get_effectspeed(void);		// 画面効果のスピードを返します。標準1000
+func $get_mojispeed(void);		// 文字出力のスピードを返します。標準1000
+func $get_autospeed(void);		// auto実行時の待ち時間スピードを返します。標準1000
+
+func $is_talk_male(void);
+func $is_talk_female(void);
+
+void $set_effectspeed(_prm);
+void $set_mojispeed(_prm);
+void $set_autospeed(_prm);
+
+void $set_soundvolume(_prm);
+void $set_voicevolume(_prm);
+void $set_musicvolume(_prm);
+
+func $get_variable(_flgname$);		// 文字列変数で指定された変数の値をとってきます。
+void $set_variable(_flgname$, _prm);		// 文字列変数で指定された変数の値を設定
+
+func $screen_mode([_mode]);				// 0:ウインドウ 1:全画面
+func $is_testplay(void);				// 0:製品 1:[fastdata]フォルダが存在する
+func $is_report_no_pic(void);				// NoPicをレポートする？
+func $is_report_no_voice(void);			// NoVoiceをレポートする？
+
+func $client_width();					// クライアント幅
+func $client_height();					// クライアント高さ
+
+void $set_wallpaper(_fn$, _style);			// フォルダのファイルをwallpaperに設定
+								// style 0:標準 1:タイル 2:全画面化
+					
+
+void $debugout(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+								// デバッグログに文字列を出力
+void $protect_check(void);				// プロテクトチェック(cheker.exe)を起動
+//--------------------------------------------------------------------------
+// タイマー同期用の関数
+// _timerから、_nミリ秒経過まで待つ。描画､スレッド切り替え発生。★
+// 戻り値)新しい_timer
+func $timer_sync(_timer, _n);				// _timerには0を指定することも可能。_n=-1で永遠に待ちます。
+func $timer(void);					// 現在のタイマーをとります。
+func $timer_progress(_timer, _n, _max);		// 別にスレッド切り替えは発生しない。
+
+//==========================================================================
+// ムービー関係
+// _fn$ : 再生するファイル名
+// _x, _y, _xl, _yl : 再生座標 省略すると中央に等倍
+// _sound : movieでサウンドを使用する場合は0以外に(0以外でDirectSoundの解放)
+//==========================================================================
+func $movie_play(_fn$[, _sound, _x, _y, _xl, _yl]);
+func $movie_stop();		// 停止
+func $movie_wait([_keyskip]);	// 再生停止待ち _keyskip 0:キースキップ無し 1:キーで飛ばす(def)
+func $movie_stat();		// 0:再生していない else:再生中
+func $movie_volume(_vol);	// ボリューム設定0-1000(def)
+
+//==========================================================================
+// ドラッグ＆ドロップ関係(現在簡易対応)
+//==========================================================================
+void $drag_accept_files(_fAccept);		// 真でDrag&Dropを受け付け＆ファイルリストを更新
+func $get_drag_filename$(void);		// 落とされたファイル名を受け取ります
+
+//==========================================================================
+// ダイアログボックス
+//==========================================================================
+//--------------------------------------------------------------------------
+// DialogBox(MessageBox)を表示します。
+//
+// $dialog_～はアイコン無しのDialogBox(MessageBox)、
+// $dialog_warning_～は「！」アイコン付きのDialogBox(MessageBox)、
+// $dialog_error_～は「停止」アイコン付きのDialogBox(MessageBox)を表示します。
+//
+// $dialog～ok は [OK]のボタン、
+// $dialog～okcancel は [OK]と[キャンセル]のボタン、
+// $dialog～yesno は [はい]と[いいえ]のボタン、
+// $dialog～retrycancel は [再試行]と[キャンセル]のボタンが表示されます。
+//
+// 戻り値)
+// [OK]、[YES]、[再試行]は1を、
+// [いいえ]、[キャンセル]は0を戻します。
+//
+// $dialog～okは値を戻しません。
+//
+// 使用例)
+//	$dialog_ok("現在_iは", _i, "です");
+//	_isok = $dialog_error_okcancel("現在使用できません");
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+// アイコンなしのdialog
+//--------------------------------------------------------------------------
+void $dialog_ok(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_okcancel(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_yesno(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_retrycancel(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+//--------------------------------------------------------------------------
+// [!]アイコン付きのdialog
+//--------------------------------------------------------------------------
+void $dialog_warning_ok(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_warning_okcancel(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_warning_yesno(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_warning_retrycancel(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+//--------------------------------------------------------------------------
+// [停止]アイコン付きのdialog
+//--------------------------------------------------------------------------
+void $dialog_error_ok(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_error_okcancel(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_error_yesno(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+func $dialog_error_retrycancel(all[, all, all, all, all, all, all,all, all, all, all, all, all, all, all]);
+
+
+//==========================================================================
+// スプライト関係
+//==========================================================================
+func $sprite_create(_p[, _x, _y, _xl, _yl, _extoutput]);		// ページpから大きさxl, ylのスプライトを作成、ハンドルを戻す
+func $sprite_create_file(_fn$[, _x, _y, _xl, _yl, _extoutput]);	// ファイルから自動的にスプライト作成。
+											// ファイルの大きさ分メモリに乗るので注意！
+// ext系は必要ないか？									
+func $sprite_create_ext( _p[, _x, _y, _xl, _yl, _extoutput]);			// ページpから大きさxl, ylのターゲットが_tpageのスプライトを作成、ハンドルを戻す
+func $sprite_create_file_ext(_fn$[, _x, _y, _xl, _yl, _extoutput]);		// ファイルから自動的にターゲットが_tpageのスプライト作成。
+
+void $sprite_release(_spr);				// スプライトの開放
+
+void $sprite_animate_define(_spr, [_p1, _t1, _p2, _t2,
+			_p3, _t3, _p4, _t4, _p5, _t5, _p6, _t6, _p7, _t7, _p8, _t8, 
+			_p9, _t9, _p10, _t10, _p11, _t11, _p12, _t12, _p13, _t13, 
+			_p14, _t14, _p15, _t15, _p16, _t16, _p17, _t17, _p18, _t18, 
+			_p19, _t19, _p20, _t20, _p21, _t21, _p22, _t22, _p23, _t23, _p24, _t24,
+			_p25, _t25, _p26, _t26, _p27, _t27, _p28, _t28, _p29, _t29, _p30, _t30, _p31, _t31
+			]);				// スプライトアニメーションの設定 timeはms
+void $sprite_animate_add(_spr, _p1, _t1[, _p2, _t2,
+			_p3, _t3, _p4, _t4, _p5, _t5, _p6, _t6, _p7, _t7, _p8, _t8, 
+			_p9, _t9, _p10, _t10, _p11, _t11, _p12, _t12, _p13, _t13, 
+			_p14, _t14, _p15, _t15, _p16, _t16, _p17, _t17, _p18, _t18, 
+			_p19, _t19, _p20, _t20, _p21, _t21, _p22, _t22, _p23, _t23, _p24, _t24,
+			_p25, _t25, _p26, _t26, _p27, _t27, _p28, _t28, _p29, _t29, _p30, _t30, _p31, _t31
+			]);				// スプライトアニメーションの設定 timeはms
+
+void $sprite_alfa_define(_spr, _a1, _t1, _a2, _t2[,
+			_a3, _t3, _a4, _t4, _a5, _t5, _a6, _t6, _a7, _t7, _a8, _t8, 
+			_a9, _t9, _a10, _t10, _a11, _t11, _a12, _t12, _a13, _t13, 
+			_a14, _t14, _a15, _t15, _a16, _t16, _a17, _t17, _a18, _t18, 
+			_a19, _t19, _a20, _t20, _a21, _t21, _a22, _t22, _a23, _t23, _a24, _t24
+			]);				// スプライトのα変化を設定
+void $sprite_animate_define_abs(_spr, _p1, _t1, _p2, _t2[,
+			_p3, _t3, _p4, _t4, _p5, _t5, _p6, _t6, _p7, _t7, _p8, _t8, 
+			_p9, _t9, _p10, _t10, _p11, _t11, _p12, _t12, _p13, _t13, 
+			_p14, _t14, _p15, _t15, _p16, _t16, _p17, _t17, _p18, _t18, 
+			_p19, _t19, _p20, _t20, _p21, _t21, _p22, _t22, _p23, _t23, _p24, _t24,
+			_p25, _t25, _p26, _t26, _p27, _t27, _p28, _t28, _p29, _t29, _p30, _t30, _p31, _t31
+			]);				// スプライトアニメーションの設定 timeはms
+
+void $sprite_alfa_define_abs(_spr, _a1, _t1, _a2, _t2[,
+			_a3, _t3, _a4, _t4, _a5, _t5, _a6, _t6, _a7, _t7, _a8, _t8, 
+			_a9, _t9, _a10, _t10, _a11, _t11, _a12, _t12, _a13, _t13, 
+			_a14, _t14, _a15, _t15, _a16, _t16, _a17, _t17, _a18, _t18, 
+			_a19, _t19, _a20, _t20, _a21, _t21, _a22, _t22, _a23, _t23, _a24, _t24
+			]);				// スプライトのα変化を設定
+void $sprite_alfa_set(_spr, _a[, _t1]);	// αの設定
+
+void $sprite_rotate(_spr, _angle%[, _time, _loop]);		// スプライトを回転
+void $sprite_xmodify_define(_spr, _a1%, _t1, _a2%, _t2[,
+			_a3%, _t3, _a4%, _t4, _a5%, _t5, _a6%, _t6, _a7%, _t7, _a8%, _t8, 
+			_a9%, _t9, _a10%, _t10, _a11%, _t11, _a12%, _t12, _a13%, _t13, 
+			_a14%, _t14, _a15%, _t15, _a16%, _t16, _a17%, _t17, _a18%, _t18, 
+			_a19%, _t19, _a20%, _t20, _a21%, _t21, _a22%, _t22, _a23%, _t23, _a24%, _t24
+			]);					// スプライトのmodx変化を設定
+void $sprite_xmodify_set(_spr, _a1%[, _t1]);	// スプライトのmodxの設定
+
+void $sprite_ymodify_define(_spr, _a1%, _t1, _a2%, _t2[,
+			_a3%, _t3, _a4%, _t4, _a5%, _t5, _a6%, _t6, _a7%, _t7, _a8%, _t8, 
+			_a9%, _t9, _a10%, _t10, _a11%, _t11, _a12%, _t12, _a13%, _t13, 
+			_a14%, _t14, _a15%, _t15, _a16%, _t16, _a17%, _t17, _a18%, _t18, 
+			_a19%, _t19, _a20%, _t20, _a21%, _t21, _a22%, _t22, _a23%, _t23, _a24%, _t24
+			]);					// スプライトのmody変化を設定
+void $sprite_ymodify_set(_spr, _a1%[, _t1]);	// スプライトのmodyの設定
+
+
+void $sprite_move(_spr, _x, _y[, _time]);		// スプライトの表示場所を設定
+								// 時間が設定されているとその時間をかけて動く
+func $sprite_is_move(_spr);				// スプライト移動中か？
+								
+void $sprite_move_wait(_spr);			// n番のスプライトの移動が終了するのを
+							// n=-1ですべてのスプライトの移動が終了するまで待つ(危険)
+							// 描画､スレッド切り替え発生。★
+							
+void $sprite_animate_wait(_spr);		// スプライトのアニメーションが終わるか、一周するまでまつ。
+							// 描画､スレッド切り替え発生。★
+void $sprite_alfa_wait(_spr);			// スプライトのα変化が終わるか、一周するまでまつ。
+							// 描画､スレッド切り替え発生。★
+
+void $sprite_push();		// スプライトの状態を保存(＆全消去)
+void $sprite_pop();		// 上記で保存したスプライト情報を戻す
+
+void $sprite_priority_high(_spr [, _t]);			// スプライトの優先順位をtの一つ手前に、省略でもっとも手前(自動グループ化)
+void $sprite_priority_low(_spr[, _t]);			// スプライトの優先順位をtの一つ奥に、省略でもっとも奥(自動グループ化)
+void $sprite_priority_high_single(_spr [, _t]);		// スプライトの優先順位をtの一つ手前に、省略でもっとも手前、グループ全体ではなく一戸だけ
+void $sprite_priority_low_single(_spr[, _t]);		// スプライトの優先順位をtの一つ奥に、省略でもっとも奥、グループ全体ではなく一戸だけ
+
+//void $sprite_priority_set(_spr, _weight);
+//void $sprite_priority_set(_spr, _weight);		// 手動で優先順位を設定できる
+
+func $sprite_get_pos_x(_spr);
+func $sprite_get_pos_y(_spr);				// 場所鳥
+func $sprite_is_exist(_spr);				// スプライトの存在を調べる
+
+void $sprite_paste(_spr, _page[, _x, _y]);		// スプライトを手動でペーストする
+
+func $sprite_get_page(_spr);				// スプライトのデータ元ページを得る
+
+//void $sprite_button_define(n, x, y, xl, yl, kc, cbc, cbo, cbf);
+//							// ボタン定義　kcキーコード
+//void $sprite_button_reset(n);			// スプライトｎに関係するボタンのリセット
+//							// n=-1で全リセット
+//
+//
+//int $sprite_is_use(no);			// noのスプライトが使用されている？ 0使用なし
+//							// 時間指定が有れば、指定の時間をかけて変化
+//
+//void $sprite_draw_callback($uspr_callback);	// スプライトを描画直前に呼ばれるコールバックに$uspr_callbackを追加
+//void $sprite_draw_callback_reset($udef_callback);// スプライトコールバックを削除
+
+#group pop
+

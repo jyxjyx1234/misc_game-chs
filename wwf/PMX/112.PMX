@@ -1,0 +1,73 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,GRPName = BG25C
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+PutText 0,,寄宿舎で対応に現れたのは、年の割にお堅そうなご婦人だった。
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI001.WAV,0,0,0
+PutText 0,,[寮　母]\n「何でしょうか？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「私、検事局より参りました遠山と申します」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI002.WAV,0,0,0
+PutText 0,,[寮　母]\n「私、当学園の寄宿舎を預かります寮母の涼宮静と申します」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「こちらに大山田楓さんというお嬢さんがいらっしゃると思いますが」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI003.WAV,0,0,0
+PutText 0,,[　静　]\n「失礼ですが、部外者には一切お教えできないことになっております。お引き取り下さい」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「事件が起こっている可能性があります」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI004.WAV,0,0,0
+PutText 0,,[　静　]\n「私のところに、そのような情報は入っておりません。お引き取り下さい」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「あっ……」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG07C
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+PutText 0,,取り付く島もなく追い出されてしまう。
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「なかなか手強いご婦人だね～」
+PutText 0,,クスクス笑っている。
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「コラコラ、笑っている場合じゃないぞ」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「さて、どうしたものでしょうねえ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+New 0,,2,CHECK2_A,OFF,0
+New 0,,2,CHECK2_B,OFF,0
+Jump 0,,113,,-1

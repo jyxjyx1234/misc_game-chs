@@ -1,0 +1,976 @@
+NonStop=0
+HistoryClear 
+Calc 2,,DAY = 1
+Call 0,,4610,,-1
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,BGM\syo1.wav,0,0,0
+Calc 2,,GRPName = BLACK
+Call 0,,9,,-1
+Calc 2,,GRPName = BGT02
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WaitClick 0,
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = BG07A
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+PutText 0,,早朝。
+PutText 0,,夏来は遠山検事と共に大須賀家の車寄せで下車した。
+PutText 0,,間近で見ると館の異質さが際だっているのがわかる。
+PutText 0,,この青く塗られた洋館は青空に溶け込むことを拒否して屹立していた。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「青龍館か……敷地にはいるのは初めてだな」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「有名なお屋敷ですね」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「周囲の風景を一切無視しているから余計に目立つわけだ」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「設計者の我が儘ぶりがうかがい知れる」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「手厳しいご意見ですね」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「身内ですから甘い点は付けられない」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ああ、ご親戚でしたか。なるほどなるほど」
+PutText 0,,手帳に几帳面な文字で書き込む。
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK005.wav,0,0,0
+PutText 0,,[ミコミコ]\n「夏来のお父さんが作ったんだよ。凄いでしょう」
+PutText 0,,妖精も一緒に来ていた。
+PutText 0,,事務所にひとり残すと何をしでかすかわからない。
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「なるほどなるほど、お父様ですか、そうでしたか」
+PutText 0,,それも書き込む。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「親父も、もう少し人の役に立つ仕事をすればいいものを」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「いや、ここも目印代わりに重宝していますよ」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「他に赤いの白いのそれに黒いのもあるから機会が有ったら眺めて下さい」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ほお、それは凄い」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK006.wav,0,0,0
+PutText 0,,[ミコミコ]\n「あっ、メイドさんだ」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+PutText 0,,妖精が指さした先に出迎えのメイドが現れた。
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK007.wav,0,0,0
+PutText 0,,[ミコミコ]\n「こっちだよ♪」
+PutText 0,,妖精に手招きされてメイドが小走りにやって来た。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI018.wav,0,0,0
+PutText 0,,[梨　花]\n「いらっしゃいませ。当家のメイド長、吾妻梨花と申します」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ずいぶんとお若いのにメイド長をなさっているのですね」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI019.wav,0,0,0
+PutText 0,,[梨　花]\n「年を経れば良いというモノでは有りませんわ」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「私もそのご意見に賛成です」
+PutText 0,,何故か手帳に書き込む。
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK008.wav,0,0,0
+PutText 0,,[ミコミコ]\n「あたしも賛成♪」
+PutText 0,,こちらは踊る。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI020.wav,0,0,0
+PutText 0,,[梨　花]\n「失礼ですが、検察局の遠山様でいらっしゃいますね？　おひとりとお聞きしていたのですが」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「検事局はこちらの遠山さんだけだよ。僕は私立探偵」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK009.wav,0,0,0
+PutText 0,,[ミコミコ]\n「あたしはミコミコだよ」
+PutText 0,,妖精は、夏来の肩に乗って自己紹介する。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI021.wav,0,0,0
+PutText 0,,[梨　花]\n「探偵さんにミコミコさんですね」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「昨日、男爵の許可はいただいてます」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI022.wav,0,0,0
+PutText 0,,[梨　花]\n「はい、承っております。ただ、お一人とだけ聞いておりましたので失礼しました」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「こちらは天宮夏来さん。有能な私立探偵です」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「よろしく」
+Calc 2,,CHARNAME = CE04AB
+Calc 2,,DrawEffect = 16
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK010.wav,0,0,0
+PutText 0,,[ミコミコ]\n「よろしくね！」
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI023.wav,0,0,0
+PutText 0,,[梨　花]\n「……は、はい」
+PutText 0,,飛び出してきた妖精の迫力に後ずさる。
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI024.wav,0,0,0
+PutText 0,,[梨　花]\n「では、ご案内いたします」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「お願いします」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「それと警官隊の皆さんが、お庭を警備しますので、多少うるさいのはご辛抱下さい」
+WavPlay 0,,3,SE\SE26.wav,1,0,0
+PutText 0,,遠山の言葉を合図に警官隊が庭になだれ込む。
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+PutText 0,,広大な庭園を駆け回る。
+WavPlay 0,,3,,0,0,1
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「朝っぱらからあんなに走り回って夜まで持つのかな？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ご心配なく、鍛え方が違いますから」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK011.wav,0,0,0
+PutText 0,,[ミコミコ]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,お祭り騒ぎが大好きなのは妖精の性分なだけに、我慢しきれず警官隊を追って行った。
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI025.wav,0,0,0
+PutText 0,,[梨　花]\n「あの、遠山様、お願いがございます」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「何でしょう？」
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI026.wav,0,0,0
+PutText 0,,[梨　花]\n「当家令嬢の咲子様ですが、現在、病に伏せられ非常に危険な状態が続いております。何とぞ、館内ではお静かに願います」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「随分、悪いらしいね」
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI027.wav,0,0,0
+PutText 0,,[梨　花]\n「はい、思わしくありません」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「お聞きしています。ご安心下さい。館内は私と夏来さんの二人だけで警備いたします」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI028.wav,0,0,0
+PutText 0,,[梨　花]\n「安心しました」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「病名は？」
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI029.wav,0,0,0
+PutText 0,,[梨　花]\n「わかりません。今日はみずやさんに診ていただくとか」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「では、もう……」
+PutText 0,,普通、みずやを呼ぶと言うことは、臨終と同義である。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI030.wav,0,0,0
+PutText 0,,[梨　花]\n「あっ、いえ……『みず』を入れていただくんだそうです」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「『みず』を？」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI031.wav,0,0,0
+PutText 0,,[梨　花]\n「はい、お嬢様の『みず』をみずやさんに補充していただくんだそうです」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「『みず』を補充？」
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI032.wav,0,0,0
+PutText 0,,[梨　花]\n「お嬢様は、『みず』が減る病にかかっておられるからです」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「『みず』が減るんですか？　聞いたことのない病ですね」
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI033.wav,0,0,0
+PutText 0,,[梨　花]\n「はい、それまでは何人もお医者様に診ていただいたのですが、原因も病名もわからない有様でした」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「『みず』が原因と看破したのは？」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI034.wav,0,0,0
+PutText 0,,[梨　花]\n「漢方のお医者様です。病は『みず』が足りないところから来ているとのお見立てでした」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI035.wav,0,0,0
+PutText 0,,[梨　花]\n「それで、『みず』移しを専門とされているみずやさんをご手配くださったのです」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「なるほど、『みず』移しのみずやか、考えたね」
+PutText 0,,『みず』移しについては広く一般に知られてはいない。
+PutText 0,,廓を知っている人間か雑学的な知識の豊富なインテリゲンチアに限られるだろう。
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「しかし、何故『みず』が足りないなんてことに？」
+Calc 2,,CHARNAME = CE05AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI036.wav,0,0,0
+PutText 0,,[梨　花]\n「その原因は不明だそうです」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「でしょうねえ、『みず』は魂みたいなものですから普通は増えたり減ったりはしませんよね」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「『みず』というのは、科学的にいまひとつ良くわからないものらしいから、何があっても不思議じゃない。ところで、その漢方医というのは？」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI037.wav,0,0,0
+PutText 0,,[梨　花]\n「昆野先生とおっしゃる方です」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ああ、昆野直人さんですか。あの人の見立てなら間違いないでしょう」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「遠山さんのお知り合いですか？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「いえ、面識はありませんが噂を耳にした事があります」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「奇門遁甲に通じた呪術師のような方で、何でも死人を生き返らせることも出来るとか」
+PutText 0,,手帳を参照して答えた。
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「そしてみずやの登場か」
+PutText 0,,ひとりうなずいてニンマリした。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,0,,0,0,1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE08.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[　？　]\n「……」
+PutText 0,,建物に入った瞬間、夏来は声を聞いた。
+PutText 0,,女のあえぎ声のような。
+Calc 2,,GRPName = BG15A
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE02C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「……」
+PutText 0,,足が止まる。
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「どうされました？」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「あっ、いや、何でも……」
+PutText 0,,他の誰も気付いていない。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = BG12A
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「ご苦労である」
+PutText 0,,大須賀男爵は自室でくつろいでいた。
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「この度は、ご協力いただき感謝しております」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+PutText 0,,儀礼的な口上は遠山検事に任せて夏来は従者よろしく後ろに控えた。
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「なに、猫面相とやらの早とちりで被害を被っているのはお互い様だろう」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「早とちりですか？」
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「かの怪人が欲している賢者の眼なるものは我が手にはない」
+Calc 2,,CHARNAME = CE09B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「無論、喉から手が出るほど欲しいモノでは有るがね。ははははははっ！」
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「残念ながら私ごとき貧乏人の手に入るモノではない」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「はあ」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「貧乏人ですか……」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「……」
+PutText 0,,賢者の眼に焦がれるのは、古の神話の神々からヨーロッパの独裁者までそうそうたる面々だ。
+PutText 0,,比べて東洋の島国の魔術師風情では貧乏人というのも言い得て妙かも知れない。
+PutText 0,,無論、金で買える代物ではないが。
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「猫面相も警官も庭で騒ぐ分にはかまわん。ただし館内は静粛にしてくれたまえ。娘が床に伏せっているのでね」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「お加減がかなり悪いとお聞きしましたが」
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「もともと丈夫な質では無かったが、ここ数日は特に酷い」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ご心配有りません。優秀な警官たちですから」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「……」
+PutText 0,,吹き出しそうになるのをこらえる。
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「とにかく、庭ならかまわん。好きなだけ騒ぎたまえ」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「わかりました、ではこれより警備に入ります」
+Calc 2,,CHARNAME = CE09A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[大須賀]\n「好きにしたまえ」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「では、失礼いたします」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG15A
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「とても自分の娘が危篤に陥ってるようには見えませんでしたね」
+PutText 0,,夏来とふたりだけになったところでヒソヒソと感想を述べる。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「娘と言っても、自分の血を分けた子供とは限らない」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「なるほどなるほど～可能性は有りますね」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「あの手の人物なら自分の娘でも動揺しそうに無いか」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「さっきも関心は別の場所にあった……」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「無いはずのモノのこととか……ですか？」
+PutText 0,,遠山の目が光る。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「さあ、どうでしょう」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「娘より大事なモノが男爵にはたくさんありそうですね」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「遠山さんは、この館に賢者の眼があると睨んでるわけだ」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「猫面相の嗅覚は並じゃないですよ。匂いのないところにヤツは現れませんからね」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「男爵より怪人を信じるんですね」
+PutText 0,,皮肉っぽい笑みを浮かべる。
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「いえいえ、警備に万全を期すためですよ」
+PutText 0,,屈託のない笑顔を返す。
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「食えない人だ」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「はははは」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「猫面相は何処で賢者の眼の情報を？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「本邦の錬金術師の間では既に噂になってます」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「とある予言者が賢者の眼の復活を予言したとかで」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「予言者？　誰ですか」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「大山田備後師と言われています」
+PutText 0,,遠山検事は、希代の予言者の名前を挙げた。
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「真偽のほどは定かでは有りません。例え本当でも予言ですからね。裏の取りようがありません」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「古の賢者復活せり」
+PutText 0,,つぶやき気味に。
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「では、ここから先は暫く自由行動としましょう」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「自由行動ですか？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「夏来さんも猫面相が物陰に潜んでいないか探って下さい」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「こんなに早い時間から？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「相手は猫面相です。十分有り得ます」
+PutText 0,,細目を更に細くする。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「それほど辛抱強いと思えないな」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「猫面相は意外と準備周到ですよ。我々が想像する以上に」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「……」
+PutText 0,,遠山検事がうかつ過ぎるのでは……とは、口に出しては言えない。
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK012.wav,0,0,0
+PutText 0,,[ミコミコ]\n「夏来！」
+PutText 0,,警官隊と行進するのが飽きたのか、妖精が窓から飛び込んで来た。
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK013.wav,0,0,0
+PutText 0,,[ミコミコ]\n「みずやが来たよ」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「思ったより早く来たな」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「では、また後ほど」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,遠山検事は、軽く会釈すると屋敷の奥へと消えた。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「僕たちは、みずやを出迎えるとするか」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK014.wav,0,0,0
+PutText 0,,[ミコミコ]\n「出迎え♪　出迎え♪　出迎え～♪」
+PutText 0,,妖精は夏来の肩に乗るとお尻を振り振りさせて踊った。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG39A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+PutText 0,,叶野静麻は道具を携え、大須賀男爵の屋敷にやってきた。
+PutText 0,,昨日の話に間違いが無ければ、大須賀家の令嬢、咲子の『みず』が何らかの理由で失われつつある。
+PutText 0,,『みず』は生命の源であり、人の心を成す魂のようなもの。
+PutText 0,,生きているうちに無くなるモノではない。
+PutText 0,,それなのに何故、咲子の身体から『みず』が失われたのか？
+PutText 0,,静麻もこれまで聞いたことのない事象だ。
+PutText 0,,昆野直人の見立てで無ければ、まず信用しなかったろう。
+PutText 0,,いま言えるのは、早急に『みず』を戻さなければ咲子の命は消える。
+PutText 0,,これは間違いない。
+Calc 2,,GRPName = BG07A
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「おお、こいつは、でかいな～」
+PutText 0,,静麻は、屋敷が見えたところで足を止めた。
+PutText 0,,まだかなりの距離がある。
+PutText 0,,天子様の離宮とまでとはいかないが、羽振りの良さを十分に表現していた。
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「それにやたらと人が多い」
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+WavPlay 0,,3,SE\SE26.wav,1,0,0
+PutText 0,,大須賀邸では何やら大勢の人間が庭を行き来していた。
+PutText 0,,目を凝らすと『おい、コラ！』でおなじみの制服に身を包んだ警官隊が庭を行ったり来たり。
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「また怖い旦那方かい……」
+WavPlay 0,,3,,0,0,1
+PutText 0,,厄介事が待ち受けていそうな予感にため息を吐いた。
+Calc 2,,CHARNAME = CE23
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,,2,SE\SE24.wav,0,0,0
+PutText 0,,[警　官]\n「おい、コラ、そこのお前、何のようだ！」
+PutText 0,,早速、歩哨の警官が立ちはだかった。
+Calc 2,,CHARNAME = CE01BH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「こちらに呼ばれて参りました、みずやでございます」
+PutText 0,,なるべく下手に出る。
+Calc 2,,CHARNAME = CE23
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警　官]\n「みずやを呼んだ覚えは無いぞ、帰れ」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……悪いが旦那に呼ばれたわけじゃないぜ」
+PutText 0,,ボソッと地が出てしまう。
+Calc 2,,CHARNAME = CE23
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警　官]\n「何だ貴様。逮捕するぞ！」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「では、大須賀男爵にお伝え下さい。みずやが約束通り参りましたが帰されましたと」
+Calc 2,,CHARNAME = CE23
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警　官]\n「貴様、男爵の客か？」
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「はい、何かご不満でも」
+Calc 2,,CHARNAME = CE23
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警　官]\n「そこで待っていろ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,歩哨に立っていた警官が消え、暫くして西洋風な衣装を身に付けた女中が出て来た。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI037_A.wav,0,0,0
+PutText 0,,[女　中]\n「みずやの叶野様ですね。いらっしゃいませ。当家のメイド長、吾妻梨花でございます」
+PutText 0,,女中では無くメイドと言うらしい。
+Calc 2,,CHARNAME = CE01BH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「叶野静麻です」
+PutText 0,,それから声を潜める。
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「今日は何か有ったのかい？　怖い旦那方でいっぱいだ」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,,2,SE\SE26.wav,0,0,0
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+PutText 0,,サーベルの音を響かせて行き来する警官たちを見やった。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI038.wav,0,0,0
+PutText 0,,[梨　花]\n「猫面相という怪盗はご存じですか？」
+PutText 0,,梨花も声を潜めた。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「昨日見たぜ。気球に乗って飛んで行きやがった」
+Calc 2,,CHARNAME = CE05AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI039.wav,0,0,0
+PutText 0,,[梨　花]\n「あっ、あたしも見ました、凄かったですよね」
+PutText 0,,今度は元の声より大きくなって、ぴょんぴょんと跳ねる。
+PutText 0,,馴れ馴れしい感じだが窮屈なよりはずっといい。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「猫面相と何か関係があるのかい？」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI040.wav,0,0,0
+PutText 0,,[梨　花]\n「猫面相の予告状が当家に届いたんです。だからこの様な騒ぎに」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「予告状かい、そいつは凄いな」
+PutText 0,,それから周囲を見回す。
+Calc 2,,CHARNAME = CE01BH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「これだけのお屋敷なら、怪人の一匹や二匹すぐに引き寄せるか」
+Calc 2,,CHARNAME = CE05AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI041.wav,0,0,0
+PutText 0,,[梨　花]\n「お嬢様のご容態が思わしくないのに……とんだ迷惑ですわ」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「面倒事ってのは、大概あんばいの悪いところに重なるもんだ」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI042.wav,0,0,0
+PutText 0,,[梨　花]\n「まったくですね。では、ご案内します。こちらに。足下に気を付けて下さい穴がありますから」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+PutText 0,,庭に警官隊が、あちこち穴を掘っている。
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「落とし穴でも作っているのか？」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI043.wav,0,0,0
+PutText 0,,[梨　花]\n「さあ、私どもには何とも説明されてませんので……」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI044.wav,0,0,0
+PutText 0,,[梨　花]\n「それと館内は見た目以上に広いですからお気を付け下さい」
+Calc 2,,CHARNAME = CE01BH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「気を付けはするが、好きで迷子になるわけじゃないからな」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,視界いっぱいに広がるお屋敷を前にため息をつく。
+PutText 0,,梨花を見失ったら最後だろう。
+PutText 0,,警官たちの掘った穴を避け梨花に先導されて玄関へと向かう。
+PutText 0,,噴水を中心として放射線状に通路が造られたした見事な庭園は、横断するだけで結構な距離がある。
+PutText 0,,全体が欧州の城を思わせるが、静麻にそんな知識はない。
+Calc 2,,CHARNAME = CE01BH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「金が余ってるなら路面電車でも通して貰いたいところだ」
+PutText 0,,ふと視線を感じた。
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……んっ？」
+Calc 2,,CHARNAME = KW02A
+Call 0,,66,,-1
+PutText 0,,噴水の前に若い男がいる。
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+PutText 0,,肩には黒い羽根の妖精が留まっていた。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「妖精を連れているとは風流な……」
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……あっ」
+Calc 2,,CHARNAME = KW02A
+Call 0,,66,,-1
+PutText 0,,昨夜見た男に似ている……と、静麻は今更ながら気付いた。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI045.wav,0,0,0
+PutText 0,,[梨　花]\n「あら、夏来さん」
+PutText 0,,梨花も青年を見ていた。
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「この屋敷の人間かい？」
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI046.wav,0,0,0
+PutText 0,,[梨　花]\n「いえ、今朝来られた探偵さんです」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「探偵ね、そいつはハイカラだ」
+PutText 0,,梨花に先導された静麻は、妖精を連れた探偵の前に来た。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「そちらは、みずやさんだね」
+PutText 0,,衣装を見れば誰でもわかる。
+Calc 2,,CHARNAME = CE05AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI047.wav,0,0,0
+PutText 0,,[梨　花]\n「はい、みずやの叶野様です」
+Calc 2,,CHARNAME = CE01BH
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「叶野静麻と申します。みずやをご用命の時には是非お声掛け下さい」
+PutText 0,,一応、営業する。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「天宮夏来です。よろしく。堅苦しい挨拶はここまでにしよう」
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ありがたい。育ちが悪いんでね。上品な言葉は肩が凝っちまう」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「同じだよ」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「そいつはどうかな、探偵さんは育ちが悪そうには見えないぜ」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「誤魔化しが上手いのさ」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「探偵さんは猫面相を追いかけて来たのかい？」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「そんなところかな」
+Calc 2,,CHARNAME = CE01BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「猫面相をね……だから昨夜もあんな場所に突っ立っていたわけか」
+PutText 0,,ひとり得心する。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「すると昨夜見たみずやは、静麻さんということになるね」
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「そう、俺さ」
+PutText 0,,静麻は改めて探偵を眺める。
+PutText 0,,身なりからすると探偵という職業はなかなか儲かるらしい。
+PutText 0,,それとも金持ちの道楽か？
+PutText 0,,……後者っぽい感じだ。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「梨花さん、早くお嬢さんを見て貰うといい」
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「梨花さんか……お女中とは呼ばないのが西洋風か」
+Calc 2,,CHARNAME = CE05AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI048.wav,0,0,0
+PutText 0,,[梨　花]\n「そうかも知れませんね」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK014_A.wav,0,0,0
+PutText 0,,[妖　精]\n「ねえ夏来、この人いい匂いがしてるよ。焼きたらこの匂いだね」
+PutText 0,,妖精は静麻に向けて鼻をヒクヒクさせる。
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「随分と鼻のいい妖精さんだ。俺の持ってる握り飯がわかっちまうんだ」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK014_B.wav,0,0,0
+PutText 0,,[妖　精]\n「あたし、ミコミコだよ」
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「いい名前だ」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK015.wav,0,0,0
+PutText 0,,[ミコミコ]\n「おにぎり食べたいな」
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「食えるのか？」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK016.wav,0,0,0
+PutText 0,,[ミコミコ]\n「食べられるよ、夏来よりもいっぱい食べるもん」
+PutText 0,,妖精は自慢げに主張する。
+Calc 2,,CHARNAME = CE01BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「凄いな。散らかさないで食えよ」
+PutText 0,,握り飯を包みごと渡す。
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK017.wav,0,0,0
+PutText 0,,[ミコミコ]\n「わーい♪　ありがとう♪」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,包みをぶら下げてヨロヨロと飛んでいった。
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,87,,-1

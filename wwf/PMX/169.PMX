@@ -1,0 +1,128 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,GRPName = BG23C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,3,SE\SE05.wav,1,0,0
+Wait 0,エフェクト ON,1000
+PutText 0,,音楽室には誰の姿も無い。
+Wait 0,エフェクト ON,1000
+PutText 0,,誰も。
+WavPlay 0,,3,,0,0,1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM05.wav,1,0,0
+Calc 2,,GRPName = BG22C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE18A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MD\MD098.WAV,0,0,0
+PutText 0,,[翠　璃]\n「ピアノが消えた……絵梨のヤツ、結構、時間を稼いだじゃない」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,翠璃はキャンバスに向かう。
+Calc 2,,CHARNAME = KW18A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MD\MD099.WAV,0,0,0
+PutText 0,,[翠　璃]\n「あたしも張り切らないと」
+PutText 0,,瞳に浮かんだ涙を流れ落ちる前に袖で乱暴に拭いた。
+PutText 0,,キャンバスに鮮やかな緑の線を描く。
+Calc 2,,CHARNAME = KW18B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MD\MD100.WAV,0,0,0
+PutText 0,,[翠　璃]\n「いい感じだ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,3,SE\SE05.wav,1,0,0
+PutText 0,,音がした。
+PutText 0,,もう何度も耳にしたので直ぐにわかった。
+Calc 2,,CHARNAME = KW18B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MD\MD101.WAV,0,0,0
+PutText 0,,[翠　璃]\n「もう来てくれたの、招待した甲斐があるよ」
+Calc 2,,CHARNAME = KW18A
+Call 0,,66,,-1
+PutText 0,,用意していた瓶を掴む。
+PutText 0,,中には筆を洗う油が入っていた。
+PutText 0,,翠璃は振り返ること無く音に向かって瓶を放り投げた。
+WavPlay 0,@Vol3 > 0,2,SE\SE40.wav,0,0,0
+PutText 0,,そして流れるような一連の身のこなしでマッチに火を点ける。
+Calc 2,,GRPName = WHITE
+Calc 2,,DrawEffect = 0
+Call 0,,9,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE10.wav,0,0,0
+Calc 2,,CHARNAME = CE26A
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Calc 2,,GRPName = BG22C
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n\i(235)「……！」\i(237)
+PutText 0,,化け物は咆哮する。
+Calc 2,,CHARNAME = KW18B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MD\MD102.WAV,0,0,0
+PutText 0,,[翠　璃]\n「へへへ、ざまあみやがれ！」
+Calc 2,,CHARNAME = KW18E
+Call 0,,66,,-1
+PutText 0,,続けざまにその辺りにあるモノを片っ端から投げ付ける。
+PutText 0,,石膏の胸像だって頭の上に持ち上げて投げた。
+WavPlay 0,@Vol3 > 0,2,SE\SE11.wav,0,0,0
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Call 0,,86,人物,4
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+PutText 0,,タンパク質の焦げる嫌な臭いが漂う。
+Calc 2,,CHARNAME = KW18E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MD\MD103.WAV,0,0,0
+PutText 0,,[翠　璃]\n「てめー！　動くな！　死ねえ！」
+PutText 0,,イーゼルを振り上げて襲いかかる。
+WavPlay 0,@Vol3 > 0,2,SE\SE12.wav,0,0,0
+Calc 2,,CHARNAME = CE26A
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n\i(235)「……！」\i(237)
+PutText 0,,化け物は、笑い声をあげた。
+Calc 2,,CHARNAME = CE26B
+Calc 2,,DrawEffect = 16
+Call 0,,66,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE41.wav,0,0,0
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = KW18E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MD\MD104.WAV,0,0,0
+PutText 0,,[翠　璃]\n「なっ！？」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE41.wav,0,0,0
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE40.wav,0,0,0
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,170,,-1

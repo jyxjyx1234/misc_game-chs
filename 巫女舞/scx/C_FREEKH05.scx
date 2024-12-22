@@ -1,0 +1,228 @@
+;■時間　　:夕方
+;■タイトル:新規執筆
+;■発生条件:夕方のターンで久音を選択（４回目）。
+;===========================================
+;・分類:汎用（４回:夕方）
+;・発生ターン:夕方
+;・タイトル:夕方初回
+;============================================
+;◇000:本筋その1
+
+;コメント
+; このイベントは、琥珀を選んでいくと、
+; 攻略できるか否かは問わず、通過する可能性があるイベントです。
+; 繋がりとしては、C_FREEKH04.scxの次です
+
+
+/Mes	[14411]
+琥珀はこの時間、湖の祠に供物を届けに行ってるか……
+/MesWait
+
+
+/Mes	[14412]
+それとももうすでに終わらせて、境内で竹刀を振ってるかだ
+が……
+/MesWait
+
+
+/SoundFadein	<ENV>	[054]	; セミの声「ミーンミンミン……」
+
+
+/Read	<BG>	"bg\bg006D.bmp"	;BG01:草壁神社　境内
+/FadeIn	<BG>
+/FadeWait
+
+
+/Mes	[14413]	'$name'
+「………………………」
+/MesWait
+
+
+/AllFadeOut
+
+
+/FadeIn	<BG>	"bg\bg004D.bmp"	;BG01:草壁神社　境内　御神木
+
+
+/Mes	[14414]	'$name'
+「………………………」
+/MesWait
+
+
+/Mes	[14415]
+神社に琥珀の姿は見当たらない。
+/MesWait
+
+
+/SoundFadeout	<ENV>
+
+
+/Mes	[14416]
+……ということは、湖の方にいっているってことか……
+/MesWait
+
+
+/AllFadeOut
+/wait	[2000]
+
+
+/SoundFadein	<ENV>	[063]	; 森の中の鳥の声「ツイツイツイ……」
+
+
+/Mes	[14417]
+しかし……
+/MesWait
+
+
+/FadeIn	<BG>	"bg\bg027D.bmp"	;BG02:宮合の森
+
+
+/Mes	[14418]
+やっぱこの森は何か、不気味なだよな……
+/MesWait
+
+
+/Mes	[14419]	'琥珀'	"voice\se03.ogg"
+「ふんっ」
+/MesWait
+
+
+/Mes	[14420]
+お？
+/MesWait
+
+
+/Mes	[14421]	'琥珀'	"voice\se04.ogg"
+「いやぁっっ！」
+/MesWait
+
+
+/Mes	[14422]
+琥珀、ここでも竹刀を振ってるのか……
+/MesWait
+
+
+/SoundFadeout	<ENV>
+
+
+/AllFadeOut
+
+
+/wait	[2000]
+
+
+/Mes	[14423]
+でもさすがに……気合いの入り方が違うような気がするな。
+/MesWait
+
+
+/BgmPlay	[02]	; 懐古系
+
+
+/FadeIn	<BG>	"bg\bg023D.bmp"	;BG02:湖　日中
+
+
+/ChrIn	<CHR_1>	"stand\０５コハク現代＿楽.tga"
+
+
+/Mes	[14424]	'$name'
+「よぉ、琥珀。ここでも竹刀を振ってたのかって……巫女服
+　じゃないのか？　珍しいなぁ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０５コハク現代＿いらつき.tga"
+
+
+/Mes	[14425]	'琥珀'
+「………………」
+/MesWait
+
+
+/Mes	[14426]
+しかし琥珀は俺を見たとたん、みるみるイラついた様子になっ
+たかと思うと……
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０５コハク現代＿キリッ.tga"
+
+
+/Mes	[14427]	'琥珀'	"voice\08818.ogg"
+「帰るぞ」
+/MesWait
+
+
+/ChrOut	<CHR_1>	;琥珀off
+
+
+/Mes	[14428]
+そう言い捨てて、さっさと帰ってしまった。
+/MesWait
+
+
+/Mes	[14429]	'$name'
+「……ちょ、ちょっと待ってくれよ！」
+/MesWait
+
+
+/Mes	[14430]
+慌てて俺は後を追った。
+ここにはやっぱり、ひとりでいたくない。
+/MesWait
+
+
+/AllFadeOut
+/SoundFadein	<ENV>	[063]	; 森の中の鳥の声「ツイツイツイ……」
+/FadeIn	<BG>	"bg\bg027D.bmp"	;BG02:宮合の森
+/ChrIn	<CHR_1>	"stand\０５コハク現代＿いらつき.tga"
+
+
+/Mes	[14431]	'琥珀'	"voice\22906.ogg"
+「危ないから近づくなと言ったはずだ！」
+/MesWait
+
+
+/Mes	[14433]	'$name'
+「でもお前のことが気になってさ。
+　だから、来てみたんだが……」
+/MesWait
+
+/Change	<CHR_1>	"stand\０５コハク現代＿楽.tga"
+
+/Mes	[14434]
+それで、俺はそう言ってみた。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０５コハク現代＿テレ.tga"
+
+
+/Mes	[14435]	'琥珀'	"voice\06736.ogg"
+「ああもう、うるさい！　私は帰るぞ」
+/MesWait
+
+
+/ChrOut	<CHR_1>
+
+
+/Mes	[14436]
+すると琥珀は、いつにも増して声を荒げて、怒っていってし
+まった。
+/MesWait
+
+
+/Mes	[14437]
+……まぁ、なんつーか。
+/MesWait
+
+
+/Mes	[14438]
+いい傾向になってきたと思う、うん。
+/MesWait
+/BgmFade
+/soundfadeout	<ENV>
+/AllFadeOut
+;END
+;==============================
+/end

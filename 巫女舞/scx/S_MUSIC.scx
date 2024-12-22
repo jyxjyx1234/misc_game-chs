@@ -1,0 +1,653 @@
+;-----------------------------------------------
+; 音楽鑑賞モード
+;
+;-----------------------------------------------
+; 起動
+
+/Calc	[$menu=0]
+/Calc	[$page=0]
+/Calc	[$save=0]
+/Calc	[$num=-1]
+/call	@open
+/Default	<DATA1>
+
+#loop
+/KeyWait
+/jump	<CMD_CANCEL>	@omake
+/jump	<CMD_UP>	@back
+/jump	<SAVE>		@back
+/jump	<CMD_DOWN>	@next
+/jump	<LOAD>		@next
+/Jump	<DATA1>		@play0
+/Jump	<DATA2>		@play1
+/Jump	<DATA3>		@play2
+/Jump	<DATA4>		@play3
+/Jump	<DATA5>		@play4
+/Jump	<DATA6>		@play5
+/Jump	<DATA7>		@play6
+/Jump	<DATA8>		@play7
+/Jump	<DATA9>		@play8
+/Jump	<DATA10>	@play9
+
+/Jump	<SEL_1>	@cancel
+/Jump	<SEL_2>	@gameend
+/Jump	<SEL_3>	@omake
+
+/jump	<AUTOREAD>	@stop
+/jump	<VIEW>		@play
+/jump	<BACKLOG>	@pause
+
+/jump	@loop
+
+
+;-------------------
+; 戻る
+#omake
+/SePlay	[900]	;決定
+
+/Calc	[$ret=1]
+/end
+
+;-----------------------------------------------
+#playing
+/ChangeButton		<AUTOREAD>	;停止
+/ChangeButton	[1]	<VIEW>		;再生
+/ChangeButton		<BACKLOG>	;ポ－ズ
+/calc	[$menu=1]
+/return
+
+;-----------------------------------------------
+#pauseon
+/ChangeButton		<AUTOREAD>	;停止
+/ChangeButton		<VIEW>		;再生
+/ChangeButton	[1]	<BACKLOG>	;ポ－ズ
+/calc	[$menu=2]
+/return
+
+;-----------------------------------------------
+#normal
+/ChangeButton	[0]	<AUTOREAD>	;停止
+/ChangeButton		<VIEW>		;再生
+/ChangeButton	[0]	<BACKLOG>	;ポ－ズ
+/calc	[$menu=0]
+/return
+
+;-----------------------------------------------
+#play
+/if	[$num==-1]
+	/call	@pg0
+	/calc	[$num=0]
+	/ChangeButton	[1]	<DATA1>
+/Endif
+
+/if	[$menu==2]
+	/jump	@replay
+/endif
+
+/BgmStop
+/call	@playing
+/Wait	[500]
+
+/BgmPlay	[$num+1]
+/jump	@loop
+
+;-----------------------------------------------
+#replay
+/SoundPause	<BGM>	[0]
+/call	@playing
+/jump	@loop
+
+;-----------------------------------------------
+#pause
+/SoundPause	<BGM>	[1]
+/call	@pauseon
+/jump	@loop
+
+;-----------------------------------------------
+#stop
+/BgmStop
+/calc	[$num=-1]
+/call	@normal
+/ChangeButton	<DATA1>
+/ChangeButton	<DATA2>
+/ChangeButton	<DATA3>
+/ChangeButton	<DATA4>
+/ChangeButton	<DATA5>
+/ChangeButton	<DATA6>
+/ChangeButton	<DATA7>
+/ChangeButton	<DATA8>
+/ChangeButton	<DATA9>
+/ChangeButton	<DATA10>
+
+/jump	@loop
+
+;-----------------------------------------------
+; ゲームの終了
+#gameend
+/call	"scx\S_DIALOG.scx"	@exitdlg
+/jump	@loop
+
+;-------------------
+#play0
+/ChangeButton	[1]	<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=0]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play1
+/ChangeButton		<DATA1>
+/ChangeButton	[1]	<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=1]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play2
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton	[1]	<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=2]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play3
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton	[1]	<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=3]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play4
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton	[1]	<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=4]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play5
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton	[1]	<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=5]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play6
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton	[1]	<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=6]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play7
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton	[1]	<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=7]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play8
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton	[1]	<DATA9>
+/ChangeButton		<DATA10>
+/calc	[$save=8]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+;-------------------
+#play9
+/ChangeButton		<DATA1>
+/ChangeButton		<DATA2>
+/ChangeButton		<DATA3>
+/ChangeButton		<DATA4>
+/ChangeButton		<DATA5>
+/ChangeButton		<DATA6>
+/ChangeButton		<DATA7>
+/ChangeButton		<DATA8>
+/ChangeButton		<DATA9>
+/ChangeButton	[1]	<DATA10>
+/calc	[$save=9]
+/calc	[$num=$save+$page*10]
+/jump	@play
+
+
+;-----------------------------------------
+#pg0
+/ChangeButton	<SAVE>	[0]	; 前へ
+/DispOff		<SAVE>
+/ChangeButton	<LOAD>		; 次へ
+/calc	[$page=0]
+
+/Read	<MODE>	"obj\ぺーじ3分の1.tga"
+/SetPos	<MODE>	(704,108)
+/DispOn	<MOdE>
+
+/Default		<DATA1>
+/CreateButton	"obj\ongaku_01_0.tga"
+/Read	[1]		"obj\ongaku_01_2.tga"
+/Read	[2]		"obj\ongaku_01_1.tga"
+
+/Default		<DATA2>
+/CreateButton	"obj\ongaku_02_0.tga"
+/Read	[1]		"obj\ongaku_02_2.tga"
+/Read	[2]		"obj\ongaku_02_1.tga"
+
+/Default		<DATA3>
+/CreateButton	"obj\ongaku_03_0.tga"
+/Read	[1]		"obj\ongaku_03_2.tga"
+/Read	[2]		"obj\ongaku_03_1.tga"
+
+/Default		<DATA4>
+/CreateButton	"obj\ongaku_04_0.tga"
+/Read	[1]		"obj\ongaku_04_2.tga"
+/Read	[2]		"obj\ongaku_04_1.tga"
+
+/Default		<DATA5>
+/CreateButton	"obj\ongaku_05_0.tga"
+/Read	[1]		"obj\ongaku_05_2.tga"
+/Read	[2]		"obj\ongaku_05_1.tga"
+
+/Default		<DATA6>
+/CreateButton	"obj\ongaku_06_0.tga"
+/Read	[1]		"obj\ongaku_06_2.tga"
+/Read	[2]		"obj\ongaku_06_1.tga"
+
+/Default		<DATA7>
+/CreateButton	"obj\ongaku_07_0.tga"
+/Read	[1]		"obj\ongaku_07_2.tga"
+/Read	[2]		"obj\ongaku_07_1.tga"
+
+/Default		<DATA8>
+/CreateButton	"obj\ongaku_08_0.tga"
+/Read	[1]		"obj\ongaku_08_2.tga"
+/Read	[2]		"obj\ongaku_08_1.tga"
+
+/Default		<DATA9>
+/CreateButton	"obj\ongaku_09_0.tga"
+/Read	[1]		"obj\ongaku_09_2.tga"
+/Read	[2]		"obj\ongaku_09_1.tga"
+
+/Default		<DATA10>
+/CreateButton	"obj\ongaku_10_0.tga"
+/Read	[1]		"obj\ongaku_10_2.tga"
+/Read	[2]		"obj\ongaku_10_1.tga"
+
+/Default	<-1>
+/SetPos	<DATA1>		(245,130)
+/SetPos	<DATA2>		(245,162)
+/SetPos	<DATA3>		(245,194)
+/SetPos	<DATA4>		(245,226)
+/SetPos	<DATA5>		(245,258)
+/SetPos	<DATA6>		(245,290)
+/SetPos	<DATA7>		(245,322)
+/SetPos	<DATA8>		(245,354)
+/SetPos	<DATA9>		(245,386)
+/SetPos	<DATA10>	(245,418)
+
+/if	[$num==0]	/ChangeButton	[1]	<DATA1>		/else	/ChangeButton	<DATA1>		/endif
+/if	[$num==1]	/ChangeButton	[1]	<DATA2>		/else	/ChangeButton	<DATA2>		/endif
+/if	[$num==2]	/ChangeButton	[1]	<DATA3>		/else	/ChangeButton	<DATA3>		/endif
+/if	[$num==3]	/ChangeButton	[1]	<DATA4>		/else	/ChangeButton	<DATA4>		/endif
+/if	[$num==4]	/ChangeButton	[1]	<DATA5>		/else	/ChangeButton	<DATA5>		/endif
+/if	[$num==5]	/ChangeButton	[1]	<DATA6>		/else	/ChangeButton	<DATA6>		/endif
+/if	[$num==6]	/ChangeButton	[1]	<DATA7>		/else	/ChangeButton	<DATA7>		/endif
+/if	[$num==7]	/ChangeButton	[1]	<DATA8>		/else	/ChangeButton	<DATA8>		/endif
+/if	[$num==8]	/ChangeButton	[1]	<DATA9>		/else	/ChangeButton	<DATA9>		/endif
+/if	[$num==9]	/ChangeButton	[1]	<DATA10>	/else	/ChangeButton	<DATA10>	/endif
+
+/return
+
+;-----------------------------------------
+#pg1
+/ChangeButton	<SAVE>		; 前へ
+/ChangeButton	<LOAD>		; 次へ
+/calc	[$page=1]
+
+/Read	<MODE>	"obj\ぺーじ3分の2.tga"
+/SetPos	<MODE>	(704,108)
+/DispOn	<MOdE>
+
+/Default		<DATA1>
+/CreateButton	"obj\ongaku_11_0.tga"
+/Read	[1]		"obj\ongaku_11_2.tga"
+/Read	[2]		"obj\ongaku_11_1.tga"
+
+/Default		<DATA2>
+/CreateButton	"obj\ongaku_12_0.tga"
+/Read	[1]		"obj\ongaku_12_2.tga"
+/Read	[2]		"obj\ongaku_12_1.tga"
+
+/Default		<DATA3>
+/CreateButton	"obj\ongaku_13_0.tga"
+/Read	[1]		"obj\ongaku_13_2.tga"
+/Read	[2]		"obj\ongaku_13_1.tga"
+
+/Default		<DATA4>
+/CreateButton	"obj\ongaku_14_0.tga"
+/Read	[1]		"obj\ongaku_14_2.tga"
+/Read	[2]		"obj\ongaku_14_1.tga"
+
+/Default		<DATA5>
+/CreateButton	"obj\ongaku_15_0.tga"
+/Read	[1]		"obj\ongaku_15_2.tga"
+/Read	[2]		"obj\ongaku_15_1.tga"
+
+/Default		<DATA6>
+/CreateButton	"obj\ongaku_16_0.tga"
+/Read	[1]		"obj\ongaku_16_2.tga"
+/Read	[2]		"obj\ongaku_16_1.tga"
+
+/Default		<DATA7>
+/CreateButton	"obj\ongaku_17_0.tga"
+/Read	[1]		"obj\ongaku_17_2.tga"
+/Read	[2]		"obj\ongaku_17_1.tga"
+
+/Default		<DATA8>
+/CreateButton	"obj\ongaku_18_0.tga"
+/Read	[1]		"obj\ongaku_18_2.tga"
+/Read	[2]		"obj\ongaku_18_1.tga"
+
+/Default		<DATA9>
+/CreateButton	"obj\ongaku_19_0.tga"
+/Read	[1]		"obj\ongaku_19_2.tga"
+/Read	[2]		"obj\ongaku_19_1.tga"
+
+/Default		<DATA10>
+/CreateButton	"obj\ongaku_20_0.tga"
+/Read	[1]		"obj\ongaku_20_2.tga"
+/Read	[2]		"obj\ongaku_20_1.tga"
+
+/Default	<-1>
+/SetPos	<DATA1>		(245,130)
+/SetPos	<DATA2>		(245,162)
+/SetPos	<DATA3>		(245,194)
+/SetPos	<DATA4>		(245,226)
+/SetPos	<DATA5>		(245,258)
+/SetPos	<DATA6>		(245,290)
+/SetPos	<DATA7>		(245,322)
+/SetPos	<DATA8>		(245,354)
+/SetPos	<DATA9>		(245,386)
+/SetPos	<DATA10>	(245,418)
+
+/if	[$num==10]	/ChangeButton	[1]	<DATA1>		/else	/ChangeButton	<DATA1>		/endif
+/if	[$num==11]	/ChangeButton	[1]	<DATA2>		/else	/ChangeButton	<DATA2>		/endif
+/if	[$num==12]	/ChangeButton	[1]	<DATA3>		/else	/ChangeButton	<DATA3>		/endif
+/if	[$num==13]	/ChangeButton	[1]	<DATA4>		/else	/ChangeButton	<DATA4>		/endif
+/if	[$num==14]	/ChangeButton	[1]	<DATA5>		/else	/ChangeButton	<DATA5>		/endif
+/if	[$num==15]	/ChangeButton	[1]	<DATA6>		/else	/ChangeButton	<DATA6>		/endif
+/if	[$num==16]	/ChangeButton	[1]	<DATA7>		/else	/ChangeButton	<DATA7>		/endif
+/if	[$num==17]	/ChangeButton	[1]	<DATA8>		/else	/ChangeButton	<DATA8>		/endif
+/if	[$num==18]	/ChangeButton	[1]	<DATA9>		/else	/ChangeButton	<DATA9>		/endif
+/if	[$num==19]	/ChangeButton	[1]	<DATA10>	/else	/ChangeButton	<DATA10>	/endif
+
+/return
+
+;-----------------------------------------
+#pg2
+/ChangeButton	<SAVE>		; 前へ
+/ChangeButton	<LOAD>	[0]	; 次へ
+/DispOff		<LOAD>
+/calc	[$page=2]
+
+/Read	<MODE>	"obj\ぺーじ3分の3.tga"
+/SetPos	<MODE>	(704,108)
+/DispOn	<MOdE>
+
+/Default		<DATA1>
+/CreateButton	"obj\ongaku_21_0.tga"
+/Read	[1]		"obj\ongaku_21_2.tga"
+/Read	[2]		"obj\ongaku_21_1.tga"
+
+/Default		<DATA2>
+/CreateButton	"obj\ongaku_22_0.tga"
+/Read	[1]		"obj\ongaku_22_2.tga"
+/Read	[2]		"obj\ongaku_22_1.tga"
+
+/Default		<DATA3>
+/CreateButton	"obj\ongaku_23_0.tga"
+/Read	[1]		"obj\ongaku_23_2.tga"
+/Read	[2]		"obj\ongaku_23_1.tga"
+
+/Default		<DATA4>
+/CreateButton	"obj\ongaku_24_0.tga"
+/Read	[1]		"obj\ongaku_24_2.tga"
+/Read	[2]		"obj\ongaku_24_1.tga"
+
+/Default		<DATA5>
+/CreateButton	"obj\ongaku_25_0.tga"
+/Read	[1]		"obj\ongaku_25_2.tga"
+/Read	[2]		"obj\ongaku_25_1.tga"
+
+/Default		<DATA6>
+/CreateButton	"obj\ongaku_26_0.tga"
+/Read	[1]		"obj\ongaku_26_2.tga"
+/Read	[2]		"obj\ongaku_26_1.tga"
+
+/Default		<DATA7>
+/CreateButton	"obj\ongaku_27_0.tga"
+/Read	[1]		"obj\ongaku_27_2.tga"
+/Read	[2]		"obj\ongaku_27_1.tga"
+
+/Default		<DATA8>
+/CreateButton	"obj\ongaku_28_0.tga"
+/Read	[1]		"obj\ongaku_28_2.tga"
+/Read	[2]		"obj\ongaku_28_1.tga"
+
+/Default		<DATA9>
+/CreateButton	"obj\ongaku_29_0.tga"
+/Read	[1]		"obj\ongaku_29_2.tga"
+/Read	[2]		"obj\ongaku_29_1.tga"
+
+
+/Default	<-1>
+/SetPos	<DATA1>		(245,130)
+/SetPos	<DATA2>		(245,162)
+/SetPos	<DATA3>		(245,194)
+/SetPos	<DATA4>		(245,226)
+/SetPos	<DATA5>		(245,258)
+/SetPos	<DATA6>		(245,290)
+/SetPos	<DATA7>		(245,322)
+/SetPos	<DATA8>		(245,354)
+/SetPos	<DATA9>		(245,386)
+
+/if	[$num==20]	/ChangeButton	[1]	<DATA1>		/else	/ChangeButton	<DATA1>		/endif
+/if	[$num==21]	/ChangeButton	[1]	<DATA2>		/else	/ChangeButton	<DATA2>		/endif
+/if	[$num==22]	/ChangeButton	[1]	<DATA3>		/else	/ChangeButton	<DATA3>		/endif
+/if	[$num==23]	/ChangeButton	[1]	<DATA4>		/else	/ChangeButton	<DATA4>		/endif
+/if	[$num==24]	/ChangeButton	[1]	<DATA5>		/else	/ChangeButton	<DATA5>		/endif
+/if	[$num==25]	/ChangeButton	[1]	<DATA6>		/else	/ChangeButton	<DATA6>		/endif
+/if	[$num==26]	/ChangeButton	[1]	<DATA7>		/else	/ChangeButton	<DATA7>		/endif
+/if	[$num==27]	/ChangeButton	[1]	<DATA8>		/else	/ChangeButton	<DATA8>		/endif
+/if	[$num==28]	/ChangeButton	[1]	<DATA9>		/else	/ChangeButton	<DATA9>		/endif
+/Init		<DATA10>
+
+/Wait
+
+/return
+
+;-------------------
+#next
+/jump	[$page==2]	@loop
+/add	'page'	[+1]
+/SePlay	[902]	;決定
+/Call	[$page==0]	@pg0
+/Call	[$page==1]	@pg1
+/Call	[$page==2]	@pg2
+/jump	@loop
+;-------------------
+#back
+/jump	[$page==0]	@loop
+/SePlay	[902]	;決定
+/add	'page'	[-1]
+/Call	[$page==0]	@pg0
+/Call	[$page==1]	@pg1
+/Call	[$page==2]	@pg2
+/jump	@loop
+;-------------------
+; 終了
+#cancel
+/SePlay	[900]	;決定
+/Calc	[$ret=0]
+/end
+
+;-----------------------------------------------
+; UIオープン・サブルーチン
+#open
+
+/Default	<SAVE>
+/CreateButton	"obj\やじるし_うえ_0.tga"
+/Read	[1]		"obj\やじるし_うえ_1.tga"
+/SetPos			(480,96)
+/ChangeButton	[0]
+
+/Default	<LOAD>
+/CreateButton	"obj\やじるし_した_0.tga"
+/Read	[1]		"obj\やじるし_した_1.tga"
+/SetPos			(480,450)
+/ChangeButton	[0]
+
+/Call		@pg0
+/DispOff	<DATA1>
+/DispOff	<DATA2>
+/DispOff	<DATA3>
+/DispOff	<DATA4>
+/DispOff	<DATA5>
+/DispOff	<DATA6>
+/DispOff	<DATA7>
+/DispOff	<DATA8>
+/DispOff	<DATA9>
+/DispOff	<DATA10>
+/DispOff	<SAVE>
+/DispOff	<LOAD>
+
+/Default	<AUTOREAD>
+/CreateButton	"obj\ていし_0.tga"
+/SetButton	[1]	"obj\ていし_1.tga"
+/SetPos		(626,467)
+/ChangeButton	[0]
+/DispOff
+/Fadein
+
+/Default	<VIEW>
+/CreateButton	"obj\さいせい_0.tga"
+/SetButton	[1]	"obj\さいせい_1.tga"
+/SetButton	[2]	"obj\さいせい_1.tga"
+/SetPos		(655,467)
+/ChangeButton	[0]
+/DispOff
+/Fadein
+
+/Default	<BACKLOG>
+/CreateButton	"obj\いちじ停止_0.tga"
+/SetButton	[1]	"obj\いちじ停止_1.tga"
+/SetButton	[2]	"obj\いちじ停止_1.tga"
+/SetPos		(708,467)
+/ChangeButton	[0]
+/DispOff
+/Fadein
+
+/FadeIn	<DATA1>		[32]	/wait
+/FadeIn	<DATA2>		[32]	/wait
+/FadeIn	<DATA3>		[32]	/wait
+/FadeIn	<DATA4>		[32]	/wait
+/FadeIn	<DATA5>		[32]	/wait
+/FadeIn	<DATA6>		[32]	/wait
+/FadeIn	<DATA7>		[32]	/wait
+/FadeIn	<DATA8>		[32]	/wait
+/FadeIn	<DATA9>		[32]	/wait
+/FadeIn	<DATA10>	[32]	/fadewait
+
+/ChangeButton	<DATA1>
+/ChangeButton	<DATA2>
+/ChangeButton	<DATA3>
+/ChangeButton	<DATA4>
+/ChangeButton	<DATA5>
+/ChangeButton	<DATA6>
+/ChangeButton	<DATA7>
+/ChangeButton	<DATA8>
+/ChangeButton	<DATA9>
+/ChangeButton	<DATA10>
+/ChangeButton	<LOAD>
+/ChangeButton	<DATE>
+
+/call	@normal
+
+/return
+

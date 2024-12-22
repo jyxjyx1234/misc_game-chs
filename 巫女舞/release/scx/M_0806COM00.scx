@@ -1,0 +1,91 @@
+;-------------------------
+;8月6日　メインシーケンス
+;-------------------------
+
+/calc	[$day=6]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+
+;=============================
+/call	"scx\A_0806COM01.scx"	;祭りの準備(共通)
+/call	"scx\B_MORSEL.scx"
+/allfadeout
+
+/jump	[$answer==0]	@NK00
+/jump	[$answer==1]	@HN00
+/jump	[$answer==2]	@KH00
+/jump	[$answer==3]	@AK00
+
+;-------------------------
+#NK00
+/call	"scx\A_0806NK02.scx"	;
+/jump	@HIRU
+
+;-------------------------
+#HN00
+/call	"scx\A_0806HN02.scx"	;
+/jump	@HIRU
+
+;-------------------------
+#KH00
+/call	"scx\A_0806KH02.scx"	;竹取り（琥珀は出ない）
+/jump	@HIRU
+
+;-------------------------
+#AK00
+/call	"scx\A_0806AK04.scx"	;縁切
+/jump	@HIRU
+;=============================
+
+;=============================
+#HIRU
+/call	"scx\A_0806AK02.scx"	;クリスマス→出だし書き換えが必要
+
+/call	"scx\Q_TETUDAI01.scx"
+/jump	[$answer==0]	@NK01
+/jump	[$answer==1]	@HN01
+/jump	[$answer==2]	@KH01
+/jump	[$answer==3]	@AK01
+
+;-------------------------
+#NK01
+/call	"scx\A_0806NK05.scx"	;
+/jump	@YORU
+
+;-------------------------
+#HN01
+/if	[$1114]		;スケブ発見してる
+	/call	"scx\A_0806HN04.scx"	;（桔梗）
+/else
+	/call	"scx\A_0806HN05.scx"	;
+/endif
+/jump	@YORU
+
+;-------------------------
+#KH01
+/call	"scx\A_0806KH03.scx"	;
+/jump	@YORU
+
+;-------------------------
+#AK01
+/if	[$akpts>5]		; 座敷童子と知ってる
+	/call	"scx\A_0806AK03.scx"	;ハルがらみ
+/else
+	/call	"scx\A_0806AK05.scx"	;
+/Endif
+
+/jump	@YORU
+;=============================
+
+
+;=============================
+#YORU
+/call	"scx\B_NIGHT0806.scx"
+/if	[$1115]	;桔梗を見ている
+	/call	"scx\A_0806HN06.scx"
+/endif
+;=============================
+
+/end
+;_____________________________
+

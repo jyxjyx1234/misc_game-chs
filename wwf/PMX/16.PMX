@@ -1,0 +1,27 @@
+NonStop=0
+Label 0,,瞬間
+Calc 0,,MesSpeed = 0
+Save 0,,MesSpeed,MesSpeed
+TextSpd 0,,MesSpeed
+Jump 0,,16,ボタン切り替え,19
+Label 0,,速い
+Calc 0,,MesSpeed = 3
+Save 0,,MesSpeed,MesSpeed
+TextSpd 0,,MesSpeed
+Jump 0,,16,ボタン切り替え,19
+Label 0,,普通
+Calc 0,,MesSpeed = 5
+Save 0,,MesSpeed,MesSpeed
+TextSpd 0,,MesSpeed
+Jump 0,,16,ボタン切り替え,19
+Label 0,,遅い
+Calc 0,,MesSpeed = 7
+Save 0,,MesSpeed,MesSpeed
+TextSpd 0,,MesSpeed
+Label 0,,ボタン切り替え
+Jump 0,@MouseX >= BAR4_L;@MouseX <= BAR4_R;@MouseY >= BAR4_T;@MouseY <= BAR4_U;@PushL ON,16,,-1
+OverSfc 2,MesSpeed = 7,5,SYSCG\CHIP\SELECTED.PMP,3,230,110,1,255,0,0,1
+OverSfc 2,MesSpeed = 5,5,SYSCG\CHIP\SELECTED.PMP,3,342,110,1,255,0,0,1
+OverSfc 2,MesSpeed = 3,5,SYSCG\CHIP\SELECTED.PMP,3,454,110,1,255,0,0,1
+OverSfc 2,MesSpeed = 0,5,SYSCG\CHIP\SELECTED.PMP,3,566,110,1,255,0,0,1
+Jump 0,,17,クリック待ち,56

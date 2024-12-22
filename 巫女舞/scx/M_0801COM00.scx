@@ -1,0 +1,53 @@
+;-------------------------
+;8月1日　メインシーケンス
+;-------------------------
+
+/calc	[$day=1]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+
+;=============================
+
+/call	"scx\A_0801COM01.scx"
+/call	"scx\A_0801KH01.scx"	;声だせる？
+
+;=============================
+#HIRU
+;/call	"scx\A_0801AK02.scx"	;茜神社登場
+;/call	"scx\C_JOB0HN01.scx"
+;/call	"scx\C_JOB0NK10.scx"
+;/call	"scx\C_JOB0KH02.scx"
+;↓統合らしい↓
+/call	"scx\C_JOB0801.scx"
+
+/call	"scx\B_YUU0801.scx"
+/jump	[$answer==0]	@KHHN
+/jump	[$answer==1]	@NKAK
+
+;-------------------------
+#KHHN
+/call	"scx\C_FREEKH99.scx"
+/call	"scx\C_FREEHN01.scx"
+;★ここ通ったら、久音のfreeイベントを１個消化したものとする
+;★以後、このイベントを見ていない場合は普通にC_FREEHN99.scxを
+;★呼び出すこと。
+/calc	[$hnfree=1]
+
+/jump	@YORU
+
+#NKAK
+/call	"scx\C_FREENK03.scx"
+/call	"scx\C_FREEAK01.scx"
+/jump	@YORU
+
+
+;=============================
+#YORU
+/call	"scx\B_NIGHT0801.scx"
+;=============================
+
+/call	"scx\X_0801AH03.scx"	; 夢
+
+/end
+;_____________________________
+

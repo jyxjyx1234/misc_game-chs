@@ -1,0 +1,198 @@
+;-----------------------------------------------
+; ネームエントリー
+;-----------------------------------------------
+
+/EditFont	'ＭＳ 明朝'	[24]
+;-----------------------------------------------
+#retry
+/call	@dialog
+/SETTEXTEDGE	<DIALOG>	[0]
+/SetTextColor	<DIALOG>	[0]
+
+/ResetText
+/AddText
+　　主人公の名前は
+　　【$name】です
+この名前で良いですか？
+
+/PutText	<DIALOG>
+
+/call	@open
+
+/Default	<BTN_1>
+/call	@yes
+/call	@left
+
+/Default	<BTN_2>
+/call	@no
+/call	@right
+/default	<-1>
+
+/jump	@loop
+
+
+/Buttonrange	<BTN_1>	<BTN_2>
+;----------------------------------------
+#loop
+/keywait
+/jump	<CMD_CANCEL>	@loop
+/jump	<BTN_1>		@done
+/jump	<BTN_2>		@enter
+/jump	@loop
+
+;----------------------------------------
+#enter
+/SePlay	[902]
+/default	<DIALOG>
+/Read	"obj\dialog_なまえ入力.tga"
+/SetTextArea	{280,230,584,320}
+/SetPos	(0,0)
+/DispOn
+/Default	<-1>
+/EditFont	'ＭＳ 明朝'	[32]	(0,0)
+/EditOpen	'$name'	[16]	{320,280,138,32}
+
+/Default	<BTN_1>
+/call	@yes
+/call	@left
+
+/Default	<BTN_2>
+/call	@no
+/call	@right
+/default	<-1>
+
+/Buttonrange	<BTN_1>	<BTN_2>
+;----------------------------------------
+#entlop
+/keywait
+/jump	<CMD_CANCEL>	@entlop
+/jump	<CMD_EDIT>		@name
+/jump	<BTN_1>			@name
+/jump	<BTN_2>			@cls
+/jump	@entlop
+;----------------------------------------
+
+#cls
+/SePlay	[902]
+/EditFont	'ＭＳ 明朝'	[32]	(0,0)
+/EditOpen	'$name'	[16]	{320,280,138,32}
+/jump		@entlop
+
+;----------------------------------------
+#name
+/EditGet
+/if	[$exec==0]
+	/SePlay	[900]
+	/jump	@entlop
+/else
+	/SePlay	[902]
+	/set	'name'	"$ret"
+	/EditClose	'$name'	[8]	{300,250,64,32}
+	/jump	@retry
+/endif
+
+
+#done
+/SePlay	[902]
+/call	@close
+/Buttonrange	<-1>	<-1>
+/end
+
+;-----------------------------------------------
+#btn1
+/SePlay	[902]	;キャンセル
+/default	<-1>
+/Buttonrange	<-1>	<-1>	;解除
+/call	@close
+/end
+
+;-----------------------------------------------
+#btn2
+/default	<DIALOG>
+/Read	"obj\dialog_なまえ入力.tga"
+/SetTextArea	{280,230,584,320}
+/SetPos	(0,0)
+/DispOn
+/Default	<-1>
+
+/dispoff	<BTN_1>
+/dispoff	<BTN_2>
+/wait
+/jump	@ent
+
+;-----------------------------------------------
+#done
+/jump	exit
+
+;-----------------------------------------------
+#exit
+/SePlay	[902]	;キャンセル
+/call	@close
+/default	<-1>
+/Buttonrange	<-1>	<-1>	;解除
+;まぁ、レイヤー属性なんで、恒久保存されないんだけどね
+
+/end
+
+;-----------------------------------------------
+#left
+/SetPos	(240,340)
+/return
+
+;-----------------------------------------------
+#right
+/SetPos	(410,340)
+/return
+
+;-----------------------------------------------
+#center
+/SetPos	(325,340)
+/return
+
+
+;-----------------------------------------------
+#dialog
+/default	<DIALOG>
+/Read	"obj\dialog_なまえ確認.tga"
+/SetTextArea	{280,230,584,320}
+/SetPos	(0,0)
+/DispOn
+/Default	<-1>
+/return
+
+;-----------------------------------------------
+#open
+/fadein	[85]	<DIALOG>
+/if	[$a]
+	/fadein	[85]	<BTN_1>
+/endif
+/if	[$b]
+	/fadein	[85]	<BTN_2>
+/endif
+/fadewait
+/return
+
+;-----------------------------------------------
+#close
+/fadeout	[85]	<DIALOG>
+/fadeout	[85]	<BTN_1>
+/fadeout	[85]	<BTN_2>
+/fadewait
+/return
+
+;-----------------------------------------------
+#yes
+/Read	[0]	"obj\dialog-yes2.tga"
+/Read	[1]	"obj\dialog-yes1.tga"
+/ChangeButton
+/DispOn
+/return
+
+;-----------------------------------------------
+#no
+/Read	[0]	"obj\dialog-no2.tga"
+/Read	[1]	"obj\dialog-no1.tga"
+/ChangeButton
+/DispOn
+/return
+

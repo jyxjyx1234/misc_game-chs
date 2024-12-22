@@ -1,0 +1,107 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 06_黒_部屋_放課後_出席_p1■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+
+
+-- プレイ回数追加
+--PlayKuro=PlayKuro+1
+
+
+-- sample_image
+--capture()
+--set(BG, "ev-H-kuro001a_007.png")
+--fade(0.5)
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+--Phase1
+--背景：教室（昼）
+TransitionCapture()
+alldel()
+set(BG,"view_050.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+winopen(0.5)
+
+playBgm("01-After.ogg")
+
+
+::block_00001::
+cls1()
+setname("透")
+text("「黒、ちゃんと過ごせたかな……」")
+
+
+::block_00002::
+cls1()
+noname()
+text("授業が終わり、手持ち無沙汰になると、\nふと黒の様子が気になった。")
+
+
+::block_00003::
+cls1()
+noname()
+text("登校するときに症状は治まったから、\nたぶん大丈夫だとは思う。")
+
+
+::block_00004::
+cls1()
+noname()
+text("でも、もしも症状が出ていたら……。")
+
+
+--::block_00005::
+--cls1()
+--setname("透")
+--text("「まさか、教室でオナニーはしないと思うけど……」")
+
+
+::block_00006::
+cls1()
+noname()
+text("考えると、やっぱり心配になる。")
+
+
+::block_00007::
+cls1()
+noname()
+text("とはいえ、白との時間だって大切にしたい。")
+
+
+::block_00008::
+cls1()
+noname()
+text("今日の放課後は、どっちと過ごそうかな……。")
+
+
+::block_00009::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+winclose(0.5)
+TransitionCapture()
+alldel()
+set(BG,"black.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+stopSe()
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2放課後_マップ移動■.lua")
+
+
+-- 終了
+end
+
+

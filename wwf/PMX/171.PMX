@@ -1,0 +1,539 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+WavPlay 0,@Vol3 > 0,2,SE\SE42.wav,0,0,0
+Wait 0,エフェクト ON,2000
+PutText 0,,身体が引きずられていた。
+Calc 2,,GRPName = BG08C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……？」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI445.WAV,0,0,0
+PutText 0,,[梨　花]\n「あっ、目が覚めたの？」
+PutText 0,,身体を引きずっているのは梨花だった。
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……何してるんだ？」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI446.WAV,0,0,0
+PutText 0,,[梨　花]\n「図書室に連れて行こうとしてるんじゃない……足は折れてないみたいだから立てるでしょう？」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ああ……大丈夫だ……」
+PutText 0,,身体は随分と痛みが引いていた。
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI447.WAV,0,0,0
+PutText 0,,[梨　花]\n「鎮痛剤を注射しただけだから、治療にはなっていないけどね」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「鎮痛剤……ああ、どうりで楽なわけだ」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+PutText 0,,梨花の手を借りて立ち上がる。
+PutText 0,,一歩、歩くとズキンと痛んだが我慢出来るレベルだ。
+PutText 0,,流石に走るのは無理だが引きずられるよりずっと速い。
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「それで、どうなった？」
+PutText 0,,梨花の肩を借りて歩く。
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI448.WAV,0,0,0
+PutText 0,,[梨　花]\n「夏来さんたちは最後の鍵を探しているところ……絵梨さん、翠璃さんはわからないわ」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「化け物は俺に向かって来たが……ピアノの音がして助かった」
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI449.WAV,0,0,0
+PutText 0,,[梨　花]\n「そう……」
+PutText 0,,すべて口にしなくてもわかったようだ。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE15A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA227.WAV,0,0,0
+PutText 0,,[　楓　]\n「見付けました」
+PutText 0,,楓が最後の一つを見付けた。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「何とか……揃ったな」
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST156.WAV,0,0,0
+PutText 0,,[五　月]\n「後は開けるだけですね」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「そうだ」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI450.WAV,0,0,0
+PutText 0,,[梨　花]\n「静麻は見付けたわ」
+PutText 0,,扉が開いて梨花と静麻が戻ってきた。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+PutText 0,,静麻は思いの外、ボロボロだったが動いているだけマシかも知れない。
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「首尾は？」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「上々だ」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「直ぐに鍵を開ける……全員、書庫に降りてくれ……ヤツが来る」
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「その前に僕が鍵を開ける」
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST157.WAV,0,0,0
+PutText 0,,[五　月]\n「待って下さい、鍵は私が開けます」
+Calc 2,,CHARNAME = CE15C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA228.WAV,0,0,0
+PutText 0,,[　楓　]\n「五月先輩……」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「鍵を開けるってのは、手間が掛かることなのか？」
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST158.WAV,0,0,0
+PutText 0,,[五　月]\n「はい、魔術の知識が無いと無理です」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「いいだろう、僕が時間を稼ぐ。五月君その間に鍵を頼む」
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST159.WAV,0,0,0
+PutText 0,,[五　月]\n「わかりました。皆さんは書庫に移動して下さい。直ぐに始めます」
+Calc 2,,CHARNAME = CE15C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA229.WAV,0,0,0
+PutText 0,,[　楓　]\n「五月先輩」
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST160.WAV,0,0,0
+PutText 0,,[五　月]\n「それぞれ果たさなくてはならない役割があるわ……後は頼むわね」
+Calc 2,,CHARNAME = CE15C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA230.WAV,0,0,0
+PutText 0,,[　楓　]\n「……わかりました」
+PutText 0,,泣き出したいのをぐっとこらえた。
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「静麻、僕の『みず』を持って行ってくれ」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「『みず』……随分と気の早いヤツだな」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「違う……僕は例の機械の止め方を知っている……いま、それを教えてる時間がない」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「それに口で言ってわかるものでもない」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「わかった……略式にて……」
+Calc 2,,GRPName = S01
+Calc 2,,DrawEffect = 25
+Call 0,,229,,-1
+PutText 0,,水差しを手にした。
+Calc 2,,CHARNAME = CE01AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「しかし、こんな不作法を続けると親父が化けてでそうだぜ」
+PutText 0,,水差しに夏来の『みず』を取った。
+Calc 2,,GRPName = 
+Calc 2,,DrawEffect = 2
+Call 0,,229,,-1
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「行ってくれ、直ぐに始める」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「死ぬなよ」
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「お互いにな」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG21C
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+PutText 0,,静麻たちは書庫の所定の位置に着いた。
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK288.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「待って！」
+PutText 0,,袋をぶら下げた妖精が飛んで来た。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ミコミコ、何処に行ってたんだ？」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK289.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「ちょっとね」
+PutText 0,,妖精も抱えられた。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM05.wav,1,0,0
+WavPlay 0,@Vol3 > 0,2,SE\SE10.wav,0,0,0
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+PutText 0,,化け物の咆哮が聞こえた。
+WavPlay 0,,2,,0,0,0
+Calc 2,,CHARNAME = CE19C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST161.WAV,0,0,0
+PutText 0,,[五　月]\n「落ち着いて落ち着いて……出来る、ちゃんと出来るわ」
+PutText 0,,自分に言い聞かせて、鍵となる三冊の本を並べた。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG08C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「お出でなさったか」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE11.wav,0,0,0
+Calc 2,,CHARNAME = CE26A
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+PutText 0,,廊下に姿を現した。
+WavPlay 0,,2,,0,0,0
+Calc 2,,CHARNAME = CE02C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「今度は、足止めしなくちゃならないから、銀の弾丸は使えない……ちと厄介だな」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+PutText 0,,五月は、鍵を開く呪文を口にする。
+HideSfc 0,|GRPName = BLACK;GRPName = WHITE,6
+HideSfc 0,,4
+SetSfc 0,エフェクト ON,0,BG\WHITE.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\WHITE.PMP,0,0,0,255,1,0,0,0
+SetSfc 0,エフェクト ON,0,BG\BG20C.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BG20C.PMP,0,0,0,255,1,0,0,0
+PutText 0,,一冊目の鍵を開く。
+PutText 0,,本の中の文字が消える。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG21C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「始まったか……」
+Calc 2,,GRPName = WHITE
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG21C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE15A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA231.WAV,0,0,0
+PutText 0,,[　楓　]\n「一つ目」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK290.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「光ったね」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG08C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+WavPlay 0,,2,,0,0,0
+Calc 2,,CHARNAME = CE26A
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+WavPlay 0,@Vol3 > 0,2,SE\SE06.wav,0,0,0
+Call 0,,86,,-1
+PutText 0,,バン！
+WavPlay 0,@Vol3 > 0,2,SE\SE11.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+WavPlay 0,,2,,0,0,0
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「普通の弾丸は効きが悪いね」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+PutText 0,,五月は、鍵を開く呪文を口にする。
+HideSfc 0,|GRPName = BLACK;GRPName = WHITE,6
+HideSfc 0,,4
+SetSfc 0,エフェクト ON,0,BG\WHITE.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\WHITE.PMP,0,0,0,255,1,0,0,0
+SetSfc 0,エフェクト ON,0,BG\BG20C.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BG20C.PMP,0,0,0,255,1,0,0,0
+PutText 0,,二冊目の鍵を開く。
+PutText 0,,本の中の文字が消える。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG21C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI451.WAV,0,0,0
+PutText 0,,[梨　花]\n「……」
+Calc 2,,GRPName = WHITE
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG21C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE15A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA232.WAV,0,0,0
+PutText 0,,[　楓　]\n「二つ目」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あと一つ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG08C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE11.wav,0,0,0
+Calc 2,,CHARNAME = CE26A
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+WavPlay 0,@Vol3 > 0,2,SE\SE06.wav,0,0,0
+Call 0,,86,,-1
+PutText 0,,バン！
+WavPlay 0,@Vol3 > 0,2,SE\SE10.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+WavPlay 0,,2,,0,0,0
+Calc 2,,CHARNAME = CE02B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「もう少々、僕と遊んで貰わないと困るぞ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+PutText 0,,五月は、鍵を開く呪文を口にする。
+HideSfc 0,|GRPName = BLACK;GRPName = WHITE,6
+HideSfc 0,,4
+SetSfc 0,エフェクト ON,0,BG\WHITE.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\WHITE.PMP,0,0,0,255,1,0,0,0
+SetSfc 0,エフェクト ON,0,BG\BG20C.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BG20C.PMP,0,0,0,255,1,0,0,0
+PutText 0,,三冊目の鍵を開く。
+PutText 0,,本の中の文字が消えた。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG21C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「銃声が消えた」
+HideSfc 0,|GRPName = BLACK;GRPName = WHITE,6
+HideSfc 0,,4
+SetSfc 0,エフェクト ON,0,BG\WHITE.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\WHITE.PMP,0,0,0,255,1,0,0,0
+SetSfc 0,エフェクト ON,0,BG\BG21C.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BG21C.PMP,0,0,0,255,1,0,0,0
+Calc 2,,CHARNAME = CE15A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA233.WAV,0,0,0
+PutText 0,,[　楓　]\n「三つ目」
+WavPlay 0,,2,SE\SE39.wav,0,0,0
+Calc 2,,GRPName = WHITE
+Calc 2,,DrawEffect = 33
+Call 0,,9,,-1
+Wait 0,エフェクト ON,2000
+Calc 2,,CHARNAME = 
+Calc 2,,DrawEffect = 20
+Call 0,,66,,-1
+WavPlay 0,,2,,0,0,0
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE19A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST162.WAV,0,0,0
+PutText 0,,[五　月]\n「……成功？」
+WavPlay 0,,3,SE\SE05.wav,1,0,0
+PutText 0,,音がしていた。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,五月は直ぐに書庫へ通じる扉を閉めた。
+PutText 0,,化け物に対して扉がどれほどの効果を持つかわからないが。
+Calc 2,,GRPName = EV88
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+PutText 0,,五月は扉を背にして立つ。
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE10.wav,0,0,0
+Calc 2,,CHARNAME = CE26A
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+PutText 0,,化け物は図書室に入り込んだ。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = EV88
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+PutText 0,,巨大な瞳が五月を映す。
+PutText 0,,それでも五月は一歩も引かない。
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ST\ST163.WAV,0,0,0
+PutText 0,,[五　月]\n「ここは絶対に通さないんだから」
+Calc 2,,GRPName = BG20C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,@Vol3 > 0,2,SE\SE11.wav,0,0,0
+Calc 2,,CHARNAME = CE26A
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+Wait 0,エフェクト ON,1000
+Calc 2,,CHARNAME = CE26
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,2,,0,0,0
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,172,,-1

@@ -1,0 +1,242 @@
+;-----------------------------------------------
+;-----------------------------------------------
+/AliasInit
+/AliasSet	'test'	"obj\OP_BG.bmp"	[0]
+
+/InitAll
+/ResetFlag	(0,999)		; 数値も変数も全部消す
+
+/calc	[$mode=3]
+/White	<BASE>
+
+/call	@read
+
+/fadein	<BG>
+/fadein	<CHR_1>
+/fadewait
+
+/fadein	<CHR_2>
+/fadewait
+
+/bgmplay	[22]
+/Fadein	[16]	<DATA1>		/wait	/wait
+/Fadein	[16]	<DATA2>		/wait	/wait
+/Fadein	[16]	<DATA3>		/wait	/wait
+/calc	[$menu=0]
+/SysGet	[19]
+/add	'menu'	[$ret]
+/SysGet	[29]
+/add	'menu'	[$ret]
+/SysGet	[39]
+/add	'menu'	[$ret]
+/SysGet	[49]
+/add	'menu'	[$ret]
+/SysGet	[59]
+/add	'menu'	[$ret]
+
+/if	[$menu]
+	/Fadein	[16]	<DATA4>		/wait	/wait
+/else]
+	/Init	<DATA4>
+/endif
+
+
+/Fadein	[16]	<DATA5>		/wait	/wait
+/fadewait
+
+/ChangeButton	<DATA1>
+/ChangeButton	<DATA2>
+/ChangeButton	<DATA3>
+/if	[$menu]
+	/ChangeButton	<DATA4>
+/endif
+/ChangeButton	<DATA5>
+/Black	<BASE>
+
+/SaveData	[3]		; タイトル基礎をセーブ
+
+#loop
+/keywait
+/jump	<DATA1>		@start
+/jump	<DATA2>		@load
+/jump	<DATA3>		@config
+/jump	<DATA4>		@omake
+/jump	<DATA5>		@exit
+/jump				@loop
+
+
+;-----------------------------------------------
+; 全体を暗く（＝入力不可モード）
+#dark
+/BgLock		<BG>
+/InitAll	<BG>
+/Black		<BASE>
+/fadeout	[32]	<BG>	(255,64)
+/fadewait
+/return
+
+;-----------------------------------------------
+; 全体を明るく（＝入力可モード）
+#light
+/Fadein	<BG>	[32]	(255,64)
+/fadewait
+/Restore	[0]
+/return
+
+;-----------------------------------------------
+; 
+#read
+/read	<BG>	"obj\OP_BG.bmp"
+
+/sysget	[59]
+/if	[$ret]
+	/read	<CHR_1>	"obj\OP_BG_02.tga"
+	/jump	@nx
+/endif
+
+/sysget	[19]
+/if	[$ret]
+	/read	<CHR_1>	"obj\OP_BG_01.tga"
+	/jump	@nx
+/endif
+
+/sysget	[29]
+/if	[$ret]
+	/read	<CHR_1>	"obj\OP_BG_01.tga"
+	/jump	@nx
+/endif
+
+/sysget	[39]
+/if	[$ret]
+	/read	<CHR_1>	"obj\OP_BG_01.tga"
+	/jump	@nx
+/endif
+
+/sysget	[49]
+/if	[$ret]
+	/read	<CHR_1>	"obj\OP_BG_01.tga"
+	/jump	@nx
+/endif
+
+
+/read	<CHR_1>	"obj\OP_BG_00.tga"
+
+#nx
+/setpos	<CHR_1>	(230,0)
+
+/read	<CHR_2>	"obj\OP_title.tga"
+/setpos	<CHR_2>	(40,120)
+
+/Default	<DATA1>
+/Read	[0]	"obj\OP_BTN_START_0.tga"
+/Read	[1]	"obj\OP_BTN_START_1.tga"
+/SetPos		(460,360)
+/ChangeButton	[0]
+/DispOff
+
+/Default	<DATA2>
+/CreateButton	"obj\OP_BTN_CONTINUE_0.tga"
+/SetButton	[1]	"obj\OP_BTN_CONTINUE_1.tga"
+/SetPos		(460,408)
+/ChangeButton	[0]
+/DispOff
+
+/Default	<DATA3>
+/CreateButton	"obj\OP_BTN_CONFIG_0.tga"
+/SetButton	[1]	"obj\OP_BTN_CONFIG_1.tga"
+/SetPos		(460,456)
+/ChangeButton	[0]
+/DispOff
+
+/Default	<DATA4>
+/CreateButton	"obj\OP_BTN_OMKE_0.tga"
+/SetButton	[1]	"obj\OP_BTN_OMKE_1.tga"
+/SetPos		(460,504)
+/ChangeButton	[0]
+/DispOff
+
+/Default	<DATA5>
+/CreateButton	"obj\OP_BTN_EXIT_0.tga"
+/SetButton	[1]	"obj\OP_BTN_EXIT_1.tga"
+/SetPos		(460,552)
+/ChangeButton	[0]
+/DispOff
+/default	<-1>
+/return
+
+;-----------------------------------------------
+; 続きから
+#load
+/SePlay	[902]	;決定
+/call	@dark
+/call	"scx\S_DATALOAD.scx"
+/if		[$ret==-1]	;ロードは行わなかった
+	/fadein		[32]	<BG>	(255,64)
+	/fadewait
+	/Restore	[3]
+	/jump	@loop
+/else
+	/BgmFade	[-4]
+	/Fadein	<BG>	[32]	(255,64)
+	/fadewait
+	/BgLock		<BG>
+	/InitAll	<BG>
+	/Black		<BASE>
+	/FadeOut	<BG>
+	/FadeWait
+	/Call	"scx\S_SURFACE.scx"
+
+	/Rebuild	<BG>	[0]	; ロードデータの画面イメージをBGに復元
+	/FadeIn		<BG>
+	/FadeWait
+	/LoadData	[0]			; ロードしてしまったらもう戻ってきません
+/Endif
+;-----------------------------------------------
+; コンフィグ
+#config
+/SePlay	[902]	;決定
+/BgLock		<BG>
+/InitAll	<BG>
+
+;/call	@dark
+/call	"scx\S_CONFIG.scx"
+;/call	@light
+
+/Restore	[3]
+/jump	@loop
+
+;-----------------------------------------------
+; ゲームの終了
+#exit
+/call	"scx\S_DIALOG.scx"	@exitdlg
+/jump	@loop
+
+#omake
+/SePlay	[902]	;決定
+/BgLock		<BG>
+/InitAll	<BG>
+/Black		<BASE>
+/FadeOut	<BG>
+/FadeWait
+/Black		<BG>
+/call	"scx\S_OMAKE.scx"
+/BgmFade	[4]
+/InitAll	<BG>
+/Rebuild	<BG>	[3]
+/FadeIn		<BG>
+/Fadewait
+/Restore	[3]
+/bgmplay	[22]
+
+/jump	@loop
+
+#start
+/SePlay	[902]	;決定
+
+/bgmfade
+/BgLock		<BG>
+/initall	<BG>
+/FadeOut	<BG>
+/fadewait
+
+/end

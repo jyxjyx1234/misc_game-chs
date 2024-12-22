@@ -1,0 +1,108 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 06_黒_部屋_放課後_欠席_p0■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+
+
+-- プレイ回数追加
+--PlayKuro=PlayKuro+1
+
+
+-- sample_image
+--capture()
+--set(BG, "ev-H-kuro001a_001.png")
+--fade(0.5)
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+--Phase0
+--背景：教室（昼）
+TransitionCapture()
+alldel()
+set(BG,"view_050.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+winopen(0.5)
+
+playBgm("01-After.ogg")
+
+
+::block_00001::
+cls1()
+setname("")
+text("授業が終わり、教材を鞄に突っ込みながら、\n俺は黒の事を思い出していた。")
+
+
+::block_00002::
+cls1()
+setname("透")
+text("「今朝は、上手くいかなかったな……」")
+
+
+::block_00003::
+cls1()
+noname()
+text("黒が欠席してしまったことが、\nどうしても心にひっかかる。")
+
+
+::block_00003A::
+cls1()
+setname("透")
+text("「とはいえ、黒のことばかり考えてるわけにもいかないよな」")
+
+
+::block_00004::
+cls1()
+noname()
+text("そう、俺には恋人の白もいる。\n白との時間だって、やっぱり大事だ。")
+
+
+::block_00004A::
+cls1()
+setname("透")
+text("「ま、なるようになるか！」")
+
+
+::block_00004B::
+cls1()
+noname()
+text("自分を励ますように元気な声を出すと、\n俺は教室を後にした。")
+
+
+--::block_00005::
+--cls1()
+--noname()
+--text("せっかく黒が頼ってくれてるんだし、\n明日はもっと頑張ろう。")
+
+
+::block_00006::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+winclose(0.5)
+TransitionCapture()
+alldel()
+set(BG,"black.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+stopSe()
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2放課後_マップ移動■.lua")
+
+
+-- 終了
+end
+
+

@@ -1,0 +1,149 @@
+; OriginalFile: 0_HN047.txt
+;■ターン　:047
+;■タイトル:巣を見に行く
+;■発生条件:強制フラグあり。
+;　　　　　　HER014がon
+;■アラスジ
+;　・三日間だけ、巣を見てて欲しいという久音との約束を履行する主人公。
+;■使用予定BG
+;　　・御神木
+;■収得する進行フラグ
+;　　・なし
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:強制フラグあり
+;・発生ターン:047
+;・タイトル:巣を見に行く
+;・発生条件:HER014がon
+;============================================
+;◇000:本筋その1
+/MesCls
+/wait	[2000]
+/SoundFadein	<ENV>	[070]	; 静かに、虫の音。夏の虫で。
+/wait	[1000]
+/FadeIn	<BG>	"bg\bg016N.bmp"	;BG:自分の部屋。夜。
+
+
+/Mes	[4966]
+……。
+/MesWait
+
+
+/Mes	[4967]
+哦，陦了。
+/MesWait
+
+
+/Mes	[4968]
+我得韆靤一下神木上的閙膓是否安然无恙。
+/MesWait
+
+
+/MesCls
+/SePlay	[029]	; フスマ開く「すっ」
+/wait	[500]
+/allfadeout
+/wait	[1000]
+/FadeIn	<BG>	"bg\bg004N.bmp"	;BG:ご神木。夜。
+
+
+/Mes	[4969]
+白天我也漣不漣在看……。詮然諭得鑢嫋没事……。
+/MesWait
+
+
+/ChrIn	<CHR_1>	"stand\０４ヒサネ現代夜＿楽.tga"	;久音on
+
+
+/Mes	[4970]	'久音'	"voice\05359.ogg"
+「靆。元逕……」
+/MesWait
+
+
+/Mes	[4971]	'$name'
+「膓没事絞？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿笑い.tga"			;無表情、普通
+
+
+/Mes	[4972]	'久音'	"voice\05361.ogg"
+「賄。没事的。」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿微笑.tga"	
+
+
+/Mes	[4973]	'$name'
+「太好了。」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿笑い.tga"	
+
+
+/Mes	[4974]	'久音'	"voice\05363.ogg"
+「鰲鰲鉛，元逕。」
+/MesWait
+
+
+/Mes	[4975]	'$name'
+「賄。那梱我就回去睡了。」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿儚げ.tga"		;斜めから上目使い
+
+
+/Mes	[4976]	'久音'	"voice\05365.ogg"
+「好的。鏥安。」
+/MesWait
+
+
+/chrout	<CHR_1>
+/allfadeout
+/wait	[2000]
+;ブラックフェード
+/MesCls
+/SePlay	[029]	; フスマ開く「すっ」
+/wait	[500]
+/FadeIn	<BG>	"bg\bg016N.bmp"	;BG:自分の部屋
+
+
+/Mes	[4977]
+久音醤是会輳腎去改闍那些不幸的未来絞……。
+/MesWait
+
+
+/Mes	[4978]
+嘖的特殊能力和在聾櫓中轍得无力的能力……。
+/MesWait
+
+
+/Mes	[4979]
+嘖都正面迎上了……。
+/MesWait
+
+
+/Mes	[4980]
+即使只有三天，我也想尽我所能去詣助嘖……。
+/MesWait
+
+
+/Mes	[4981]
+……。
+/MesWait
+
+
+/Mes	[4982]
+……。
+/MesWait
+
+
+/SoundFadeout	<ENV>
+/AllFadeOut
+/End
+/end

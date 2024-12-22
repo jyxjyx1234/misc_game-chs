@@ -1,0 +1,563 @@
+;-----------------------
+; 本編、最初からスタート
+;-----------------------
+/calc	[$mode=3]
+/Default	<BG>
+/Read	"bg\black.bmp"
+/DispOn
+/black	<BASE>
+/Default	<-1>
+
+/Call	"scx\S_NAMEENTRY.scx"	; 基礎サーフェイス作成
+
+/Call	"scx\S_SURFACE.scx"	; 基礎サーフェイス作成
+/calc	[$mode=1]
+/MesCls
+/wait
+
+;------------------ 各種フラグを初期化 -------------------
+#nor
+/calc	[$month=7]		;
+/calc	[$day=30]		;
+/calc	[$mode=0]		;
+/MesSkip	[0]
+/Calc	[$claer=0]
+/SysGet	[19]	/Calc	[$clear=$ret]
+/SysGet	[29]	/Add	'clear'	[$ret]
+/SysGet	[39]	/Add	'clear'	[$ret]
+/SysGet	[49]	/Add	'clear'	[$ret]
+/SysGet	[59]	/Add	'clear'	[$ret]
+
+/ResetFlag	(0,999)		; 全てのフラグをリセット
+/calc	[$nkpts=0]		;好感度
+/calc	[$hnpts=0]		;
+/calc	[$khpts=0]		;
+/calc	[$akpts=0]		;
+
+/calc	[$nkfree=0]		;自由時間進行度
+/calc	[$hnfree=0]		;
+/calc	[$khfree=0]		;
+/calc	[$akfree=0]		;
+
+/calc	[$nkjob=0]		;ご奉仕進行度
+/calc	[$hnjob=0]		;
+/calc	[$khjob=0]		;
+/calc	[$akjob=0]		;
+
+/calc	[$nkcls=0]		;掃除進行度
+/calc	[$hncls=0]		;
+/calc	[$khcls=0]		;
+/calc	[$akcls=0]		;
+
+;============== 現代編 ============================================================
+
+;-------------- 共通 ------------------------------------------------------------
+#start
+
+/call	"scx\M_0730COM00.scx"
+/call	"scx\M_0731COM00.scx"
+/call	"scx\M_0801COM00.scx"
+/call	"scx\M_0802COM00.scx"
+/jump	[$answer==5]	@ASKA
+
+/call	"scx\M_0803COM00.scx"
+/call	"scx\M_0804COM00.scx"
+/call	"scx\M_0805COM00.scx"
+/call	"scx\M_0806COM00.scx"
+
+/call	"scx\M_0807COM00.scx"	;以後は各キャラ一本道
+/jump	[$answer==0]	@NK
+/jump	[$answer==1]	@HN
+/jump	[$answer==2]	@KH
+/jump	[$answer==3]	@AK
+
+;-------------- 祭りで終わりのバッドエンド ---------------------------------------
+/calc	[$day=8]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\E_BAD01.scx"
+
+/bgmfade
+/allfadeout
+/wait	[1000]
+
+/calc	[$ret=0]
+/end				; タイトルへ
+
+;================================================================================
+
+;-------------- 夏樹 ------------------------------------------------------------
+#NK
+;--------------0808NK------------------------------------------------------------
+/calc	[$day=8]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0808NK01.scx"
+/call	"scx\A_0808NK03.scx"
+/call	"scx\A_0808NK05.scx"
+/call	"scx\A_0808NK06.scx"
+
+;--------------0809NK------------------------------------------------------------
+/calc	[$day=9]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0809NK02.scx"
+/call	"scx\A_0809NK05.scx"
+
+;--------------0810NK------------------------------------------------------------
+/calc	[$day=10]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0810NK03.scx"
+/call	"scx\A_0810NK05.scx"
+
+;--------------0811NK------------------------------------------------------------
+/calc	[$day=11]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0811NK01.scx"
+/call	"scx\A_0811NK05.scx"
+/call	"scx\A_0811NK06.scx"
+/if	[$ret==1]
+	/call	"scx\COM_BAD_ED.scx"
+	/calc	[$ret=0]
+	/end				; タイトルへ
+/endif
+;--------------0812NK------------------------------------------------------------
+/calc	[$day=12]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0812NK04.scx"
+
+/AliasInit
+/AliasSet [0] 'ed00' "nk-001.bmp"
+/AliasSet [1] 'ed01' "nk-002.bmp"
+/AliasSet [0] 'ed02' "nk-003.bmp"
+/AliasSet [1] 'ed03' "nk-004.bmp"
+/AliasSet [0] 'ed04' "nk-005.bmp"
+/AliasSet [1] 'ed05' "nk-006.bmp"
+/call	"scx\S_ENDROLL.scx"
+/bgmfade
+/fadeout	<BG>
+/FadeWait
+
+/wait	[2000]
+/Call	"scx\S_SURFACE.scx"	; 基礎サーフェイス作成
+/MesCls
+/calc	[$mode=0]
+
+;-------------- 過去編　夏希 ------------------------------------------------------------
+#ONK
+/calc	[$month=9]
+
+/MesCls
+/wait	[2000]
+/FadeIn	<BG>	"bg\white.bmp"	[16]
+/Default	<CHR_1>
+/Read		"obj\telop_nk.bmp"
+/SetPos		(75,300)
+/MovePos	(75,280)	[32]
+/FadeIn		[8]
+/FadeWait
+/wait	[6000]
+/MovePos	(75,260)	[32]
+/FadeOut		[8]
+/FadeWait
+/Default	<-1>
+/FadeOut	<BG>	[16]
+/FadeWait
+
+/MesCls
+/wait	[2000]
+
+/call	"scx\O_0000NK01.scx"
+/SysSet	[19]	; クリアフラグ
+
+/calc	[$ret=0]
+/end				; タイトルへ
+
+;================================================================================
+
+;-------------- 久音 ------------------------------------------------------------
+#HN
+;--------------0808HN------------------------------------------------------------
+/calc	[$day=8]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0808HN01.scx"
+
+/call	"scx\A_0808HN04.scx"
+/call	"scx\A_0808HN05.scx"
+/call	"scx\A_0808HN06.scx"
+
+;--------------0809HN------------------------------------------------------------
+/calc	[$day=9]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0809HN02.scx"
+/call	"scx\A_0809HN06.scx"
+
+;--------------0810HN------------------------------------------------------------
+/calc	[$day=10]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0810HN01.scx"
+/if	[$ret==1]
+	/call	"scx\COM_BAD_ED.scx"
+	/calc	[$ret=0]
+	/end
+/Endif
+
+;--------------0811HN------------------------------------------------------------
+/calc	[$day=11]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0811HN01.scx"
+/call	"scx\A_0811HN06.scx"
+/if	[$ret==1]
+	/call	"scx\COM_BAD_ED.scx"
+	/calc	[$ret=0]
+	/end
+/Endif
+
+;--------------0812HN------------------------------------------------------------
+/calc	[$month=10]
+/call	"scx\A_0813HN01.scx"
+
+/AliasInit
+/AliasSet [0] 'ed00' "he-001.bmp"
+/AliasSet [1] 'ed01' "he-002.bmp"
+/AliasSet [0] 'ed02' "he-003.bmp"
+/AliasSet [1] 'ed03' "he-004.bmp"
+/AliasSet [0] 'ed04' "he-005.bmp"
+/AliasSet [1] 'ed05' "he-006.bmp"
+/call	"scx\S_ENDROLL.scx"
+/bgmfade
+/fadeout	<BG>
+/FadeWait
+/wait	[2000]
+/Call	"scx\S_SURFACE.scx"	; 基礎サーフェイス作成
+/MesCls
+/calc	[$mode=0]
+
+;-------------- 過去編　久音 ------------------------------------------------------------
+#OHN
+/calc	[$month=9]
+/MesCls
+/wait	[2000]
+/FadeIn	<BG>	"bg\white.bmp"	[16]
+/Default	<CHR_1>
+/Read		"obj\telop_hn.bmp"
+/SetPos		(75,300)
+/MovePos	(75,280)	[32]
+/FadeIn		[8]
+/FadeWait
+/wait	[6000]
+/MovePos	(75,260)	[32]
+/FadeOut		[8]
+/FadeWait
+/Default	<-1>
+/FadeOut	<BG>	[16]
+/FadeWait
+
+/MesCls
+/wait	[2000]
+
+/call	"scx\O_0000HN01.scx"
+/call	"scx\O_0000HN02.scx"
+/call	"scx\O_0000HN03.scx"
+/call	"scx\O_0000HN04.scx"
+/call	"scx\O_0000HN05.scx"
+/call	"scx\O_0000HN06.scx"
+/SysSet	[29]	; クリアフラグ
+
+/calc	[$ret=0]
+/end				; タイトルへ
+
+;================================================================================
+
+
+;-------------- 琥珀 ------------------------------------------------------------
+#KH
+
+;--------------0808KH------------------------------------------------------------
+/calc	[$day=8]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0808KH01.scx"
+/call	"scx\A_0808KH03.scx"
+/call	"scx\A_0808KH04.scx"
+
+;--------------0809KH------------------------------------------------------------
+/calc	[$day=9]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0809KH05.scx"
+/call	"scx\A_0809KH06.scx"
+
+;--------------0810KH------------------------------------------------------------
+/calc	[$day=10]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0810KH05.scx"
+/call	"scx\A_0810KH06.scx"
+
+;--------------0811KH------------------------------------------------------------
+/calc	[$day=11]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0811KH01.scx"
+/if	[$ret==1]
+	/call	"scx\COM_BAD_ED.scx"
+	/calc	[$ret=0]
+	/end
+/Endif
+
+/call	"scx\A_0811KH02.scx"
+/call	"scx\A_0811KH05.scx"
+
+;--------------0812KH------------------------------------------------------------
+/calc	[$month=10]
+/call	"scx\A_0812KH05.scx"
+
+/AliasInit
+/AliasSet [0] 'ed00' "kh-001.bmp"
+/AliasSet [1] 'ed01' "kh-002.bmp"
+/AliasSet [0] 'ed02' "kh-003.bmp"
+/AliasSet [1] 'ed03' "kh-004.bmp"
+/AliasSet [0] 'ed04' "kh-005.bmp"
+/AliasSet [1] 'ed05' "kh-006.bmp"
+/call	"scx\S_ENDROLL.scx"
+/bgmfade
+/fadeout	<BG>
+/FadeWait
+/wait	[2000]
+/Call	"scx\S_SURFACE.scx"	; 基礎サーフェイス作成
+/MesCls
+/calc	[$mode=0]
+
+;-------------- 過去編　琥珀 ------------------------------------------------------------
+#OKH
+/calc	[$month=9]
+/MesCls
+/wait	[2000]
+/FadeIn	<BG>	"bg\white.bmp"	[16]
+/Default	<CHR_1>
+/Read		"obj\telop_kh.bmp"
+/SetPos		(75,300)
+/MovePos	(75,280)	[32]
+/FadeIn		[8]
+/FadeWait
+/wait	[6000]
+/MovePos	(75,260)	[32]
+/FadeOut		[8]
+/FadeWait
+/Default	<-1>
+/FadeOut	<BG>	[16]
+/FadeWait
+
+/MesCls
+/wait	[2000]
+
+/call	"scx\O_0000KH01.scx"
+/call	"scx\O_0000KH02.scx"
+/SysSet	[39]	; クリアフラグ
+
+/calc	[$ret=0]
+/end				; タイトルへ
+
+
+;================================================================================
+
+;-------------- 茜 ------------------------------------------------------------
+#AK
+
+;--------------0808AK------------------------------------------------------------
+/calc	[$day=8]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0808AK01.scx"
+/call	"scx\A_0808HN04.scx"	;←内容が一所だったので統合
+/call	"scx\A_0808AK05.scx"
+
+;--------------0809AK------------------------------------------------------------
+/calc	[$day=9]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0809AK05.scx"
+
+;--------------0810AK------------------------------------------------------------
+#st
+/calc	[$day=10]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/if	[$1319]
+	/call	"scx\A_0810AK02.scx"
+	/call	"scx\A_0804AK05.scx"
+/else
+	/call	"scx\A_0810AK03.scx"
+	/if	[$ret==1]
+		/call	"scx\COM_BAD_ED.scx"
+		/calc	[$ret=0]
+		/end
+	/Endif
+/endif
+
+;--------------0811AK------------------------------------------------------------
+/calc	[$day=11]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0811AK05.scx"
+
+;--------------0812AK------------------------------------------------------------
+/calc	[$day=12]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+/call	"scx\A_0812AK02.scx"
+
+;--------------0813AK------------------------------------------------------------
+/calc	[$month=10]
+/call	"scx\A_0813AK01.scx"
+/AliasInit
+/AliasSet [0] 'ed00' "ak-001.bmp"
+/AliasSet [1] 'ed01' "ak-002.bmp"
+/AliasSet [0] 'ed02' "ak-003.bmp"
+/AliasSet [1] 'ed03' "ak-004.bmp"
+/AliasSet [0] 'ed04' "ak-005.bmp"
+/AliasSet [1] 'ed05' "ak-006.bmp"
+/call	"scx\S_ENDROLL.scx"
+/bgmfade
+/fadeout	<BG>
+/FadeWait
+/wait	[2000]
+/Call	"scx\S_SURFACE.scx"	; 基礎サーフェイス作成
+/MesCls
+/calc	[$mode=0]
+/call	"scx\A_0813AK02.scx"
+
+;-------------- 過去編　茜 ------------------------------------------------------------
+#OAK
+/calc	[$month=9]
+/MesCls
+/wait	[2000]
+/FadeIn	<BG>	"bg\white.bmp"	[16]
+/Default	<CHR_1>
+/Read		"obj\telop_ak.bmp"
+/SetPos		(75,300)
+/MovePos	(75,280)	[32]
+/FadeIn		[8]
+/FadeWait
+/wait	[6000]
+/MovePos	(75,260)	[32]
+/FadeOut		[8]
+/FadeWait
+/Default	<-1>
+/FadeOut	<BG>	[16]
+/FadeWait
+
+/MesCls
+/wait	[2000]
+
+/call	"scx\O_0000AK01.scx"
+/call	"scx\O_0000AK02.scx"
+/call	"scx\O_0000AK03.scx"
+/call	"scx\O_0000AK04.scx"
+/call	"scx\O_0000AK05.scx"
+/SysSet	[49]	; クリアフラグ
+
+/calc	[$ret=0]
+/end				; タイトルへ
+
+;============== 飛鳥編 ============================================================
+#ASKA
+;--------------飛鳥・序章------------------------------------------------------------
+/calc	[$month=11]
+/call	"scx\Z_0002AH00.scx"
+/call	"scx\Z_0006AH00.scx"
+/call	"scx\Z_0012AH00.scx"
+/call	"scx\Z_0013AH00.scx"
+/call	"scx\Z_0014AH00.scx"
+/call	"scx\Z_0015AH00.scx"
+/call	"scx\Z_0016AH00.scx"
+/call	"scx\Z_0017AH00.scx"
+/if	[$ret==1]
+	/call	"scx\COM_BAD_ED.scx"
+	/end
+/Endif
+/call	"scx\Z_0018AH00.scx"
+/call	"scx\Z_0024AH00.scx"
+/call	"scx\Z_0025AH00.scx"
+/call	"scx\Z_0026AH00.scx"
+/call	"scx\Z_0030AH00.scx"
+/call	"scx\Z_0031AH00.scx"
+/call	"scx\Z_0032AH00.scx"
+/call	"scx\Z_0036AH00.scx"
+/call	"scx\Z_0037AH00.scx"
+/call	"scx\Z_0042AH00.scx"
+/call	"scx\Z_0043AH00.scx"
+/call	"scx\Z_0048AH00.scx"
+;--------------飛鳥・茜 9日～11日------------------------------------------------------------
+/call	"scx\Z_0000AK01.scx"
+/call	"scx\Z_0000AK02.scx"
+/call	"scx\Z_0000AK03.scx"
+/if	[$ret==1]
+	/call	"scx\COM_BAD_ED.scx"
+	/end
+/Endif
+/call	"scx\Z_0000AK04.scx"
+;--------------飛鳥・翠 12日～15日------------------------------------------------------------
+/call	"scx\Z_0000NK01.scx"
+/call	"scx\Z_0000NK02.scx"
+/call	"scx\Z_0000NK03.scx"
+/call	"scx\Z_0000NK04.scx"
+;--------------飛鳥・琥珀 16日～19日------------------------------------------------------------
+/call	"scx\Z_0000KH01.scx"
+/call	"scx\Z_0000KH02.scx"
+/call	"scx\Z_0000KH03.scx"
+/call	"scx\Z_0000KH04.scx"
+;--------------飛鳥・久音 20日～23日------------------------------------------------------------
+/call	"scx\Z_0000HN01.scx"
+/if	[$ret==1]
+	/call	"scx\COM_BAD_ED.scx"
+	/end
+/Endif
+/call	"scx\Z_0000HN02.scx"
+/call	"scx\Z_0000HN03.scx"
+/call	"scx\Z_0000HN04.scx"
+/call	"scx\Z_0000HN05.scx"
+/call	"scx\Z_0000HN06.scx"
+/call	"scx\Z_0000HN07.scx"
+;--------------飛鳥・終章------------------------------------------------------------
+/call	"scx\Z_0168AH00.scx"
+/call	"scx\Z_0169AH00.scx"
+/call	"scx\Z_0174AH00.scx"
+/call	"scx\Z_0175AH00.scx"
+/call	"scx\Z_0177AH00.scx"
+/call	"scx\Z_0179AH00.scx"
+/call	"scx\Z_0180AH00.scx"
+/call	"scx\Z_0181AH00.scx"
+/AliasInit
+/AliasSet [0] 'ed00' "ah-001.bmp"
+/AliasSet [1] 'ed01' "ah-002.bmp"
+/AliasSet [0] 'ed02' "ah-003.bmp"
+/AliasSet [1] 'ed03' "ah-004.bmp"
+/AliasSet [0] 'ed04' "ah-005.bmp"
+/AliasSet [1] 'ed05' "ah-006.bmp"
+/call	"scx\S_ENDROLL.scx"
+/fadeout	<BG>
+/FadeWait
+/Call	"scx\S_SURFACE.scx"	; 基礎サーフェイス作成
+/bgmfade
+/wait	[2000]
+/MesCls
+/calc	[$mode=0]
+/call	"scx\Z_0183AH00.scx"
+;糸冬
+
+/bgmfade
+/allfadeout
+/wait	[1000]
+/calc	[$ret=0]
+/SysSet	[59]	; クリアフラグ
+
+/end				; タイトルへ

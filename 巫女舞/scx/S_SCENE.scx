@@ -1,0 +1,317 @@
+;-----------------------------------------------
+; コンフィグ総合
+;
+; 起動時<BG>を背景とする。
+; 呼び出し元で輝度を調整し、それ以外の部分は
+; 消去しておいてください。
+;-----------------------------------------------
+; 起動
+
+/calc	[$mode=4]	; おまけモード
+
+/call	@open
+
+/Calc	[$ret=0]
+
+#loop
+/KeyWait
+/jump	<CMD_CANCEL>	@omake
+/jump	<PAGE1>			@nk
+/jump	<PAGE2>			@hn
+/jump	<PAGE3>			@kh
+/jump	<PAGE4>			@ak
+/jump	<PAGE5>			@ah
+/Jump	<SEL_1>			@cancel
+/Jump	<SEL_2>			@gameend
+/Jump	<SEL_3>			@omake
+
+/jump	@loop
+
+;-------------------
+; 戻る
+#omake
+/SePlay	[900]	;決定
+
+/Calc	[$ret=1]
+/end
+
+;-----------------------------------------------
+; ゲームの終了
+#gameend
+/SePlay	[902]	;決定
+/call	"scx\S_DIALOG.scx"	@exitdlg
+/jump	@loop
+
+#nk
+/SePlay	[902]	;決定
+/BgmFade
+/Call	@FO
+
+/InitAll
+/calc	[$scene=1]
+/call	"scx\S_SURFACE.scx"
+/calc	[$month=7]		;
+/calc	[$day=30]		;
+/calc	[$mode=0]
+/Black	<BG>
+/black	<BASE>
+/wait	[1000]
+/MesSkip	[0]
+/call	"scx\A_0811NK06.scx"	@ero
+/calc	[$scene=0]
+
+/calc	[$mode=4]	; おまけモード
+/wait	[1000]
+/Call	@FI
+/jump	@loop
+
+;-----------------------------------------------
+#hn
+/SePlay	[902]	;決定
+/BgmFade
+/Call	@FO
+
+/InitAll
+/calc	[$scene=1]
+/call	"scx\S_SURFACE.scx"
+/calc	[$month=7]		;
+/calc	[$day=30]		;
+/calc	[$mode=0]
+/Black	<BG>
+/black	<BASE>
+/wait	[1000]
+/MesSkip	[0]
+/call	"scx\A_0811HN01.scx"	@ero
+/calc	[$scene=0]
+
+/calc	[$mode=4]	; おまけモード
+/wait	[1000]
+/Call	@FI
+/jump	@loop
+
+;-----------------------------------------------
+#kh
+/SePlay	[902]	;決定
+/BgmFade
+/Call	@FO
+
+/InitAll
+/calc	[$scene=1]
+/call	"scx\S_SURFACE.scx"
+/calc	[$month=7]		;
+/calc	[$day=30]		;
+/calc	[$mode=0]
+/Black	<BG>
+/black	<BASE>
+/wait	[1000]
+/MesSkip	[0]
+/call	"scx\A_0811KH05.scx"	@ero
+/calc	[$scene=0]
+
+/calc	[$mode=4]	; おまけモード
+/wait	[1000]
+/Call	@FI
+/jump	@loop
+
+;-----------------------------------------------
+#ak
+/SePlay	[902]	;決定
+/BgmFade
+/Call	@FO
+
+/InitAll
+/calc	[$scene=1]
+/call	"scx\S_SURFACE.scx"
+/calc	[$month=7]		;
+/calc	[$day=30]		;
+/calc	[$mode=0]
+/Black	<BG>
+/black	<BASE>
+/wait	[1000]
+/MesSkip	[0]
+/call	"scx\A_0811AK05.scx"	@ero
+/calc	[$scene=0]
+
+/calc	[$mode=4]	; おまけモード
+/wait	[1000]
+/Call	@FI
+/jump	@loop
+
+;-----------------------------------------------
+#ah
+/SePlay	[902]	;決定
+/BgmFade
+/Call	@FO
+
+/InitAll
+/calc	[$scene=1]
+/call	"scx\S_SURFACE.scx"
+/calc	[$month=7]		;
+/calc	[$day=30]		;
+/calc	[$mode=0]
+/Black	<BG>
+/black	<BASE>
+/wait	[1000]
+/MesSkip	[0]
+/call	"scx\Z_0179AH00.scx"	@ero
+/calc	[$scene=0]
+
+/calc	[$mode=4]	; おまけモード
+/wait	[1000]
+/Call	@FI
+/jump	@loop
+;-----------------------------------------------
+
+#FO
+/SaveData	[4]		; オマケ画面の画面イメージを保存
+/BgLock	<BG>
+/InitAll	<BG>
+/fadeout	<BG>
+/Black		<BASE>
+/FadeWait
+/return
+
+#FI
+/Initall
+/Black		<BASE>
+/Rebuild	<BG>	[4]	; タイトル基礎を復元
+/DispOff	<BG>
+/FadeIn		<BG>
+/FadeWait
+
+/Restore			[4]
+/jump	@loop
+
+/return
+
+
+;-------------------
+; 終了
+#cancel
+/SePlay	[900]	;決定
+
+/call	@close
+/Calc	[$ret=0]
+/end
+
+
+;-----------------------------------------------
+; UIオープン・サブルーチン
+#open
+/SysGet	[19]
+/if	[$ret]
+	/Default	<PAGE1>
+	/CreateButton	"obj\OMK_BN1_NK.tga"
+	/SetButton	[1]	"obj\OMK_BN2_NK.tga"
+	/SetPos		(220,93)
+	/ChangeButton
+	/DispOff
+/endif
+
+/SysGet	[29]
+/if	[$ret]
+	/Default	<PAGE2>
+	/CreateButton	"obj\OMK_BN1_HN.tga"
+	/SetButton	[1]	"obj\OMK_BN2_HN.tga"
+	/SetPos		(220,180)
+	/ChangeButton
+	/DispOff
+/endif
+
+/SysGet	[39]
+/if	[$ret]
+	/Default	<PAGE3>
+	/CreateButton	"obj\OMK_BN1_KH.tga"
+	/SetButton	[1]	"obj\OMK_BN2_KH.tga"
+	/SetPos		(220,265)
+	/ChangeButton
+	/DispOff
+/endif
+
+/SysGet	[49]
+/if	[$ret]
+	/Default	<PAGE4>
+	/CreateButton	"obj\OMK_BN1_AK.tga"
+	/SetButton	[1]	"obj\OMK_BN2_AK.tga"
+	/SetPos		(220,350)
+	/ChangeButton
+	/DispOff
+/endif
+
+/SysGet	[59]
+/if	[$ret]
+	/Default	<PAGE5>
+	/CreateButton	"obj\OMK_BN1_AH.tga"
+	/SetButton	[1]	"obj\OMK_BN2_AH.tga"
+	/SetPos		(220,435)
+	/ChangeButton
+	/DispOff
+/endif
+
+/SysGet	[19]
+/if	[$ret]
+	/FadeIn	<PAGE1>		[32]	/wait
+/Endif
+
+/SysGet	[29]
+/if	[$ret]
+	/FadeIn	<PAGE2>		[32]	/wait
+/Endif
+
+/SysGet	[39]
+/if	[$ret]
+	/FadeIn	<PAGE3>		[32]	/wait
+/Endif
+
+/SysGet	[49]
+/if	[$ret]
+	/FadeIn	<PAGE4>		[32]	/wait
+/Endif
+
+/SysGet	[59]
+/if	[$ret]
+	/FadeIn	<PAGE5>		[32]	/wait
+/Endif
+
+/FadeWait
+
+/SysGet	[19]
+/if	[$ret]
+	/ChangeButton	<PAGE1>
+/endif
+
+/SysGet	[29]
+/if	[$ret]
+	/ChangeButton	<PAGE2>
+/endif
+
+/SysGet	[39]
+/if	[$ret]
+	/ChangeButton	<PAGE3>
+/endif
+
+/SysGet	[49]
+/if	[$ret]
+	/ChangeButton	<PAGE4>
+/endif
+
+/SysGet	[59]
+/if	[$ret]
+	/ChangeButton	<PAGE5>
+/endif
+
+/default	<-1>
+
+/return
+
+;-----------------------------------------------
+; UIクローズ・サブルーチン
+#close
+/BgLock		<BG>
+/InitAll	<BG>
+/FadeOut	<BG>
+/FadeWait
+
+/default	<-1>
+
+/return

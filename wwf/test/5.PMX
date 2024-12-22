@@ -1,0 +1,17 @@
+NonStop=0
+WavPlay 2,,1,,0,0,0
+SetSfc 2,,7,,0,0,1,255,1,0,0,0
+ClrText 2,
+Calc 2,,DLG = OFF
+Del 0,AutoMode ON,AutoModeCount
+Del 2,,ﾃｷｽﾄ終了変数
+Del 0,,winerase
+Jump 2,READSKIP < 0;TSALL OFF;@CtrlKey OFF;スキップ中 OFF,5,SKIP終了,9
+Return 0,
+Label 2,,SKIP終了
+Calc 2,,@NoTextWait = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+Calc 2,,スキップ中 = OFF
+OverSfc 0,@NoTextWait OFF;@CtrlKey OFF,4,,3,0,0,1,255,1,0,0
+Return 0,

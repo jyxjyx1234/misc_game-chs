@@ -1,0 +1,149 @@
+;-----------------------------------------------
+; データセーブ
+;-----------------------------------------------
+
+/default	<DATA11>
+/Read			"obj\dialog_save.tga"
+/SetTextArea	{308,180,684,260}
+/SetPos			(0,0)
+/DispOn
+/Default	<-1>
+
+/Default	<DATA12>
+/Samnail	[0]
+/SetPos		(260,240)
+/DispOn
+
+/default	<DATA13>
+/SetTextArea	{0,0,100,24}
+/SetPos			(372,240)
+/SetFont		'ＭＳ ゴシック'	[18]	(0,0)
+/SETTEXTEDGE	[0]
+/SetTextColor	[0]
+/String
+【$page$save】
+/DispOn
+/Default	<-1>
+
+
+/default	<DATA14>
+/SetTextArea	{0,0,160,24}
+/SetPos			(388,264)
+/SetFont		'ＭＳ ゴシック'	[16]	(0,0)
+/SETTEXTEDGE	[0]
+/SetTextColor	[0]
+/AtcDate
+/DispOn
+/Default	<-1>
+
+/EditFont	'ＭＳ ゴシック'	[18]	(1,0)
+/ResetText
+/if	[$month<9]
+	/AddText	$month月$day日
+/Endif
+
+/if	[$month==9]
+	/AddText	過去編
+/Endif
+
+/if	[$month==10]
+	/AddText	エピローグ
+/Endif
+
+/if	[$month==11]
+	/AddText	飛鳥編
+/Endif
+
+/EditOpen	[16]	{380,300,160,18}
+
+/Default	<DATA15>
+/call	@yes
+/call	@left
+
+/Default	<DATA16>
+/call	@no
+/call	@right
+/default	<-1>
+
+/Buttonrange	<DATA15>	<DATA16>
+
+;----------------------------------------
+#loop
+/keywait
+/jump	<CMD_CANCEL>	@cancel
+/jump	<CMD_EDIT>		@enter
+/jump	<DATA15>		@save
+/jump	<DATA16>		@cancel
+/jump	@loop
+
+;----------------------------------------
+#enter
+/focusbutton	<DATA15>
+/jump	@loop
+
+;-----------------------------------------------
+#save
+/default	<-1>
+/AtcComent
+/call	@close
+/calc	[$ret=1]
+/end
+
+;-----------------------------------------------
+#left
+/SetPos	(240,340)
+/return
+
+;-----------------------------------------------
+#right
+/SetPos	(410,340)
+/return
+
+;-----------------------------------------------
+#center
+/SetPos	(325,340)
+/return
+
+;-----------------------------------------------
+#yes
+/Read	[0]	"obj\dialog-yes2.tga"
+/Read	[1]	"obj\dialog-yes0.tga"
+/ChangeButton
+/DispOn
+/return
+
+;-----------------------------------------------
+#no
+/Read	[0]	"obj\dialog-no2.tga"
+/Read	[1]	"obj\dialog-no0.tga"
+/ChangeButton
+/DispOn
+/return
+
+
+;-----------------------------------------------
+#cancel
+/call	@close
+/calc	[$ret=0]
+/end
+
+;-----------------------------------------------
+#close
+/SePlay	[902]	;キャンセル
+/default	<-1>
+/Buttonrange	<-1>	<-1>	;解除
+/DispOff	<DATA11>
+/DispOff	<DATA12>
+/DispOff	<DATA13>
+/DispOff	<DATA14>
+/DispOff	<DATA15>
+/DispOff	<DATA16>
+/EditClose
+/wait
+/Init	<DATA11>
+/Init	<DATA12>
+/Init	<DATA13>
+/Init	<DATA14>
+/Init	<DATA15>
+/Init	<DATA16>
+/return

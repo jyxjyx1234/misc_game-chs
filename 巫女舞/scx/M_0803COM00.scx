@@ -1,0 +1,186 @@
+;-------------------------
+;8月3日　メインシーケンス
+;-------------------------
+
+/calc	[$day=3]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+
+;=============================
+/call	"scx\B_MORNING01.scx"
+
+;この段階では、好感度は最高2点まで
+;また、次点は1点で１名しか存在せず
+/jump	[$nkpts==2]	@NK00
+/jump	[$hnpts==2]	@HN00
+/jump	[$khpts==2]	@KH00
+/jump	[$akpts==2]	@AK00
+
+;-------------------------
+#NK00
+/call	"scx\C_CLS0NK99.scx"
+/calc	[$nkcls=1]
+/jump	@ASA2
+
+;-------------------------
+#HN00
+/call	"scx\C_CLS0HN99.scx"
+/calc	[$hncls=1]
+/jump	@ASA2
+
+;-------------------------
+#KH00
+/call	"scx\A_0803KH01.scx"	;元気が無い
+/jump	@ASA2
+
+;-------------------------
+#AK00
+/call	"scx\C_CLS0AK99.scx"
+/calc	[$akcls=1]
+/jump	@ASA2
+;=============================
+;さらに次点との掃除
+#ASA2
+/jump	[$nkpts==1]	@NK10
+/jump	[$hnpts==1]	@HN10
+/jump	[$khpts==1]	@KH10
+/jump	[$akpts==1]	@AK10
+
+;-------------------------
+#NK10
+/call	"scx\C_CLS0NK99.scx"
+/calc	[$nkcls=1]
+/jump	@HIRU
+
+;-------------------------
+#HN10
+/call	"scx\C_CLS0HN99.scx"
+/calc	[$hncls=1]
+/jump	@HIRU
+
+;-------------------------
+#KH10
+/call	"scx\A_0803KH01.scx"	;元気が無い
+/jump	@HIRU
+
+;-------------------------
+#AK10
+/call	"scx\C_CLS0AK99.scx"
+/calc	[$akcls=1]
+/jump	@HIRU
+
+
+;=============================
+; この日からようやく自由選択開始
+#HIRU
+/call	"scx\B_HIRU0803.scx"
+/jump	[$answer==0]	@NK01
+/jump	[$answer==1]	@HN01
+/jump	[$answer==2]	@KH01
+/jump	[$answer==3]	@AK01
+
+;-------------------------
+#NK01
+/call	"scx\C_JOB0NK99.scx"
+/jump	@YUU
+
+;-------------------------
+#HN01
+/if	[$1107]	;スケッチ１と月憑依を見ている
+	/call	"scx\A_0803HN02.scx"
+/Else
+	/call	"scx\C_JOB0HN99.scx"
+/Endif
+/jump	@YUU
+
+;-------------------------
+#KH01
+/call	"scx\C_JOB0KH99.scx"
+/jump	@YUU
+
+;-------------------------
+#AK01
+/call	"scx\A_0803AK02.scx"	;お菓子のお供え
+/jump	@YUU
+;=============================
+
+
+;=============================
+#YUU
+/if	[$clear]	;	１度以上クリアしている
+	/call	"scx\A_0803SP03.scx"
+/endif
+
+/call	"scx\B_YUU0803.scx"
+/jump	[$answer==0]	@NK02
+/jump	[$answer==1]	@HN02
+/jump	[$answer==2]	@KH02
+/jump	[$answer==3]	@AK02
+
+;-------------------------
+#NK02
+/call	"scx\C_FREENK99.scx"
+/jump	@YORU
+
+;-------------------------
+#HN02
+/if	[$1107]
+	/call	"scx\A_0803HN05.scx"	;暇でいいです
+/else
+	/call	"scx\C_FREEHN99.scx"
+/endif
+
+/jump	@YORU
+
+;-------------------------
+#KH02
+/call	"scx\C_FREEKH99.scx"
+/jump	@YORU
+
+;-------------------------
+#AK02
+/if	[$1307]
+	/call	"scx\A_0803AK05.scx"	;駄菓子屋への思い
+/else
+	/call	"scx\C_FREEAK99.scx"
+/endif
+
+/jump	@YORU
+;=============================
+
+
+;=============================
+#YORU
+/bgmfade
+/call	"scx\A_0803COM06.scx"
+
+/call	"scx\COM_YORU29.scx"
+/jump	[$ret==0]	@0001
+/jump	[$ret==1]	@0002
+/jump	[$ret==2]	@0003
+/jump	[$ret==3]	@0004
+
+#0001
+/call	"scx\A_0803NK06.scx"
+/jump	@0009
+
+#0002
+/call	"scx\A_0803HN06.scx"
+/jump	@0009
+
+#0003
+/call	"scx\A_0803KH06.scx"
+/jump	@0009
+
+#0004
+/call	"scx\A_0803AK06.scx"
+/jump	@0009
+
+
+#0009
+;=============================
+
+/end
+;_____________________________
+
+/end

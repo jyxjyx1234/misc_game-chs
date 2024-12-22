@@ -1,0 +1,46 @@
+NonStop=0
+Calc 2,,@NoTextWait = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+Calc 2,,スキップ中 = OFF
+TextCol 0,,0
+TextSCol 0,,12632256
+IntCall 0,,6,228
+IntCall 0,,3,225
+IntCall 0,,4,225
+IntCall 0,,1,246
+WavPlay 0,,0,,0,0,1
+SetSfc 0,エフェクト ON,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,3,SE\SE20.wav,0,0,0
+Calc 2,,GRPName = BG40A
+Calc 2,,DrawEffect = 1
+Call 0,,215,,-1
+Wait 0,エフェクト ON,1000
+WavPlay 0,@Vol3 > 0,2,SE\SE17.wav,0,0,0
+Call 0,,214,,-1
+WavPlay 0,,0,BGM\YO00.wav,1,0,0
+Calc 2,,CHARNAME = PC13B
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「閙好，我是乙松」
+Calc 2,,CHARNAME = PC14B
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　覺]\n「期待中的新星真覺登緯」
+Calc 2,,CHARNAME = PC13A
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「那頒，墾在出个韃韜」
+WavPlay 0,@Vol3 > 0,2,SE\SE16.wav,0,0,0
+Calc 2,,CHARNAME = PC14D
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　覺]\n「踴！？」
+Calc 2,,CHARNAME = PC13A
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「我蝿授繚真覺的Ｈ技能褻式的名字是什頒？」
+WavPlay 0,@Vol3 > 0,2,SE\SE15.wav,0,0,0
+PutText 0,,\i(223)[乙　松]\n「第一嬪　命水汲取」
+PutText 0,,\i(223)[乙　松]\n「第二嬪　命水襪移」
+WavPlay 0,@Vol3 > 0,2,SE\SE19.wav,0,0,0
+PutText 0,,\i(223)[乙　松]\n「第三嬪　白誥的命水緞生」
+PutText 0,,\i(223)[乙　松]\n「正訶答案是？」
+Jump 0,,187,,-1

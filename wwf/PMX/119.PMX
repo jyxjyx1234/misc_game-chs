@@ -1,0 +1,79 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG24C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI022.WAV,0,0,0
+PutText 0,,[　静　]\n「ですが……私が捜査を遅らせたのは事実ですから」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「確かに手間取りはしたが、たいした時間の浪費じゃない」
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「予知が正しいなら、最初から手遅れだ」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI023.WAV,0,0,0
+PutText 0,,[　静　]\n「お願いがございます」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「なんだ？」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI024.WAV,0,0,0
+PutText 0,,[　静　]\n「今回の件、内密に願いたいのです」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「遠山検事がいる以上、もう内密とは言えないと思うぜ」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI025.WAV,0,0,0
+PutText 0,,[　静　]\n「図々しいお願いかも知れませんが、捜査に最初から協力したことにして欲しいのです」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「出来ないことも無いが……意味はないんじゃないか？」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI026.WAV,0,0,0
+PutText 0,,[　静　]\n「いえ、寮母である私には大事なことなのです」
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「さて、どうしたもんだろうな……あまり感心できない申し出だぜ」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI027.WAV,0,0,0
+PutText 0,,[　静　]\n「ただとは申しません」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……」
+Calc 2,,CHARNAME = CE16B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI028.WAV,0,0,0
+PutText 0,,[　静　]\n「これです」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,121,,-1

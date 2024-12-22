@@ -1,0 +1,75 @@
+NonStop=0
+Call 2,@SelIdx = 2,4526,1,0
+Call 2,@SelIdx = 3,4526,2,6
+Call 2,@SelIdx = 4,4526,3,12
+Call 2,@SelIdx = 5,4526,4,18
+Call 2,@SelIdx = 6,4526,5,24
+Call 2,@SelIdx = 7,4526,6,30
+Call 2,@SelIdx = 8,4526,7,36
+Call 2,@SelIdx = 9,4526,8,42
+Call 2,@SelIdx = 10,4526,9,48
+Call 2,@SelIdx = 11,4526,10,54
+Call 2,@SelIdx = 12,4526,11,60
+Call 2,@SelIdx = 13,4526,12,66
+Call 2,@SelIdx = 14,4526,13,72
+Call 2,@SelIdx = 15,4526,14,78
+Call 2,@SelIdx = 16,4526,15,84
+Call 2,@SelIdx = 17,4526,16,90
+Call 2,@SelIdx = 18,4526,17,96
+Call 2,@SelIdx = 19,4526,18,102
+Call 2,@SelIdx = 20,4526,19,108
+Call 2,@SelIdx = 21,4526,20,114
+Jump 0,RECFLAG OFF,38,S,20
+WavPlay 0,,0,,0,0,1
+Calc 2,,回想番号 = @SelIdx
+SetSfc 2,,4,,0,0,1,255,0,0,0,0
+SetSfc 2,,7,,0,0,1,255,0,0,0,0
+SetSfc 2,,5,,0,0,1,255,0,0,0,0
+SetSfc 2,,6,,0,0,1,255,0,0,0,0
+SetSfc 2,,3,,0,0,1,255,0,0,0,0
+SetSfc 2,,2,,0,0,1,255,0,0,0,0
+OverSfc 2,,0,,0,0,0,1,255,0,0,0
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+Calc 2,,既読色 = OFF
+Calc 2,,回想モード = ON
+SetSfc 0,エフェクト OFF,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+SetSfc 0,エフェクト ON,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Load 0,,VOL1,@Vol1,67
+Call 2,回想番号 = 2,81,,-1
+Call 2,回想番号 = 3,83,,-1
+Call 2,回想番号 = 4,95,,-1
+Call 2,回想番号 = 5,97,,-1
+Call 2,回想番号 = 6,100,,-1
+Call 2,回想番号 = 7,103,,-1
+Call 2,回想番号 = 8,231,,-1
+Call 2,回想番号 = 9,123,,-1
+Call 2,回想番号 = 10,126,,-1
+Call 2,回想番号 = 11,128,,-1
+Call 2,回想番号 = 12,106,,-1
+Call 2,回想番号 = 13,244,,-1
+Call 2,回想番号 = 14,121,,-1
+Call 2,回想番号 = 15,132,,-1
+Call 2,回想番号 = 16,134,,-1
+Call 2,回想番号 = 17,136,,-1
+Call 2,回想番号 = 18,138,,-1
+Call 2,回想番号 = 19,145,,-1
+Call 2,回想番号 = 20,150,,-1
+Call 2,回想番号 = 21,154,,-1
+OverSfc 2,,8,,1,0,0,1,255,0,0,0
+Call 0,,31,,-1
+Calc 2,,回想モード = OFF
+Calc 2,,AutoMode = OFF
+Calc 2,,@NoTextWait = OFF
+Load 2,,READCOLOR,既読色,ON
+Load 0,,Effect,エフェクト,ON
+Load 0,,VOL2,@Vol2,50
+HistoryClear 
+New 0,,2,CGFLAG,OFF,0
+WavPlay 0,,3,,0,0,0
+WavPlay 0,,2,,0,0,0
+WavPlay 0,,1,,0,0,0
+WavPlay 0,,0,,0,0,1
+SetSfc 2,,1,BG\BLACK.PMP,0,0,0,255,0,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+SetSfc 0,エフェクト ON,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Jump 0,,38,再描画,2

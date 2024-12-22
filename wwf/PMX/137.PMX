@@ -1,0 +1,79 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG06B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME108.WAV,0,0,0
+PutText 0,,[　澪　]\n「まだ、眠らないの？」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI338.WAV,0,0,0
+PutText 0,,[梨　花]\n「何だか、眠れなくて」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME109.WAV,0,0,0
+PutText 0,,[　澪　]\n「事務所のソファーの方が良かった？」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI339.WAV,0,0,0
+PutText 0,,[梨　花]\n「あっ、いえ……ここで十分です」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME110.WAV,0,0,0
+PutText 0,,[　澪　]\n「彼のことが心配？」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI340.WAV,0,0,0
+PutText 0,,[梨　花]\n「あいつは殺しても死なないぐらい図々しいから大丈夫だと思います……本当に危険なのは鈴さんですよね」
+Calc 2,,CHARNAME = CE03D
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME111.WAV,0,0,0
+PutText 0,,[　澪　]\n「そうね……でも、もう手遅れね」
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI341.WAV,0,0,0
+PutText 0,,[梨　花]\n「手遅れなんですか？」
+Calc 2,,CHARNAME = CE03D
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME112.WAV,0,0,0
+PutText 0,,[　澪　]\n「あの人がここに来た時、事件はほとんど終わっていたわ」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI342.WAV,0,0,0
+PutText 0,,[梨　花]\n「どういうことなんです？」
+Calc 2,,CHARNAME = CE03D
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME113.WAV,0,0,0
+PutText 0,,[　澪　]\n「気付かなかった？」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\ME\ME114.WAV,0,0,0
+PutText 0,,[　澪　]\n「あの人……死んでいたわよ」
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI343.WAV,0,0,0
+PutText 0,,[梨　花]\n「えっ？」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,138,,-1

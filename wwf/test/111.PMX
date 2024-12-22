@@ -1,0 +1,45 @@
+NonStop=0
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「去操緯看看諦」
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI268.WAV,0,0,0
+PutText 0,,[梨　花]\n「去操緯干什頒？」
+Calc 2,,CHARNAME = CE01AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「只是想看看那是什頒鵑子」
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI269.WAV,0,0,0
+PutText 0,,[梨　花]\n「閙到底来錐里干嘛的？」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「桟蹌踈纓跼女服畝躙来教赱我」
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI270.WAV,0,0,0
+PutText 0,,[梨　花]\n「閙鑛什頒！」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[輒　山]\n「好了好了，先訶鞜一下宿舍的墾緯諦」
+Calc 2,,DLG = ON
+PutText 0,,[輒　山]\n「自由活顏，等会再鑛」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,112,,-1

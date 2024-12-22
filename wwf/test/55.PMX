@@ -1,0 +1,82 @@
+NonStop=0
+Jump 0,@HistoryCount <= 1,8,,-1
+HideSfc 2,,6
+OverSfc 2,,4,,19,0,0,0,255,0,0,0
+OverSfc 2,,4,,18,0,0,0,255,0,0,0
+OverSfc 2,,4,,2,0,0,1,255,0,0,0
+SetSfc 2,,5,,0,0,1,255,0,0,0,0
+SetSfc 2,,4,SYSCG\LOG.PMP,-1,0,1,255,0,0,0,0
+SetSfc 2,,7,,0,0,1,255,0,0,0,0
+SetSfc 2,,8,SYSCG\CHIP\LOG_CHIP.PMP,782,568,0,255,0,0,0,0
+ClrText 0,
+TextCol 2,,16763080
+TextSCol 2,,16737380
+TextPos 0,,60,61,23,25,21,0,0
+New 0,,0,履歴番号,,1
+New 0,,0,履歴番号1,,1
+New 0,,0,履歴番号2,,1
+New 0,,0,履歴番号3,,1
+New 0,,0,履歴番号4,,1
+New 2,,0,履歴最大,,1
+New 0,,0,履歴最小,,1
+New 0,,0,チップ位置,,1
+New 0,,0,チップ下,,1
+New 0,,0,演算変数,,1
+Calc 2,,履歴最大 = @HistoryCount - 1
+Calc 2,,履歴最小 = @HistoryCount - 31
+Calc 2,履歴最小 < 0,履歴最小 = 0
+Calc 2,,履歴番号 = 履歴最大
+Label 0,,表示
+Calc 2,,履歴番号1 = 履歴番号 - 1
+Calc 2,,履歴番号2 = 履歴番号 - 2
+Calc 2,,履歴番号3 = 履歴番号 - 3
+Calc 2,,履歴番号4 = 履歴番号 - 4
+ClrText 2,
+HistoryCall 履歴番号4,履歴番号4 >= 0
+PutText 2,履歴番号4 < 0,\n\n
+PutText 2,履歴番号4 >= 0,\n\n\n
+HistoryCall 履歴番号3,履歴番号3 >= 0
+PutText 2,履歴番号3 < 0,\n\n
+PutText 2,履歴番号3 >= 0,\n\n\n
+HistoryCall 履歴番号2,履歴番号2 >= 0
+PutText 2,履歴番号2 < 0,\n\n
+PutText 2,履歴番号2 >= 0,\n\n\n
+HistoryCall 履歴番号1,履歴番号1 >= 0
+PutText 2,履歴番号1 < 0,\n\n
+PutText 2,履歴番号1 >= 0,\n\n\n
+HistoryCall 履歴番号,
+Calc 2,,チップ位置 = 履歴番号 * 100
+Calc 2,,チップ位置 = チップ位置 / 履歴最大
+Calc 2,,チップ位置 = チップ位置 * 552
+Calc 2,,チップ位置 = チップ位置 / 100
+Calc 2,,チップ位置 = チップ位置 + 16
+SetSfc 2,,7,,0,0,1,255,0,0,0,0
+SetSfc 2,,8,SYSCG\CHIP\LOG_CHIP.PMP,782,チップ位置,0,255,1,0,0,0
+Label 0,,入力待ち
+SelMap 0,,,0\56:スクロールバー:20&4603::-1&4603::-1\782\16\797\583,0\56:５つ戻る:0&55:マウスオーバー:71&55:マウスアウト:78\735\376\763\414,0\56:１つ戻る:5&55:マウスオーバー:71&55:マウスアウト:78\735\416\763\454,0\56:１つ進む:10&55:マウスオーバー:71&55:マウスアウト:78\735\456\763\494,0\56:５つ進む:15&55:マウスオーバー:71&55:マウスアウト:78\735\496\763\534,0\55:戻り準備:55&55:マウスオーバー:71&55:マウスアウト:78\706\554\764\584
+Label 0,,戻り準備
+ClrText 0,
+OverSfc 2,,4,,0,0,0,1,255,0,0,0
+SetSfc 2,,8,,0,0,1,255,0,0,0,0
+SetSfc 2,,7,,0,0,0,255,0,0,1,0
+Calc 2,回想モード OFF,READTEXT = READTEXT - 1
+Call 0,,30,,-1
+ClrText 0,
+HistoryCall 履歴最大,
+ShowSfc 0,,4
+ShowSfc 0,,6
+SetSfc 0,HScene ON,7,CAS.PMA,765,540,1,255,1,0,1,0
+SetSfc 0,HScene OFF,7,CAS.PMA,410,235,1,255,1,0,1,0
+DelMark 0,
+Jump 0,HScene OFF,8,,-1
+Jump 0,HScene ON,79,,-1
+Label 0,,マウスオーバー
+SetSfc 0,@SelIdx = 1,7,SYSCG\CHIP\BACK5R.PMP,734,375,1,255,1,0,0,0
+SetSfc 0,@SelIdx = 2,7,SYSCG\CHIP\BACK1R.PMP,733,416,1,255,1,0,0,0
+SetSfc 0,@SelIdx = 3,7,SYSCG\CHIP\FORW1R.PMP,734,455,1,255,1,0,0,0
+SetSfc 0,@SelIdx = 4,7,SYSCG\CHIP\FORW5R.PMP,734,495,1,255,1,0,0,0
+SetSfc 0,@SelIdx = 5,7,SYSCG\CHIP\BCANCEL.PMP,706,554,1,255,1,0,0,0
+Return 0,
+Label 0,,マウスアウト
+SetSfc 2,,7,,0,0,1,255,1,0,0,0
+Return 0,

@@ -1,0 +1,248 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 05_汎用アダルト_ユニーク部分6_2_昼■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+
+playBgm("08-Lunch.ogg")
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+::block_00001::
+-- 黒_出欠判定
+if(IsPresentKuro>=1) then
+    goto block_00002
+else
+    goto block_00013
+end
+
+
+::block_00002::
+-- ▽昼_黒出席:・昼_黒出席
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+--背景：教室（昼）
+::block_00003::
+cls1()
+setname("透")
+text("「……ふう」")
+
+
+::block_00004::
+cls1()
+noname()
+text("ようやく昼休みだ。")
+
+
+::block_00005::
+cls1()
+noname()
+text("苦手な英語が最後の授業だったので、\nちょっとだけ頭が重い。")
+
+
+::block_00006::
+cls1()
+noname()
+text("そう言えば、黒は英語が得意だったよな。")
+
+
+::block_00007::
+cls1()
+noname()
+text("英語の授業を受けても、\n黒ならこんなに頭が重くならないんだろうなあ。")
+
+
+::block_00008::
+cls1()
+noname()
+text("でも、確か数学は苦手だったはずなので、\n数学の時間は俺と同じようになってるかもしれない。")
+
+
+::block_00009::
+cls1()
+setname("透")
+text("「こんな風に考えられるのも、\n黒が通学できてるからだよな」")
+
+
+::block_00010::
+cls1()
+noname()
+text("そこに自分が貢献できていることは、\nなんとなく嬉しい。")
+
+
+::block_00011::
+cls1()
+setname("透")
+text("「さて、飯でも食いますか」")
+
+
+::block_00012::
+goto block_00029 --末端へ
+
+
+::block_00013::
+-- ▽昼_黒欠席:・昼_黒欠席
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile02.png", "non.png",1.5,500,30)
+fade(0.8)
+
+fade_set(EV,"chinesco_A.png",0.5)
+
+--背景：教室（昼）
+::block_00014::
+cls1()
+setname("白")
+playVoice("SI_0562_0000.ogg")
+text("「コスプレ衣装作ってる時って、\nなんか生きてるって感じするんだよねー」")
+
+
+::block_00015::
+cls1()
+noname()
+text("教室で白とご飯を食べている最中、\nそんな話題を口にする。")
+
+
+::block_00016::
+cls1()
+setname("透")
+text("「もしかして、\n玲音会長の最終形態のコス、完成した？」")
+
+fade_set(C2,"ShiroFacial-02-smile07.png",0.3)
+
+::block_00017::
+cls1()
+setname("白")
+playVoice("SI_0562_0001.ogg")
+text("「まあ、それはまだなんだけどね……。\n愛ゆえに、完成度を求めちゃうから」")
+
+
+::block_00018::
+cls1()
+noname()
+text("それは知りすぎるくらいに知っている。")
+
+
+::block_00019::
+cls1()
+noname()
+text("白のコスプレはキャラ愛で作るから、\n完成度も高いけど、その分時間がかかる。")
+
+
+::block_00020::
+cls1()
+setname("透")
+text("「生きてる感じの時間が長くなっていいじゃん」")
+
+fade_set(C2,"ShiroFacial-01-mouse01.png",0.3)
+
+::block_00021::
+cls1()
+setname("白")
+playVoice("SI_0562_0002.ogg")
+text("「それはそうなんだけど、\nそれはそれとして、大変でもあるんだよねー」")
+
+winclose(0.5)
+capture()
+set(BG, "view_050.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+setEx(1,"N-ShiroBase-03.png", "N-ShiroFacial-01-eyes02.png", "non.png",1,50,-60)
+fade(0.5)
+
+setmsEx(1,1,0,100)
+wait(1)
+
+::block_00022::
+cls1()
+noname()
+text("軽く机に突っ伏すと、チラリとこちらを見上げる白。")
+
+fade_set(C2,"N-ShiroFacial-01-mouse01.png",0.3)
+
+::block_00023::
+cls1()
+setname("白")
+playVoice("SI_0562_0003.ogg")
+text("「頭なでなでを所望します」")
+
+
+::block_00024::
+cls1()
+noname()
+text("教室で、なでなでを所望しちゃうのかー。")
+
+
+::block_00025::
+cls1()
+noname()
+text("と、一瞬だけ思いつつ、\n白の頭を優しく撫でる。")
+
+
+::block_00026::
+cls1()
+noname()
+text("俺たちくらいのバカップルになると、\n教室での頭なでなでくらい、どうということはないのだ。")
+
+winclose(0.5)
+capture()
+set(BG, "view_050.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile03.png", "non.png",1.5,-50,-40)
+fade(0.5)
+
+--≪読み：透成分充電完了⇒とおるせいぶんじゅうでんかんりょう≫
+::block_00027::
+cls1()
+setname("白")
+playVoice("SI_0562_0004.ogg")
+text("「えへへー♪\nありがと！　透成分充電完了♪」")
+
+
+::block_00028::
+cls1()
+noname()
+text("そんな白の笑顔で、俺も白成分を充電完了したのだった。")
+
+
+::block_00029::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2昼_出欠分岐_判定■.lua")
+
+
+-- 終了
+end
+
+

@@ -1,0 +1,28 @@
+NonStop=0
+SetSfc 0,@Sfc6 = BG\BLACK.PMP,6,,0,0,1,255,1,0,0,0
+Jump 0,@CtrlKey ON;AutoMode OFF,79,SKIP,20
+Call 2,@MouseX >= 782;@MouseX <= 797;@MouseY >= 475;@MouseY <= 490;@ClickL ON,52,,-1
+Jump 2,@ClickL ON;winerase OFF,80,,-1
+Jump 2,@ClickR ON;右封印 OFF,49,,-1
+Call 2,@MouseY >= 578;@MouseY <= 597;@MouseX >= 576;@MouseX <= 797;AutoMode OFF,51,Hシーン,3
+Call 2,@MouseX >= 782;@MouseX <= 797;@MouseY >= 475;@MouseY <= 490,51,ウィンドウ消去,8
+Call 2,|@MouseX < 576;@MouseX > 797;@MouseY < 578;@MouseY > 597,53,,-1
+Calc 2,winerase OFF,ﾃｷｽﾄ終了変数 = ﾃｷｽﾄ終了変数 + 1
+Calc 0,,ﾃｷｽﾄ終了変数 = ﾃｷｽﾄ終了変数 % 3
+Jump 0,ﾃｷｽﾄ終了変数 < 2,79,,-1
+Calc 2,,ﾃｷｽﾄ終了変数 = 0
+IncFrame 0,,7
+Calc 2,AutoMode ON,AutoModeCount = AutoModeCount + 1
+Jump 0,AutoMode ON;AutoModeCount >= AutoSpeed;@Wav2 =;@Vol2 > 0,5,,-1
+Jump 0,AutoMode ON;AutoModeCount >= AutoSpeed;@Vol2 = 0,5,,-1
+Calc 2,@NoTextWait OFF,スキップ中 = OFF
+Load 0,@NoTextWait OFF,VOL2,@Vol2,67
+Load 0,@NoTextWait OFF,Effect,エフェクト,ON
+Jump 0,,79,,-1
+Label 2,,SKIP
+Calc 2,,@NoTextWait = ON
+Calc 2,@NoTextWait ON,@Vol2 = 0
+Calc 2,@NoTextWait ON,エフェクト = OFF
+OverSfc 2,@NoTextWait ON;@Attach4_3 <> SYSCG\SKIP_SEH.PMP,4,SYSCG\SKIP_SEH.PMP,3,651,105,0,255,1,0,1
+Jump 2,,5,,-1
+SetSfc 0,,6,@Sfc8,0,0,1,255,0,0,0,0

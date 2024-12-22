@@ -1,0 +1,199 @@
+NonStop=0
+HistoryClear 
+Calc 2,,DAY = 5
+Call 0,,4610,,-1
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+WavPlay 0,,0,,0,0,1
+WavPlay 0,,0,BGM\syo1.wav,0,0,0
+Calc 2,,GRPName = BLACK
+Call 0,,9,,-1
+Calc 2,,GRPName = BGT06
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WaitClick 0,
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG07D
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Wait 0,,1000
+SetSfc 0,,0,BG\BGT07.PMP,0,120,0,255,2,0,0,0
+New 0,,0,Y,120,0
+New 0,,0,B1,0,0
+Label 0,,AU
+SetSfc 0,,0,@sfc0,0,Y,0,255,1,0,0,0
+Wait 0,,1
+Calc 2,Y >= 150,B1 = B1 - 8
+Calc 2,Y >= 150,@Bright0 = B1
+Calc 2,,Y = Y + 1
+Jump 2,Y < 181,28,AU,25
+SetSfc 0,,0,,0,0,0,255,1,0,0,0
+Del 0,,Y
+Del 0,,B1
+Calc 2,,@Bright0 = 0
+Wait 0,,300
+Calc 2,,GRPName = BG26D
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Wait 0,,1000
+SetSfc 0,,0,BG\BGT08.PMP,0,280,0,255,2,0,0,0
+New 0,,0,Y,280,0
+New 0,,0,B1,0,0
+Label 0,,AU2
+SetSfc 0,,0,@sfc0,0,Y,0,255,1,0,0,0
+Wait 0,,1
+Calc 2,Y >= 310,B1 = B1 - 8
+Calc 2,Y >= 310,@Bright0 = B1
+Calc 2,,Y = Y + 1
+Jump 2,Y < 341,28,AU2,44
+SetSfc 0,,0,,0,0,0,255,1,0,0,0
+Del 0,,Y
+Del 0,,B1
+Calc 2,,@Bright0 = 0
+Wait 0,,300
+Calc 2,,GRPName = BG24D
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Wait 0,,1000
+SetSfc 0,,0,BG\BGT09.PMP,0,430,0,255,2,0,0,0
+New 0,,0,Y,430,0
+New 0,,0,B1,0,0
+Label 0,,AU3
+SetSfc 0,,0,@sfc0,0,Y,0,255,1,0,0,0
+Wait 0,,1
+Calc 2,Y >= 460,B1 = B1 - 8
+Calc 2,Y >= 460,@Bright0 = B1
+Calc 2,,Y = Y + 1
+Jump 2,Y < 491,28,AU3,63
+SetSfc 0,,0,,0,0,0,255,1,0,0,0
+Del 0,,Y
+Del 0,,B1
+Calc 2,,@Bright0 = 0
+Wait 0,,300
+Calc 2,,GRPName = BG39B
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Wait 0,,1000
+SetSfc 0,,0,BG\BGT10.PMP,27,37,0,255,2,0,0,0
+New 0,,0,X,27,0
+New 0,,0,Y,37,0
+New 0,,0,B1,0,0
+Label 0,,AU4
+SetSfc 0,,0,@sfc0,X,Y,0,255,1,0,0,0
+Wait 0,,1
+Calc 2,X >= 57,B1 = B1 - 8
+Calc 2,X >= 57,@Bright0 = B1
+Calc 2,,X = X + 1
+Calc 2,,Y = Y + 1
+Jump 2,X < 88,28,AU4,83
+SetSfc 0,,0,,0,0,0,255,1,0,0,0
+Del 0,,X
+Del 0,,Y
+Del 0,,B1
+Calc 2,,@Bright0 = 0
+Wait 0,,300
+SetSfc 0,,0,BG\BGT11.PMP,4,208,0,255,2,0,0,0
+Wait 0,,700
+SetSfc 0,,0,BG\BGT12.PMP,26,356,0,255,2,0,0,0
+New 0,,0,OL,356,0
+New 0,,0,B1,0,0
+Label 0,,PO
+SetSfc 0,,0,@sfc0,26,OL,0,255,1,0,0,0
+Calc 2,OL <= 326,B1 = B1 - 15
+Calc 2,OL <= 326,@Bright0 = B1
+Calc 2,,OL = OL - 1
+Wait 0,,1
+Jump 2,OL >= 311,28,PO,102
+Wait 0,,700
+Calc 2,,@Bright0 = 0
+Del 0,,OL
+Del 0,,B1
+SetSfc 0,,0,BG\BGT14.PMP,494,125,0,255,2,0,0,0
+Wait 0,,700
+SetSfc 0,,0,BG\BGT15.PMP,30,285,0,255,2,0,0,0
+New 0,,0,ZX,30,0
+New 0,,0,B1,0,0
+Label 0,,SAQ
+SetSfc 0,,0,@sfc0,ZX,285,0,255,1,0,0,0
+Wait 0,,1
+Calc 2,ZX >= 60,B1 = B1 - 22
+Calc 2,ZX >= 60,@Bright0 = B1
+Calc 2,,ZX = ZX + 3
+Jump 2,ZX <= 90,28,SAQ,118
+Wait 0,,700
+Del 0,,ZX
+Calc 2,,@Bright0 = 0
+Del 0,,B1
+SetSfc 0,,0,BG\BGT16.PMP,26,122,0,255,2,0,0,0
+Wait 0,,700
+SetSfc 0,,0,BG\BGT17.PMP,104,354,0,255,2,0,0,0
+Wait 0,,700
+SetSfc 0,,0,BG\BGT18.PMP,154,512,0,255,2,0,0,0
+Wait 0,,700
+SetSfc 0,,0,BG\BGT19.PMP,179,36,0,255,2,0,0,0
+New 0,,0,SD,179,0
+New 0,,0,B1,0,0
+Label 0,,WE
+SetSfc 0,,0,@sfc0,SD,36,0,255,1,0,0,0
+Calc 2,SD >= 194,B1 = B1 - 15
+Calc 2,SD >= 194,@Bright0 = B1
+Calc 2,,SD = SD + 1
+Jump 2,SD <= 209,28,WE,138
+Wait 0,,900
+Calc 2,,@Bright0 = 0
+Del 0,,SD
+Del 0,,B1
+SetSfc 0,,0,BG\BGT20.PMP,26,356,0,255,2,0,0,0
+Wait 0,,700
+SetSfc 0,,0,BG\BGT21.PMP,254,141,0,255,2,0,0,0
+Wait 0,,1500
+SetSfc 0,,0,BG\BGT22.PMP,0,280,0,255,2,0,0,0
+Wait 0,,1000
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,,0,1,1
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = BG12C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW98B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[面接官]\n「那頒，大山田躄，謨隨隨閙希望成兌特待生的理由」
+Calc 2,,CHARNAME = CE15A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA004.WAV,0,0,0
+PutText 0,,[　躄　]\n「嗇」
+PutText 0,,我鰐阨地回答。
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA005.WAV,0,0,0
+PutText 0,,[　躄　]\n「从出生到墾在，我一直在父薐的庇鉢下生活」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA006.WAV,0,0,0
+PutText 0,,[　躄　]\n「可是，父薐去世了」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA007.WAV,0,0,0
+PutText 0,,[　躄　]\n「父薐繚我留下了足謁的嘖蓄」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA008.WAV,0,0,0
+PutText 0,,[　躄　]\n「但是，父薐已澆不在了」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA009.WAV,0,0,0
+PutText 0,,[　躄　]\n「今后，我必獎一个人生活下去」
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA010.WAV,0,0,0
+PutText 0,,[　躄　]\n「所以，我借此机会申謨了特待生」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,143,,-1

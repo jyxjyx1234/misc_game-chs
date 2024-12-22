@@ -1,0 +1,65 @@
+NonStop=0
+Calc 2,,@NoTextWait = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+Calc 2,,スキップ中 = OFF
+TextCol 0,,0
+TextSCol 0,,12632256
+IntCall 0,,6,228
+IntCall 0,,3,225
+IntCall 0,,4,225
+IntCall 0,,1,246
+SetSfc 0,エフェクト ON,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,1,SE\SE20.wav,0,0,0
+Calc 2,,GRPName = BG40E
+Calc 2,,DrawEffect = 1
+Call 0,,215,,-1
+Wait 0,エフェクト ON,1000
+WavPlay 0,@Vol3 > 0,2,SE\SE17.wav,0,0,0
+Call 0,,214,,-1
+WavPlay 0,,0,BGM\YO00.wav,1,0,0
+Calc 2,,CHARNAME = PC05BA
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「おっ、鈴さんこんなところにいたんですか？」
+Calc 2,,CHARNAME = PC17D
+Call 0,,213,,-1
+PutText 0,,\i(224)[　鈴　]\n「ふう、疲れた」
+WavPlay 0,,2,,0,0,0
+Calc 2,,CHARNAME = PC05BD
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「ちなみに怒ると怖いって本当ですか？」
+WavPlay 0,@Vol3 > 0,2,SE\SE13.wav,0,0,0
+Calc 2,,CHARNAME = PC17E
+Call 0,,213,,-1
+PutText 0,,\i(224)[　鈴　]\n「やーねえ、ガセに決まってるじゃない、ガセネタよ」
+Calc 2,,CHARNAME = PC05BB
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「そうですか、安心しました」
+Calc 2,,CHARNAME = PC17B
+Call 0,,213,,-1
+PutText 0,,\i(224)[　鈴　]\n「ふふふ……」
+Calc 2,,CHARNAME = PC05BD
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「な、何ですか？」
+Calc 2,,CHARNAME = PC17A
+Call 0,,213,,-1
+PutText 0,,\i(224)[　鈴　]\n「問題です」
+WavPlay 0,@Vol3 > 0,2,SE\SE15.wav,0,0,0
+Calc 2,,CHARNAME = PC05BD
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「えっ？」
+Calc 2,,CHARNAME = PC17A
+Call 0,,213,,-1
+PutText 0,,\i(224)[　鈴　]\n「四人目の男、源の職業は何だったでしょう？」
+PutText 0,,\i(224)[　鈴　]\n「１ばん　運転手」
+PutText 0,,\i(224)[　鈴　]\n「２ばん　渡世人」
+PutText 0,,\i(224)[　鈴　]\n「３ばん　宮大工」
+Calc 2,,CHARNAME = PC17B
+Call 0,,213,,-1
+PutText 0,,\i(224)[　鈴　]\n「外したら、ふふふふふふっ～」
+Calc 2,,CHARNAME = PC05BE
+Call 0,,212,,-1
+PutText 0,,\i(223)[梨　花]\n「えっ？」
+Jump 0,,207,,-1

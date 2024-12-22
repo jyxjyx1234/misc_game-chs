@@ -1,0 +1,114 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 06_黒_部屋_放課後_欠席_p3■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+
+
+-- プレイ回数追加
+--PlayKuro=PlayKuro+1
+
+
+-- sample_image
+--capture()
+--set(BG, "ev-H-kuro001a_004.png")
+--fade(0.5)
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+--Phase3
+--背景：教室（昼）
+TransitionCapture()
+alldel()
+set(BG,"view_050.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+winopen(0.5)
+
+playBgm("01-After.ogg")
+
+
+::block_00001::
+cls1()
+setname("透")
+text("「そういえば、黒は休んだんだよな」")
+
+
+::block_00002::
+cls1()
+noname()
+text("授業が終わってから、\nふとその事を思い出した。")
+
+
+::block_00003::
+cls1()
+noname()
+text("オモチャを使ったエッチも出来るようになってきたけど、\nそれでも、今日みたいに登校できない日もある。")
+
+
+::block_00004::
+cls1()
+noname()
+text("たぶん、今日は俺のやり方が良くなかったんだろう。")
+
+
+--::block_00005::
+--cls1()
+--noname()
+--text("でも、これだけやってるのに学校を休まれると、\nこっちの気分が良くないのも確かだ。")
+
+
+::block_00006::
+cls1()
+setname("透")
+text("「……まあ、次からは気をつけるようにしよう」")
+
+
+::block_00007::
+cls1()
+noname()
+text("悩みすぎることに意味はない。")
+
+
+::block_00008::
+cls1()
+noname()
+text("浮かない顔をしてたら、白にも黒にも悪いしな。")
+
+
+::block_00009::
+cls1()
+noname()
+text("そんなことを思いながら、俺は教室を後にした。")
+
+
+::block_00010::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+winclose(0.5)
+TransitionCapture()
+alldel()
+set(BG,"black.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+stopSe()
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2放課後_マップ移動■.lua")
+
+
+-- 終了
+end
+
+

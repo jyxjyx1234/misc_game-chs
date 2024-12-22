@@ -1,0 +1,75 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 05_汎用アダルト_ユニーク部分2_1_朝■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+
+-- sample_image
+playBgm("07-Everyday.ogg")
+
+capture()
+set(BG, "view_008.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+
+-- message_window_open
+winopen(0.5)
+
+
+--朝_共通シナリオ_2回目
+--背景：リビング（昼）
+::block_00001::
+cls1()
+setname("透")
+text("「ご馳走様」")
+
+
+::block_00002::
+cls1()
+noname()
+text("今日も早めの朝食を終えて、手をあわせる。")
+
+
+::block_00003::
+cls1()
+noname()
+text("そろそろ登校の時間だ。")
+
+
+::block_00004::
+cls1()
+noname()
+text("黒を迎えに行って、一緒に学校に行くとしよう。")
+
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+--移動箇所選択画面へ
+::block_00005::
+-- ▽末端:スクリプト追加
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_1朝_マップ移動■.lua")
+
+
+-- 終了
+end
+
+

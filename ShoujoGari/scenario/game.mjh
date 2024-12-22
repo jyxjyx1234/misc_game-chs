@@ -1,0 +1,304 @@
+//そのゲーム固定の各種設定や変数を指定するインクルードファイル
+
+#forcewipe on			// これを入れると行末は\p\wを入れます。
+#use_readflg on			// このソースは既読判定します。
+
+//---------------------------------------------------
+// おかない専用置換
+//---------------------------------------------------
+// 【耕太】（あぁ、かあさん……幸せすぎて……俺、何だか怖いぐらいだよ……）　←の形式に対応
+#subst "s/(.*[^？])】（(.*)/\1】「（\2/k"
+
+//---------------------------------------------------
+// マルチのときの引っ掛け(枠の入れ替え)
+//---------------------------------------------------
+#if 0
+
+	#subst "s/^＃/\$nwaku();\t*/"
+	// ↓カッコを残さない
+	//#subst "s'(.*)「（(.*)）'\$nwap(\"\1\");\t*\1「「\2'k"
+	// ↓カッコを残す
+	#subst "s'(.*)「（(.*)'\$nwap(\"\1\");\t*\1「（\2'k"
+
+	#subst "s'(.*)「「(.*)'\$nwa(\"\1\");\t*\1「「\2'k"
+	#subst "s'(.*)「『(.*)'\$nwa(\"\1\");\t*\1「『\2'k"
+	#define 。≫ ≫
+
+#endif
+//---------------------------------------------------
+// 引っ掛け終了、ここからはマルチのときの変数
+//---------------------------------------------------
+
+var	#plg_skip;
+
+var	@siho;
+var	@mako;
+var	@yuki;
+var	@natu;
+
+var	#kaisou01;
+var	#kaisou02;
+var	#kaisou03;
+var	#kaisou04;
+var	#kaisou05;
+var	#kaisou06;
+var	#kaisou07;
+var	#kaisou08;
+var	#kaisou09;
+var	#kaisou10;
+var	#kaisou11;
+var	#kaisou12;
+var	#kaisou13;
+var	#kaisou14;
+var	#kaisou15;
+var	#kaisou16;
+var	#kaisou17;
+var	#kaisou18;
+var	#kaisou19;
+var	#kaisou20;
+var	#kaisou21;
+var	#kaisou22;
+var	#kaisou23;
+//---------------------------------------------------
+// ここまでマルチ
+//---------------------------------------------------
+
+var	@end_pat;
+var	@madaNatukisitenai;
+var	@nukedasi;
+var	#opLook;
+var	@natuSM;
+var	@yukaSM;
+
+var	@YukaSML;
+var	@YukaSMS;
+var	@YukaLove;
+var	@YukaEro;
+var	@NatuSML;
+var	@NatuSMS;
+var	@NatuLove;
+var	@NatuEro;
+var	@KoutSML;
+var	@KoutSMS;
+
+var	@D02_03;
+var	@D02_04;
+var	@D02_05;
+
+var	@D03_03;
+var	@D03_04;
+var	@D03_05;
+
+var	@yukariR;
+var	@natukiR;
+
+var	@Day05_05;
+
+var	@Day06_05;
+
+var	@Day07_04;
+
+var	#end_01;
+var	#end_02;
+var	#end_03;
+var	#end_04;
+var	#end_05;
+var	#end_06;
+var	#end_07;
+var	#end_08;
+var	#end_09;
+
+
+//少女狩り
+var	@kisaC;
+var	@airiC;
+var	@mikaC;
+var	@isumC;
+var	@rinoC;
+
+var	@snr002a;
+var	@snr002aa;
+var	@snr002aaa;
+var	@snr002aab;
+var	@snr002ab;
+var	@snr002aba;
+var	@snr002abb;
+var	@snr002b;
+var	@snr002ba;
+var	@snr002baa;
+var	@snr002bab;
+var	@snr002bb;
+var	@snr002bb2a;
+var	@snr002bb2b;
+var	@snr002c;
+var	@snr002ca;
+var	@snr002caa;
+var	@snr002cab;
+var	@snr002caba;
+var	@snr002cabb;
+var	@snr002cabc;
+var	@snr002cb;
+var	@snr002cba;
+var	@snr002cbb;
+var	@snr002cbba;
+var	@snr002cbbb;
+var	@snr002d;
+var	@snr002da;
+var	@snr002daa;
+var	@snr002daaa;
+var	@snr002daab;
+var	@snr002dab;
+var	@snr002daba;
+var	@snr002dabb;
+var	@snr002db;
+var	@snr002e;
+var	@snr002ea;
+var	@snr002eb;
+var	@snr005a;
+var	@snr005aa;
+var	@snr005ab;
+var	@snr005ac;
+var	@snr005b;
+var	@snr005ba;
+var	@snr005bb;
+var	@snr005bc;
+var	@snr005c;
+var	@snr005ca;
+var	@snr005cb;
+var	@snr005d;
+var	@snr005da;
+var	@snr005db;
+var	@snr005dc;
+var	@snr005e;
+var	@snr005ea;
+var	@snr005eb;
+var	@snr005ec;
+var	@snr008a;
+var	@snr008b;
+var	@snr009a;
+var	@snr009ac;
+var	@snr009b;
+var	@snr009bc;
+var	@snr009c;
+var	@snr009ca;
+var	@snr009cb;
+var	@snr009d;
+var	@snr009dc;
+var	@snr009e;
+var	@snr009ec;
+
+//エンド系
+var	#ed_kisara;
+var	#ed_airi;
+var	#ed_mika;
+var	#ed_izumi;
+var	#ed_rino;
+var	#ed_sinjuu;
+var	#ed_sibou2;
+var	#ed_sibou1;
+var	#ed_yumi;
+var	#ed_kisaairi;
+
+var	#ed_sinjuu1;
+var	#ed_sinjuu2;
+var	#ed_sibou2kisara;
+var	#ed_sibou2airi;
+var	#ed_sibou2mika;
+var	#ed_sibou2izumi;
+var	#ed_sibou2ruri;
+
+//回想系
+var	#snr002aaa;
+var	#snr002aab;
+var	#snr002aba;
+var	#snr002abb;
+var	#snr002baa;
+var	#snr002bab;
+var	#snr002bb1a;
+var	#snr002bb1b;
+var	#snr002bb2a;
+var	#snr002bb2b;
+var	#snr002bb;
+var	#snr002caa;
+var	#snr002caba;
+var	#snr002cabb;
+var	#snr002cabc;
+var	#snr002cab;
+var	#snr002cba;
+var	#snr002cbb;
+var	#snr002cb;
+var	#snr002daaa;
+var	#snr002daab;
+var	#snr002daba;
+var	#snr002dabb;
+var	#snr002ea;
+var	#snr002eb;
+var	#kisa01aaa;
+var	#kisa01aab;
+var	#kisa01aba;
+var	#kisa01abb;
+var	#airi01;
+var	#airi02;
+var	#airi03;
+var	#mika01;
+var	#mika02;
+var	#mika03;
+var	#mika04;
+var	#izumi01;
+var	#izumi02;
+var	#izumi03;
+var	#izumi04;
+var	#izumi05;
+var	#izumi06;
+var	#rino01;
+var	#rino02;
+
+var	#snr005aa;
+var	#snr005aaz;
+var	#snr005ab;
+var	#snr005abz;
+var	#snr005ac;
+var	#snr005acz;
+var	#snr005ba;
+var	#snr005baz;
+var	#snr005bb;
+var	#snr005bbz;
+var	#snr005bc;
+var	#snr005bcz;
+var	#snr005ca;
+var	#snr005caz;
+var	#snr005cb;
+var	#snr005cbz;
+var	#snr005da;
+var	#snr005daz;
+var	#snr005db;
+var	#snr005dbz;
+var	#snr005dc;
+var	#snr005dcz;
+var	#snr005ea;
+var	#snr005eaz;
+
+var	#snr009ac;
+var	#snr009acz;
+var	#snr009bc;
+var	#snr009bcz;
+var	#snr009ca;
+var	#snr009cb;
+var	#snr009caz;
+var	#snr009cbz;
+
+var	#snr005eb;
+var	#snr005ebz;
+var	#snr005ec;
+var	#snr005ecz;
+var	#snr009dc;
+var	#snr009dcz;
+var	#snr009ec;
+var	#snr009ecz;
+var	#ed_rinoyumi;
+
+var	#snr006a;
+var	#snr006b;
+var	#snr006c;
+var	#snr006d;
+var	#snr006e;

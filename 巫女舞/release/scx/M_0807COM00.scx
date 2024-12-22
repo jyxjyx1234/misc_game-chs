@@ -1,0 +1,73 @@
+;-------------------------
+;8月7日　メインシーケンス
+;-------------------------
+
+/calc	[$day=7]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+
+;=============================
+/call	"scx\A_0807COM01.scx"
+/call	"scx\A_0807COM02.scx"
+
+/jump	[$1055]	@NK00
+/jump	[$1155]	@HN00
+/jump	[$1255]	@KH00
+/jump	[$1355]	@AK00
+
+/end
+
+;-------------------------
+#NK00
+/call	"scx\A_0807NK02.scx"
+/call	"scx\A_0807COM03.scx"
+/call	"scx\A_0807NK05.scx"
+/if	[$nkpts<7]
+	/calc	[$answer=4]
+	/end
+/endif
+
+/call	"scx\A_0807NK06.scx"
+/calc	[$answer=0]
+/end
+
+;-------------------------
+#HN00
+/call	"scx\A_0807HN02.scx"
+/call	"scx\A_0807COM03.scx"
+/call	"scx\A_0807HN05.scx"
+/if	[$hnpts<7]
+	/calc	[$answer=4]
+	/end
+/endif
+/call	"scx\A_0807HN06.scx"
+/calc	[$answer=1]
+/end
+
+;-------------------------
+#KH00
+/call	"scx\A_0807KH02.scx"
+/call	"scx\A_0807COM03.scx"
+/call	"scx\A_0807KH05.scx"
+/if	[$khpts<7]
+	/calc	[$answer=4]
+	/end
+/endif
+/call	"scx\A_0807KH06.scx"
+/calc	[$answer=2]
+/end
+
+;-------------------------
+#AK00
+/call	"scx\A_0807AK02.scx"
+/call	"scx\A_0807COM03.scx"
+/call	"scx\A_0807AK05.scx"
+/if	[$akpts<7]
+	/calc	[$answer=4]
+	/end
+/endif
+/call	"scx\A_0807AK06.scx"
+/calc	[$answer=3]
+/end
+;=============================
+

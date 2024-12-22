@@ -1,0 +1,70 @@
+;-------------------------
+;8月2日　メインシーケンス
+;-------------------------
+
+/calc	[$day=2]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+
+;=============================
+
+/call	"scx\A_0802SP01.scx"
+/if	[$answer==5]
+	/end	;飛鳥編へ
+/endif
+
+/call	"scx\A_0802COM01.scx"
+/call	"scx\C_JOB0KH02.scx"
+
+#HIRU
+/call	"scx\C_JOB0802.scx"
+/if	[$clear]	;	１度以上クリアしている
+	/call	"scx\A_0802SP03.scx"
+/endif
+
+/call	"scx\A_0802HN03.scx"	; 石碑→この夜の月憑依イベントを見るのに必須
+
+;=============================
+;この日からようやく自由選択開始
+#YUU
+/call	"scx\B_YUU0802.scx"
+/jump	[$answer==0]	@NK02
+/jump	[$answer==1]	@HN02
+/jump	[$answer==2]	@KH02
+/jump	[$answer==3]	@AK02
+
+;-------------------------
+#NK02
+/call	"scx\C_FREENK99.scx"	; 故郷めぐり初回強制
+/jump	@YORU
+
+;-------------------------
+#HN02
+/call	"scx\C_FREEHN99.scx"	; スケッチ
+/jump	@YORU
+
+;-------------------------
+#KH02
+/call	"scx\C_FREEKH99.scx"
+/jump	@YORU
+
+;-------------------------
+#AK02
+/call	"scx\C_FREEAK99.scx"
+/jump	@YORU
+;=============================
+
+
+;=============================
+#YORU
+/call	"scx\B_NIGHT0802.scx"
+/if	[$hnpts>0]
+	/call	"scx\A_0802HN06.scx"	;月憑依
+/endif
+;=============================
+
+/call	"scx\X_0802AH04.scx"	; 夢
+
+/end
+;_____________________________
+

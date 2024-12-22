@@ -1,0 +1,20 @@
+NonStop=0
+New 0,,0,lx,,0
+New 0,,0,ly,,0
+New 0,,0,mouseidx,0,0
+Calc 2,,lx = MouseTargetX - @MouseX
+Calc 2,,lx = lx / 20
+Calc 2,,ly = MouseTargetY - @MouseY
+Calc 2,,ly = ly / 20
+Label 0,,mouseloop
+Calc 2,,@MouseX = @MouseX + lx
+Calc 2,,@MouseY = @MouseY + ly
+Calc 2,,mouseidx = mouseidx + 1
+Wait 2,,7
+Jump 2,mouseidx < 20,4607,mouseloop,7
+Calc 2,,@MouseX = MouseTargetX
+Calc 2,,@MouseY = MouseTargetY
+Del 0,,mouseidx
+Del 0,,lx
+Del 0,,ly
+Return 0,

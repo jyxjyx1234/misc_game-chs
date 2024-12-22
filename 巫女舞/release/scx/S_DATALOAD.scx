@@ -1,0 +1,303 @@
+;-----------------------------------------------
+; データロードインターフェイス、実行部
+;-----------------------------------------------
+; 起動
+/MesCls
+
+/calc	[$mode=2]	; データロードモード
+/SysGet	'page'
+/calc	[$page=$ret]
+/calc	[$save=-1]
+
+/call	@open
+/call	@scan
+
+/Default	<DATA1>
+
+#loop
+/KeyWait
+/jump	<DATA1>		@1
+/jump	<DATA2>		@2
+/jump	<DATA3>		@3
+/jump	<DATA4>		@4
+/jump	<DATA5>		@5
+/jump	<DATA6>		@6
+/jump	<DATA7>		@7
+/jump	<DATA8>		@8
+/jump	<DATA9>		@9
+/jump	<DATA10>	@10
+/jump	<CMD_CANCEL>	@cancel
+/jump	<CMD_UP>		@pgup
+/jump	<CMD_DOWN>		@pgdown
+/jump	<PAGE1>			@pgup
+/jump	<PAGE2>			@pgdown
+/jump	<SEL_1>			@cancel
+/jump	<SEL_2>			@title
+/jump	<SEL_3>			@gameend
+/jump	@loop
+
+;-------------------
+; ロードせずに終了
+#cancel
+/SePlay	[900]	;キャンセル
+/call	@close
+/calc	[$ret=-1]
+/jump	@exit
+
+
+;-----------------------------------------------
+; ゲームの終了
+#gameend
+/SePlay	[902]	;決定
+/call	"scx\S_DIALOG.scx"	@exitdlg
+/jump	@loop
+;-----------------------------------------------
+; タイトルへ
+#title
+/SePlay	[902]	;決定
+/call	"scx\S_DIALOG.scx"	@titledlg
+/jump	@loop
+
+#pgup
+/ChangeButton	<PAGE1>	[1]
+/SePlay	[902]	;決定
+/if	[$page==0]
+	/calc	[$page=9]
+/else
+	/sub	'page'	[1]
+/endif
+/call	@scan
+/ChangeButton	<PAGE1>
+/jump	@loop
+
+#pgdown
+/ChangeButton	<PAGE2>	[1]
+/SePlay	[902]	;決定
+/if	[$page==9]
+	/calc	[$page=0]
+/else
+	/add	'page'	[1]
+/endif
+/call	@scan
+/ChangeButton	<PAGE2>
+/jump	@loop
+
+;-------------------
+#1
+/calc	[$save=0]
+/jump	@load
+;-------------------
+#2
+/calc	[$save=1]
+/jump	@load
+;-------------------
+#3
+/calc	[$save=2]
+/jump	@load
+;-------------------
+#4
+/calc	[$save=3]
+/jump	@load
+;-------------------
+#5
+/calc	[$save=4]
+/jump	@load
+;-------------------
+#6
+/calc	[$save=5]
+/jump	@load
+;-------------------
+#7
+/calc	[$save=6]
+/jump	@load
+;-------------------
+#8
+/calc	[$save=7]
+/jump	@load
+;-------------------
+#9
+/calc	[$save=8]
+/jump	@load
+;-------------------
+#10
+/calc	[$save=9]
+/jump	@load
+;-------------------
+
+;-----------------------------------------------
+#load
+/SePlay	[902]	;決定
+/call	"scx\S_LOADDIALOG.scx"
+/jump	[$ret==0]	@loop
+
+/LoadData	[0]	($page,$save)
+/calc	[$ret=($page*10)+$save+1]
+/call	@close
+/jump	@exit
+
+;-----------------------------------------------
+; UIオープン・サブルーチン
+#open
+/Default	<CHR_1>
+/Read	"obj\mode_load.tga"
+/SetPos	(0,0)
+/FadeIn		[32]
+
+
+/CreateButton	<SEL_1>	"obj\BTN_ゲーム戻る_0.tga"
+/Read	[1]		<SEL_1>	"obj\BTN_ゲーム戻る_1.tga"
+/SetPos			<SEL_1>	(210,520)
+/ChangeButton	<SEL_1>	[0]
+/FadeIn			<SEL_1>	[32]
+
+/CreateButton	<SEL_2>	"obj\BTN_タイトル戻る_0.tga"
+/Read	[1]		<SEL_2>	"obj\BTN_タイトル戻る_1.tga"
+/SetPos			<SEL_2>	(400,520)
+/ChangeButton	<SEL_2>	[0]
+/FadeIn			<SEL_2>	[32]
+
+/CreateButton	<SEL_3>	"obj\BTN_ゲーム終了_0.tga"
+/Read	[1]		<SEL_3>	"obj\BTN_ゲーム終了_1.tga"
+/SetPos			<SEL_3>	(590,520)
+/ChangeButton	<SEL_3>	[0]
+/FadeIn			<SEL_3>	[32]
+
+/CreateButton	<PAGE1>	"obj\やじるし_うえ_0.tga"
+/Read	[1]		<PAGE1>	"obj\やじるし_うえ_1.tga"
+/SetPos			<PAGE1>	(480,118)
+/ChangeButton	<PAGE1>	[0]
+/FadeIn			<PAGE1>	[32]
+
+/CreateButton	<PAGE2>	"obj\やじるし_した_0.tga"
+/Read	[1]		<PAGE2>	"obj\やじるし_した_1.tga"
+/SetPos			<PAGE2>	(480,458)
+/ChangeButton	<PAGE2>	[0]
+/FadeIn			<PAGE2>	[32]
+
+
+/default	<-1>
+
+/FadeWait
+
+/ChangeButton	<SEL_1>
+/ChangeButton	<SEL_2>
+/ChangeButton	<SEL_3>
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>
+
+/return
+
+;-----------------------------------------------
+; UIクローズ・サブルーチン
+#close
+/Default	<-1>
+/BgLock		<CHR_1>
+/FadeOut	<CHR_1>
+/InitAll	<CHR_1>	<BG>
+/default	<-1>
+
+/FadeWait
+
+/return
+
+;-----------------------------------------------
+; ScanSaveData
+#scan
+/if	[$page==0]		/Read	<TMP>	"obj\PAGE_01.tga"	/endif
+/if	[$page==1]		/Read	<TMP>	"obj\PAGE_02.tga"	/endif
+/if	[$page==2]		/Read	<TMP>	"obj\PAGE_03.tga"	/endif
+/if	[$page==3]		/Read	<TMP>	"obj\PAGE_04.tga"	/endif
+/if	[$page==4]		/Read	<TMP>	"obj\PAGE_05.tga"	/endif
+/if	[$page==5]		/Read	<TMP>	"obj\PAGE_06.tga"	/endif
+/if	[$page==6]		/Read	<TMP>	"obj\PAGE_07.tga"	/endif
+/if	[$page==7]		/Read	<TMP>	"obj\PAGE_08.tga"	/endif
+/if	[$page==8]		/Read	<TMP>	"obj\PAGE_09.tga"	/endif
+/if	[$page==9]		/Read	<TMP>	"obj\PAGE_10.tga"	/endif
+/SetPos	<TMP>	(680,126)
+/DispOn	<TMP>
+
+
+/DispOff	<DATA1>
+/DispOff	<DATA2>
+/DispOff	<DATA3>
+/DispOff	<DATA4>
+/DispOff	<DATA5>
+/DispOff	<DATA6>
+/DispOff	<DATA7>
+/DispOff	<DATA8>
+/wait
+
+/LoadData	[10]	($page,0)
+/ScanData	[10]	<DATA1>
+/SetPos				<DATA1>		(235,170)
+/if	[$ret]	/ChangeButton		<DATA1>
+/else		/ChangeButton	[0]	<DATA1>	/endif
+/wait
+
+/LoadData	[11]	($page,1)
+/ScanData	[11]	<DATA2>
+/SetPos				<DATA2>		(371,170)
+/if	[$ret]	/ChangeButton		<DATA2>
+/else		/ChangeButton	[0]	<DATA2>	/endif
+/wait
+
+/LoadData	[12]	($page,2)
+/ScanData	[12]	<DATA3>
+/SetPos				<DATA3>		(507,170)
+/if	[$ret]	/ChangeButton		<DATA3>
+/else		/ChangeButton	[0]	<DATA3>	/endif
+/wait
+
+/LoadData	[13]	($page,3)
+/ScanData	[13]	<DATA4>
+/SetPos				<DATA4>		(643,170)
+/if	[$ret]	/ChangeButton		<DATA4>
+/else		/ChangeButton	[0]	<DATA4>	/endif
+/wait
+
+/LoadData	[14]	($page,4)
+/ScanData	[14]	<DATA5>
+/SetPos				<DATA5>		(235,326)
+/if	[$ret]	/ChangeButton		<DATA5>
+/else		/ChangeButton	[0]	<DATA5>	/endif
+/wait
+
+/LoadData	[15]	($page,5)
+/ScanData	[15]	<DATA6>
+/SetPos				<DATA6>		(371,326)
+/if	[$ret]	/ChangeButton		<DATA6>
+/else		/ChangeButton	[0]	<DATA6>	/endif
+/wait
+
+/LoadData	[16]	($page,6)
+/ScanData	[16]	<DATA7>
+/SetPos				<DATA7>		(507,326)
+/if	[$ret]	/ChangeButton		<DATA7>
+/else		/ChangeButton	[0]	<DATA7>	/endif
+/wait
+
+/LoadData	[17]	($page,7)
+/ScanData	[17]	<DATA8>
+/SetPos				<DATA8>		(643,326)
+/if	[$ret]	/ChangeButton		<DATA8>
+/else		/ChangeButton	[0]	<DATA8>	/endif
+/wait
+
+/return
+
+;-----------------------------------------------
+; 終了
+#exit
+/Default	<-1>
+
+;後片付け
+/Init	<DATA1>
+/Init	<DATA2>
+/Init	<DATA3>
+/Init	<DATA4>
+/Init	<DATA5>
+/Init	<DATA6>
+/Init	<DATA7>
+/Init	<DATA8>
+
+/end

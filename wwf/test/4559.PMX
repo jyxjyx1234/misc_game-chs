@@ -1,0 +1,99 @@
+NonStop=0
+Call 2,@SelIdx = 2,4588,1,0
+Call 2,@SelIdx = 3,4588,2,3
+Call 2,@SelIdx = 4,4588,3,6
+Call 2,@SelIdx = 5,4588,4,9
+Call 2,@SelIdx = 6,4588,5,12
+Call 2,@SelIdx = 7,4588,6,15
+Call 2,@SelIdx = 8,4588,7,18
+Call 2,@SelIdx = 9,4588,8,21
+Call 2,@SelIdx = 10,4588,9,24
+Call 2,@SelIdx = 11,4588,10,27
+Call 2,@SelIdx = 12,4588,11,30
+Call 2,@SelIdx = 13,4588,12,33
+Call 2,@SelIdx = 14,4588,13,36
+Call 2,@SelIdx = 15,4588,14,39
+Call 2,@SelIdx = 16,4588,15,42
+Call 2,@SelIdx = 17,4588,16,45
+Call 2,@SelIdx = 18,4588,17,48
+Call 2,@SelIdx = 19,4588,18,51
+Call 2,@SelIdx = 20,4588,19,54
+Call 2,@SelIdx = 21,4588,20,57
+Jump 0,CGFLAG OFF,4559,2枚目表示,26
+SetSfc 0,CGFLAG ON,8,ファイル名,0,0,0,255,3,0,0,0
+Label 0,,クリック待ち１
+Jump 0,@ClickL ON,4559,2枚目表示,26
+Jump 0,@ClickR ON,4559,戻り,93
+Jump 0,,4559,クリック待ち１,22
+Label 0,,2枚目表示
+Calc 2,,ファイル名 = 基本ファイル名 + R
+Load 2,,CG+ファイル名,CGFLAG,OFF
+Calc 2,CGFLAG OFF,ファイル名 = 基本ファイル名 + R1
+Load 2,CGFLAG OFF,CG+ファイル名,CGFLAG,OFF
+Jump 0,CGFLAG OFF,4559,戻り,93
+Calc 2,CGFLAG ON,ファイル名 = ファイル名 + .PMP
+Calc 2,CGFLAG ON,ファイル名 = CG\ + ファイル名
+SetSfc 0,CGFLAG ON,8,ファイル名,0,0,0,255,3,0,0,0
+Label 0,,クリック待ち２
+Jump 0,@ClickL ON,4559,3枚目表示,39
+Jump 0,@ClickR ON,4559,戻り,93
+Jump 0,,4559,クリック待ち２,35
+Label 0,,3枚目表示
+Calc 2,,ファイル名 = 基本ファイル名 + R2
+Load 2,,CG+ファイル名,CGFLAG,OFF
+Jump 0,CGFLAG OFF,4559,戻り,93
+Calc 2,CGFLAG ON,ファイル名 = ファイル名 + .PMP
+Calc 2,CGFLAG ON,ファイル名 = CG\ + ファイル名
+SetSfc 0,CGFLAG ON,8,ファイル名,0,0,0,255,3,0,0,0
+Label 0,,クリック待ち３
+Jump 0,@ClickL ON,4559,4枚目表示,50
+Jump 0,@ClickR ON,4559,戻り,93
+Jump 0,,4559,クリック待ち３,46
+Label 0,,4枚目表示
+Calc 2,,ファイル名 = 基本ファイル名 + R3
+Load 2,,CG+ファイル名,CGFLAG,OFF
+Jump 0,CGFLAG OFF,4559,戻り,93
+Calc 2,CGFLAG ON,ファイル名 = ファイル名 + .PMP
+Calc 2,CGFLAG ON,ファイル名 = CG\ + ファイル名
+SetSfc 0,CGFLAG ON,8,ファイル名,0,0,0,255,3,0,0,0
+Label 0,,クリック待ち４
+Jump 0,@ClickL ON,4559,5枚目表示,61
+Jump 0,@ClickR ON,4559,戻り,93
+Jump 0,,4559,クリック待ち４,57
+Label 0,,5枚目表示
+Calc 2,,ファイル名 = 基本ファイル名 + R4
+Load 2,,CG+ファイル名,CGFLAG,OFF
+Jump 0,CGFLAG OFF,4559,戻り,93
+Calc 2,CGFLAG ON,ファイル名 = ファイル名 + .PMP
+Calc 2,CGFLAG ON,ファイル名 = CG\ + ファイル名
+SetSfc 0,CGFLAG ON,8,ファイル名,0,0,0,255,3,0,0,0
+Label 0,,クリック待ち５
+Jump 0,@ClickL ON,4559,6枚目表示,72
+Jump 0,@ClickR ON,4559,戻り,93
+Jump 0,,4559,クリック待ち５,68
+Label 0,,6枚目表示
+Calc 2,,ファイル名 = 基本ファイル名 + R5
+Load 2,,CG+ファイル名,CGFLAG,OFF
+Jump 0,CGFLAG OFF,4559,戻り,93
+Calc 2,CGFLAG ON,ファイル名 = ファイル名 + .PMP
+Calc 2,CGFLAG ON,ファイル名 = CG\ + ファイル名
+SetSfc 0,CGFLAG ON,8,ファイル名,0,0,0,255,3,0,0,0
+Label 0,,クリック待ち６
+Jump 0,@ClickL ON,4559,6枚目表示,72
+Jump 0,@ClickR ON,4559,戻り,93
+Jump 0,,4559,クリック待ち５,68
+Label 0,,7枚目表示
+Calc 2,,ファイル名 = 基本ファイル名 + R6
+Load 2,,CG+ファイル名,CGFLAG,OFF
+Jump 0,CGFLAG OFF,4559,戻り,93
+Calc 2,CGFLAG ON,ファイル名 = ファイル名 + .PMP
+Calc 2,CGFLAG ON,ファイル名 = CG\ + ファイル名
+SetSfc 0,CGFLAG ON,8,ファイル名,0,0,0,255,3,0,0,0
+Label 0,,クリック待ち７
+Jump 0,|@ClickL ON;@ClickR ON,4559,戻り,93
+Jump 0,,4559,クリック待ち７,90
+Label 0,,戻り
+SetSfc 2,,4,,0,0,1,255,0,0,0,0
+SetSfc 0,,8,,0,0,1,255,3,0,0,0
+Jump 0,@Sfc1 <>,248,S,3
+Jump 0,,29,S,53

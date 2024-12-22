@@ -1,0 +1,32 @@
+NonStop=0
+Load 2,,VOL1,@Vol1,67
+Load 2,,VOL2,@Vol2,67
+Load 2,,VOL3,@Vol3,67
+Load 2,,VOL3,@Vol4,67
+Load 2,,MesSpeed,MesSpeed,5
+Load 2,,SoundOn,SoundOn,ON
+Load 2,,RTM+NOWSCENARIO,READTEXTMAX,
+Load 2,,AutoSpeed,AutoSpeed,12
+Load 2,,MouseMove,MouseMove,ON
+Load 2,,CURSOR,CURSOR,CAGE.ANI
+Load 2,,Effect,エフェクト,ON
+Load 2,,NEWESTDATA,最新セーブ番号,-1
+IntCall 0,,1,-1
+Load 2,,cleared,クリア済み,OFF
+Load 2,,TSALL,TSALL,OFF
+Calc 2,,READSKIP = READTEXTMAX - READTEXT
+Load 2,,READCOLOR,既読色,ON
+OverSfc 2,,6,,1,0,0,0,255,0,0,1
+OverSfc 2,,6,,3,0,0,1,255,0,0,1
+OverSfc 2,,7,,2,0,0,1,255,0,0,0
+SoundOn 0,SoundOn ON
+SoundOff 0,SoundOn OFF
+Del 0,,仮セーブ番号
+Del 0,,本セーブ番号
+Del 0,,ｾｰﾌﾞﾛｰﾄﾞ文字列
+Del 0,,Vcsr
+SetSfc 2,,5,,0,0,1,255,0,0,0,0
+ClrText 0,
+Calc 2,,READTEXT = READTEXT - 1
+Calc 2,,READTEXTMAX = READTEXTMAX - 1
+Return 0,

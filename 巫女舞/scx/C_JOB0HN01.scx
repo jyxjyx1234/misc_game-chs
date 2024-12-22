@@ -1,0 +1,452 @@
+; OriginalFile: COM_JOB0.txt
+;■時間　　:日中
+;■タイトル:仕事初回
+;■発生条件:日中のターンで久音を選択（初回）。
+;■アラスジ
+;　　・仕事のヒトコマ。
+;■使用予定1枚絵
+;　　・なし。
+;■使用予定BG
+;　　・境内拝殿前
+;■収得する進行フラグ
+;　　・
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:汎用（初回:仕事）
+;・発生ターン:日中
+;・タイトル:初回仕事
+;============================================
+;◇000:本筋その1
+/FadeIn	<BG>	"bg\bg018D.bmp"	;BG:拝殿内部
+
+
+/Mes	[15795]
+俺は久音さんのところに顔を出してみることにした。
+/MesWait
+
+
+/Mes	[15796]
+久音さんは、ここにいるらしいけど……
+/MesWait
+
+
+/BgmPlay	[09]	; 神社日中
+/ChrIn	<CHR_1>	"stand\０４ヒサネ巫女＿楽.tga"	;久音on
+
+
+/Mes	[15797]	'久音'	"voice\15835.ogg"
+「えっと……$nameさん、何かご用でしょうか？」
+/MesWait
+
+
+/Mes	[15798]	'$name'
+「いや、あの……手伝おうかなぁ、と」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ巫女＿疑問.tga"		;流し目でブリッコ手
+
+
+/Mes	[15799]	'久音'	"voice\15837.ogg"
+「えっと…………」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ巫女＿楽.tga"	
+
+
+/Mes	[15800]
+ううぅ……久音さん、考えちゃってるよ……
+/MesWait
+
+
+/BgmFade
+;↓声のみ
+
+/Mes	[15801]	'久奈'	"voice\15839.ogg"
+「あたしが仕事をつくってあげるよー！」
+/MesWait
+
+
+/ChrOut	<CHR_1>
+/BgmPlay	[04]	; コミカル系（木琴）
+/ChrIn	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"	;久奈on
+
+
+/Mes	[15802]	'$name'
+「どういう意味だ、それ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽しい.tga"
+
+
+/Mes	[15803]	'久奈'	"voice\15841.ogg"
+「いいから、こっちこっちー」
+/MesWait
+
+
+/SePlay	[009]	; 木製の廊下を駆け出す音：軽「タタタタタタ………」
+/ChrOut	<CHR_1>	;久奈off
+
+
+/Mes	[15804]	'$name'
+「って、おい！　どこに俺を引っ張っていくつもりだ？」
+/MesWait
+
+
+/AllFadeOut
+
+
+/Mes	[15805]
+……で、久奈に引っ張られてきたのは………
+/MesWait
+
+
+/MesCls
+/SePlay	[031]	; フスマ開く。閉じる（強）「すたぁん！」
+/Wait	[500]
+/FadeIn	<BG>	"bg\bg015D.bmp"	;BG:久音・久奈の部屋。
+
+
+/Mes	[15806]	'$name'
+「なんでお前の部屋に連れてこられるんだ、俺が？」
+/MesWait
+
+
+/ChrIn	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"	;久奈on
+
+
+/Mes	[15807]	'久奈'	"voice\15845.ogg"
+「なんでだと思う？」
+/MesWait
+
+
+/Mes	[15808]	'$name'
+「なんでだ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿ニッコリ.tga"
+
+
+/Mes	[15809]	'久奈'	"voice\15847.ogg"
+「うーんと、あたしの代わりに、宿題やってよー」
+/MesWait
+
+
+/Mes	[15810]	'$name'
+「はぁっ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"
+
+
+/Mes	[15811]
+なんでそうなる？
+/MesWait
+
+
+/SetPos	<CHR_1>	(LEFT)
+/ChrIn	<CHR_2>	(RIGHT)	"stand\０４ヒサネ巫女＿楽.tga"	;久音on
+
+
+/Mes	[15812]	'$name'
+「あ、久音さん」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ巫女＿疑問.tga"
+
+
+/Mes	[15813]	'久音'	"voice\15851.ogg"
+「心配で見にきました」
+/MesWait
+
+
+/Mes	[15814]	'$name'
+「ちょうどよかった、聞いて下さいよ、久奈のヤツが……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ巫女＿楽.tga"
+
+
+/Mes	[15815]	'久音'	"voice\15853.ogg"
+「$nameさん、ちゃんとお手伝いしないと」
+/MesWait
+
+
+/Mes	[15816]	'$name'
+「はぁっ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿ニッコリ.tga"
+
+
+/Mes	[15817]	'久奈'	"voice\15855.ogg"
+「あたしを手伝うことは、ひさねを手伝うことにつながるん
+　だよ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"
+
+
+/Mes	[15818]	'$name'
+「どういうリクツで？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿真顔.tga"		;直立、正面顔
+/Change	<CHR_2>	"stand\０４ヒサネ巫女＿疑問.tga"
+
+
+/Mes	[15819]	'久奈'	"voice\15857.ogg"
+「リクツっぽい人、きらーい」
+/MesWait
+
+
+/Mes	[15820]
+あのなぁ……
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ巫女＿楽.tga"
+
+
+/Mes	[15821]	'久音'	"voice\15859.ogg"
+「えっと……私、そろそろ戻ります。それではよろしくお願
+　いします、$nameさん」
+/MesWait
+
+
+/Mes	[15822]	'$name'
+「え？　いや、でも……」
+/MesWait
+
+
+/SePlay	[029]	; フスマ開く「すっ」
+/Wait	[500]
+/ChrOut	<CHR_2>	;久音off
+/SetPos	<CHR_1>	(CENTER)
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿不機嫌.tga"
+
+
+/Mes	[15823]	'久奈'	"voice\15861.ogg"
+「いいんだよ$nameー」
+/MesWait
+
+
+/Mes	[15824]	'$name'
+「なにがいいんだ、なにがっ！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿悲しい.tga"
+
+
+/Mes	[15825]	'久奈'	"voice\15863.ogg"
+「だって、あたしに宿題教えるの、いっつもひさねだもん」
+/MesWait
+
+
+/Mes	[15826]	'$name'
+「だから？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"
+
+
+/Mes	[15827]	'久奈'	"voice\15865.ogg"
+「だから、それを代わりに$nameがやれば、ひさねはほか
+　に色んな事ができるんだよ」
+/MesWait
+
+
+/Mes	[15828]	'$name'
+「そりゃ分かるけど……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿ニッコリ.tga"
+
+
+/Mes	[15829]	'久奈'	"voice\15867.ogg"
+「ひさねはねー、お祈りするんだよ、ひとりで」
+/MesWait
+
+
+/Mes	[15830]	'$name'
+「え？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"			;ウーン、マンダム
+
+
+/Mes	[15831]	'久奈'	"voice\15869.ogg"
+「えっとね、今日も一日、みんなが平和に過ごせます様にっ
+　て祈るんだよ」
+/MesWait
+
+
+/Mes	[15832]	'$name'
+「毎日？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿真顔.tga"
+
+
+/Mes	[15833]	'久奈'	"voice\15871.ogg"
+「うん。
+　だから、この時間は、ジャマしちゃいけないんだよー」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"			;ウーン、マンダム
+
+
+/Mes	[15834]	'$name'
+「なんだ、そうだったのか……」
+/MesWait
+
+
+/Mes	[15835]
+それで久音さん、俺がいったときに、ちょっと困ってたのか
+……
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽しい.tga"		;両目とじでジャンプ
+
+
+/Mes	[15836]	'久奈'	"voice\15874.ogg"
+「というわけなので、『なつとも』の十三ページから十八ペ
+　ージまで、よろしくー」
+/MesWait
+
+
+/Mes	[15837]	'$name'
+「それとこれとは別だ！　自分でやれ、自分で！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿不機嫌.tga"		;腕を前にだして威嚇
+
+
+/Mes	[15838]	'久奈'	"voice\15876.ogg"
+「違うよー、分かってないなー」
+/MesWait
+
+
+/Mes	[15839]	'$name'
+「なにが？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿悲しい.tga"
+
+
+/Mes	[15840]	'久奈'	"voice\15878.ogg"
+「$nameがあたしの宿題やってくれれば、その代わり、あ
+　たしが色んなことできるんだよ？」
+/MesWait
+
+
+/Mes	[15841]	'$name'
+「ほー。で、なにをやるんだ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽しい.tga"		;両目とじでジャンプ
+
+
+/Mes	[15842]	'久奈'	"voice\15880.ogg"
+「自由研究。
+　題して『寝る子は育つは本当か？』ってやつ！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿ニッコリ.tga"
+
+
+/Mes	[15843]
+うん。うん。
+/MesWait
+
+
+/Mes	[15844]	'$name'
+「あのな」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"			;ウーン、マンダム
+
+
+/Mes	[15845]	'久奈'	"voice\15883.ogg"
+「なぁに？」
+/MesWait
+
+
+/Mes	[15846]	'$name'
+「鉛筆持て、まず。そして机に座れ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿真顔.tga"		;直立、正面顔
+
+
+/Mes	[15847]	'久奈'	"voice\15885.ogg"
+「ほぇ？」
+/MesWait
+
+
+/Mes	[15848]	'$name'
+「いーから、座れ！」
+/MesWait
+
+
+/ChrOut	<CHR_1>	;久奈off
+/BgmFade
+
+
+/Mes	[15849]
+……結局俺は、久奈の宿題を見てやることにしたが、久音さ
+んが祈祷しているのなら、たしかに俺はジャマだし、これも
+手伝いのカタチなんだと思う。
+/MesWait
+
+
+/AllFadeOut
+
+
+/Mes	[15850]	'雛子'	"voice\15888.ogg"
+「まぁ$nameさん、久奈の宿題、見てくれるんですか？
+　助かっちゃうわ、ほんと」
+/MesWait
+
+
+/Mes	[15851]
+途中でたまたま通りがかった雛子さんがそう言ってくれたか
+ら、間違いないだろう。
+/MesWait
+
+
+/Mes	[15852]
+……しかし久音さんの手伝いを、俺はしようと思ったんだけ
+どなぁ……
+/MesWait
+
+
+;end
+;=========================================
+/End

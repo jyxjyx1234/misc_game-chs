@@ -1,0 +1,18 @@
+;-----------------------------------------------
+; クイックセーブ
+;-----------------------------------------------
+; 起動 (起動時に自動的にmemoryBuff[0]に状態がセーブされる)
+/MesSkip		[0]
+/SysSet	'auto'	[0]
+
+/Black		<BASE>
+/BGLock		<BG>
+/InitAll	<BG>
+
+/calc	[$mode=5]		;
+
+/call	"scx\s_backlog.scx"
+
+/Restore	[0]			; 実行時の画面イメージを復元
+/calc	[$mode=0]		;
+/SystemMode	[0]			; 主制御にプロセスを戻す

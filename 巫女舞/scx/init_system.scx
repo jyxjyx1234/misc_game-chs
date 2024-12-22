@@ -1,0 +1,69 @@
+;------------- 各種モジュールの初期化 ----------
+/ReadSysDat		"sys.dat"
+/if	[$ret==0]	;未定義
+	/SysSet	'kidoku'	[0]
+	/SysSet	'full'		[0]
+	/SysSet	'mvoice'	[1]
+	/SysSet	'fvoice'	[1]
+	/SysSet	'alpha'		[50]
+
+	/SysSet	'effect'	[1]
+	/SysSet	'timeout'	[20]
+	/SysSet	'speed'		[0]
+	/SysSet	'mvs'		[60]
+	/SysSet	'mvv'		[80]
+	/SysSet	'mvb'		[40]
+	/SysSet	'page'		[0]
+/endif
+
+/wait		;------- 初期ブートはここまで ------
+
+;------------- 各種モジュールの初期化 ----------
+
+/SystemBoot		'sound'
+/SystemBoot		'screen'
+/OpenArchive	"bg.arc"
+/OpenArchive	"obj.arc"
+/OpenArchive	"cg.arc"
+/OpenArchive	"stand.arc"
+/OpenArchive	"voice.arc"
+
+;--------------- デバッグ機能 -------------------
+
+/AliasInit	<0>
+
+;--------------- 呼称のエイリアス関連 -------------------
+/AliasInit	<1>
+
+;--------------- KeyBindのエイリアス関連 -------------------
+/call	"scx\S_KEYBIND.scx"
+
+;------ 各種特殊効果フィルタを定義 ------------
+/InitFilter
+/AddFilter	'sepia'	[1]		{96,144,113,87}
+/AddFilter	'night'	[2]		{155,240,240,255}
+/AddFilter	'old',	[2]		{64,255,240,230}
+/AddFilter	'mono'	[2]		{0,255,255,255}
+/AddFilter	'monod'	[2]		{0,160,160,160}
+/AddFilter	'edge'	[2]		{180,255,255,255}
+/AddFilter	'xor'	[3]		{255,255,255,255}
+/AddFilter	'half'	[4]		{92,92,92,92}
+/AddFilter	'white'	[5]		{210,210,210,210}
+/AddFilter	'gauss'	[7]		{2,2,2,2}
+
+;-----------------------------------------------
+/calc	[$mode=3]
+/InitAll
+/calc	[$name="元樹"]
+
+/White	<BASE>
+/fadein	<BG>	"obj\OP_BRAND.bmp"
+/wait	[2000]
+/FadeOut	<BG>
+/FadeWait
+
+#title
+/InitAll
+/call	"scx\S_TITLE.SCX"
+/call	"scx\M_ALL.SCX"		; スクリプト本編
+/jump	@title

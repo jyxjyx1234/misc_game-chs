@@ -1,0 +1,12 @@
+NonStop=0
+Label 0,,１６連打
+SetBit 0,@FullScr ON,16
+OverSfc 2,@NowBit = 16,5,SYSCG\CHIP\SELECTED.PMP,9,349,324,1,255,0,0,1
+Jump 0,,4563,クリック待ち,23
+Label 0,,３２回ヒット
+New 0,,1,CanBe,,0
+Calc 2,,CanBe = @BitList Right 2
+SetBit 0,@FullScr ON,CanBe
+OverSfc 2,|@NowBit = 32;@NowBit = 24,5,SYSCG\CHIP\SELECTED.PMP,9,480,324,1,255,0,0,1
+Del 0,,CanBe
+Jump 0,,4563,クリック待ち,23

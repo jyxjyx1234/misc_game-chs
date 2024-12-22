@@ -1,0 +1,89 @@
+NonStop=0
+Calc 2,,CHECK2_A = ON
+Calc 2,,静H = ON
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ここはひとつ、遠山の旦那の肩書きを有効利用してみては」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「私の肩書きですか？」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「検事様の捜査ならば、文句は言わないだろう」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「そうですね。では、それで」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG25C
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「失礼します」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI005.WAV,0,0,0
+PutText 0,,[　静　]\n「何でしょう？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「私は検事局から参りました」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI006.WAV,0,0,0
+PutText 0,,[　静　]\n「それは先ほどお聞きしました」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「こちらをご覧下さい。身分証です」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI007.WAV,0,0,0
+PutText 0,,[　静　]\n「……これが何か」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ですから、検事局の検事ですので捜査に協力して頂きたい」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI008.WAV,0,0,0
+PutText 0,,[　静　]\n「この身分証が本物という証拠は有りますか？」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「証拠ですか……ふむ、難しいご質問ですね」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI009.WAV,0,0,0
+PutText 0,,[　静　]\n「では、お引き取り下さい」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG07C
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「駄目でした」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,113,,-1

@@ -1,0 +1,74 @@
+;▼フラグ判断000:AKR003（茜が登場しているか）
+;①000-1:AKR003がonの場合（している）
+;②000-2:AKR003がoffの場合（していない）
+;◆000-1:onの場合（している）
+;▼選択肢001
+/calc	[$ret=0]
+
+/if	[$nkpts>$ret]
+	/calc	[$ret=$nkpts]
+	/calc	[$answer=0]
+/endif
+
+/if	[$hnpts>$ret]
+	/calc	[$ret=$hnpts]
+	/calc	[$answer=1]
+/endif
+
+/if	[$khpts>$ret]
+	/calc	[$ret=$khpts]
+	/calc	[$answer=2]
+/endif
+
+/if	[$akpts>$ret]
+	/calc	[$ret=$akpts]
+	/calc	[$answer=3]
+/endif
+
+/jump	[$answer==0]	@NK
+/jump	[$answer==1]	@HN
+/jump	[$answer==2]	@KH
+/jump	[$answer==3]	@AK
+#NK
+;◆001-1:①夏希の手伝いにいく。の場合
+
+/Mes	[11973]
+那梱，去詣夏希僑……
+/MesWait
+
+/jump	@0009
+#HN
+;◆001-2:②久音の手伝いにいく。の場合
+
+/Mes	[11974]
+那梱，去詣久音小姐僑……
+/MesWait
+
+/jump	@0009
+#KH
+;◆001-3:③琥珀の手伝いにいく。の場合
+
+/Mes	[11975]
+那梱，去詣琥珀僑……
+/MesWait
+
+/jump	@0009
+#AK
+;◆001-4:④茜の手伝いにいく。の場合
+
+/Mes	[11976]
+那梱，去詣茜僑……
+/MesWait
+
+/jump	@0009
+#0009
+/AllFadeOut
+;ブラックフェード
+;end
+;以降、選択したキャラのイベント発生表に、
+;現在のターンで必須イベントが発生する条件を
+;満たしている場合、当該イベント発生。
+;満たしていない場合、その時間帯に適合している
+;汎用イベントの回数フラグを見て、適切な汎用イベントを発生。
+;
+/end

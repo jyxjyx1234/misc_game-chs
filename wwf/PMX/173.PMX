@@ -1,0 +1,180 @@
+NonStop=0
+HistoryClear 
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,GRPName = BG08C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE26
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+PutText 0,,化け物が廊下に飛び出す。
+WavPlay 0,@Vol3 > 0,2,SE\SE12.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[化け物]\n「……！」
+WavPlay 0,,3,,0,0,0
+WavPlay 0,,2,,0,0,0
+Calc 2,,CHARNAME = 
+Calc 2,,DrawEffect = 25
+Call 0,,66,,-1
+PutText 0,,方向感覚を失った化け物は図書室に戻ろうとして別の教室へと突進した。
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Wait 0,エフェクト ON,2000
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG16C
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW01E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「いててて……おお……っ！」
+PutText 0,,最初に気が付いたのは静麻だった。
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「ここは……何処だ？」
+Calc 2,,GRPName = BG16C
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+PutText 0,,前を見ても後ろを見ても同じ風景が見えた。
+Calc 2,,CHARNAME = KW01E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「どっちに……あう！」
+PutText 0,,身体を起こそうと左手を着いて……。
+Call 0,,86,人物,4
+PutText 0,,少し泣いた。
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「添え木ぐらいしておくんだったぜ」
+PutText 0,,背中を壁に押し付けてズルズルと立ち上がる。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+PutText 0,,廊下であることに間違いは無かった。
+PutText 0,,天井を見上げても特に珍しいモノは無い。
+PutText 0,,地下の書庫にいた筈なのだが……。
+PutText 0,,少し先に梨花と楓、それに妖精が点々と落ちていた。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あの書庫って場所からここに投げ出されたのか？」
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「どおりでまた身体が痛いわけだ」
+PutText 0,,鎮痛剤の注射が切れかかっているのに気付いていない。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「おい、梨花……いつまで寝てるんだ？」
+PutText 0,,足で突いてみる。
+Calc 2,,CHARNAME = KW05E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI452.WAV,0,0,0
+PutText 0,,[梨　花]\n「あっ、ちょっと足で突かないでよ！」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「生きてたか」
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI453.WAV,0,0,0
+PutText 0,,[梨　花]\n「あれ、ここ何処？」
+PutText 0,,むっくりと起きあがる。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「俺に聞くな」
+PutText 0,,次に楓を起こす。
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「楓嬢ちゃん……大丈夫か？」
+Calc 2,,CHARNAME = KW01E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「おおっ……これは！」
+PutText 0,,プニッと柔らかいモノに触れた。
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI454.WAV,0,0,0
+PutText 0,,[梨　花]\n「何処触ってんのよ」
+Calc 2,,CHARNAME = CE01AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「青い果実ってヤツか？」
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\RI\RI455.WAV,0,0,0
+PutText 0,,[梨　花]\n「馬鹿言ってるともう一方の腕も使えなくするわよ」
+Calc 2,,CHARNAME = KW15C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\KA\KA234.WAV,0,0,0
+PutText 0,,[　楓　]\n「あっ、静麻さん、梨花さん」
+Calc 2,,CHARNAME = CE15A
+Call 0,,66,,-1
+PutText 0,,楓が飛び起きた。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あとはミコミコ……」
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「おまえは後生大事に何を抱えて来たんだ？」
+PutText 0,,袋を掴んで倒れている妖精をつまみ上げる。
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK291.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「あうっ、おはよう……」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「とりあえず無事か」
+Calc 2,,CHARNAME = CE04AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK292.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「あっ！」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「どうした？」
+Calc 2,,CHARNAME = CE04AD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK293.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「あたしのゆで卵が割れちゃった」
+PutText 0,,袋の中を覗いて半ベソになる。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……生じゃなくて良かったろう」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\MK\MK294.WAV,0,0,0
+PutText 0,,[ミコミコ]\n「それもそうだね」
+PutText 0,,立ち直りの早い妖精だった。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「それで、どっちに行けばいいんだ？」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+PutText 0,,見た目は右も左も同じだ。
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,174,,-1

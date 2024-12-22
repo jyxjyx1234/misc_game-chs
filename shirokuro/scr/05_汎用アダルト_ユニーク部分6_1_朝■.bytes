@@ -1,0 +1,112 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 05_汎用アダルト_ユニーク部分6_1_朝■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+-- sample_image
+playBgm("07-Everyday.ogg")
+
+capture()
+set(BG, "view_008.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+
+-- message_window_open
+winopen(0.5)
+
+
+--朝_共通シナリオ_6回目
+--背景：リビング（昼）
+::block_00001::
+cls1()
+setname("透")
+text("「じゃあ、行ってくるから」")
+
+
+::block_00002::
+cls1()
+setname("母親")
+text("「いってらっしゃい」")
+
+
+::block_00003::
+cls1()
+setname("母親")
+text("「最近早く家を出てるの、\n黒ちゃんのためなのよね？」")
+
+
+::block_00004::
+cls1()
+setname("透")
+text("「そうだよ」")
+
+
+::block_00005::
+cls1()
+setname("母親")
+text("「いい子に育って、母さん嬉しいわ」")
+
+
+::block_00006::
+cls1()
+setname("透")
+text("「へいへい」")
+
+playBgm("07-Everyday.ogg")
+
+capture()
+set(BG, "view_001.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+--背景：（黒家含）外観（昼）
+::block_00007::
+cls1()
+noname()
+text("母親の言葉にちょっとドキッとしながら家を出る。")
+
+
+::block_00008::
+cls1()
+noname()
+text("黒のためになることはしてると思うけど、\n良いことをしてるだけでもないって言うか……。")
+
+
+::block_00009::
+cls1()
+noname()
+text("……早く黒の症状が収まるといいんだけどな。")
+
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+--移動箇所選択画面へ
+::block_00010::
+-- ▽末端:スクリプト追加
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_1朝_マップ移動■.lua")
+
+
+-- 終了
+end
+
+

@@ -1,0 +1,240 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 05_汎用アダルト_ユニーク部分3_2_昼■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+
+playBgm("08-Lunch.ogg")
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+::block_00001::
+-- 黒_出欠判定
+if(IsPresentKuro>=1) then
+    goto block_00002
+else
+    goto block_00011
+end
+
+
+::block_00002::
+-- ▽昼_黒出席:・昼_黒出席
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+--背景：教室（昼）
+::block_00003::
+cls1()
+setname("透")
+text("「よし、ご飯の時間だ！」")
+
+
+::block_00004::
+cls1()
+noname()
+text("ちゃんと朝食はとってきたけど、\nそれでもお腹は減る。")
+
+
+::block_00005::
+cls1()
+noname()
+text("男子学生の真理だ。")
+
+
+::block_00006::
+cls1()
+noname()
+text("そういえば、黒は誰と昼飯食べてるんだろう。")
+
+
+::block_00007::
+cls1()
+noname()
+text("友達とは言わないまでも、\n話しやすい女子のひとりくらいはいるだろうか。")
+
+
+::block_00008::
+cls1()
+setname("透")
+text("「まあ、症状さえ出なければ、\n黒ならうまくやれるか……」")
+
+
+::block_00009::
+cls1()
+noname()
+text("そう思いつつ、俺は空いた腹を満たすことにした。")
+
+
+::block_00010::
+goto block_00026 --末端へ
+
+
+::block_00011::
+-- ▽昼_黒欠席:・昼_黒欠席
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+wait(1)
+
+capture()
+set(EF,"black.png")
+fade(0.5)
+wait(0.5)
+
+--背景：黒（もしくは昼の教室背景に、手のひらで目を覆う感じの黒素材。素材作成のめんどくささを考えれば、背景を黒にするのが適当かと）
+::block_00012::
+cls1()
+setname("？？")
+playVoice("SI_0532_0000.ogg")
+text("「だ～れだ？」")
+
+
+::block_00013::
+cls1()
+noname()
+text("昼休みになってすぐ。\n俺の目が、後ろから柔らかい手で覆われる。")
+
+
+::block_00014::
+cls1()
+noname()
+text("あまりにも犯人がわかりやすいので、\nちょっと悪戯してしまいたくなる。")
+
+
+::block_00015::
+cls1()
+setname("透")
+text("「やめろよ、瑠衣」")
+
+--◆漫符使用予定
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+setEx(1,"N-ShiroBase-03.png", "N-ShiroFacial-07-surprise01.png", "non.png",1,550,-30)
+fade(0.5)
+repeEx(1,0.2,0,-30)
+wait(0.2)
+
+--≪読み：瑠衣⇒るい≫
+::block_00016::
+cls1()
+setname("白")
+playVoice("SI_0532_0001.ogg")
+text("「瑠衣って誰よ！？」")
+
+
+--背景：教室（昼）（白が慌てて手を離して、透の視界がクリアに）
+::block_00017::
+cls1()
+setname("透")
+text("「冗談だよ、白。\n俺に目隠しとかしてくる女子が、\n白の他にいるわけないだろ？」")
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-04-angry01.png", "non.png",1.5,-50,60)
+fade(0.5)
+
+::block_00018::
+cls1()
+setname("白")
+playVoice("SI_0532_0002.ogg")
+text("「そうだとは思うけど！\n心臓に悪いからそういう冗談は無し！」")
+
+fade_set(C2,"ShiroFacial-03-scared01.png",0.3)
+setmsEx(1,1,0,30)
+
+::block_00019::
+cls1()
+setname("白")
+playVoice("SI_0532_0003.ogg")
+text("「そういうの、不安になっちゃうんだからね……」")
+
+
+::block_00020::
+cls1()
+noname()
+text("悪戯をしかけてきたのは白の方なのに、\nこちらの冗談はお気に召さなかったようだ。")
+
+
+::block_00021::
+cls1()
+noname()
+text("でも、それくらい白が自分のことを思っている。\nそう感じられて、ちょっと嬉しかった。")
+
+
+::block_00022::
+cls1()
+setname("透")
+text("「ごめん、冗談でもこういうのはやめとくよ」")
+
+fade_set(C2,"ShiroFacial-02-smile03.png",0.3)
+setmsEx(1,0.2,0,-30)
+
+::block_00023::
+cls1()
+setname("白")
+playVoice("SI_0532_0004.ogg")
+text("「素直でよろしい！\nそれじゃ、今日の昼ご飯は透の奢りね！」")
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.5)
+
+::block_00024::
+cls1()
+noname()
+text("そう言って、食堂へ向かう白。")
+
+
+::block_00025::
+cls1()
+noname()
+text("俺は、軽やかな足取りの白について行くのだった。")
+
+
+::block_00026::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2昼_出欠分岐_判定■.lua")
+
+
+-- 終了
+end
+
+

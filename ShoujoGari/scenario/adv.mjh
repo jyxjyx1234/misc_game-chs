@@ -1,0 +1,1067 @@
+//=====================================================================
+// init.mjs マジロ"ノベル環境"用イニシャライズ
+//
+// 040603 Yashorii 作成開始
+//=====================================================================
+
+//#subst "s/^（/「（/"
+
+#group push		// 現在のグループをpushしておきます。
+#group "GLOBAL"	// グローバルグループ
+
+
+// 汎用フラグの設定
+var @flag_a, @flag_b, @flag_c, @flag_d, @flag_e, @flag_f, @flag_g, @flag_h, @flag_i;
+var @flag_j, @flag_k, @flag_l, @flag_m, @flag_n, @flag_o, @flag_p, @flag_q, @flag_r;
+var @flag_s, @flag_t, @flag_u, @flag_v, @flag_w, @flag_x, @flag_y, @flag_z;
+
+// 汎用フラグの設定
+var #flag_a, #flag_b, #flag_c, #flag_d, #flag_e, #flag_f, #flag_g, #flag_h, #flag_i;
+var #flag_j, #flag_k, #flag_l, #flag_m, #flag_n, #flag_o, #flag_p, #flag_q, #flag_r;
+var #flag_s, #flag_t, #flag_u, #flag_v, #flag_w, #flag_x, #flag_y, #flag_z;
+
+
+#define @@RBY	12
+#define @@RBX	6			// ルビの大きさ
+
+//'\q'で表示無しで待つマクロ
+#subst "s/\\q/\\~\$pause_set_altwink();\$pause();\\~/"
+// '\rubi'マクロ字下げする場合
+#subst "s'(.*)\\rubi\((.*)\)(.*)'\\o(0,@@RBY)$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$3'"
+#subst "s'(.*)\\rubi\((.*)\)(.*)\\rubi\((.*)\)(.*)'\\o(0,@@RBY)$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM)$3\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$4\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$5'"
+//字下げしない場合
+//#subst "s'(.*)\\rubi\((.*)\)(.*)'$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$3'"
+//#subst "s'(.*)\\rubi\((.*)\)(.*)\\rubi\((.*)\)(.*)'$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$3\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$4\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$5'"
+//「の次の文字から字下げする場合
+#subst "s'^「(.*)\\rubi\((.*)\)(.*)'「\\o(0,@@RBY/3)$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$3'"
+#subst "s'^「(.*)\\rubi\((.*)\)(.*)\\rubi\((.*)\)(.*)'「\\o(0,@@RBY/3)$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$3\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$4\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$5'"
+//「は字下げしない場合
+//#subst "s'^「(.*)\\rubi\((.*)\)(.*)'「$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$3'"
+//#subst "s'^「(.*)\\rubi\((.*)\)(.*)\\rubi\((.*)\)(.*)'「$1\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$2\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$3\\s(0)\\o(0,-(@@RBY))\\f(@@RBY)*$4\\r\\s(-1)\\f(#confont_yl@SYSTEM,#confont_yl@SYSTEM/2,#confont_ystep@SYSTEM)$5'"
+
+// trans_autoexecのforcegr 各所注意！
+#forcegr "$trans_autoexec();", "$pic_top$pic_back$pic_top_add$pic_top_del$disp_back$disp_top$trans$trans_top$disp_char$disp_char_del$disp_char_delpos$trans_osumesu$"
+
+//'※()'で辞書登録のマクロ
+#subst "s/（(.*)）＊/\1\\f(12)※\\f(#confont_yl@SYSTEM)\$dic_add_word("\1");*/"
+#subst "s/＊（(.*)）/\\f(12)※\\f(#confont_yl@SYSTEM)\$dic_add_word("\1");*\1/"
+
+#define $update(	$trans(
+
+
+// 外字設定
+
+#define  \g(0)*||
+#define  \g(1)*||
+#define  \g(2)*||
+#define  \g(3)*||
+#define  \g(4)*||
+#define  \g(5)*||
+#define  \g(6)*||
+#define  \g(7)*||
+#define  \g(8)*||
+#define  \g(9)*||
+#define  \g(10)*||
+#define  \g(11)*||
+#define  \g(12)*||
+#define  \g(13)*||
+#define  \g(14)*||
+#define  \g(15)*||
+#define  \g(16)*||
+#define  \g(17)*||
+#define  \g(18)*||
+#define  \g(19)*||
+#define  \g(20)*||
+#define  \g(21)*||
+#define  \g(22)*||
+#define  \g(23)*||
+#define  \g(24)*||
+#define  \g(25)*||
+#define  \g(26)*||
+#define  \g(27)*||
+#define  \g(28)*||
+#define  \g(29)*||
+#define  \g(30)*||
+#define  \g(31)*||
+#define  \g(32)*||
+#define  \g(33)*||
+#define  \g(34)*||
+#define  \g(35)*||
+#define  \g(36)*||
+#define  \g(37)*||
+#define （ \g(40,39,38)*||
+
+
+
+#group "DIC"
+func $get_taisyou_index(_str$);
+func $get_tango$(_str$);
+func $dic_add_word(_word$);		// 単語をインデックスに追加、新着に追加
+func $dic_get_uid(_ipos, _no);
+func $dic_get_ipos(void);
+func $dic_get_no(void);
+void $dic_move_prev(void);
+void $dic_move_next(void);
+func $dic_get_item$(_uid, _no);
+void $dic_selector(void);
+
+#group "SYSTEM"
+
+var #console_file_off$, #console_file_on$, #console_file_push$;		// コンソールで使用するファイル名
+var #confont_name$, #confont_isproportional;					// コンソールで使用するフォント名、プロポーショナル情報
+var #confont_yl@SYSTEM, #confont_ystep;						// 大きさ(Y)、縦ステップ、
+
+var #namefont_name$, #namefont_isproportional;					// 名前で使用するフォント名、プロポーショナル情報
+var #namefont_yl;										// 大きさ(Y)
+
+var #conall_x, #conall_y, #conall_xl, #conall_yl;				// コンソール枠全体の座標と幅
+var #conarea_x, #conarea_y, #conarea_xl, #conarea_yl;				// コンソールの文字の出るエリアの位置と幅	
+var #conarea_all_x, #conarea_all_y, #conarea_all_xl, #conarea_all_yl;	// コンソールの文字の出るエリアの位置と幅(全画面モード)
+var #fullmode_alfa;									// 全画面モードのときのアルファの値
+var #nameall_x, #nameall_y, #nameall_xl, #nameall_yl;				// 名前枠全体の座標と幅
+var #namearea_x, #namearea_y, #namearea_xl, #namearea_yl;			// 名前の文字の出るエリアの位置と幅	
+var #setumei_file$@SYSTEM;								// 説明ファイル名
+var #setumei_x, #setumei_y;								// ボタン説明x, y
+var #butall_x, #butall_y, #butall_xl, #butall_yl;				// ボタンの全体
+var #butsave_x, #butsave_y, #butsave_xl, #butsave_yl;				// ボタンsave
+var #butload_x, #butload_y, #butload_xl, #butload_yl;				// ボタンload
+var #butback_x, #butback_y, #butback_xl, #butback_yl;				// ボタンback
+var #butskip_x, #butskip_y, #butskip_xl, #butskip_yl;				// ボタンskip
+var #butauto_x, #butauto_y, #butauto_xl, #butauto_yl;				// ボタンauto
+var #butsystem_x, #butsystem_y, #butsystem_xl, #butsystem_yl;		// ボタンシステム
+var #buterase_x, #buterase_y, #buterase_xl, #buterase_yl;			// ボタン消去
+var #butconfig_x, #butconfig_y, #butconfig_xl, #butconfig_yl;		// ボタンコンフィグ
+var #butqsave_x, #butqsave_y, #butqsave_xl, #butqsave_yl;			// ボタンクイックセーブ
+var #butqload_x, #butqload_y, #butqload_xl, #butqload_yl;			// ボタンクイックロード
+
+var #wink_file$;
+var #winkpos_x, #winkpos_y, #wink_koma, #wink_speed, #wink_usehalf;	// 入力待ちカーソル位置
+var #winkpos_off_x, #winkpos_off_y;
+
+var #wink_file2$, #winkpos2_x, #winkpos2_y;					// カーソル(2)の表示オフセット
+var #wink_koma2, #wink_speed2, #wink_usehalf2;					// 入力待ちカーソル位置(2)
+
+var #wink_file3$, #winkpos3_x, #winkpos3_y;					// カーソル(3)の表示オフセット
+var #wink_koma3, #wink_speed3, #wink_usehalf3;					// 入力待ちカーソル位置(3)
+
+var #skipmode;										// スキップの表示モード 1:回転 2:アニメーション
+var #auto_spr, #skip_spr, #autoskip_pos_x, #autoskip_pos_y;			// auto/skipのspr pos_x, pos_y;
+var #num_auto_parts, #num_skip_parts;						// auto/skipのパーツとtime
+var #time_auto_parts, #time_skip_parts;						// auto/skipのパーツとtime
+
+//=====================================================================
+// オプション設定関数
+//=====================================================================
+#group "TRANSIT"
+void $trans_option_set(_x, _y);
+
+
+
+//=====================================================================
+// PIC.MJS
+//=====================================================================
+#group "PIC"
+
+
+// これ以降の転送オプションは$disp_backに使用できます
+#define TRANS_FASTEST			(-1)		// 最高速転送(よく間違うので)(^^;;
+#define TRANS_MAPPED			(-2)		// アルファマップ転送
+#define TRANS_MAPPED_REV		(-3)		// アルファマップ転送
+#define TRANS_MAPPED_WAVE		(-4)		// アルファマップ転送(WAVE)
+#define TRANS_MAPPED_WAVE_REV		(-5)		// アルファマップ転送(WAVE)
+
+
+
+
+#define TRANS_SPLIT_L_TO_R	(-101)		// 左から右へのスダレ
+#define TRANS_SPLIT_R_TO_L	(-102)		// 右から左へのスダレ
+#define TRANS_MOSAIC		(-103)		// モザイクして転送
+#define TRANS_SPLIT_U_TO_D	(-104)		// 上から下へのスダレ
+#define TRANS_SPLIT_D_TO_U	(-105)		// 下から上へのスダレ
+#define TRANS_SPLIT_25RAND	(-106)		// ４ｘ４の１６分割してランダムで
+#define TRANS_GURU_RIGHT	(-107)		// 右回りグルグル君
+#define TRANS_GURU_LEFT		(-108)		// 左回りグルグル君
+#define TRANS_ZIWA		(-109)		// じわじわ
+#define TRANS_SPLIT_LR		(-110)		// LR
+#define TRANS_SPLIT_RL		(-111)		// RL
+#define TRANS_SPLIT_UD		(-112)		// UD
+#define TRANS_SPLIT_DU		(-113)		// DU
+#define TRANS_URAOMOTE		(-114)		// 画面を裏表反転する感じで
+#define TRANS_ROLLIN_UP		(-115)		// ↑側からロールイン
+#define TRANS_ROLLIN_DOWN	(-116)		// ↓側からロールイン
+#define TRANS_ROLLIN_LEFT	(-117)		// 左側からロールイン
+#define TRANS_ROLLIN_RIGHT	(-118)		// 右側からロールイン
+#define TRANS_DO_TOP		(-119)		// TRANS_TOPの実行側(時間の変更なし)
+
+// -10000以降の数値は外部関数で指定してください(各αファイル等が必要です)
+#define TRANS_FADE_R_TO_L	(-10010)		//右→左フェード
+#define TRANS_FADE_L_TO_R	(-10011)		//左→右フェード
+#define TRANS_JIWA_L_TO_R	(-10012)		//右→左じわじわ
+#define TRANS_JIWA_R_TO_L	(-10013)		//右→左じわじわ
+#define TRANS_TORNADE_R		(-10014)		//右回り渦巻き
+#define TRANS_TORNADE_L		(-10015)		//左回り渦巻き
+#define TRANS_CENER_JIWA	(-10016)		//中心から全体ジワ
+#define TRANS_OPEN_LR		(-10017)		//左右フェード
+#define TRANS_STEND		(-10018)		//ステンドグラス
+#define TRANS_CENTER_LINE	(-10019)		//集中フェード
+#define TRANS_MANGA		(-10020)		//円形ほわほわ
+
+#define TRANS_MOVE		(-10021)		//移動
+#define TRANS_WATCH		(-10022)		//時間経過（短）
+#define TRANS_TIME		(-10023)		//時間経過（長）
+#define TRANS_DIFFER		(-10024)		//差分表示
+#define TRANS_EVENT		(-10025)		//イベントＣＧ表示
+#define TRANS_MOUSOU		(-10026)		//妄想表示
+#define TRANS_SIGHT		(-10027)		//視点切り替え
+#define TRANS_OMOIDASI		(-10028)		//あのとき・・・という思い出し効果
+#define TRANS_OMOIDASI_MODORI	(-10029)		//あのとき・・・という思い出し効果・・・からの復帰
+
+#define TRANS_RULE01		(-10030)		// ルール01のマップ転送
+#define TRANS_RULE01_REV	(-10031)		// ルール01のマップ転送(REV)
+#define TRANS_RULE02		(-10032)		// ルール02のマップ転送
+#define TRANS_RULE02_REV	(-10033)		// ルール02のマップ転送
+#define TRANS_RULE03		(-10034)		// ルール03のマップ転送
+#define TRANS_RULE03_REV	(-10035)		// ルール03のマップ転送(REV)
+#define TRANS_RULE04		(-10036)		// ルール04のマップ転送
+#define TRANS_RULE04_REV	(-10037)		// ルール04のマップ転送(REV)
+#define TRANS_RULE05		(-10038)		// ルール05のマップ転送
+#define TRANS_RULE05_REV	(-10039)		// ルール05のマップ転送(REV)
+#define TRANS_RULE06		(-10040)		// ルール06のマップ転送
+#define TRANS_RULE06_REV	(-10041)		// ルール06のマップ転送(REV)
+#define TRANS_RULE07		(-10042)		// ルール07のマップ転送
+#define TRANS_RULE07_REV	(-10043)		// ルール07のマップ転送(REV)
+#define TRANS_RULE08		(-10044)		// ルール08のマップ転送
+#define TRANS_RULE08_REV	(-10045)		// ルール08のマップ転送(REV)
+#define TRANS_RULE09		(-10046)		// ルール09のマップ転送
+#define TRANS_RULE09_REV	(-10047)		// ルール09のマップ転送(REV)
+#define TRANS_RULE10		(-10048)		// ルール10のマップ転送
+#define TRANS_RULE10_REV	(-10049)		// ルール10のマップ転送(REV)
+#define TRANS_RULE11		(-10050)		// ルール11のマップ転送
+#define TRANS_RULE11_REV	(-10051)		// ルール11のマップ転送(REV)
+#define TRANS_RULE12		(-10052)		// ルール12のマップ転送
+#define TRANS_RULE12_REV	(-10053)		// ルール12のマップ転送(REV)
+#define TRANS_RULE13		(-10054)		// ルール13のマップ転送
+#define TRANS_RULE13_REV	(-10055)		// ルール13のマップ転送(REV)
+#define TRANS_RULE14		(-10056)		// ルール14のマップ転送
+#define TRANS_RULE14_REV	(-10057)		// ルール14のマップ転送(REV)
+#define TRANS_RULE15		(-10058)		// ルール15のマップ転送
+#define TRANS_RULE15_REV	(-10059)		// ルール15のマップ転送(REV)
+#define TRANS_RULE16		(-10060)		// ルール16のマップ転送
+#define TRANS_RULE16_REV	(-10061)		// ルール16のマップ転送(REV)
+
+#define TRANS_TIGER_L_TO_R	(-20000)		// タイガー左から右
+#define TRANS_TIGER_R_TO_L	(-20001)		// タイガー右から左
+#define TRANS_CIRCLE_IN		(-20002)		// 円形の入る
+#define TRANS_CIRCLE_OUT	(-20003)		// 円形の出る
+
+
+
+// これ以降の転送オプションは$disp_top専用です
+// 出現系 TRANS_TOPから９０個登録できます
+#define TRANS_TOP			(-400)		// 人物表示切り替えデフォルト
+#define TRANS_ADD			(-401)		// 人物追加モードに
+
+#define TRANS_TOP_IN		(-402)
+#define TRANS_LEFT_IN		(-403)
+#define TRANS_RIGHT_IN		(-404)
+#define TRANS_BOTTOM_IN		(-405)
+#define TRANS_TOP_FADE_IN	(-406)
+#define TRANS_LEFT_FADE_IN	(-407)
+#define TRANS_RIGHT_FADE_IN	(-408)
+#define TRANS_BOTTOM_FADE_IN	(-409)	// xx_in系は全て人物追加モード
+
+// 削除系。TRANS_DELから９０個登録できます
+#define TRANS_DEL			(-500)		// 人物を削除
+
+#define TRANS_TOP_OUT		(-501)
+#define TRANS_LEFT_OUT		(-502)
+#define TRANS_RIGHT_OUT		(-503)
+#define TRANS_BOTTOM_OUT	(-504)
+#define TRANS_TOP_FADE_OUT	(-505)
+#define TRANS_LEFT_FADE_OUT	(-506)
+#define TRANS_RIGHT_FADE_OUT	(-507)
+#define TRANS_BOTTOM_FADE_OUT	(-508)		// xx_out系は指定人物の削除
+
+#define TRANS_ZOOMOUT_OUT	(-509)		// 縮小して消す
+#define TRANS_KURAKURA_OUT	(-510)		// くらくら下がります
+
+
+// ピコアクション系。TRANS_PICOから９０個登録できます
+#define TRANS_PICO		(-600)
+#define TRANS_PICO_UP		(-610)		// ジャンプ(小)
+#define TRANS_PICO_UP2		(-611)		// ジャンプ(大)
+#define TRANS_PICO_DOWN		(-612)		// ↓(小)
+#define TRANS_PICO_DOWN2	(-613)		// ↓(大)
+#define TRANS_PICO_LEFT		(-614)		// ←(小)
+#define TRANS_PICO_LEFT2	(-615)		// ←(大)
+#define TRANS_PICO_RIGHT	(-616)		// 右(小)
+#define TRANS_PICO_RIGHT2	(-617)		// 右(大)
+#define TRANS_PICO_ZOOM		(-618)		// ズーム
+#define TRANS_PICO_ZOOM2	(-619)		// ズーム２(来すぎて戻る)
+
+#define TRANS_KOKE_LEFT		(-620)		// コケ←
+#define TRANS_KOKE_RIGHT	(-621)		// コケ右
+//  ｍ  
+//Σ･ ）ｺｹｺｯｺ
+// (｀つ) 
+#define TRANS_PICO_PURUPURU	(-622)		// プルプルします
+#define TRANS_PICO_ZOOMOUT	(-623)		// 一歩引いて、画面上に残ります
+#define TRANS_PICO_BIKU		(-624)		// 一歩引きますが、すぐに戻ります
+
+
+
+// キャラクタの場所設定オプション
+#define POS_CENTER		(0)			// 中央手前
+#define POS_RIGHT			(1)			// 右
+#define POS_LEFT			(2)			// 左
+#define POS_CENTER_BACK		(3)			// 中央奥
+#define POS_ALL			(-1)			// 全部
+
+// 時間設定
+#define TIME_NORMAL		0
+#define TIME_HIRU			0
+#define TIME_ASA			1
+#define TIME_YUU			2
+#define TIME_YORU			3
+#define TIME_SINYA		4
+
+#define FILTER_NORMAL		0
+#define FILTER_ASA		0
+#define FILTER_YUU		$rgb(249,216,198)
+#define FILTER_YORU		$rgb(191,221,231)
+#define FILTER_SINYA		$rgb(121,151,161)
+
+//-----------------------------------------------------------------
+// シロを半透明に
+//-----------------------------------------------------------------
+void $set_siro_hantoumei(void);
+void $set_siro_modosi(void);
+void $set_zenin_hantoumei(void);
+void $set_zenin_modosi(void);
+func $is_siro_hantoumei(_fn$);
+
+//-----------------------------------------------------------------
+// $trans時にconsoleを消すのを抑制
+//-----------------------------------------------------------------
+void $disable_conoff_ontrans(void);
+void $enable_conoff_ontrans(void);
+//-----------------------------------------------------------------
+// $disp_charを無視するか
+//-----------------------------------------------------------------
+void $invalidate_disp_char(void);
+void $validate_disp_char(void);
+
+
+void $set_traken_nugi(_n);		// _n:脱ぎID番号 そのままファイル名に反映する(パンツのみ)
+
+void $set_pic_top_filter(_col);
+void $pic_top_time(_time);
+
+void $pic_sepia(_low, _high, _alfa);
+void $pic_sepia_off(void);
+
+void $pic_top_unpack(_page, _fn$, _x, _y);
+void $pic_top_unpack_sepia(_page, _fn$, _x, _y);
+func $top_sprite_create_file(_fn$);
+func $top_sprite_create_file_ext(_fn$);
+
+void $invalidate_disp_char(void);
+void $validate_disp_char(void);
+//---------------------------------------------------------------------
+// picのオフセット
+//---------------------------------------------------------------------
+void $pic_offset(_x, _y);
+//---------------------------------------------------------------------
+// タイルの設定
+//---------------------------------------------------------------------
+void $pic_tile(_x, _y);
+//---------------------------------------------------------------------
+// pic_back後ろ側だよ
+//---------------------------------------------------------------------
+void $pic_back(_fn$);
+//---------------------------------------------------------------------
+// pic_backの直後か？(オートセーブ用)
+//---------------------------------------------------------------------
+func $is_after_picback(void);
+//-----------------------------------------------------------------
+// 人物を追加
+//-----------------------------------------------------------------
+void $pic_top([_fn$]);
+//-----------------------------------------------------------------
+// 人物の追加モードへ
+//-----------------------------------------------------------------
+void $pic_top_add([_dummy$]);
+//-----------------------------------------------------------------
+// 人物の人物を削除
+//-----------------------------------------------------------------
+void $pic_top_del(_fn$);
+//---------------------------------------------------------------------
+// pic_backを捨てる
+//---------------------------------------------------------------------
+void $dispose_pic(void);
+//---------------------------------------------------------------------
+// スクロール
+//---------------------------------------------------------------------
+void $pic_scroll_to(_x, _y, _time);
+void $pic_scroll_wait(void);
+func $is_scroll_pic(void);
+func $pic_scroll_auto(void);
+
+//---------------------------------------------------------------------
+// trans
+//---------------------------------------------------------------------
+void $trans([_no, _ft, _pt, _bk, _fn$]);
+void $trans_only([_no, _ft, _pt, _bk ,_fn$]);
+void $trans_wait(void);
+void $trans_wait_back(void);
+void $trans_wait_top(void);
+void $trans_ahead(void);
+func $trans_notice(_no);
+func $trans_notice_top(_no);
+
+//---------------------------------------------------------------------
+// 人物用trans
+//---------------------------------------------------------------------
+void $trans_top([_param]);
+
+//---------------------------------------------------------------------
+// sprのプライオリティを設定(コンソールの下へ)
+//---------------------------------------------------------------------
+void $sprite_priority(_spr);
+//---------------------------------------------------------------------
+// 現在画面(らしき)ページを作成
+// 作成されたページが戻ります
+//---------------------------------------------------------------------
+func $make_displayed_page(void);
+func $make_display_new_page(void);
+
+//=====================================================================
+// $disp系統
+//=====================================================================
+void $disp_top([_in_fn$, _in_opt, _in_time]);
+void $disp_back(_fn$[, _in_opt, _in_time]);
+void $ext_disp_back(_fn$, _in_time);
+
+//-----------------------------------------------------------------
+// 人物名から画面上の位置を取る
+//-----------------------------------------------------------------
+func $get_fukidasi_pos(_name$, _index);
+
+//=====================================================================
+// disp_char系列 場所固定付き人物表示 pic_topとの混在注意
+//=====================================================================
+void $disp_char([_in_fn$, _in_pos, _in_opt, _in_time]);
+void $disp_char_del([_in_fn$, _in_opt, _in_time]);
+void $disp_char_delpos([_in_pos, _in_opt, _in_time]);
+void $disp_char_set_offset(_pos, _offs);
+
+//=====================================================================
+// trans自動実行
+//=====================================================================
+void $trans_autoexec(void);
+
+//=====================================================================
+// 次の奴のpushpop
+//=====================================================================
+void $pic_nexttrans_push(void);
+void $pic_nexttrans_pop(void);
+
+//=====================================================================
+// CONSOLE.MJS
+//=====================================================================
+#group "CONSOLE"
+//=====================================================================
+// @CONSOLEのdefine
+
+//=====================================================================
+// @CONSOLEの変数表
+
+//var #console;		// コンソールのデータ
+//var #console_;		// コンソールのαデータ
+//var #spr;			// コンソールのスプライト
+//var #con_draw;		// コンソールのDraw側のページ
+//var #con_draw_;		// コンソールのDraw側のページαデータ
+//var #con_disp;		// コンソールのDraw側のページ
+//var #con_disp_;		// コンソールのDraw側のページαデータ
+
+
+//---------------------------------------------------------------------
+// 強制見るだけモードに移行
+//---------------------------------------------------------------------
+void $set_force_play(_autospd, _mojispd, _effectspd);
+void $reset_force_play(void);
+
+void $console_offset([_x, _y]);
+void $console_mode([_mode]);
+//---------------------------------------------------------------------
+// conosle_picfix コンソール状態に画像を無理やり合わす
+//---------------------------------------------------------------------
+void $conosle_picfix(_page);
+//---------------------------------------------------------------------
+// ポーズ中のメニュー
+//---------------------------------------------------------------------
+void $pause_menu(void);
+void $set_pausebutton_menu(void);
+void $catch_pausebutton_menu(void);
+void $pause(void);
+void $pause_set_altwink(void);
+void $pause_nodisp(void);
+void $reset_fast_disp(void);
+void $console_renewal(_newfn_off$, _newfn_on$);
+//---------------------------------------------------------------------
+// 文字の描画を強制速度に
+//---------------------------------------------------------------------
+void $set_console_draw_speed(_time);
+void $set_beep(_fn$);
+void $set_concon(void);
+
+//=====================================================================
+// menu.hgs
+//=====================================================================
+#group "MENU"
+
+void $menu_ofs_set(_ofs);
+
+void $set_syson_select(void);
+//---------------------------------------------------------------------
+// メニュー関数(タイトルを設定)
+//---------------------------------------------------------------------
+void $select_title_set(_str$);
+//---------------------------------------------------------------------
+// メニュー関数 右クリックの動作を決定
+// 右クリックで0:システムメニュー(デフォルト) 1:戻る 2:無視
+//---------------------------------------------------------------------
+void $select_mode_set(_mode);
+//---------------------------------------------------------------------
+// 次回のみ連射に対抗を禁止
+//---------------------------------------------------------------------
+void $menu_rapid_enable(void);
+//---------------------------------------------------------------------
+// メニュー関数
+//---------------------------------------------------------------------
+func $inter_select(_num_param, _sel1$[, _sel2$, _sel3$, _sel4$, _sel5$, _sel6$, _sel7$, _sel8$, _sel9$, _sel10$,
+			 _sel11$, _sel12$, _sel13$, _sel14$, _sel15$, _sel16$, _sel17$, _sel18$, _sel19$]);
+//---------------------------------------------------------------------
+// メニュー関数
+//---------------------------------------------------------------------
+func $select(_sel1$[, _sel2$, _sel3$, _sel4$, _sel5$, _sel6$, _sel7$, _sel8$, _sel9$, _sel10$,
+			 _sel11$, _sel12$, _sel13$, _sel14$, _sel15$, _sel16$, _sel17$, _sel18$, _sel19$]);
+//---------------------------------------------------------------------
+// メニュー関数(選択した選択肢は色を変更)
+//---------------------------------------------------------------------
+func $select_color(_sel1$[, _sel2$, _sel3$, _sel4$, _sel5$, _sel6$, _sel7$, _sel8$, _sel9$, _sel10$,
+			 _sel11$, _sel12$, _sel13$, _sel14$, _sel15$, _sel16$, _sel17$, _sel18$, _sel19$]);
+//---------------------------------------------------------------------
+// メニュー関数(on/off付き)
+//---------------------------------------------------------------------
+func $select_ex(_sel1$, _f1[, _sel2$, _f2, _sel3$, _f3, _sel4$, _f4, _sel5$, _f5,
+		_sel6$, _f6, _sel7$, _f7, _sel8$, _f8, _sel9$, _f9, _sel10$, _f10]);
+//---------------------------------------------------------------------
+// メニュー関数(禁止項目付き)
+//---------------------------------------------------------------------
+func $select_exx(_sel1$, _f1[, _sel2$, _f2, _sel3$, _f3, _sel4$, _f4, _sel5$, _f5,
+		_sel6$, _f6, _sel7$, _f7, _sel8$, _f8, _sel9$, _f9, _sel10$, _f10]);
+//---------------------------------------------------------------------
+// ノベルメニュー関数
+//---------------------------------------------------------------------
+func $novel_select(_sel1$[, _sel2$, _sel3$, _sel4$, _sel5$, _sel6$, _sel7$, _sel8$, _sel9$, _sel10$,
+			 _sel11$, _sel12$, _sel13$, _sel14$, _sel15$, _sel16$, _sel17$, _sel18$, _sel19$]);
+//---------------------------------------------------------------------
+// ノベルメニュー関数(on/off付き)
+//---------------------------------------------------------------------
+func $novel_select_ex(_sel1$, _f1[, _sel2$, _f2, _sel3$, _f3, _sel4$, _f4, _sel5$, _f5,
+		_sel6$, _f6, _sel7$, _f7, _sel8$, _f8, _sel9$, _f9, _sel10$, _f10]);
+//---------------------------------------------------------------------
+// メニューを拡張する
+//---------------------------------------------------------------------
+void $set_extmenu(_x, _y, _xl, _yl, _fonty, _fontstep);
+//---------------------------------------------------------------------
+// メニュー関数(足し算)
+//---------------------------------------------------------------------
+void $select_add(_str$, _col);
+func $do_select(void);
+
+//---------------------------------------------------------------------
+// メニューの形をリニューアル
+//---------------------------------------------------------------------
+void $menu_renewal(_newfn_off$, _newfn_on$);
+
+//=====================================================================
+// LOADSAVE
+//=====================================================================
+#group "LOADSAVE"
+//---------------------------------------------------------------------
+// オートセーブを行う
+//---------------------------------------------------------------------
+void $do_autosave(void);
+//---------------------------------------------------------------------
+// 外部から呼ぶメニュー関数
+//---------------------------------------------------------------------
+func $save_menu(void);
+func $load_menu(void);
+
+
+
+
+//=====================================================================
+// cgmode.mjs
+//=====================================================================
+#group "CGMODE"
+
+void $cg_mode();
+void $kaisou_mode();
+func $is_cgmode(void);
+
+//---------------------------------------------------------------------
+// ヒストリーモードです。
+//---------------------------------------------------------------------
+#group "HISTORY"
+func $is_history(void);
+void $history(void);
+
+
+//---------------------------------------------------------------------
+// configです
+//---------------------------------------------------------------------
+#group "CONFIG"
+func $config_menu(void);
+func $is_talk(_name$);
+
+//=====================================================================
+// yazlib.hgs
+//=====================================================================
+#group "KOEKOE"
+
+//----------------------------------------------------------------------------
+// 最大の値はどのパラメータかを返す
+//----------------------------------------------------------------------------
+func $get_max_parameter(_p1[, _p2, _p3, _p4, _p5, _p6, _p7, _p8, _p9, _p10]);
+//---------------------------------------------------------------------
+// 回転ブラー
+//---------------------------------------------------------------------
+void $kaiten_blur(void);
+void $kaiten_blur_end(void);
+//---------------------------------------------------------------------
+// スキップを強制カット
+//---------------------------------------------------------------------
+void $skip_cut();
+//---------------------------------------------------------------------
+// スライドショー(時間確定)
+//---------------------------------------------------------------------
+void $time_abs_slideshow(_skipf, _starttime, _timehaba[, _fn1$, _fn2$, _fn3$, _fn4$, _fn5$, _fn6$, _fn7$, _fn8$, 
+							_fn9$, _fn10$, _fn11$, _fn12$, _fn13$, _fn14$, _fn15$, _fn16$]);
+
+void $emusic(_fn$[, _lf]);
+
+void $yuna_iki(void);
+void $yuna_iki_end(void);
+//---------------------------------------------------------------------
+// あえぎ声関係
+//---------------------------------------------------------------------
+void $gasp(_name$, _fn$);
+void $gasp_off([_name$]);
+void $gasp_mute(_name$);
+void $gasp_mute_resume();
+void $gasp_recover(void);
+void $gasp_config_hanei();
+
+//---------------------------------------------------------------------
+// ゆれる
+//---------------------------------------------------------------------
+void $yure_small(_times);
+void $yure(_times);
+void $yure_big(_times);
+//---------------------------------------------------------------------
+// フラッシュ
+//---------------------------------------------------------------------
+void $flush(_fn$, _times);
+
+//---------------------------------------------------------------------
+// userの拡張voice/music
+//---------------------------------------------------------------------
+void $user_music(_fn$, [_lfo]);
+void $user_sound(_fn$, [_lfo]);
+void $user_sound2(_fn$, [_lfo]);
+void $user_sound3(_fn$, [_lfo]);
+void $user_sound4(_fn$, [_lfo]);
+void $user_sound_stop();
+void $user_sound2_stop();
+void $user_sound3_stop();
+void $user_sound4_stop();
+
+void $user_voice(_fn$);
+void $user_voice2(_name$, _fn$);
+void $user_voice2_default(_fn$);
+void $voice_key_wait(_n);
+
+//---------------------------------------------------------------------
+// キー入力待ち
+//---------------------------------------------------------------------
+void $wait_skip(_no);
+void $voice_wait_skip([_time_param]);
+void $sound_wait_skip([_time_param]);
+
+// カットイン ハンドルが戻ります。
+// _fn$ : カットインファイル名
+// _fx, _fy: 最初の出現位置(中央点)
+// _tx, _ty: 画面上の位置(中央点)　　位置は画像の中央の点なので気をつけてください。
+// _fangle%: 最初の角度
+// _falfa : 最初のα(255で透明 0で普通)
+func $cutin(_fn$, _fx, _fy, _tx, _ty, _fangle%, _falfa, _time);
+
+// cutoutでは行き先の値を指定します。
+// _waitが０だとキー待ちしません
+void $cutout(_tx, _ty, _fangle%, _falfa, _time, _wait, _handle);
+void $destroy_all_cutin(void);
+
+
+void $set_save_info(_str$);
+
+//----------------------------------------------------------------------------
+// ラスターコピーを考える(横ラスタ)
+// 現状全画面only 全てのページが全サイズの予定
+// _fpage:転送元ページ _tpage:転送先ページ _ppat:パターンデータページ
+// _spd:変化するスピード _ppatのデータを1pixずらすのに要する時間(ms)
+// _alfa:全体に対するアルファ
+void $make_default_raster_seed(_tblx#, _tbly#, _x%, _y%);
+void $raster_copy(_fpage, _tpage, _ppat, _alfa, _spd, _tblx#, _tbly#[, _tofs, _yofs]);
+
+//----------------------------------------------------------------------------
+// ラスターコピーを活用した"夢を見ている"様な効果
+// _fn$:ファイル名 _wakufn$:枠ファイル名
+// _seed$:本体転送シード _wseed:枠転送シード
+// _x%:本体暴れprm _wx%:枠暴れprm
+//----------------------------------------------------------------------------
+void $dreamin(_seed$, _x%);
+void $dreamin_back(_fn$);
+void $dreamin_top(_fn$);
+void $dreamin_top2(_fn1$, _fn2$);
+void $dreamin_end();
+
+
+//--------------------------------------------------------
+// シオンスクロール
+void $ev_sion_1_start(_time);
+void $ev_sion_1_end(void);
+
+//--------------------------------------------------------
+// アミのスクロール
+void $ev_amy_1_start(_time);
+void $ev_amy_1_end(void);
+void $ev_amy_2_start(_time);
+void $ev_amy_2_end(void);
+
+
+//--------------------------------------------------------
+// 棗
+#define ev_natu_3_start ev_natume_3_start
+#define ev_natu_3_end ev_natume_3_end
+void $ev_natume_3_start(_time, _docchi);
+void $ev_natume_3_end(void);
+
+
+
+
+
+void $numput24(_p, _x, _y, _num, [_Pcolor, _Pcolumn, _Pab]);
+void $numput33(_p, _x, _y, _num, [_Pcolor, _Pcolumn, _Pab]);
+void $numput60(_p, _x, _y, _num);
+void $numput60red(_p, _x, _y, _num);
+
+void $set_subchar_flg(_char_no, _n);	// サブキャラのフラグを設定(サブキャラ出現)します。
+func $get_subchar_new(_char_no);		// サブキャラの次に読む新規シナリオ番号を得ます
+func $get_subchar_flg(_char_no);		// サブキャラのシナリオが何処まで進んだか
+void $set_subchar_read(_char_no, _n);	// サブキャラのシナリオを読んだことを記録します
+
+void $zawazawa(_fn$, _x, _y);
+void $nounai(_fn$, _x, _y, _xt, _yt, _time);
+
+void $nounai_rand(_fn$, _time);
+void $nounai_end(void);
+void $add_free_member(_no[, _str$]);
+void $free_member_disp(_y);
+
+//=====================================================================
+// 予知システム
+//=====================================================================
+void $set_yochi_spr(_fn$, _num);
+void $set_yochi_noize(_fn$, _num);
+void $set_yochi_mozi([_f1$, _f2$, _f3$, _f4$, _f5$, _f6$, _f7$, _f8$, _f9$, _f10$]);
+
+//=====================================================================
+// カレンダー
+//=====================================================================
+void $set_calendar(_month, _date, _week, _moon);
+
+//=====================================================================
+// ファイヤー
+//=====================================================================
+void $ev_fire_start(void);
+void $ev_fire_end(void);
+//---------------------------------------------------------------------
+// ガイド音声関係
+//---------------------------------------------------------------------
+void $set_guide(_no$);
+void $guide_voice(_no$);
+void $guide_voice_wait();
+
+//---------------------------------------------------------------------
+// コンソール設定
+//---------------------------------------------------------------------
+void $set_console(_no);
+void $nwaku(void);
+void $nwa(_name$);
+void $nwap(_name$);
+func $IsPoyoFuki(void);
+//---------------------------------------------------------------------
+// 呼び出すファイル名を取る
+//---------------------------------------------------------------------
+void $SetParam1(_p[, _s1, _s2, _s3]);
+void $SetParam2(_p[, _s1, _s2, _s3]);
+func $GetCallFuncName$(_fn$, _n1, _n2, _n3, _n4, _n5, _n6, _n7, _n8, _n9, _n10, _n11, _n12, _n13, _n14, _n15, _n16);
+
+//---------------------------------------------------------------------
+// 選択を回数限定する
+//---------------------------------------------------------------------
+void $clear_selecter(void);
+func $selsel_ex(_sel1$, _f1[, _sel2$, _f2, _sel3$, _f3, _sel4$, _f4, _sel5$, _f5,
+		_sel6$, _f6, _sel7$, _f7, _sel8$, _f8, _sel9$, _f9, _sel10$, _f10]);
+
+
+//---------------------------------------------------------------------
+// 画面に時計
+//---------------------------------------------------------------------
+void $time_disp(_n1, _n2);
+void $tokei_on(_fast, _nowait);
+void $tokei_off(_fast, _nowait);
+
+void $trans_osumesu([_prm]);
+
+func $get_time_parabora(_starttime, _habatime, _endpara, _mode);
+func $get_parabora(_input, _habainput, _endpara, _mode);
+
+
+//---------------------------------------------------------------------
+// 放物線サポート
+//---------------------------------------------------------------------
+func $get_parabora(_starttime, _habatime, _endpara, _mode);
+
+
+//-----------------------------------------------------------------
+// アメなどのスプライト関係
+//-----------------------------------------------------------------
+var @rain_file$;
+var @rain_spr, @rain_fast;
+
+void $rain_play(_fn$, [_prm_fast]);
+void $rain_end([_prm_fast]);
+
+
+
+//=====================================================================
+// cardmode.hgs マジロ用buttonmenu
+//
+// 040627 Yashorii 作成開始
+//=====================================================================
+#group "CARD"
+void $SetCardStat(_no);
+void $CardMode(void);
+
+
+
+
+#group "ZUKAN"
+void $zukan(void);
+
+
+
+#group "MSG_BOX"
+//---------------------------------------------------------------------
+// 画面上にメッセージ
+//---------------------------------------------------------------------
+void $message_open(_str$[, _mul_prm, _xt, _yt]);
+void $message(_str$[,_x, _y]);
+void $message_close(void);
+func $askyesno([_str$, _rdef]);
+void $message_box_renewal(_newfn$);
+
+
+//=====================================================================
+// mapmove.mjs マップで移動シーン
+//
+// 041028 Yashorii 作成開始
+//=====================================================================
+#group "MAP"
+
+void $read_yuki(void);		// 読み込み
+void $free_yuki(void);		// 開放
+void $set_yuki_spr(_mode, _x, _y, _tt);
+void $move_yuki(_tx, _ty);
+func $map_select1(void);
+void $map_add(_no);
+void $map_add_omake(_no, _app);
+
+
+
+//=====================================================================
+// mapmain.mjs 移動等の親ルーチン
+//
+// 041030 Yashorii 作成開始
+//=====================================================================
+#group "MAPMAIN"
+//---------------------------------------------------------------------
+// 実行する
+//---------------------------------------------------------------------
+void $mapmain(void);
+
+void $mapnew_main(void);
+//=====================================================================
+// buttonmenu.hgs マジロ用buttonmenu
+//
+// 040627 Yashorii 作成開始
+//=====================================================================
+#group "BUTONMENU"
+func $buttonmenu_area_set(_area);
+func $buttonmenu_area_set2(_area);
+func $buttonmenu_file_set(_fn$);
+func $buttonmenu_file_set2(_fn$);
+void $buttonmenu_file_add(_fn$, _x, _y);
+void $buttonmenu_file_add2(_fn$, _x, _y);
+func $buttonmenu_file_push_set(_fn$);
+func $buttonmenu_file_push_set2(_fn$);
+void $buttonmenu_file_push_add(_fn$, _x, _y);
+void $buttonmenu_file_push_add2(_fn$, _x, _y);
+
+void $buttonmenu_set(_n, _x, _y, _xl, _yl);
+void $buttonmenu_set2(_n, _x, _y, _xl, _yl);
+func $button_menu(_rclick_ret);
+void $button_menu_setsprite(_time);
+void $buttonmenu_extspr_set(_fn$, _xo, _yo);
+void $buttonmenu_set_timeout(_n, _time);
+void $buttonmenu_set_musicout(_ret);
+
+
+//=====================================================================
+// buttonmenu.hgs マジロ用buttonmenu
+//
+// 040627 Yashorii 作成開始
+//=====================================================================
+#group "RANKING"
+func $add_rank(_player, _starttime, _kill, _point);
+void $disp_rank(_here);
+
+//=====================================================================
+// sightchange.mjs サイトチェンジシステムの実現
+//=====================================================================
+#group "SIGHTCHANGE"			// サイトチェンジ
+void $sightchange_demo(_new_side);
+void $sightchange_demo_saisyo(void);
+void $select_player(void);
+void $himitucall(_fn_hayato$, _fn_nobuhiko$);
+void $himitucall_sub(_src1$, _fc1$, _src2$, _fc2$);		//切り替えあり
+func $get_butx(void);
+func $get_buty(void);
+func $get_butxl(void);
+func $get_butyl(void);
+func $get_presentside(void);
+void $himitu_change_ready(void);
+void $himitu_change_end(void);
+void $himitu_change_pause([_fast]);
+void $himitu_change_resume([_fast]);
+void $himitu_curon(void);
+void $himitu_curoff(void);
+
+
+
+
+
+
+#group pop		// 現在のグループを戻しました。
+
+//---------------------------------------------------------------------
+// ツモメニュー関数
+//---------------------------------------------------------------------
+func $do_my_tumo_menu@TUMOMENU(_mo);
+
+//---------------------------------------------------------------------
+// 鳴きメニュー関数
+//---------------------------------------------------------------------
+func $do_my_naki_menu@NAKIMENU(_ask_chi_ok ,_ask_pon_ok, _ask_kan_ok, _ask_ron_ok);
+
+//---------------------------------------------------------------------
+// メニュー関数
+//---------------------------------------------------------------------
+func $ask_kiripi@ASK_KIRIPI(_flg#);
+
+//---------------------------------------------------------------------
+// パイ出力
+//---------------------------------------------------------------------
+void $pi_put(_page, _x, _y, _no, _size, _dir, _tati);
+
+
+//---------------------------------------------------------------------
+// 麻雀の親ルーチン
+//---------------------------------------------------------------------
+func $do_maj(void);
+func $do_maj2(_sel);
+func $do_maj4(_p1, _p2, _p3, _p4);
+func $do_survive(_player);
+
+//---------------------------------------------------------------------
+// プレーヤー追加
+//---------------------------------------------------------------------
+void $add_player(_pos, _no);
+
+//---------------------------------------------------------------------
+// プレイヤーの情報をリセっっと
+//---------------------------------------------------------------------
+void $ResetPlayerStat(void);
+//---------------------------------------------------------------------
+// 2人打ちの自分のステータスを設定
+//---------------------------------------------------------------------
+void $SetMyPlayer2(_mode);	// 1妹
+//---------------------------------------------------------------------
+// プレイヤーの顔を表示する
+// id: 1:通常 2:困り 3:嬉しい
+//---------------------------------------------------------------------
+void $face_out_force(void);
+void $face_out(_pno, _id[, _ffn$]);
+void $face_out_seisan2(_x, _y, _pno, _id);
+void $face_out_seisan4(_x, _y, _pno, _id);
+
+//---------------------------------------------------------------------
+// 最終的にプレイヤーの情報を決定
+//---------------------------------------------------------------------
+void $SetPlayerStat(void);
+
+//---------------------------------------------------------------------
+// 音声家計
+//---------------------------------------------------------------------
+func $GetMajVoiceFN$(_no, _b$);
+func $GetYakuVoiceFN$(_no, _no2);
+void $play_voice(_fn$);
+void $com_voice(_no, _fn$);
+func $ComIsTalked(void);
+void $ComTalkeReset(void);
+void $GetYakuVoiceSore(_no);
+void $GetYakuVoiceNyaun(_no);
+
+//---------------------------------------------------------------------
+// 麻雀関係
+//---------------------------------------------------------------------
+
+var @com_score;
+var @com_name$;
+var @player_score;
+var @com_hosei;
+var @com_id;
+
+//---------------------------------------------------------------------
+// 一旦コマンドを確定させて、堀井さんの意見を聞くテンポラリ
+//---------------------------------------------------------------------
+void	$next_extra_disp(void);
+//次のＣＧ切り替えは、ext_がついた状態という予約
+
+
+
+

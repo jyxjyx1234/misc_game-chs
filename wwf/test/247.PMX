@@ -1,0 +1,23 @@
+NonStop=0
+WavPlay 0,,0,BGM\BGM04.wav,0,0,0
+OverSfc 2,,6,,3,0,0,1,255,0,0,0
+OverSfc 2,,6,,2,0,0,1,255,0,0,0
+OverSfc 2,,6,,1,0,0,1,255,0,0,0
+OverSfc 2,,6,,19,0,0,1,255,0,0,0
+SetSfc 0,,6,,0,0,1,255,1,0,0,0
+ShowSfc 0,,6
+FillSfc 2,,7,0,0,800,120,0,255,0,0
+FillSfc 2,,8,0,480,800,120,0,255,0,0
+SetSfc 0,,6,SYSCG\ENDROLL.PMP,200,100,0,255,26,0,0,0
+New 0,,0,Y,100,0
+Label 0,,R
+SetSfc 0,,6,@Sfc6,200,Y,0,255,1,0,1,0
+Calc 2,,Y = Y - 3
+Calc 2,@CtrlKey ON,Y = Y - 3
+Jump 0,Y > -7600,247,R,11
+Wait 0,,3000
+WaitClick 0,
+SetSfc 0,,6,,0,0,0,255,2,0,0,0
+WavPlay 0,,0,,0,0,1
+Wait 0,,1500
+Reset 0,,6

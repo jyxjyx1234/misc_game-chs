@@ -1,0 +1,62 @@
+NonStop=0
+Calc 2,,@NoTextWait = OFF
+Load 0,,VOL2,@Vol2,67
+Load 0,,Effect,エフェクト,ON
+Calc 2,,スキップ中 = OFF
+TextCol 0,,0
+TextSCol 0,,12632256
+IntCall 0,,6,228
+IntCall 0,,3,225
+IntCall 0,,4,225
+IntCall 0,,1,246
+SetSfc 0,エフェクト ON,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+SetSfc 0,エフェクト OFF,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,1,SE\SE20.wav,0,0,0
+Calc 2,,GRPName = BG40C
+Calc 2,,DrawEffect = 1
+Call 0,,215,,-1
+Wait 0,エフェクト ON,1000
+WavPlay 0,@Vol3 > 0,2,SE\SE17.wav,0,0,0
+Call 0,,214,,-1
+WavPlay 0,,0,BGM\YO00.wav,1,0,0
+Calc 2,,CHARNAME = PC13B
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「どーも、乙松です」
+Calc 2,,CHARNAME = PC14B
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　絢]\n「あなたの真絢です」
+WavPlay 0,@Vol3 > 0,2,SE\SE17.wav,0,0,0
+Calc 2,,CHARNAME = PC13A
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「ここで問題です」
+Calc 2,,CHARNAME = PC14D
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　絢]\n「えっ、もうですか？」
+Calc 2,,CHARNAME = PC13B
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「鉄は熱い内に打て、ナニは硬いうちに入れろって言うじゃない？」
+WavPlay 0,@Vol3 > 0,2,SE\SE19.wav,0,0,0
+Calc 2,,CHARNAME = PC14A
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　絢]\n「後ろ半分は知らないです」
+WavPlay 0,@Vol3 > 0,2,SE\SE15.wav,0,0,0
+Calc 2,,CHARNAME = PC13A
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「では、問題です」
+Calc 2,,CHARNAME = PC13B
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「みんなが躍起になって探していた潜りの見世の名前は？」
+PutText 0,,\i(223)[乙　松]\n「１ばん　夜雀屋」
+PutText 0,,\i(223)[乙　松]\n「２ばん　夜霧屋」
+Calc 2,,CHARNAME = PC13E
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「３ばん　夜狸屋」
+Calc 2,,CHARNAME = PC14A
+Call 0,,213,,-1
+PutText 0,,\i(224)[真　絢]\n「４ばん……」
+WavPlay 0,@Vol3 > 0,2,SE\SE16.wav,0,0,0
+Calc 2,,CHARNAME = PC13E
+Call 0,,212,,-1
+PutText 0,,\i(223)[乙　松]\n「これ、勝手に付け加えるでない」
+Jump 0,,197,,-1

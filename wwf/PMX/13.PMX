@@ -1,0 +1,12 @@
+NonStop=0
+Label 0,,エフェクト有
+Calc 2,,エフェクト = ON
+Save 0,,Effect,エフェクト
+OverSfc 2,エフェクト ON,5,SYSCG\CHIP\SELECTED.PMP,7,349,110,1,255,0,0,1
+Jump 0,,4563,クリック待ち,23
+Label 0,,エフェクト無
+Calc 2,,エフェクト = OFF
+Save 0,,Effect,エフェクト
+OverSfc 2,エフェクト OFF,5,SYSCG\CHIP\SELECTED.PMP,7,480,110,1,255,0,0,1
+IntCall 0,,1,-1
+Jump 0,,4563,クリック待ち,23

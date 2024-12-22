@@ -1,0 +1,26 @@
+;-----------------------------------------------
+; クイックロード
+;-----------------------------------------------
+; 起動 (起動時に自動的にmemoryBuff[0]に状態がセーブされる)
+
+/SePlay	[902]	;決定
+/MesSkip		[0]
+/SysSet	'auto'	[0]
+
+/LoadData	[1]	(99,9)
+/if [$ret==-1]
+	/Restore	[0]
+	/SystemMode	[0]			; 主制御にプロセスを戻す
+/else
+	/InitLog						;ログ抹消
+	/Black		<BASE>
+	/BgLock		<BG>	; BGに画像を統合
+	/InitAll	<BG>	; BG以外を開放
+	/Fadeout	<BG>	; フェード
+	/fadeWait
+
+	/Rebuild	<BG>	[1]	; ロードデータの画面イメージをBGに復元
+	/FadeIn		<BG>
+	/FadeWait
+	/LoadData	[1]			; ロードしてしまったらもう戻ってきません
+/endif

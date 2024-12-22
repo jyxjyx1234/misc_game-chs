@@ -1,0 +1,19 @@
+NonStop=0
+Jump 2,@ClickL ON,227,,-1
+Jump 0,@CtrlKey ON;AutoMode OFF,226,SKIP,13
+Calc 2,winerase OFF,ﾃｷｽﾄ終了変数 = ﾃｷｽﾄ終了変数 + 1
+Calc 0,,ﾃｷｽﾄ終了変数 = ﾃｷｽﾄ終了変数 % 4
+Jump 0,ﾃｷｽﾄ終了変数 < 3,226,,-1
+Calc 2,,ﾃｷｽﾄ終了変数 = 0
+IncFrame 0,,7
+Calc 2,AutoMode ON,AutoModeCount = AutoModeCount + 1
+Jump 0,AutoMode ON;AutoModeCount >= AutoSpeed,227,,-1
+Calc 2,@NoTextWait OFF,スキップ中 = OFF
+Load 0,@NoTextWait OFF,VOL2,@Vol2,67
+Load 0,@NoTextWait OFF,Effect,エフェクト,ON
+Jump 0,,226,,-1
+Label 2,,SKIP
+Calc 2,,@NoTextWait = ON
+Calc 2,@NoTextWait ON,@Vol2 = 0
+Calc 2,@NoTextWait ON,エフェクト = OFF
+Jump 2,,227,,-1

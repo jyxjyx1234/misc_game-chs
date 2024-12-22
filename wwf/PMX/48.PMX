@@ -1,0 +1,831 @@
+NonStop=0
+HistoryClear 
+Call 0,,4610,,-1
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,GRPName = BG02B
+Calc 2,,DrawEffect = 8
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+PutText 0,,鈴は静麻を先導して歩く。
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+PutText 0,,ちなみに妖精は静麻の肩にしがみついていた。
+Calc 2,,CHARNAME = CE17C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「ごめんなさい、急な話で」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「仕事は無いより有った方がいい」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「うんうん」
+Calc 2,,CHARNAME = CE01AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「それに悪い仕事じゃない」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「うん」
+Calc 2,,CHARNAME = CE17B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「そう言って貰えると気が楽ね」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「家はどこだい？」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「もう直ぐそこ、そんなに遠くないわ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG05B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「ねえ、いきなり静麻を貼り付けたけど大丈夫なの？」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「静麻の腕があれば、何が出てもどうにかなる」
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「そうじゃなくて、別の意味で鈴さんが危険なんじゃないの？」
+Calc 2,,CHARNAME = CE02A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[夏　来]\n「別の意味で？」
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「……鬼より危険だと思うけどな」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG34B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+PutText 0,,静麻たちはホテルの一室に落ち着いた。
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「わーい！」
+PutText 0,,妖精は真っ直ぐウエルカムフルーツに飛び付いた。
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「いつもこういうところで寝泊まりしてるのかい？」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「いえ、別にちゃんとあるけれど……鬼が知っている可能性が高いわ」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「相手が鬼なら、このぐらい頑丈な建物がちょうどいいか」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「効果があればいいけど」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「これから撮影とか無いのかい？」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「いまのところは無いわ……それにお仕事が出来る状態じゃないもの」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「あんたの言う鬼ってのは、いま世間を騒がしてる串刺し魔のことかい？」
+Calc 2,,CHARNAME = CE17C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「わからないわ、気配しか感じた事がないもの」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「串刺魔も人とは思えない所業らしいぜ」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「同じだったらどうする？」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「逃げるしか無いな」
+Calc 2,,CHARNAME = CE17B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「現実的でいいわね」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「どうせ話してわかる相手じゃないだろう」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「そうね」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「わかってることは全部教えてくれ」
+Calc 2,,CHARNAME = CE01AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「俺だって何かの役には立つぜ」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「あたしも役に立つよ！」
+PutText 0,,口の周りをベトベトにしている。
+Calc 2,,CHARNAME = CE17B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「ええ、期待してるわ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG05B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+PutText 0,,事務所に遠山検事がやって来た。
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「まるで虫ピンで留めた昆虫のような有様でした」
+Calc 2,,CHARNAME = CE03D
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「まあ、怖い」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「これで三件目ですからね……困ったものです」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「大騒ぎですものね」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「暗くなったら出歩かない人が多くなったみたいね……マスターも嘆いてたわ」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「仕方有りません、三件続けば世間も異様さに気付きますからね」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「更に新聞がセンセーショナルに取り上げて尾鰭が付きまくりです」
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「あたしも見た……目撃者に依ると腕が四本有る大男だったとか書いてあったね」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「そのぐらい目立つ容姿なら直ぐに捕まえられますよ」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「実際の目撃者はいまのところ皆無ですからねえ」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「遠山さんも人気のある事案ばかり担当されますね」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「仕方有りません、有能な人間はいつも忙しいものです」
+Calc 2,,CHARNAME = CE03B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「仰るとおりです」
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「……有能？」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG04B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE12A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「昆野先生、お晩でございます」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「おお、三吉か、どうしたこんなところで廓者が帰るにゃ早いだろう」
+Calc 2,,CHARNAME = CE12B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「夜警ですよ、例の串刺し魔が徘徊しているとも限りませんから」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「こういっちゃなんだが、おまえさんではアレには勝てないぜ」
+Calc 2,,CHARNAME = CE12A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「そんなのは端から承知しておりやす」
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「しかし、やらねばまた閑古鳥が舞い戻って参りやんす」
+Calc 2,,CHARNAME = CE08C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「ご苦労なこった」
+Calc 2,,CHARNAME = CE12A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「先生もお気を付け下さい」
+Calc 2,,CHARNAME = CE08B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「おお、ありがとよ」
+Calc 2,,CHARNAME = CE12E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「ヤツは何が楽しくて人を串刺しにしてるんでしょう」
+Calc 2,,CHARNAME = CE08C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「楽しくてやってるわけじゃねえ……アレは間違いなく恨みだ」
+Calc 2,,CHARNAME = CE12E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「恨みですか」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「鬼を怒らせるととんでもない目に遭うということさ」
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「さて、儂は怖いから帰って寝るか」
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「三吉、逃げるのも時には賢い選択だぜ」
+Calc 2,,CHARNAME = CE12A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「わかっておりやすが……」
+Calc 2,,CHARNAME = CE08A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[直　人]\n「串刺しにならないように上手く立ち回るこった」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BG39B
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+PutText 0,,三吉の肩を叩くと夜の暗がりに消えて行った。
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG34B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「矢澤さんは鬼に恨まれるようなことを何かやらかしたのかい？」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「まさか」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「それと矢澤じゃなくて名前で呼んで。矢澤は芸名だから肩が凝っちゃう」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「鬼を怒らせたから追い掛け回されてるんだろう、鈴は？」
+Calc 2,,CHARNAME = CE17C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「いきなり呼び捨てかい……」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「まあいいわ、あたしも静麻って呼ぶから」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「あたしはミコミコでいいよ」
+PutText 0,,妖精も話に割って入る。
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「わかった。ミコミコもあたしのことは鈴て呼んでね」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「鈴♪　鈴♪　鈴♪」
+PutText 0,,静麻の頭に乗って踊る。
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「えーと、鬼に関してだけど……何故あたしが追われているのか、わからないわ」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「理由もなく追い掛けるかどうか」
+Calc 2,,CHARNAME = CE17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「理由はあるんでしょう、あたしが気付いていないだけだと思う」
+Calc 2,,CHARNAME = CE17C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「身に覚えがあれば、諦めも付くんだけどね」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG05B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「串刺しにされた三人はどうして殺されたんでしょう？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「動機は現在も捜査中です。そもそも三人に繋がりが見えないんですよね」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「無関係なんですか？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「いまのところ、知り合いだという物証も証言も出てません」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「共通しているのは何ですか？」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「性別と年齢ですかね。それと収入も似たようなものでしょう」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「知り合いでもおかしくは無いですね」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「寝ぐらも離れてますし学友でもないし仕事も違う……面識が無い可能性が高いですね」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「そうなんですか」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「捜査中なのでまだ断言出来ませんが」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「このまま終わってくれるなら、お宮入りでもいいかと思うんですよ」
+Calc 2,,CHARNAME = CE03C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「いけませんわ、担当の検事さんがそんなことをおっしゃっては」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「相手が相手ですかね、捕り物になれば警官にも被害が出るでしょう。それならこのまま消えてくれた方がマシです」
+Calc 2,,CHARNAME = CE03A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　澪　]\n「外でそんなことを仰ったら怒られますよ」
+Calc 2,,CHARNAME = CE06B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「仰るとおりです」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = EV53
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「お風呂は気持ちいいね、静麻も入ればいいのに」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「三人は狭いわよ」
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「そうか、そうだよね」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「ミコミコはいつも静麻と入ってるの？」
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「あたしはどんぶりを使ってるんだよ」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「どんぶり？」
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「あたしにちょうどいい大きさなの。泳ぐときは普通のお風呂に入るの。それか澪のプール」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「澪？」
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「夏来のお姉さんなの。歳は同じなのにね」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「双子なの？」
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「そんな感じ。澪は水が大好きだからいつも泳いでいるんだよ」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「プールは何処にあるの？」
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「事務所の地下にあるよ」
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「へえ、お金持ちなんだ」
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「お金持ち？」
+PutText 0,,妖精はきょとんとする。
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「きっとミコミコには関係の無いことね」
+Calc 2,,GRPName = BG34B
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「しかし……見えねえ……ちょっと作りが良すぎるぜ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG04B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW12A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n\i(235)「へっくしょん！」\i(237)
+Calc 2,,CHARNAME = CE12E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「うう、風が冷たいぜ」
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「……」
+Calc 2,,CHARNAME = CE12A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「こんなことなら、静麻さんでも引っ張り出してくれば良かった」
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「この界隈で、串刺し野郎と互角に渡り合えると言ったら静麻さんぐらいしか思い当たらない」
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「……誰もいないところをひとりで歩き回っていたら、俺を襲ってくれと言ってるようなものか」
+Calc 2,,CHARNAME = CE12E
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[三　吉]\n「そいつは勘弁だぜ」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,0,BGM\BGM05.wav,1,0,0
+Calc 2,,GRPName = BG39B
+Calc 2,,DrawEffect = 27
+Call 0,,9,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「はあ、はあ、はあ……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「はあ、はあ、はあ……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「はあ、はあ、はあ……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「はあ、はあ、はあ……」
+Calc 2,,GRPName = EV49
+Calc 2,,DrawEffect = 27
+Call 0,,19,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「死んだか……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「死んだか……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「死んだか……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「死んだか……」
+Calc 2,,GRPName = BG39B
+Calc 2,,DrawEffect = 27
+Call 0,,9,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「……死にたくない……死ねない……こんなところで……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「……死にたくない……死ねない……こんなところで……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「……死にたくない……死ねない……こんなところで……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「……死にたくない……死ねない……こんなところで……」
+Calc 2,,GRPName = EV51R
+Calc 2,,DrawEffect = 27
+Call 0,,19,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「汝、何を望む？」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「汝、何を望む？」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「汝、何を望む？」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「汝、何を望む？」
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「叶えて……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「叶えて……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「叶えて……」
+Calc 2,,DLG = ON
+PutText 0,,[　声　]\n「叶えて……」
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 2
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM02.wav,1,0,0
+Calc 2,,GRPName = BG34B
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+PutText 0,,静麻だけが眠らずに起きていた。
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「うなされているのか？」
+PutText 0,,息を荒くしている鈴の寝顔を遠くから眺める。
+PutText 0,,近付いたら静麻の薄っぺらな理性は一瞬で吹き飛んでしまうだろう。
+Calc 2,,CHARNAME = KW01B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「……俺っちには毒な仕事だぜ」
+PutText 0,,椅子にもたれて欠伸した。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,3,SE\SE01.wav,1,0,0
+WavPlay 0,,0,BGM\BGM01.wav,1,0,0
+Calc 2,,GRPName = BG01A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「おはようございます、皆さん」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「本日も、現場を中心に聞き込みを行って下さい」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「不審者がいなかったかどうか？」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「また、被害者の足取りも重要です」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「犯人はかなり危険な人物だと思われます」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「十分に注意して捜査に当たって下さい」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「では、よろしくお願いします」
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+WavPlay 0,,2,SE\SE24.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ですから……聞き込みして下さいね」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,3,,0,0,1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,GRPName = BG34A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = KW17A
+Call 0,,66,,-1
+PutText 0,,静麻が目を覚ますと鈴はテーブルに向かって何やら書き物をしていた。
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「朝から仕事かい？」
+Calc 2,,CHARNAME = KW17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「おはよう、でも、もう朝って時間じゃないわよ」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「朝のオムレツは美味しかったよ」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「朝になって寝る分には問題ないだろう」
+Calc 2,,CHARNAME = KW17B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「おかげさまで昨夜は、ゆっくり眠れたわ。誰かいるといないとでは大違いね」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「少しは役に立ったか」
+Calc 2,,CHARNAME = KW17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「昼間は自由にしていいわよ。問題は夜だけみたいだから」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「用事があれば出掛けるさ。そうじゃなければ貼り付いてる」
+Calc 2,,CHARNAME = KW17A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「判断は任せるわ」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「いま、鬼の気配は消えているんだな？」
+Calc 2,,CHARNAME = KW17C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「随分と小さくなっているけど、完全に消えたわけじゃないわ」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「遠い感じか？」
+Calc 2,,CHARNAME = KW17C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[　鈴　]\n「ええ、遠い感じ……このまま消えてくれればいいんだけど」
+Calc 2,,CHARNAME = KW01A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「そうだな」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,3,SE\SE01.wav,1,0,0
+Calc 2,,GRPName = BG01A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+WavPlay 0,,2,SE\SE24.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「聞き込みの成果はいまひとつのようですね」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「目撃者もいまのところ皆無」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「新聞には派手な目撃談がたくさんあるのに不思議です」
+PutText 0,,赤新聞の類なので当然、信憑性は零。
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「……四本腕の大男に闊歩されても困りますが……」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「地味な捜査は好きじゃないんですけど……仕方有りませんね」
+Calc 2,,CHARNAME = CE24A
+Call 0,,66,,-1
+WavPlay 0,,2,SE\SE24.wav,0,0,0
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！　逮捕だ！」
+Calc 2,,CHARNAME = CE24B
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[警官隊]\n「逮捕だ！」
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「皆さん、もう少し範囲を広げてみましょう」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,3,,0,0,1
+WavPlay 0,,0,BGM\BGM05.wav,1,0,0
+Calc 2,,GRPName = EV52
+Calc 2,,DrawEffect = 1
+Call 0,,19,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「あれだけの仕事をして誰にも気付かれていないのですから、いまさら聞き込みをしても無駄かも知れませんね」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「やはり人間では無いのでしょうか？」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「だとしたら、部署が違うような気もするんですけど～」
+WavPlay 0,,3,SE\SE01.wav,1,0,0
+Calc 2,,GRPName = BG01A
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE06A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「ただの通り魔だとしたら、まだまだ続くかも知りませんねえ」
+Calc 2,,CHARNAME = CE06C
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「どうしたものやら」
+Calc 2,,DLG = ON
+PutText 0,,[遠　山]\n「怪人は猫面相だけにして貰いたいモノです」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+WavPlay 0,,3,,0,0,1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+WavPlay 0,,0,BGM\BGM07.wav,1,0,0
+Calc 2,,GRPName = BG02A
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE05BD
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「クシュン！」
+Calc 2,,CHARNAME = CE05BB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「誰かあたしのことを噂しているわね。ふふ、もてる女は仕方がないか」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「あっ！　梨花が仕事をさぼってる！」
+PutText 0,,梨花の上空を旋回して叫ぶ。
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「ちょ、ちょっと！　人聞きの悪い事を叫ばないでよ！」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「さぼっていたんじゃないの？」
+Calc 2,,CHARNAME = CE05BE
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「違うわよ、仕事中よ」
+Calc 2,,CHARNAME = CE04AB
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「なんだそうか」
+PutText 0,,こんなところにいて仕事のわけは無いのだが、妖精は簡単に丸め込まれた。
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「あれ、ミコミコは静麻と女優さんのところじゃ無かったの？」
+Calc 2,,CHARNAME = CE04AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[ミコミコ]\n「昼間は鬼が出ないんだって。だから散歩していたんだよ」
+PutText 0,,梨花の頭上で８の字に飛行した。
+Calc 2,,CHARNAME = CE05BA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[梨　花]\n「ふーん、昼間は出ないのか……そういうものなのかな」
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Calc 2,,GRPName = BLACK
+Calc 2,,DrawEffect = 1
+Call 0,,9,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,131,,-1

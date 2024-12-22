@@ -1,0 +1,69 @@
+NonStop=0
+Label 0,,５つ戻る
+SetSfc 0,,7,SYSCG\CHIP\BACK5R2.PMP,734,375,1,255,1,0,0,0
+Calc 2,,履歴番号 = 履歴番号 - 5
+Calc 2,履歴番号 < 0,履歴番号 = 0
+Jump 0,,55,表示,27
+Label 0,,１つ戻る
+SetSfc 0,,7,SYSCG\CHIP\BACK1R2.PMP,734,415,1,255,1,0,0,0
+Calc 2,,履歴番号 = 履歴番号 - 1
+Calc 2,履歴番号 < 0,履歴番号 = 0
+Jump 0,,55,表示,27
+Label 0,,１つ進む
+SetSfc 0,,7,SYSCG\CHIP\FORW1R2.PMP,734,455,1,255,1,0,0,0
+Calc 2,,履歴番号 = 履歴番号 + 1
+Calc 2,履歴番号 > 履歴最大,履歴番号 = 履歴最大
+Jump 0,,55,表示,27
+Label 0,,５つ進む
+SetSfc 0,,7,SYSCG\CHIP\FORW5R2.PMP,734,495,1,255,1,0,0,0
+Calc 2,,履歴番号 = 履歴番号 + 5
+Calc 2,履歴番号 > 履歴最大,履歴番号 = 履歴最大
+Jump 0,,55,表示,27
+Label 0,,スクロールバー
+Calc 2,,チップ下 = @SfcY8 + 15
+Jump 0,@MouseY >= @SfcY8;@MouseY <= チップ下,56,チップドラッグモード,33
+Jump 0,@MouseY < @SfcY8,56,バークリック上,25
+Jump 0,@MouseY > チップ下,56,バークリック下,29
+Label 0,,バークリック上
+Calc 2,,履歴番号 = 履歴番号 - 10
+Calc 2,履歴番号 < 0,履歴番号 = 0
+Jump 0,,55,表示,27
+Label 0,,バークリック下
+Calc 2,,履歴番号 = 履歴番号 + 10
+Calc 2,履歴番号 > 履歴最大,履歴番号 = 履歴最大
+Jump 0,,55,表示,27
+Label 0,,チップドラッグモード
+Calc 2,,チップ位置 = @MouseY - 7
+Calc 2,チップ位置 < 16,チップ位置 = 16
+Calc 2,チップ位置 > 568,チップ位置 = 568
+SetSfc 2,,8,SYSCG\CHIP\LOG_CHIP.PMP,782,チップ位置,0,255,1,0,0,0
+Calc 2,,演算変数 = チップ位置 * 100
+Calc 2,,演算変数 = 演算変数 / 552
+Calc 2,,演算変数 = 演算変数 * 履歴最大
+Calc 2,,演算変数 = 演算変数 / 100
+Jump 0,演算変数 = 履歴番号,56,履歴表示終了,65
+Jump 0,演算変数 > 履歴最大,56,履歴表示終了,65
+Calc 2,,履歴番号 = 演算変数
+Calc 2,履歴番号 < 0,履歴番号 = 0
+Calc 2,履歴番号 > 履歴最大,履歴番号 = 履歴最大
+Calc 2,,履歴番号1 = 履歴番号 - 1
+Calc 2,,履歴番号2 = 履歴番号 - 2
+Calc 2,,履歴番号3 = 履歴番号 - 3
+Calc 2,,履歴番号4 = 履歴番号 - 4
+ClrText 2,
+HistoryCall 履歴番号4,履歴番号4 >= 0
+PutText 2,履歴番号4 < 0,\n\n
+PutText 2,履歴番号4 >= 0,\n\n\n
+HistoryCall 履歴番号3,履歴番号3 >= 0
+PutText 2,履歴番号3 < 0,\n\n
+PutText 2,履歴番号3 >= 0,\n\n\n
+HistoryCall 履歴番号2,履歴番号2 >= 0
+PutText 2,履歴番号2 < 0,\n\n
+PutText 2,履歴番号2 >= 0,\n\n\n
+HistoryCall 履歴番号1,履歴番号1 >= 0
+PutText 2,履歴番号1 < 0,\n\n
+PutText 2,履歴番号1 >= 0,\n\n\n
+HistoryCall 履歴番号,
+Label 0,,履歴表示終了
+Jump 0,@PushL ON,56,チップドラッグモード,33
+Jump 0,,55,入力待ち,53

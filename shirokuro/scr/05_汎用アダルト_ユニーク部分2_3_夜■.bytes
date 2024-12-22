@@ -1,0 +1,385 @@
+---------------------------------------------------------------------------
+-- 2024/01/25 13:55:49
+-- 05_汎用アダルト_ユニーク部分2_3_夜■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+-- sample_image
+playBgm("02-Night.ogg")
+
+capture()
+set(BG, "view_006.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.8)
+
+
+-- message_window_open
+winopen(0.5)
+
+
+--背景：主人公の部屋（夜）
+::block_00001::
+cls1()
+setname("透")
+text("「白と黒はどうしてるかな……」")
+
+
+::block_00002::
+cls1()
+noname()
+text("そろそろ寝ようかという頃になって、\nふと、ふたりのことが頭に浮かぶ。")
+
+
+::block_00003::
+cls1()
+noname()
+text("このまま寝てもいいんだけど、\nどちらかに連絡を取ってみてもいいかも……。")
+
+
+::block_00004::
+cls1()
+setname("透")
+text("「……どっちにしようかな」")
+
+
+::block_00005::
+-- 選択肢://選択肢
+item={}
+item[1]="白に連絡する"
+item[2]="黒に連絡する"
+item[3]="寝てしまう"
+sel("",item)
+-- 選択結果
+ret=get_sel_result()
+-- 選択肢分岐
+if ret==1 then goto block_00006 end
+if ret==2 then goto block_00032 end
+if ret==3 then goto block_00054 end
+
+
+::block_00006::
+-- ▽白に連絡する
+
+
+::block_00007::
+cls1()
+setname("透")
+text("「白にするか」")
+
+
+::block_00008::
+cls1()
+noname()
+text("スマホを手に取って、白にＳＮＳのメッセージを送る。")
+
+
+::block_00009::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00010::
+-- 【透】の会話
+textr("もう寝てる？")
+
+
+::block_00011::
+seticon("白")
+textl("起きてるよー")
+
+
+::block_00012::
+-- 【透】の会話
+textr("早く寝なさい\n明日に影響するザマスよ！")
+
+
+::block_00013::
+seticon("白")
+textl("誰ｗ")
+
+
+::block_00014::
+-- 【透】の会話
+textr("通りすがりの教育ママザマス！")
+
+
+::block_00015::
+seticon("白")
+textl("そうザマスか")
+
+
+::block_00016::
+-- 【透】の会話
+textr("そうザマス")
+
+
+::block_00017::
+seticon("白")
+textl("あ、そうだ\n明日はお弁当持ってくからね")
+
+
+::block_00018::
+-- 【透】の会話
+textr("マジで！")
+
+
+::block_00019::
+-- 【透】の会話
+setstampr("LIcon_001.png")
+
+
+::block_00020::
+seticon("白")
+textl("楽しみにしておくよーに！")
+
+
+::block_00021::
+-- 【透】の会話
+textr("おう！\n楽しみで勉強が手につかないザマス")
+
+
+::block_00022::
+seticon("白")
+textl("それ、勉強したくないだけでしょ！")
+
+
+::block_00023::
+seticon("白")
+textl("あと、ザマスやめれ")
+
+
+::block_00024::
+-- 【透】の会話
+textr("わかったザマス")
+
+
+::block_00025::
+seticon("白")
+textl("ｗｗｗ")
+
+
+::block_00026::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00027 end
+--is_click_line_close()
+--goto block_00026
+
+
+::block_00027::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00028::
+cls1()
+noname()
+text("無駄に教育ママのロールプレイをしてしまった。")
+
+
+::block_00029::
+cls1()
+noname()
+text("やってることは下らないけど、\nやっぱり、白と話すと元気になれるな。")
+
+
+::block_00030::
+cls1()
+noname()
+text("うん、明日が楽しみだ。")
+
+
+::block_00031::
+goto block_00056 --末端へ
+
+
+::block_00032::
+-- ▽黒に連絡する
+
+
+::block_00033::
+cls1()
+setname("透")
+text("「黒にするか」")
+
+
+::block_00034::
+cls1()
+noname()
+text("スマホを手に取って、黒にＳＮＳのメッセージを送る。")
+
+
+::block_00035::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00036::
+-- 【透】の会話
+textr("もう寝た？")
+
+
+::block_00037::
+seticon("黒")
+textl("まだ起きてる。\nもう寝ようと思ってたけど……")
+
+
+::block_00038::
+seticon("黒")
+textl("何か用事？")
+
+
+::block_00039::
+-- 【透】の会話
+textr("いや、用ってわけじゃなくて\nただなんとなく")
+
+
+::block_00040::
+seticon("黒")
+textl("そっか")
+
+
+::block_00041::
+seticon("黒")
+textl("メッセージアプリって、\nみんなこんな感じで使ってるの？")
+
+
+::block_00042::
+-- 【透】の会話
+textr("こんな感じって？")
+
+
+::block_00043::
+seticon("黒")
+textl("用件がなくてもメッセージを送るのが、\n普通なのかなって")
+
+
+::block_00044::
+-- 【透】の会話
+textr("その辺は人によるんじゃないかな")
+
+
+::block_00045::
+seticon("黒")
+textl("そっか。\n教えてくれてありがとう")
+
+
+::block_00046::
+seticon("黒")
+textl("じゃあ、そろそろ寝るね。\nおやすみなさい")
+
+
+::block_00047::
+-- 【透】の会話
+textr("俺も寝る\nおやすみ")
+
+
+::block_00048::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00049 end
+--is_click_line_close()
+--goto block_00048
+
+
+::block_00049::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00050::
+cls1()
+noname()
+text("なんか、やり取りが硬いよな。")
+
+
+::block_00051::
+cls1()
+noname()
+text("もう少し楽しく話ができるといいんだけど……。")
+
+
+::block_00052::
+cls1()
+noname()
+text("まあ、焦らずやっていくか。")
+
+
+::block_00053::
+goto block_00056 --末端へ
+
+
+::block_00054::
+-- ▽寝てしまう
+
+
+::block_00055::
+cls1()
+noname()
+text("やっぱりいいか。\n明日も早いんだし、今日はもう寝てしまおう。")
+
+
+::block_00056::
+-- ▽末端:スクリプト追加
+
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+set(EF,"black.png")
+fade(1)
+
+-- 山本追加
+main_menu_close(0.5)
+BeginProcessSkip(30) --skip開始
+
+wait(1)
+
+--//★カレンダー：9月11日（水）
+SlotTitle="9月11日（水）"
+capture()
+alldel()
+set(BG,"cale_0910.png")
+fade(0.3)
+
+TransitionCapture()
+set(BG,"cale_0911.png")
+TransitionCrossfade("mask_calendar.png",1)
+
+playSe("se_紙をめくる音_カレンダー用.ogg")
+
+wait(3)
+
+-- 山本追加
+EndProcessSkip() --skip終了
+
+capture()
+alldel()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("07_汎用アダルト後Phase上昇シナリオ確認■.lua")
+
+
+-- 終了
+end
+
+

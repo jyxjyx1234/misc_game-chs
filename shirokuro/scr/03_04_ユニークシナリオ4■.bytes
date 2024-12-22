@@ -1,0 +1,1267 @@
+---------------------------------------------------------------------------
+-- 2024/01/25 13:55:49
+-- 03_04_ユニークシナリオ4■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+fadeBgm(1)
+
+
+-- ユニークシナリオ4
+UniqueScenario=4
+
+
+-- sample_image
+
+
+-- message_window_open
+--winopen(0.5)
+
+-- 山本追加
+main_menu_close(0.5)
+BeginProcessSkip(30) --skip開始
+
+--//★カレンダー：9月20日（金）
+SlotTitle="9月20日（金）"
+capture()
+alldel()
+set(BG,"cale_0919.png")
+fade(0.3)
+
+TransitionCapture()
+alldel()
+set(BG,"cale_0920.png")
+TransitionCrossfade("mask_calendar.png",1)
+
+playSe("se_紙をめくる音_カレンダー用.ogg")
+
+wait(1)
+
+
+--//★カレンダー：9月21日（土）
+SlotTitle="9月21日（土）"
+TransitionCapture()
+alldel()
+set(BG,"cale_0921.png")
+TransitionCrossfade("mask_calendar.png",1)
+
+playSe("se_紙をめくる音_カレンダー用.ogg")
+
+wait(1)
+
+
+--//★カレンダー：9月22日（日）
+SlotTitle="9月22日（日）"
+TransitionCapture()
+alldel()
+set(BG,"cale_0922.png")
+TransitionCrossfade("mask_calendar.png",1)
+
+playSe("se_紙をめくる音_カレンダー用.ogg")
+
+wait(1)
+
+
+--//★カレンダー：9月23日（祝）
+SlotTitle="9月23日（祝）"
+TransitionCapture()
+alldel()
+set(BG,"cale_0923.png")
+TransitionCrossfade("mask_calendar.png",1)
+
+playSe("se_紙をめくる音_カレンダー用.ogg")
+
+wait(1)
+
+
+--//★カレンダー：9月24日（火）
+SlotTitle="9月24日（火）"
+TransitionCapture()
+alldel()
+set(BG,"cale_0924.png")
+TransitionCrossfade("mask_calendar.png",1)
+
+playSe("se_紙をめくる音_カレンダー用.ogg")
+
+wait(2)
+
+
+capture()
+alldel()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+--共鳴レベルバナー表示
+capture()
+alldel()
+set(BG,"view_050.png")
+sets(BG,1.3,1.3)
+setp(BG,-300,-150)
+set_gblur(BG,10)
+set(EV,"chinesco_A.png")
+fade(2)
+
+capture()
+set(EF,"week_bn_04.png")
+setp(EF,0,500)
+slidea(EF,0,"ffffff00")
+fade(0)
+
+slidea(EF,2,"ffffffff")
+setms(EF,0,-60,2)
+wait(2)
+wait(3)
+
+-- 山本追加
+EndProcessSkip() --skip終了
+
+capture()
+alldel()
+set(BG,"black.png")
+fade(2)
+wait(1)
+
+
+playBgm("13-Run.ogg")
+
+playSe("se_学校_教室ドア_開.ogg")
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile06.png", "non.png",1.5,1600,30)
+fade(0.5)
+setmsEx(1,0.5,-1100,0)
+
+--背景：教室（昼）
+::block_00001::
+cls1()
+setname("白")
+playVoice("SI_0304_0000.ogg")
+text("「透～っ、おっ待たせー！」")
+
+
+::block_00002::
+cls1()
+noname()
+text("昼休み。\n白が俺のクラスに入ってきた。")
+
+fade_set(C2,"ShiroFacial-02-smile03.png",0.3)
+
+::block_00003::
+cls1()
+setname("白")
+playVoice("SI_0304_0001.ogg")
+text("「さっ、食べよ食べよっ♪」")
+
+capture()
+alldel()
+set(BG, "view_050.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+setEx(1,"N-ShiroBase-03.png", "N-ShiroFacial-02-smile06.png", "non.png",1,550,-30)
+set(EV,"chinesco_A.png")
+fade(0.5)
+
+
+::block_00004::
+cls1()
+noname()
+text("俺の机の上に、白が弁当箱を２つ置く。")
+
+
+::block_00005::
+cls1()
+noname()
+text("たまにだけど、\n白は手作り弁当を持って来てくれるのだ。")
+
+
+::block_00006::
+cls1()
+setname("透")
+text("「ありがとな、白」")
+
+
+::block_00007::
+cls1()
+noname()
+text("普通なら冷やかされたりしそうなこの状況。")
+
+
+::block_00008::
+cls1()
+noname()
+text("でも、付き合いをオープンにしてることと、\n白の朗らかなキャラクターもあいまって、\nクラスのみんなはまったく気にしていない。")
+
+fade_set(C2,"N-ShiroFacial-02-smile03.png",0.3)
+
+repeEx(1,0.3,0,30)
+wait(0.3)
+
+::block_00009::
+cls1()
+setname("白")
+playVoice("SI_0304_0002.ogg")
+text("「いただきまーす」")
+
+
+::block_00010::
+cls1()
+setname("透")
+text("「いただきます」")
+
+
+::block_00011::
+cls1()
+noname()
+text("２人で手を合わせて、弁当を食べ始める。")
+
+
+::block_00012::
+cls1()
+noname()
+text("凝った料理が入ってるわけじゃないけど、\n白の弁当は十分に美味しい。")
+
+fade_set(C2,"N-ShiroFacial-02-smile02.png",0.3)
+
+::block_00013::
+cls1()
+setname("白")
+playVoice("SI_0304_0003.ogg")
+text("「あ、そうだ。\n先に言っとくことがあるんだった」")
+
+
+::block_00014::
+cls1()
+setname("透")
+text("「うん？」")
+
+fade_set(C2,"N-ShiroFacial-02-smile01.png",0.3)
+
+::block_00015::
+cls1()
+setname("白")
+playVoice("SI_0304_0004.ogg")
+text("「今度の週末なんだけど、イベントに出ることにしたの」")
+
+
+::block_00016::
+cls1()
+setname("透")
+text("「ああ、前に言ってたやつ？」")
+
+
+::block_00017::
+cls1()
+noname()
+text("どっちの衣装が良いか、聞かれたやつだ。")
+
+fade_set(C2,"N-ShiroFacial-02-smile06.png",0.3)
+
+repeEx(1,0.2,0,30)
+wait(0.2)
+repeEx(1,0.2,0,30)
+
+::block_00018::
+cls1()
+setname("白")
+playVoice("SI_0304_0005.ogg")
+text("「そうそう！」")
+
+fade_set(C2,"N-ShiroFacial-02-smile04.png",0.3)
+
+::block_00019::
+cls1()
+setname("白")
+playVoice("SI_0304_0006.ogg")
+text("「今回は衣装の完成がギリギリだったんだけど、\nなんとか間に合いそうだから」")
+
+
+::block_00020::
+cls1()
+setname("透")
+text("「そっか。\n頑張ったんだな」")
+
+fade_set(C2,"N-ShiroFacial-02-smile07.png",0.3)
+
+repeEx(1,0.2,0,30)
+wait(0.2)
+
+::block_00021::
+cls1()
+setname("白")
+playVoice("SI_0304_0007.ogg")
+text("「うん、すごく頑張っちゃった！\nほらほら、透も褒めていいんだよ？」")
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+setEx(1,"N-ShiroBase-03.png", "N-ShiroFacial-02-smile07.png", "non.png",1,0,30)
+fade(0.5)
+
+::block_00022::
+cls1()
+setname("透")
+text("「えらいえらい」")
+
+
+::block_00023::
+cls1()
+noname()
+text("そう言って、白の頭を撫でる。")
+
+
+::block_00024::
+cls1()
+noname()
+text("こうすると、いつも白は嬉しそうな顔になる。")
+
+capture()
+set(BG, "view_050.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+setEx(1,"ShiroBase-03.png", "ShiroFacial-02-smile04.png", "non.png",1.5,-50,30)
+fade(0.5)
+
+::block_00025::
+cls1()
+setname("白")
+playVoice("SI_0304_0008.ogg")
+text("「えへへー♪」")
+
+fade_set(C2,"ShiroFacial-01-mouse01.png",0.3)
+
+::block_00026::
+cls1()
+setname("白")
+playVoice("SI_0304_0009.ogg")
+text("「でも、ごめんね。\nデートはまた来週ってことで！」")
+
+
+::block_00027::
+cls1()
+noname()
+text("新しい衣装が完成したらイベントに出るけど、\n完成しなかったら週末はデート。")
+
+
+::block_00028::
+cls1()
+noname()
+text("あらかじめそう聞いてたし、\n特に白が謝るようなことじゃない。")
+
+
+::block_00029::
+cls1()
+setname("透")
+text("「デート出来ないのは残念だけど、\n新しいコスプレ衣装、楽しみにしてるから」")
+
+fade_set(C2,"ShiroFacial-02-smile03.png",0.3)
+
+repeEx(1,0.2,0,30)
+wait(0.2)
+
+::block_00030::
+cls1()
+setname("白")
+playVoice("SI_0304_0010.ogg")
+text("「うんっ！\n今回も力作だから、楽しみにしてて！」")
+
+
+::block_00031::
+cls1()
+noname()
+text("白の笑顔が眩しい。")
+
+
+::block_00032::
+cls1()
+noname()
+text("きっと、\nキャラへの愛がこもった衣装に仕上がるんだろう。")
+
+
+::block_00033::
+cls1()
+setname("透")
+text("「完成したら、見せてくれる？」")
+
+fade_set(C2,"ShiroFacial-02-smile05.png",0.3)
+
+::block_00034::
+cls1()
+setname("白")
+playVoice("SI_0304_0011.ogg")
+text("「気になる？」")
+
+
+::block_00035::
+cls1()
+setname("透")
+text("「それはもう」")
+
+fade_set(C2,"ShiroFacial-02-smile04.png",0.3)
+
+repeEx(1,0.2,0,30)
+wait(0.2)
+
+::block_00036::
+cls1()
+setname("白")
+playVoice("SI_0304_0012.ogg")
+text("「あははっ！　素直でよろしい！」")
+
+fade_set(C2,"ShiroFacial-02-smile02.png",0.3)
+
+::block_00037::
+cls1()
+setname("白")
+playVoice("SI_0304_0013.ogg")
+text("「目に見える部分は大体できてるから、\n家に帰ったら画像送るね」")
+
+
+::block_00038::
+cls1()
+setname("透")
+text("「よろしく」")
+
+
+::block_00039::
+cls1()
+noname()
+text("画像が送られてくるのが楽しみだ。")
+
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+alldel()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+capture()
+alldel()
+set(BG, "view_005.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.5)
+
+playBgm("01-After.ogg")
+
+--暗転＋時間経過
+--背景：主人公の部屋（夕）
+::block_00040::
+cls1()
+setname("透")
+text("「おっ、来た」")
+
+
+::block_00041::
+cls1()
+noname()
+text("帰宅してしばらく待っていると、\n白からメッセージが送られてきた。")
+
+
+::block_00042::
+cls1()
+noname()
+text("さっそく添付画像を見てみると――")
+
+capture()
+set(BG, "view_005.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+fade(0.5)
+
+fade_set(EV,"chinesco_A.png",0.5)
+
+::block_00043::
+cls1()
+setname("透")
+text("「お、これは……」")
+
+
+::block_00044::
+cls1()
+noname()
+text("白が頑張って作っただけあって、流石の完成度だ。")
+
+
+::block_00045::
+cls1()
+noname()
+text("それはいい。\nそれはいいんだが……。")
+
+capture()
+alldel()
+set(BG, "view_005.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.5)
+
+::block_00046::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00047::
+-- 【透】の会話
+textr("可愛い！")
+
+
+::block_00048::
+seticon("白")
+setstampl("LIcon_006.png")
+
+
+::block_00049::
+-- 【透】の会話
+textr("でも、ちょっとスカート短すぎない？")
+
+
+::block_00050::
+seticon("白")
+textl("原作よりは長くしたんだけど、\n確かにちょっと短いかも……")
+
+
+::block_00051::
+seticon("白")
+textl("でもでも！\nちゃんと見せパンにするから大丈夫")
+
+
+::block_00052::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00053 end
+--is_click_line_close()
+--goto block_00052
+
+
+::block_00053::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00054::
+cls1()
+setname("透")
+text("「…………」")
+
+
+::block_00055::
+cls1()
+noname()
+text("見せパンなら良いって問題でもないんだけどな。")
+
+
+::block_00056::
+cls1()
+noname()
+text("俺だけが見るなら、スカートはもっと短くてもいいし、\n何なら見せパンじゃない方がいいんだけど！")
+
+
+::block_00057::
+cls1()
+noname()
+text("可愛い白がこの衣装を着ているのを\n他の男が見るのかと思うと、ちょっと複雑だ。")
+
+
+::block_00058::
+cls1()
+noname()
+text("でもまあ、白なりに考えてこの長さにしたんだろうし、\nここは俺が納得するしかないか。")
+
+capture()
+set(BG, "view_005.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+fade(0.5)
+
+fade_set(EV,"chinesco_A.png",0.5)
+
+::block_00059::
+cls1()
+noname()
+text("……しかし。\nそれにしても、この写真いいな。")
+
+
+::block_00060::
+cls1()
+noname()
+text("見えそうで見えないポーズなところもグッとくる。")
+
+capture()
+alldel()
+set(BG, "view_005.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.5)
+
+::block_00061::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00062::
+-- 【透】の会話
+textr("ちなみに今は？")
+
+
+::block_00063::
+seticon("白")
+textl("？　何が？")
+
+
+::block_00064::
+-- 【透】の会話
+textr("見せパン穿いてる？")
+
+
+::block_00065::
+seticon("白")
+textl("今は普通のパンツ")
+
+
+::block_00066::
+-- 【透】の会話
+textr("ほほう")
+
+
+::block_00067::
+-- 【透】の会話
+textr("ほほう")
+
+
+::block_00068::
+seticon("白")
+textl("２回ｗ")
+
+
+::block_00069::
+seticon("白")
+textl("……もしかして見たいの？")
+
+
+::block_00070::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00071 end
+--is_click_line_close()
+--goto block_00070
+
+
+::block_00071::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00072::
+cls1()
+setname("透")
+text("「…………」")
+
+
+::block_00073::
+cls1()
+noname()
+text("パンツを見たいかと聞かれれば、\nもちろん答えは決まってる。")
+
+
+::block_00074::
+cls1()
+noname()
+text("見たくないわけがない。\n当然だ。")
+
+
+::block_00075::
+cls1()
+noname()
+text("でも、さすがにそう返事をするのは変態っぽいか？")
+
+
+::block_00076::
+cls1()
+setname("透")
+text("「いや、これは白も煽ってるよな」")
+
+
+::block_00077::
+cls1()
+noname()
+text("見たいって答えても、\n引かれることはないと思うんだが……。")
+
+winclose(0.5)
+
+::block_00078::
+-- 選択肢://選択肢
+item={}
+item[1]="パンツが見たい" -- インモアップ
+item[2]="可愛いポーズが見たい"
+selEx("W",item,SEL_LIMITED_TIME_DEFAULT,-1)
+-- 選択結果
+ret=get_sel_result()
+-- インモ値追加
+InmoSiro = InmoSiro + getInmo('K',4,item[ret])
+-- 選択肢分岐
+if ret==1 then goto block_00079 end
+if ret==2 then goto block_00105 end
+if ret==-1 then goto block_00128 end
+
+
+::block_00079::
+-- ▽パンツが見たい
+
+
+::block_00080::
+-- LINE風ウィンドウ開始
+--winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00081::
+-- 【透】の会話
+setstampr("LIcon_007.png")
+
+
+::block_00082::
+seticon("白")
+textl("えっち♪")
+
+
+::block_00083::
+-- 【透】の会話
+textr("短すぎるスカートが悪い")
+
+
+::block_00084::
+seticon("白")
+textl("でも、見えてないでしょ？")
+
+
+::block_00085::
+-- 【透】の会話
+textr("見えてないから見たいんですが？")
+
+
+::block_00086::
+seticon("白")
+textl("開き直りｗ")
+
+
+::block_00087::
+-- 【透】の会話
+textr("見せて！！")
+
+
+::block_00088::
+seticon("白")
+textl("すごい圧！")
+
+
+::block_00089::
+seticon("白")
+textl("わかった\n恥ずかしいけど彼氏の頼みだし")
+
+
+::block_00090::
+seticon("白")
+textl("……でも、見たら消してね？")
+
+
+::block_00091::
+-- 【透】の会話
+setstampr("LIcon_003a.png")
+
+
+::block_00092::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00093 end
+--is_click_line_close()
+--goto block_00092
+
+
+::block_00093::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00094::
+cls1()
+setname("透")
+text("「……おっ」")
+
+::block_00095::
+cls1()
+noname()
+text("自分の心に正直になってパンツを見たいと言ったら、\n白から画像が送られてきた。")
+
+capture()
+set(BG, "view_005.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+set(EV,"chinesco_A.png")
+fade(0.5)
+
+
+::block_00096::
+cls1()
+noname()
+text("さっきと同じようなポーズだけど、\n今度はモロにパンツが見えている。")
+
+capture()
+alldel()
+set(BG, "view_005.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.5)
+
+::block_00097::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00098::
+-- 【透】の会話
+textr("眼福")
+
+
+::block_00099::
+seticon("白")
+textl("本当に消してよ\n流出したら大変なんだから")
+
+
+::block_00100::
+-- 【透】の会話
+setstampr("LIcon_003a.png")
+
+
+::block_00101::
+seticon("白")
+setstampl("LIcon_002.png")
+
+
+::block_00102::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00103 end
+--is_click_line_close()
+--goto block_00102
+
+
+::block_00103::
+-- LINE風ウィンドウ終了
+--lineclose(0.5)
+
+
+::block_00104::
+goto block_00148 --共通へ
+
+
+::block_00105::
+-- ▽可愛いポーズが見たい
+
+
+::block_00106::
+-- LINE風ウィンドウ開始
+--winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00107::
+-- 【透】の会話
+textr("パンツは見えなくてもいいから、\nもっと違ったポーズの写真が見たい")
+
+
+::block_00108::
+-- 【透】の会話
+textr("可愛いキメポーズとか")
+
+
+::block_00109::
+seticon("白")
+setstampl("LIcon_003a.png")
+
+
+::block_00110::
+seticon("白")
+textl("ちょっと待っててね")
+
+
+::block_00111::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00112 end
+--is_click_line_close()
+--goto block_00111
+
+
+::block_00112::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00113::
+cls1()
+setname("透")
+text("「……おっ」")
+
+
+::block_00114::
+cls1()
+noname()
+text("可愛いポーズが見たいと言ったら、\n白から画像が送られてきた。")
+
+capture()
+set(BG, "view_005.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+set(EV,"chinesco_A.png")
+fade(0.5)
+
+
+::block_00115::
+cls1()
+noname()
+text("今度はさっきと全然違ったポーズで、\n凄くあざとい可愛さを演出している。")
+
+
+::block_00116::
+cls1()
+noname()
+text("うん、やっぱりこういうポーズもいいな。")
+
+
+::block_00117::
+cls1()
+noname()
+text("こんなに可愛い子が自分の彼女なんだって、\n優越感に浸ることができる。")
+
+capture()
+alldel()
+set(BG, "view_005.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.5)
+
+::block_00118::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00119::
+-- 【透】の会話
+textr("すごく可愛い")
+
+
+::block_00120::
+seticon("白")
+textl("でっしょー！\nもっと言っていいんだよ？")
+
+
+::block_00121::
+-- 【透】の会話
+textr("可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い可愛い")
+
+
+::block_00122::
+seticon("白")
+textl("重！　怖！")
+
+
+::block_00123::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00124 end
+--is_click_line_close()
+--goto block_00123
+
+
+::block_00124::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00125::
+cls1()
+noname()
+text("白とのこういうやりとりが楽しい。")
+
+
+::block_00126::
+cls1()
+noname()
+text("メッセージアプリの画面を見ながら、\n俺はニヤニヤが抑えられなかった。")
+
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+::block_00127::
+goto block_00148 --共通へ
+
+
+::block_00128::
+-- ▽時間切れ
+
+
+::block_00129::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00130::
+seticon("白")
+textl("……透？")
+
+
+::block_00131::
+seticon("白")
+textl("もしもーし！")
+
+
+::block_00132::
+-- 【透】の会話
+textr("ごめん\nパンツが見たいって正直に言うかどうか迷ってた")
+
+
+::block_00133::
+seticon("白")
+textl("言っちゃってるけど？")
+
+
+::block_00134::
+-- 【透】の会話
+textr("言っちゃってるな")
+
+
+::block_00135::
+seticon("白")
+textl("でも、すぐに正直に言えなかった透には、\nパンツは見せてあげないのだ！")
+
+
+::block_00136::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00137 end
+--is_click_line_close()
+--goto block_00136
+
+
+::block_00137::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+capture()
+set(BG, "view_005.png")
+sets(BG,1.2,1.2)
+set_gblur(BG,4)
+set(EV,"chinesco_A.png")
+fade(0.5)
+
+
+::block_00138::
+cls1()
+noname()
+text("メッセージの後、\n可愛くポーズを決めた白の画像が送られてきた。")
+
+
+::block_00139::
+cls1()
+noname()
+text("パンツは見えてないけど、\nこれはこれで最高だ。")
+
+capture()
+alldel()
+set(BG, "view_005.png")
+sets(BG,1,1)
+set_gblur(BG,0)
+fade(0.5)
+
+::block_00140::
+-- LINE風ウィンドウ開始
+winclose(0.5)
+linecls1()
+lineopen(0.5)
+
+
+::block_00141::
+-- 【透】の会話
+textr("最高！")
+
+
+::block_00142::
+seticon("白")
+setstampl("LIcon_006.png")
+
+
+::block_00143::
+-- 【透】の会話
+textr("欲望のままに、\nパンツ見たいとか言わなくて良かった")
+
+
+::block_00144::
+seticon("白")
+textl("言ってたけど！？")
+
+
+::block_00145::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00146 end
+--is_click_line_close()
+--goto block_00145
+
+
+::block_00146::
+-- LINE風ウィンドウ終了
+--lineclose(0.5)
+
+--capture()
+--alldel()
+--set(BG, "view_005.png")
+--sets(BG,1,1)
+--set_gblur(BG,0)
+--fade(0.5)
+
+::block_00147::
+goto block_00148 --共通へ
+
+
+::block_00148::
+-- ▽共通://・共通（選択肢後の合流地点）
+
+
+::block_00149::
+-- LINE風ウィンドウ開始
+--linecls1()
+--lineopen(0.5)
+
+
+::block_00150::
+seticon("白")
+textl("あ、ご飯に呼ばれた")
+
+
+::block_00151::
+-- 【透】の会話
+textr("ああ、ウチもそろそろかも")
+
+
+::block_00152::
+seticon("白")
+textl("じゃあ、またね")
+
+
+::block_00153::
+-- 【透】の会話
+textr("ああ、また！")
+
+
+::block_00154::
+-- LINE風ウィンドウ終了確認
+--sel("",{INFO_TEXT_LINE_END01,INFO_TEXT_LINE_END02})
+--ret=get_sel_result()
+--if ret==1 then goto block_00155 end
+--is_click_line_close()
+--goto block_00154
+
+
+::block_00155::
+-- LINE風ウィンドウ終了
+lineclose(0.5)
+
+
+::block_00156::
+cls1()
+noname()
+text("もっと話したかったけど仕方ない。")
+
+
+::block_00157::
+cls1()
+noname()
+text("こっちも夕食の時間が近いし、\nそろそろ黒を迎えに行くとしよう。")
+
+
+
+::block_00158::
+-- ▽末端:スクリプト追加
+
+fadeBgm(1)
+
+winclose(0.5)
+capture()
+alldel()
+set(EF,"black.png")
+fade(1)
+
+-- 山本追加
+main_menu_close(0.5)
+BeginProcessSkip(30) --skip開始
+
+wait(1)
+
+--//★カレンダー：9月25日（水）
+SlotTitle="9月25日（水）"
+capture()
+alldel()
+set(BG,"cale_0924.png")
+fade(0.3)
+
+TransitionCapture()
+set(BG,"cale_0925.png")
+TransitionCrossfade("mask_calendar.png",1)
+
+playSe("se_紙をめくる音_カレンダー用.ogg")
+
+wait(3)
+
+-- 山本追加
+EndProcessSkip() --skip終了
+
+capture()
+alldel()
+set(EF,"black.png")
+fade(1)
+wait(1)
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("04_00_ユニークシナリオ後Pahse上昇シナリオ確認■.lua")
+
+
+-- 終了
+end
+
+

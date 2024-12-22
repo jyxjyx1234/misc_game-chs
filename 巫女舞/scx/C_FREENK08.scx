@@ -1,0 +1,414 @@
+; OriginalFile: 0_NKRET8.txt
+;■時間　　:夕方
+;■タイトル:故郷巡り⑧
+;■発生条件:
+;■あらすじ
+;　　・夏希と共に主人公の故郷巡り。駄菓子屋へ。
+;　　・昔話を語り、夏希と共になごむ。
+;■使用予定BG
+;　　・駄菓子屋　外観
+;　　・駄菓子屋　内部
+;■収得する進行フラグ
+;　　・
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:汎用
+;・発生ターン:夕方
+;・タイトル:故郷巡り⑧
+;=========================================
+;◇000:本筋その1
+;黒バックに文字表示
+;フェードイン
+/BgmPlay	[03]	; マーチ系
+/FadeIn	<BG>	"bg\bg025D.bmp"	;BG01:駄菓子屋　外観
+/ChrIn	<CHR_1>	"stand\０１ナツキ現代＿ニッコリ.tga"	;夏希on
+
+
+/Mes	[14937]	'夏希'	"voice\12097.ogg"
+「着いたよ～～」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14938]
+俺たちは子どもの頃、この店のことを『ハル屋』って呼んで
+た。
+/MesWait
+
+
+/Mes	[14939]
+大澤ハルって婆ちゃんがやっていたからだ。
+/MesWait
+
+
+/Mes	[14940]
+今は茜がやってるわけだから、ということは、子どもたちに
+アカネ屋とでも呼ばれているのだろうか？
+/MesWait
+
+
+/AllFadeout
+/SePlay	[032]	; 駄菓子屋ガラス戸開く「ガラガラガラっ」
+/Wait	[1000]
+/FadeIn	<BG>	"bg\bg026D.bmp"	;BG02:駄菓子屋　内部
+
+
+/Mes	[14941]	'$name'
+「茜、いるかぁーー？　買いにきてやったぞぉ～～～！！」
+/MesWait
+
+
+;オフで
+
+
+/Mes	[14942]	'茜'	"voice\12102.ogg"
+「……はいはい、いらっしゃい……その辺の子どもより子ど
+　もっぽい挨拶しないでよ、まったく……」
+/MesWait
+
+
+/ChrIn	<CHR_1>	"stand\０２アカネ現代＿驚く.tga"	;茜on
+
+
+/Mes	[14943]	'茜'	"voice\12103.ogg"
+「わあっ！？　なんだ、なっちゃんも一緒だったの？」
+/MesWait
+
+
+/SetPos	<CHR_1>	(LEFT)
+/ChrIn	<CHR_2>	(RIGHT)	"stand\０１ナツキ現代＿笑顔.tga"	;茜on
+
+
+/Mes	[14944]	'夏希'	"voice\12104.ogg"
+「へへへぇ～～、来ちゃった」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿口開け楽.tga"	;;暫定入れ込み　sakae
+/Change	<CHR_2>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14945]	'茜'	"voice\12105.ogg"
+「ふーん？」
+/MesWait
+
+
+/Mes	[14946]	'$name'
+「な、なんだよ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿笑い.tga"		;目を閉じてニコニコ
+
+
+/Mes	[14947]	'茜'	"voice\12107.ogg"
+「ふたりはひょっとして、結構いいカンジだったりするの？」
+/MesWait
+
+
+/Mes	[14948]	'$name'
+「なぁんでそうなるんだよ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿テレ.tga"
+
+
+/Mes	[14949]	'夏希'	"voice\12109.ogg"
+「分かっちゃった？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０１ナツキ現代＿だよね.tga"
+
+
+/Mes	[14950]	'$name'
+「分かっちゃってねーよ。何いってんだお前は！？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０１ナツキ現代＿ニッコリ.tga"
+
+
+/Mes	[14951]	'夏希'	"voice\12111.ogg"
+「へへへ、ホントは故郷巡りしてたの」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿驚く.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14952]	'茜'	"voice\12112.ogg"
+「故郷巡りぃ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"			;通常
+
+
+/Mes	[14953]	'$name'
+「ああ、俺が昔行ったいろんな場所に今行ってみることで、
+　何か新しい発見が……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿口開け楽.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿だよね.tga"
+
+
+/Mes	[14954]	'茜'	"voice\12114.ogg"
+「あーあー、『温故知新』ってことね」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿笑顔.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[14955]	'夏希'	"voice\12115.ogg"
+「チン……んぐぐ……」
+/MesWait
+
+
+/ChrOut	<CHR_2>
+
+
+/Mes	[14956]
+夏希がベッタベタの間違いを口にする前に、俺はその口を塞
+いだ。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿口開け楽.tga"
+
+
+/Mes	[14957]	'茜'	"voice\12117.ogg"
+「温故知新っていうのは、言葉の通り、古きを温め新しきを
+　知るって意味。で、ここには何しにきたの？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"
+
+
+/Mes	[14958]	'$name'
+「ちょっとな。今日は新しいことをやってみようと思って」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿口開け楽.tga"
+
+
+/Mes	[14959]	'茜'	"voice\12119.ogg"
+「新しいこと？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"
+
+
+/Mes	[14960]	'$name'
+「子どもの頃にはできなかった、いわゆる『オトナ買い』だ」
+/MesWait
+
+
+/ChrIn	<CHR_2>	(right)"stand\０１ナツキ現代＿だよね.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[14961]	'夏希'	"voice\12121.ogg"
+「大人を買うの？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０１ナツキ現代＿テレ.tga"
+
+
+/Mes	[14962]	'$name'
+「あのなあ、あんまりキワドイ間違い方すんなよな」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿てんぱり.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[14963]	'茜'	"voice\12123.ogg"
+「オトナ買いっていうのはね、子どものおこずかいじゃ手が
+　出ないようなものをカネに物言わせてごっそりまとめ買い
+　すること」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０１ナツキ現代＿驚く.tga"
+
+
+/Mes	[14964]	'夏希'	"voice\12124.ogg"
+「わあ、なんか『汚いオトナのように』みたいでアコギな感
+　じが満開～」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿あきれ.tga"		;片目を閉じて、両手を腰
+/Change	<CHR_2>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14965]	'茜'	"voice\12125.ogg"
+「言っておくけど、ここは子どもが来る場所なんだから、オ
+　トナ買い禁止だからね」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿怒り.tga"	
+
+
+/Mes	[14966]	'$name'
+「いいじゃねーか。かつての子どもが夢を叶えにやってきた
+　んだ」
+/MesWait
+
+
+/Mes	[14967]
+言いながら俺は、千円札をビラリと差し出した。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿あきれ.tga"	
+/Change	<CHR_2>	"stand\０１ナツキ現代＿驚く.tga"
+
+
+/Mes	[14968]	'$name'
+「ホラ、これでＵＦＯ型チョコカステラ、買えるだけっ！！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"	
+/Change	<CHR_2>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14969]
+怒るかと思ったが、茜はその金を無造作に受け取った。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿口開け楽.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[14970]	'茜'	"voice\12130.ogg"
+「はい、それじゃ二個」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"
+
+
+/Mes	[14971]	'$name'
+「はっ？　なんで？　ＵＦＯ型チョコ、一個百円だろ？　消
+　費税取ったとしても九個は買えるだろ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿口開け楽.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿ニッコリ.tga"
+
+
+/Mes	[14972]	'茜'	"voice\12132.ogg"
+「たった今値上がりしたの。一個五百円。消費税は負けとい
+　てあげるわ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"
+
+
+/Mes	[14973]	'$name'
+「ふ、ふ、ふざけんなあっ！！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿あきれ.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14974]	'茜'	"voice\12134.ogg"
+「だぁからオトナ買いは許さないって言ったでしょーが。
+　ホラ、早く二個持っていって。なっちゃんと仲良く食べな
+　よ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿楽.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿笑顔.tga"		;キャピ系
+
+
+/Mes	[14975]	'夏希'	"voice\12135.ogg"
+「わぁ～～い、いただきっ！！」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14976]	'$name'
+「あ、お前な……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿笑い.tga"
+/Change	<CHR_2>	"stand\０１ナツキ現代＿ニッコリ.tga"
+
+
+/Mes	[14977]	'夏希'	"voice\12137.ogg"
+「後でアイスもね。来る時、買ってくれるって約束したもん
+　ね～～」
+/MesWait
+
+
+/Mes	[14978]	'$name'
+「く、くそ……女ってヤツはちゃっかりしてやがる……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿口開け楽.tga"	;;暫定入れ込み　sakae
+/Change	<CHR_2>	"stand\０１ナツキ現代＿楽.tga"
+
+
+/Mes	[14979]	'茜'	"voice\12139.ogg"
+「『ちゃっかり』っていうか、『しっかり』ね。女がしっか
+　りしてないと、バカな男はオトナ買いとか言って身代食い
+　つぶしかねないもんね～」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０２アカネ現代＿笑い.tga"	;;暫定入れ込み　sakae
+/Change	<CHR_2>	"stand\０１ナツキ現代＿笑顔.tga"
+
+
+/Mes	[14980]	'夏希'	"voice\12140.ogg"
+「ね～～」
+/MesWait
+
+
+/Mes	[14981]	'$name'
+「ちぇっ、勝手にしろ……」
+/MesWait
+
+
+/bgmfade
+/AllFadeOut
+
+
+/Mes	[14982]
+……こうして俺は、夏希にはいろんなものをおごらされ、茜
+には不当な額をふっかけられて、駄菓子屋なのに二千円も三
+千円も払うハメとなったのだった……
+/MesWait
+
+
+;END
+;==============================
+/End
+/end

@@ -1,0 +1,147 @@
+; OriginalFile: COM_BAD_ED.txt
+;■ターン　:---
+;■時間　　:---
+;■タイトル:バッドエンド２
+;■発生条件:いろいろ。七夕祭り以降、もしくは飛鳥編用のバッドエンド
+;■あらすじ
+;　・すでに宮合がダム湖沈む情報を持っているので、
+;　　廃線の日からだいぶ時間が経過し、湖底に沈んだ
+;　　宮合を忍んでいる、といった風なED。
+;■使用予定1枚絵
+;　・TA005:ダム湖畔の図。
+;■使用予定BG
+;　・なし
+;■収得する進行フラグ
+;　・なし
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:エンディング
+;・発生ターン:---
+;・タイトル:バッドエンド２
+;・発生条件:バッドエンド
+;============================================
+;◇000:本筋その1
+;ブラック
+/MesCls
+/Wait	[3000]
+/SoundFadein	<ENV>	[056]	; ヒグラシの鳴き声。「シシシシシ……」
+/Wait	[2000]
+
+/Mes	[12786]
+……あれから、どのくらい、時間がたっただろう。
+/MesWait
+
+
+;ブラックフェードイン
+/FadeIn	<BG>	"cg\TA005.bmp"	;□TA005:ダム湖畔の図。
+/SysSet	[252]	; ■□TA005.bmp
+
+
+/Mes	[12787]
+宮合は、ダムの湖底に沈んでいた。
+/MesWait
+
+
+/Mes	[12788]
+俺の生まれ育った家も。
+/MesWait
+
+
+/Mes	[12789]
+草壁神社も。
+/MesWait
+
+
+/Mes	[12790]
+小さかった頃の思い出が宿る場所は、囲まれた山々の濃緑を
+映す湖面の底で、ゆるやかに、そして静かに、朽ちてゆく。
+/MesWait
+
+
+/Mes	[12791]
+想い出が『更新されることのない情報』というラベルを貼ら
+れて、記憶の倉庫の片隅にしまわれてしまわないように、夏
+が来る度、俺は、こうしてここを訪れる。
+/MesWait
+
+
+/Mes	[12792]
+しかしそれも、今年で最後だろう。
+/MesWait
+
+
+;■BG:適当にいくつか。フェードしながら。
+/allfadeout
+/fadein	<BG>	"bg\bg001D.bmp"	;BG01:草壁神社　境内　御神木
+/Wait	[500]
+/allfadeout
+/fadein	<BG>	"bg\bg025D.bmp"	;BG01:草壁神社　境内　御神木
+/Wait	[500]
+/allfadeout
+/fadein	<BG>	"bg\bg002D.bmp"	;BG01:草壁神社　境内　御神木
+/Wait	[500]
+/allfadeout
+/fadein	<BG>	"bg\bg004D.bmp"	;BG01:草壁神社　境内　御神木
+
+/Mes	[12793]
+宮合も…………
+/MesWait
+
+/allfadeout
+;/FadeIn	<BG>	"CG:一まいえ。適当にいくつか。フェードしながら。朝の掃除とかかな。"	;□CG:一まいえ。適当にいくつか。フェードしながら。朝の掃除とかかな。
+/FadeIn	<BG>	"cg\HE000.bmp"	;
+/SysSet	[156]	; ■□HE000.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\KH000.bmp"	;
+/SysSet	[187]	; ■□KH000.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\NK001.bmp"	;
+/SysSet	[221]	; ■□NK001.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\TA003.bmp"	;
+/SysSet	[250]	; ■□TA003.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\AK002.bmp"	;
+/SysSet	[125]	; ■□AK002.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\NK002.bmp"	;
+/SysSet	[222]	; ■□NK002.bmp
+/Wait	[500]
+/allfadeout
+
+
+/Mes	[12794]
+あの夏の、一連の出来事も………
+/MesWait
+
+
+/FadeIn	<BG>	"cg\TA005.bmp"	;□TA005:ダム湖畔の図。
+/SysSet	[252]	; ■□TA005.bmp
+
+
+/Mes	[12795]
+静かに、朽ちていく。
+/MesWait
+
+;ブラックまま
+
+
+/Mes	[12796]
+俺の心の中で、ゆっくりと…………
+/MesWait
+
+
+/AllFadeOut
+/SoundFadeout	<ENV>
+/wait	[3000]
+;終了。
+;end
+;=========================================
+/End
+/end

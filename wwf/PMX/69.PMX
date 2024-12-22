@@ -1,0 +1,45 @@
+NonStop=0
+HistoryClear 
+Call 0,,4610,,-1
+Calc 2,,NOWSCENARIO = @NowPage
+Calc 2,,READTEXT = 0
+Load 0,,RTM+NOWSCENARIO,READSKIP,0
+Load 0,,RTM+NOWSCENARIO,READTEXTMAX,0
+TextCol 0,READTEXTMAX > READTEXT;既読色 ON,12615776
+TextCol 0,|READTEXTMAX <= READTEXT;既読色 OFF,16777215
+Calc 2,,GRPName = BG24C
+Calc 2,,DrawEffect = 10
+Call 0,,9,,-1
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「そいつは、何処に有ったんだい？」
+PutText 0,,涼宮静の持っている封筒を指さした。
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI017.WAV,0,0,0
+PutText 0,,[　静　]\n「枕の下に」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「枕か」
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「読んでくれるか？」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+WavPlay 0,@Vol2 > 0,1,VO\SI\SI018.WAV,0,0,0
+PutText 0,,[　静　]\n「構いませんが、あまり良い内容では……」
+Calc 2,,CHARNAME = CE01AA
+Call 0,,66,,-1
+Calc 2,,DLG = ON
+PutText 0,,[静　麻]\n「読むよりも聞いた方が頭に入るんでね」
+Calc 2,,CHARNAME = CE16A
+Call 0,,66,,-1
+PutText 0,,涼宮静はうなずくと手紙を朗読した。
+Calc 2,,CHARNAME = 
+Call 0,,66,,-1
+Save 0,,RT+NOWSCENARIO,READTEXT
+Save 0,,RTM+NOWSCENARIO,READTEXT
+Jump 0,,244,,-1

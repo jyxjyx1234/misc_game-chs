@@ -1,0 +1,10 @@
+NonStop=0
+HideSfc 0,,6
+SetSfc 0,,6,SYSCG\CHIP\DAY_SYS.PMP,8,453,1,255,0,0,0,0
+New 0,,1,日付ファイル,SYSCG\CHIP\0,0
+Calc 2,,日付ファイル = 日付ファイル + DAY
+Calc 2,,日付ファイル = 日付ファイル + .PMP
+OverSfc 2,回想モード OFF,6,日付ファイル,19,36,55,0,255,1,0,0
+Del 0,,日付ファイル
+ShowSfc 0,,6
+Return 0,

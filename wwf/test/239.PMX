@@ -1,0 +1,68 @@
+NonStop=0
+Wait 0,エフェクト ON,2000
+WavPlay 0,,0,BGM\D01WA.wav,0,0,0
+Wait 0,@CtrlKey OFF,2000
+SetSfc 0,,0,ED\ED1A_R.PMP,800,0,0,255,1,0,0,0
+New 0,,0,X,800,0
+Label 0,,P1
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,239,P1,5
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED1A_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED1B_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P2
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,239,P2,17
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED1B_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED1C_R.PMP,800,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P3
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,239,P3,29
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED1C_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED1D_L.PMP,-400,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P4
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X + 20
+Jump 0,X < 0,239,P4,41
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED1D_R.PMP,400,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,300
+SetSfc 0,,0,ED\ED1E_R.PMP,800,0,0,255,1,0,0,0
+Calc 2,,X = @SfcX0
+Label 0,,P5
+SetSfc 0,,0,@Sfc0,X,0,0,255,1,0,0,0
+Calc 2,,X = X - 20
+Jump 0,X > 400,239,P5,53
+Wait 0,@CtrlKey OFF,500
+SetSfc 0,,1,ED\ED1E_L.PMP,0,0,0,255,1,0,0,0
+Wait 0,@CtrlKey OFF,2400
+WavPlay 0,,0,,0,0,1
+SetSfc 2,,1,,0,0,1,255,0,0,0,0
+SetSfc 0,,0,BG\BLACK.PMP,0,0,0,255,2,0,0,0
+Del 0,,X
+Calc 0,,END2 = ON
+Save 0,,CLEAR_2,END2
+Jump 0,,183,,-1

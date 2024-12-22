@@ -1,0 +1,186 @@
+;-----------------------------------------------
+; ダイアログ作成
+;-----------------------------------------------
+; 起動時は
+; /call	"S_DIALOG.scx"	@exitdlg
+; /call	"S_DIALOG.scx"	@titledlg
+; のように、ラベル指定しないと正常動作しません
+; (指定しないと、一番上から実行します)
+
+;-----------------------------------------------
+;ゲーム終了ダイアログ
+#exitdlg
+/default	<DIALOG>
+/Read	"obj\dialog_EXIT.tga"
+/SetPos	(0,0)
+/DispOn
+/Default	<-1>
+
+/Default	<BTN_1>
+/call	@yes
+/call	@left
+/calc	[$a=2]
+
+/Default	<BTN_2>
+/call	@no
+/call	@right
+/calc	[$b=1]
+/default	<-1>
+
+/Buttonrange	<BTN_1>	<BTN_2>
+
+/jump	@main
+
+;-----------------------------------------------
+;タイトルに戻るダイアログ
+#titledlg
+/default	<DIALOG>
+/Read	"obj\dialog_たいとる戻る.tga"
+/SetPos	(0,0)
+/DispOn
+/Default	<-1>
+
+/Default	<BTN_1>
+/call	@yes
+/call	@left
+/calc	[$a=3]
+
+/Default	<BTN_2>
+/call	@no
+/call	@right
+/calc	[$b=1]
+
+/default	<-1>
+/Buttonrange	<BTN_1>	<BTN_2>
+
+/jump	@main
+
+;-----------------------------------------------
+;メインループ
+#main
+/call	@open
+
+#loop
+/keywait
+/jump	<CMD_CANCEL>	@cancel
+/jump	<BTN_1>		@btn1
+/jump	<BTN_2>		@btn2
+/jump	@loop
+
+;-----------------------------------------------
+#btn1
+/if	[$a==2]	; ゲームの終了
+	/SePlay	[900]	;キャンセル
+	/BgmFade
+	/Soundfadeout	<ENV>
+	/BgLock	<BG>
+	/InitAll	<BG>
+	/Black	<BASE>
+	/FadeOut	<BG>
+	/call	@close
+	/default	<-1>
+	/wait	[1000]
+	/Exit
+/Endif
+/if	[$a==3]	; タイトルへ戻る
+	/SePlay	[900]	;キャンセル
+	/Buttonrange	<-1>	<-1>	;解除
+	/BgmFade
+	/Soundfadeout	<ENV>
+	/SePlay	[902]	;キャンセル
+	/BgLock	<BG>
+	/InitAll	<BG>
+	/Black	<BASE>
+	/FadeOut	<BG>
+	/call	@close
+	/default	<-1>
+	/wait	[2000]
+	/jump	"scx\init_system.scx"	@title
+/Endif
+/jump	exit
+
+;-----------------------------------------------
+#btn2
+/if	[$b==1]	; キャンセルした
+/Endif
+/jump	exit
+
+;-----------------------------------------------
+#cancel
+/jump	exit
+
+;-----------------------------------------------
+#exit
+/SePlay	[902]	;キャンセル
+/call	@close
+/default	<-1>
+/Buttonrange	<-1>	<-1>	;解除
+;まぁ、レイヤー属性なんで、恒久保存されないんだけどね
+
+/end
+
+;-----------------------------------------------
+#left
+/SetPos	(240,340)
+/return
+
+;-----------------------------------------------
+#right
+/SetPos	(410,340)
+/return
+
+;-----------------------------------------------
+#center
+/SetPos	(325,340)
+/return
+
+;-----------------------------------------------
+#dialog
+/default	<DIALOG>
+/Read	"obj\dialog.tga"
+/SetTextArea	{88,96,384,176}
+/SetPos	(200,100)
+/DispOn
+/Default	<-1>
+/return
+
+;-----------------------------------------------
+#open
+/fadein	[85]	<DIALOG>
+/if	[$a]
+	/fadein	[85]	<BTN_1>
+/endif
+/if	[$b]
+	/fadein	[85]	<BTN_2>
+/endif
+/fadewait
+/return
+
+;-----------------------------------------------
+#close
+/fadeout	[85]	<DIALOG>
+/if	[$a]
+	/fadeout	[85]	<BTN_1>
+/endif
+/if	[$b]
+	/fadeout	[85]	<BTN_2>
+/endif
+/fadewait
+/return
+
+;-----------------------------------------------
+#yes
+/Read	[0]	"obj\dialog-yes2.tga"
+/Read	[1]	"obj\dialog-yes0.tga"
+/ChangeButton
+/DispOn
+/return
+
+;-----------------------------------------------
+#no
+/Read	[0]	"obj\dialog-no2.tga"
+/Read	[1]	"obj\dialog-no0.tga"
+/ChangeButton
+/DispOn
+/return
+

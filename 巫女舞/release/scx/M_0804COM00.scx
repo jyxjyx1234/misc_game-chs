@@ -1,0 +1,124 @@
+;-------------------------
+;8月4日　メインシーケンス
+;-------------------------
+
+/calc	[$day=4]
+/calc	[$month=8]
+/call	"scx\S_CALENDAR.scx"
+
+;=============================
+/if	[$1110]		;久音関連強制イベント
+	/call	"scx\A_0804HN01.scx"	;猫死亡
+	/call	"scx\A_0804HN02.scx"	;
+	/call	"scx\A_0804HN05.scx"	;
+	/jump	@YORU
+/endif
+
+/call	"scx\B_MORNING02.scx"
+/call	"scx\B_MORSEL.scx"
+
+/jump	[$answer==0]	@NK00
+/jump	[$answer==1]	@HN00
+/jump	[$answer==2]	@KH00
+/jump	[$answer==3]	@AK00
+
+;-------------------------
+#NK00
+/call	"scx\C_CLS0NK99.scx"
+/jump	@HIRU
+
+;-------------------------
+#HN00
+/call	"scx\C_CLS0HN99.scx"
+/jump	@HIRU
+
+;-------------------------
+#KH00
+/call	"scx\C_CLS0KH99.scx"
+/jump	@HIRU
+
+;-------------------------
+#AK00
+/call	"scx\C_CLS0AK99.scx"
+/jump	@HIRU
+;=============================
+
+
+;=============================
+#HIRU
+/call	"scx\B_HIRU0804.scx"
+/jump	[$answer==0]	@NK01
+/jump	[$answer==1]	@HN01
+/jump	[$answer==2]	@KH01
+/jump	[$answer==3]	@AK01
+
+;-------------------------
+#NK01
+/if	[$1004]	;雷怖い
+	/call	"scx\A_0804NK02.scx"	;野球
+/else
+	/call	"scx\C_JOB0NK99.scx"
+/endif
+/jump	@YUU
+
+;-------------------------
+#HN01
+/call	"scx\C_JOB0HN99.scx"
+/jump	@YUU
+
+;-------------------------
+#KH01
+/call	"scx\C_JOB0KH99.scx"
+/jump	@YUU
+
+;-------------------------
+#AK01
+/if	[$1308]		;駄菓子屋への思いを見てる
+	/call	"scx\A_0804AK03.scx"	;祭りへの思い
+/else
+	/call	"scx\C_JOB0AK99.scx"
+/endif
+/jump	@YUU
+;=============================
+
+
+;=============================
+#YUU
+/call	"scx\B_YUU0804.scx"
+/jump	[$answer==0]	@NK02
+/jump	[$answer==1]	@HN02
+/jump	[$answer==2]	@KH02
+/jump	[$answer==3]	@AK02
+
+;-------------------------
+#NK02
+/call	"scx\C_FREENK99.scx"
+/jump	@YORU
+
+;-------------------------
+#HN02
+/call	"scx\C_FREEHN99.scx"
+/jump	@YORU
+
+;-------------------------
+#KH02
+/call	"scx\C_FREEKH99.scx"
+/jump	@YORU
+
+;-------------------------
+#AK02
+/call	"scx\C_FREEAK99.scx"
+/jump	@YORU
+;=============================
+
+
+;=============================
+#YORU
+/call	"scx\B_NIGHT0804.scx"
+;=============================
+
+/call	"scx\X_0804AH05.scx"	; 夢
+
+/end
+;_____________________________
+

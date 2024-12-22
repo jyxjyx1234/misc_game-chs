@@ -1,0 +1,126 @@
+---------------------------------------------------------------------------
+-- 2024/01/18 09:16:28
+-- 06_黒_部屋_放課後_欠席_p4■
+---------------------------------------------------------------------------
+return function()
+
+-- レイヤー初期化
+alldel()
+
+
+-- プレイ回数追加
+--PlayKuro=PlayKuro+1
+
+
+-- sample_image
+--capture()
+--set(BG, "ev-H-kuro001a_005.png")
+--fade(0.5)
+
+
+-- message_window_open
+--winopen(0.5)
+
+
+--Phase4
+--背景：教室（昼）
+TransitionCapture()
+alldel()
+set(BG,"view_050.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+winopen(0.5)
+
+playBgm("01-After.ogg")
+
+
+::block_00001::
+cls1()
+setname("透")
+text("「あ、そうか。\n今日は……休んだんだっけ」")
+
+
+::block_00002::
+cls1()
+noname()
+text("黒の教室に迎えに行こうとして、\n今日は黒が登校できなかったことを思い出す。")
+
+
+::block_00003::
+cls1()
+noname()
+text("エッチな行為だけがエスカレートしていって、\n登校できない日があるのは本末転倒な気がする。")
+
+
+::block_00004::
+cls1()
+noname()
+text("黒が登校できるようになるために、\n俺は協力してるんだもんな。")
+
+
+::block_00005::
+cls1()
+noname()
+text("とはいえ、白っていう彼女がいるのに、\nちょっと黒にのめり込み過ぎてるかも知れない")
+
+
+::block_00006::
+cls1()
+noname()
+text("白と黒。")
+
+
+::block_00007::
+cls1()
+noname()
+text("どちらの方が良いとかじゃなく、\nどっちも俺にとっては大切だ。")
+
+
+::block_00008::
+cls1()
+noname()
+text("黒の症状を抑えるために始まった関係だけど、\nこれからも協力したいと思ってる。")
+
+
+::block_00009::
+cls1()
+noname()
+text("その一方で、白との関係は悪くしたくない。\n都合が良いかも知れないけど、本気でそう思ってる。")
+
+
+::block_00010::
+cls1()
+setname("透")
+text("「ま、なるようになるか」")
+
+
+::block_00011::
+cls1()
+noname()
+text("どこか他人事のように呟きながら、俺は教室を後にした。")
+
+
+::block_00012::
+-- ▽末端:スクリプト追加
+fadeBgm(1)
+winclose(0.5)
+TransitionCapture()
+alldel()
+set(BG,"black.png")
+TransitionCrossfade("mask11.png",0.8)
+wait(0.8)
+stopSe()
+
+
+-- message_window_close
+--winclose(0.5)
+
+
+-- 次ファイルへ移動
+goscript("05_汎用アダルト_ユニーク部分_2放課後_マップ移動■.lua")
+
+
+-- 終了
+end
+
+

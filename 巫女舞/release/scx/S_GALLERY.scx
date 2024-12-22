@@ -1,0 +1,1698 @@
+;-----------------------------------------------
+; ギャラリー総合
+;
+; 起動時<BG>を背景とする。
+; 呼び出し元で輝度を調整し、それ以外の部分は
+; 消去しておいてください。
+;-----------------------------------------------
+; 起動
+
+
+/calc	[$mode=6]	; おまけモード
+/Calc	[$ret=0]
+/Calc	[$chr=-1]
+/Calc	[$page=0]
+
+/call	@open
+/Read	<DATA16>	"obj\fake.tga"
+/SetPos	<DATA16>	(0,130)
+/DispOn	<DATA16>
+
+;--------------------------
+#loop
+/KeyWait
+/jump	<CMD_CANCEL>	@omake
+/Jump	<SEL_1>			@cancel
+/Jump	<SEL_2>			@gameend
+/Jump	<SEL_3>			@omake
+
+/jump	<PAGE1>		@chr
+/jump	<PAGE2>		@chr
+/jump	<PAGE3>		@chr
+/jump	<PAGE4>		@chr
+/jump	<PAGE5>		@chr
+/jump	<PAGE6>		@chr
+
+/jump	<DATA1>		@view1
+/jump	<DATA2>		@view2
+/jump	<DATA3>		@view3
+/jump	<DATA4>		@view4
+/jump	<DATA5>		@view5
+/jump	<DATA6>		@view6
+/jump	<DATA7>		@view7
+/jump	<DATA8>		@view8
+/jump	<DATA9>		@view9
+/jump	<DATA10>	@view10
+/jump	<DATA11>	@view11
+/jump	<DATA12>	@view12
+
+
+/jump	<SAVE>		@back
+/jump	<CMD_UP>	@back
+/jump	<LOAD>		@next
+/jump	<CMD_DOWN>	@next
+/jump				@loop
+
+#chr
+/Calc	[$page=0]
+/jump	<PAGE1>		@nk0
+/jump	<PAGE2>		@hn0
+/jump	<PAGE3>		@kh0
+/jump	<PAGE4>		@ak0
+/jump	<PAGE5>		@ah0
+/jump	<PAGE6>		@etc0
+
+
+;-------------------
+#next
+/jump	[$chr==-1]	@loop
+/calc	[$page=1]
+/jump	[$chr==0]	@nk0
+/jump	[$chr==1]	@hn0
+/jump	[$chr==2]	@kh0
+/jump	[$chr==3]	@ak0
+/jump	[$chr==4]	@ah0
+/jump				@etc0
+
+;-------------------
+#back
+/jump	[$chr==-1]	@loop
+/calc	[$page=0]
+/jump	[$chr==0]	@nk0
+/jump	[$chr==1]	@hn0
+/jump	[$chr==2]	@kh0
+/jump	[$chr==3]	@ak0
+/jump	[$chr==4]	@ah0
+/jump				@etc0
+
+;-------------------
+; 終了
+#cancel
+/SePlay	[900]	;決定
+
+/Calc	[$ret=0]
+/end
+
+;-------------------
+; 戻る
+#omake
+/SePlay	[900]	;決定
+
+/Calc	[$ret=1]
+/end
+
+
+;-----------------------------------------------
+; ゲームの終了
+#gameend
+/call	"scx\S_DIALOG.scx"	@exitdlg
+/jump	@loop
+
+#readbtn
+/Default	<PAGE1>
+/CreateButton	"obj\OMK_BTN0_NK.bmp"
+/SetButton	[1]	"obj\OMK_BTN2_NK.bmp"
+/SetButton	[2]	"obj\OMK_BTN1_NK.bmp"
+/SetPos		(260,104)
+
+/Default	<PAGE2>
+/CreateButton	"obj\OMK_BTN0_HN.bmp"
+/SetButton	[1]	"obj\OMK_BTN2_HN.bmp"
+/SetButton	[2]	"obj\OMK_BTN1_HN.bmp"
+/SetPos		(340,104)
+
+/Default	<PAGE3>
+/CreateButton	"obj\OMK_BTN0_KH.bmp"
+/SetButton	[1]	"obj\OMK_BTN2_KH.bmp"
+/SetButton	[2]	"obj\OMK_BTN1_KH.bmp"
+/SetPos		(420,104)
+
+/Default	<PAGE4>
+/CreateButton	"obj\OMK_BTN0_AK.bmp"
+/SetButton	[1]	"obj\OMK_BTN2_AK.bmp"
+/SetButton	[2]	"obj\OMK_BTN1_AK.bmp"
+/SetPos		(500,104)
+
+/Default	<PAGE5>
+/CreateButton	"obj\OMK_BTN0_AH.bmp"
+/SetButton	[1]	"obj\OMK_BTN2_AH.bmp"
+/SetButton	[2]	"obj\OMK_BTN1_AH.bmp"
+/SetPos		(580,104)
+
+/Default	<PAGE6>
+/CreateButton	"obj\OMK_BTN0_ETC.bmp"
+/SetButton	[1]	"obj\OMK_BTN2_ETC.bmp"
+/SetButton	[2]	"obj\OMK_BTN1_ETC.bmp"
+/SetPos		(660,104)
+
+/ChangeButton	<PAGE1>	[0]
+/ChangeButton	<PAGE2>	[0]
+/ChangeButton	<PAGE3>	[0]
+/ChangeButton	<PAGE4>	[0]
+/ChangeButton	<PAGE5>	[0]
+/ChangeButton	<PAGE6>	[0]
+
+/DispOff	<PAGE1>
+/DispOff	<PAGE2>
+/DispOff	<PAGE3>
+/DispOff	<PAGE4>
+/DispOff	<PAGE5>
+/DispOff	<PAGE6>
+/return
+
+;-----------------------------------------------
+; UIオープン・サブルーチン
+#open
+
+/Default	<SAVE>
+/CreateButton	"obj\やじるし_うえ_0.tga"
+/Read	[1]		"obj\やじるし_うえ_1.tga"
+/SetPos			(480,147)
+/ChangeButton	[0]
+
+/Default	<LOAD>
+/CreateButton	"obj\やじるし_した_0.tga"
+/Read	[1]		"obj\やじるし_した_1.tga"
+/SetPos			(480,475)
+/ChangeButton	[0]
+/DispOff
+
+
+/call	@readbtn
+/ChangeButton	<PAGE1>		[0]
+/ChangeButton	<PAGE2>		[0]
+/ChangeButton	<PAGE3>		[0]
+/ChangeButton	<PAGE4>		[0]
+/ChangeButton	<PAGE5>		[0]
+/ChangeButton	<PAGE6>		[0]
+
+/FadeIn	<PAGE1>		[32]	/wait
+/FadeIn	<PAGE2>		[32]	/wait
+/FadeIn	<PAGE3>		[32]	/wait
+/FadeIn	<PAGE4>		[32]	/wait
+/FadeIn	<PAGE5>		[32]	/wait
+/FadeIn	<PAGE6>		[32]	/FadeWait
+
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>
+/ChangeButton	<PAGE3>
+/ChangeButton	<PAGE4>
+/ChangeButton	<PAGE5>
+/ChangeButton	<PAGE6>
+
+/FadeWait
+
+/default	<-1>
+
+/return
+
+;-----------------------------------------------
+#nk0
+/ChangeButton	<PAGE1>	[1]
+/ChangeButton	<PAGE2>
+/ChangeButton	<PAGE3>
+/ChangeButton	<PAGE4>
+/ChangeButton	<PAGE5>
+/ChangeButton	<PAGE6>
+/Read	<DATA16>	"obj\garou_tati_NK.tga"
+/SetPos	<DATA16>	(0,130)
+/DispOn	<DATA16>
+
+/calc	[$chr=0]
+
+/jump	[$page==0]	@nk1
+/jump				@nk2
+
+;-----------------------------------------------
+#hn0
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>	[1]
+/ChangeButton	<PAGE3>
+/ChangeButton	<PAGE4>
+/ChangeButton	<PAGE5>
+/ChangeButton	<PAGE6>
+/Read	<DATA16>	"obj\garou_tati_HN.tga"
+/SetPos	<DATA16>	(0,130)
+/DispOn	<DATA16>
+
+/calc	[$chr=1]
+/jump	[$page==0]	@hn1
+/jump				@hn2
+
+;-----------------------------------------------
+#kh0
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>
+/ChangeButton	<PAGE3>	[1]
+/ChangeButton	<PAGE4>
+/ChangeButton	<PAGE5>
+/ChangeButton	<PAGE6>
+/Read	<DATA16>	"obj\garou_tati_KH.tga"
+/SetPos	<DATA16>	(0,130)
+/DispOn	<DATA16>
+
+/calc	[$chr=2]
+/jump	[$page==0]	@kh1
+/jump				@kh2
+
+;-----------------------------------------------
+#ak0
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>
+/ChangeButton	<PAGE3>
+/ChangeButton	<PAGE4>	[1]
+/ChangeButton	<PAGE5>
+/ChangeButton	<PAGE6>
+/Read	<DATA16>	"obj\garou_tati_AK.tga"
+/SetPos	<DATA16>	(0,130)
+/DispOn	<DATA16>
+
+/calc	[$chr=3]
+/jump	[$page==0]	@ak1
+/jump				@ak2
+
+;-----------------------------------------------
+#ah0
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>
+/ChangeButton	<PAGE3>
+/ChangeButton	<PAGE4>
+/ChangeButton	<PAGE5>	[1]
+/ChangeButton	<PAGE6>
+/Read	<DATA16>	"obj\garou_tati_AH.tga"
+/SetPos	<DATA16>	(0,130)
+/DispOn	<DATA16>
+
+/calc	[$chr=4]
+/jump	[$page==0]	@ah1
+/jump				@ah2
+
+;-----------------------------------------------
+#etc0
+/calc	[$page=0]
+/ChangeButton	<PAGE1>
+/ChangeButton	<PAGE2>
+/ChangeButton	<PAGE3>
+/ChangeButton	<PAGE4>
+/ChangeButton	<PAGE5>
+/ChangeButton	<PAGE6>	[1]
+/Read	<DATA16>	"obj\fake.tga"
+/SetPos	<DATA16>	(0,130)
+/DispOn	<DATA16>
+
+/calc	[$chr=5]
+/jump				@etc1
+
+
+;-----------------------------------------------
+#nk1
+/calc	[$page=0]
+/ChangeButton	<SAVE>	[0]
+/DispOff		<SAVE>
+/ChangeButton	<LOAD>
+/DispOn			<LOAD>
+/AliasInit
+/AliasSet [220] 'nk00' "nk000.bmp"
+/AliasSet [221] 'nk01' "nk001.bmp"
+/AliasSet [222] 'nk02' "nk002.bmp"
+/AliasSet [223] 'nk03' "nk003.bmp"
+/AliasSet [224] 'nk04' "nk004.bmp"
+/AliasSet [225] 'nk05' "nk005.bmp"
+/AliasSet [226] 'nk06' "nk006.bmp"
+/AliasSet [227] 'nk07' "nk007.bmp"
+/AliasSet [228] 'nk08' "nk008.bmp"
+/AliasSet [229] 'nk09' "nk009.bmp"
+/AliasSet [230] 'nk10' "nk010.bmp"
+/AliasSet [231] 'nk11' "nk011a.bmp"
+
+/jump	@samnail
+
+#nk2
+/calc	[$page=1]
+/ChangeButton	<SAVE>
+/DispOn			<SAVE>
+/ChangeButton	<LOAD>	[0]
+/DispOff		<LOAD>
+/AliasInit
+/AliasSet [233] 'nk00' "nk012.bmp"
+/AliasSet [234] 'nk01' "nk013a.bmp"
+/AliasSet [236] 'nk02' "nk014a.bmp"
+/AliasSet [240] 'nk03' "nk015.bmp"
+/AliasSet [241] 'nk04' "nk016.bmp"
+/AliasSet [245] 'nk05' "nk017.bmp"
+/AliasSet [246] 'nk06' "nk018.bmp"
+/AliasSet [244] 'nk07' "nk019.bmp"
+/AliasSet	'nk08'	"NULL"			[0]
+/AliasSet	'nk09'	"NULL"			[0]
+/AliasSet	'nk10'	"NULL"			[0]
+/AliasSet	'nk11'	"NULL"			[0]
+
+/jump	@samnail
+
+#hn1
+/calc	[$page=0]
+/ChangeButton	<SAVE>	[0]
+/DispOff		<SAVE>
+/ChangeButton	<LOAD>
+/DispOn			<LOAD>
+/AliasInit
+/AliasSet [156] 'nk00' "he000.bmp"
+/AliasSet [157] 'nk01' "he001.bmp"
+/AliasSet [158] 'nk02' "he002.bmp"
+/AliasSet [159] 'nk03' "he003.bmp"
+/AliasSet [160] 'nk04' "he004.bmp"
+/AliasSet [161] 'nk05' "he005.bmp"
+/AliasSet [162] 'nk06' "he006.bmp"
+/AliasSet [163] 'nk07' "he007a.bmp"
+/AliasSet [165] 'nk08' "he008.bmp"
+/AliasSet [166] 'nk09' "he009.bmp"
+/AliasSet [167] 'nk10' "he010a.bmp"
+/AliasSet [169] 'nk11' "he011a.bmp"
+
+/jump	@samnail
+
+#hn2
+/calc	[$page=1]
+/ChangeButton	<SAVE>
+/DispOn			<SAVE>
+/ChangeButton	<LOAD>	[0]
+/DispOff		<LOAD>
+/AliasInit
+/AliasSet [174] 'nk00' "he012.bmp"
+/AliasSet [175] 'nk01' "he013.bmp"
+/AliasSet [176] 'nk02' "he014.bmp"
+/AliasSet [183] 'nk03' "he015.bmp"
+/AliasSet [184] 'nk04' "he016.bmp"
+/AliasSet [185] 'nk05' "he017.bmp"
+/AliasSet [181] 'nk06' "he018.bmp"
+/AliasSet [182] 'nk07' "he019.bmp"
+/AliasSet	'nk08'	"NULL"			[0]
+/AliasSet	'nk09'	"NULL"			[0]
+/AliasSet	'nk10'	"NULL"			[0]
+/AliasSet	'nk11'	"NULL"			[0]
+
+/jump	@samnail
+
+#kh1
+/calc	[$page=0]
+/ChangeButton	<SAVE>	[0]
+/DispOff		<SAVE>
+/ChangeButton	<LOAD>
+/DispOn			<LOAD>
+/AliasInit
+/AliasSet [187] 'nk00' "kh000.bmp"
+/AliasSet [188] 'nk01' "kh001a.bmp"
+/AliasSet [192] 'nk02' "kh002.bmp"
+/AliasSet [193] 'nk03' "kh003.bmp"
+/AliasSet [194] 'nk04' "kh004.bmp"
+/AliasSet [195] 'nk05' "kh005.bmp"
+/AliasSet [196] 'nk06' "kh006.bmp"
+/AliasSet [197] 'nk07' "kh007.bmp"
+/AliasSet [198] 'nk08' "kh008.bmp"
+/AliasSet [199] 'nk09' "kh009.bmp"
+/AliasSet [200] 'nk10' "kh011.bmp"
+/AliasSet [201] 'nk11' "kh012.bmp"
+
+/jump	@samnail
+
+#kh2
+/calc	[$page=1]
+/ChangeButton	<SAVE>
+/DispOn			<SAVE>
+/ChangeButton	<LOAD>	[0]
+/DispOff		<LOAD>
+/AliasInit
+/AliasSet [202] 'nk00' "kh013.bmp"
+/AliasSet [203] 'nk01' "kh014a.bmp"
+/AliasSet [209] 'nk02' "kh015a.bmp"
+/AliasSet [213] 'nk03' "kh016.bmp"
+/AliasSet [218] 'nk04' "kh017.bmp"
+/AliasSet [219] 'nk05' "kh018.bmp"
+/AliasSet [216] 'nk06' "kh019.bmp"
+/AliasSet [217] 'nk07' "kh020.bmp"
+/AliasSet	'nk08'	"NULL"			[0]
+/AliasSet	'nk09'	"NULL"			[0]
+/AliasSet	'nk10'	"NULL"			[0]
+/AliasSet	'nk11'	"NULL"			[0]
+
+/jump	@samnail
+
+#ak1
+/calc	[$page=0]
+/ChangeButton	<SAVE>	[0]
+/DispOff		<SAVE>
+/ChangeButton	<LOAD>
+/DispOn			<LOAD>
+/AliasInit
+/AliasSet [123] 'nk00' "ak000.bmp"
+/AliasSet [124] 'nk01' "ak001.bmp"
+/AliasSet [125] 'nk02' "ak002.bmp"
+/AliasSet [126] 'nk03' "ak003.bmp"
+/AliasSet [127] 'nk04' "ak004.bmp"
+/AliasSet [128] 'nk05' "ak005.bmp"
+/AliasSet [129] 'nk06' "ak007.bmp"
+/AliasSet [130] 'nk07' "ak008.bmp"
+/AliasSet [131] 'nk08' "ak009.bmp"
+/AliasSet [132] 'nk09' "ak010a.bmp"
+/AliasSet [138] 'nk10' "ak011a.bmp"
+/AliasSet [142] 'nk11' "ak012.bmp"
+
+/jump	@samnail
+
+#ak2
+/calc	[$page=1]
+/ChangeButton	<SAVE>
+/DispOn			<SAVE>
+/ChangeButton	<LOAD>	[0]
+/DispOff		<LOAD>
+/AliasInit
+/AliasSet [143] 'nk00' "ak013a.bmp"
+/AliasSet [145] 'nk01' "ak014.bmp"
+/AliasSet [152] 'nk02' "ak015.bmp"
+/AliasSet [153] 'nk03' "ak016.bmp"
+/AliasSet [154] 'nk04' "ak017b.bmp"
+/AliasSet [150] 'nk05' "ak018.bmp"
+/AliasSet [151] 'nk06' "ak019.bmp"
+/AliasSet	'nk07'	"NULL"			[0]
+/AliasSet	'nk08'	"NULL"			[0]
+/AliasSet	'nk09'	"NULL"			[0]
+/AliasSet	'nk10'	"NULL"			[0]
+/AliasSet	'nk11'	"NULL"			[0]
+
+/jump	@samnail
+
+#ah1
+/calc	[$page=0]
+/ChangeButton	<SAVE>	[0]
+/DispOff		<SAVE>
+/ChangeButton	<LOAD>
+/DispOn			<LOAD>
+/AliasInit
+/AliasSet [100] 'nk00' "ah000a.bmp"
+/AliasSet [102] 'nk01' "ah001.bmp"
+/AliasSet [103] 'nk02' "ah002.bmp"
+/AliasSet [104] 'nk03' "ah004.bmp"
+/AliasSet [105] 'nk04' "ah005.bmp"
+/AliasSet [106] 'nk05' "ah006.bmp"
+/AliasSet [107] 'nk06' "ah007.bmp"
+/AliasSet [108] 'nk07' "ah008.bmp"
+/AliasSet [109] 'nk08' "ah009.bmp"
+/AliasSet [110] 'nk09' "ah010.bmp"
+/AliasSet [111] 'nk10' "ah011.bmp"
+/AliasSet [112] 'nk11' "ah012.bmp"
+
+/jump	@samnail
+
+#ah2
+/calc	[$page=1]
+/ChangeButton	<SAVE>
+/DispOn			<SAVE>
+/ChangeButton	<LOAD>	[0]
+/DispOff		<LOAD>
+/AliasInit
+/AliasSet [114] 'nk00' "ah013b.bmp"
+/AliasSet [115] 'nk01' "ah014a.bmp"
+/AliasSet [119] 'nk02' "ah015.bmp"
+/AliasSet [120] 'nk03' "ah016a.bmp"
+/AliasSet	'nk04'	"NULL"			[0]
+/AliasSet	'nk05'	"NULL"			[0]
+/AliasSet	'nk06'	"NULL"			[0]
+/AliasSet	'nk07'	"NULL"			[0]
+/AliasSet	'nk08'	"NULL"			[0]
+/AliasSet	'nk09'	"NULL"			[0]
+/AliasSet	'nk10'	"NULL"			[0]
+/AliasSet	'nk11'	"NULL"			[0]
+
+/jump	@samnail
+
+#etc1
+/calc	[$page=0]
+/ChangeButton	<SAVE>	[0]
+/DispOff		<SAVE>
+/ChangeButton	<LOAD>	[0]
+/DispOff		<LOAD>
+/AliasInit
+/AliasSet [247] 'nk00' "ta000.bmp"
+/AliasSet [248] 'nk01' "ta001.bmp"
+/AliasSet [249] 'nk02' "ta002.bmp"
+/AliasSet [250] 'nk03' "ta003.bmp"
+/AliasSet [251] 'nk04' "ta004.bmp"
+/AliasSet [252] 'nk05' "ta005.bmp"
+/AliasSet [253] 'nk06' "ta013.bmp"
+/AliasSet [254] 'nk07' "ta014.bmp"
+/AliasSet [257] 'nk08' "ta015.bmp"
+/AliasSet [256] 'nk09' "ta017.bmp"
+/AliasSet [122] 'nk10' "ah999.bmp"
+/AliasSet	'nk11'	"NULL"			[0]
+
+/jump	@samnail
+
+#view1
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[0]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view2
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[1]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view3
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[2]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view4
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[3]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view5
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[4]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view6
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[5]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view7
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[6]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view8
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[7]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view9
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[8]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view10
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[9]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view11
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[10]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+#view12
+/if	[$chr==0]	/calc	[$menu=75]	/endif
+/if	[$chr==1]	/calc	[$menu=35]	/endif
+/if	[$chr==2]	/calc	[$menu=55]	/endif
+/if	[$chr==3]	/calc	[$menu=16]	/endif
+/if	[$chr==4]	/calc	[$menu=0]	/endif
+/if	[$chr==5]	/calc	[$menu=95]	/endif
+/add	'menu'	[11]
+/if	[$page==1]	/add	'menu'	[12]	/endif
+/jump	@preview
+
+;-----------------------------------------------
+#samnail
+/Default	<DATA1>
+/AliasGet	'nk00'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk00%"
+		/SetButton	[1]	"obj\_%nk00%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(239,182)
+/Else
+	/Init
+/Endif
+
+/Default	<DATA2>
+/AliasGet	'nk01'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk01%"
+		/SetButton	[1]	"obj\_%nk01%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(370,182)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA3>
+/AliasGet	'nk02'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk02%"
+		/SetButton	[1]	"obj\_%nk02%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(500,182)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA4>
+/AliasGet	'nk03'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk03%"
+		/SetButton	[1]	"obj\_%nk03%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(630,182)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA5>
+/AliasGet	'nk04'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk04%"
+		/SetButton	[1]	"obj\_%nk04%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(239,282)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA6>
+/AliasGet	'nk05'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk05%"
+		/SetButton	[1]	"obj\_%nk05%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(370,282)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA7>
+/AliasGet	'nk06'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk06%"
+		/SetButton	[1]	"obj\_%nk06%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(500,282)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA8>
+/AliasGet	'nk07'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk07%"
+		/SetButton	[1]	"obj\_%nk07%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(630,282)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA9>
+/AliasGet	'nk08'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk08%"
+		/SetButton	[1]	"obj\_%nk08%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(239,382)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA10>
+/AliasGet	'nk09'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk09%"
+		/SetButton	[1]	"obj\_%nk09%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(370,382)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA11>
+/AliasGet	'nk10'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk10%"
+		/SetButton	[1]	"obj\_%nk10%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(500,382)
+/Else
+	/Init
+/Endif
+
+
+/Default	<DATA12>
+/AliasGet	'nk11'
+/if	[$ret]
+	/SysGet	[$ret]
+	/if	[$ret]
+		/CreateButton	"obj\__%nk11%"
+		/SetButton	[1]	"obj\_%nk11%"
+		/ChangeButton
+	/Else
+		/Read	"obj\_BLANK.bmp"
+	/endif
+	/DispOn
+	/SetPos	(630,382)
+/Else
+	/Init
+/Endif
+
+/BgLock		<DIALOG>
+/SaveScreen	<DIALOG>	[1]
+/Init		<DIALOG>
+/Default	<-1>
+/jump	@loop
+
+#preview
+/SePlay	[902]	;決定
+/AliasInit
+/jump	[$menu<10]	@00
+/jump	[$menu<20]	@10
+/jump	[$menu<30]	@20
+/jump	[$menu<40]	@30
+/jump	[$menu<50]	@40
+/jump	[$menu<60]	@50
+/jump	[$menu<70]	@60
+/jump	[$menu<80]	@70
+/jump	[$menu<90]	@80
+/jump	[$menu<100]	@90
+/jump				@99
+
+#00
+/if	[$menu==0]
+/AliasSet [100] 'cg00' "ah000a.bmp"
+/AliasSet [101] 'cg01' "ah000b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==1]
+/AliasSet [102] 'cg00' "ah001.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==2]
+/AliasSet [103] 'cg00' "ah002.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==3]
+/AliasSet [104] 'cg00' "ah004.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==4]
+/AliasSet [105] 'cg00' "ah005.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==5]
+/AliasSet [106] 'cg00' "ah006.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==6]
+/AliasSet [107] 'cg00' "ah007.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==7]
+/AliasSet [108] 'cg00' "ah008.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==8]
+/AliasSet [109] 'cg00' "ah009.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==9]
+/AliasSet [110] 'cg00' "ah010.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+#10
+/if	[$menu==10]
+/AliasSet [111] 'cg00' "ah011.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==11]
+/AliasSet [112] 'cg00' "ah012.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==12]
+/AliasSet [113] 'cg00' "ah013a.bmp"
+/AliasSet [114] 'cg01' "ah013b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==13]
+/AliasSet [115] 'cg00' "ah014a.bmp"
+/AliasSet [116] 'cg01' "ah014b.bmp"
+/AliasSet [117] 'cg02' "ah014c.bmp"
+/AliasSet [118] 'cg03' "ah014d.bmp"
+/AliasSet [999] 'cg04' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==14]
+/AliasSet [119] 'cg00' "ah015.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==15]
+/AliasSet [120] 'cg00' "ah016a.bmp"
+/AliasSet [121] 'cg01' "ah016b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==16]
+/AliasSet [123] 'cg00' "ak000.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==17]
+/AliasSet [124] 'cg00' "ak001.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==18]
+/AliasSet [125] 'cg00' "ak002.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==19]
+/AliasSet [126] 'cg00' "ak003.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+#20
+/if	[$menu==20]
+/AliasSet [127] 'cg00' "ak004.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==21]
+/AliasSet [128] 'cg00' "ak005.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==22]
+/AliasSet [129] 'cg00' "ak007.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==23]
+/AliasSet [130] 'cg00' "ak008.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==24]
+/AliasSet [131] 'cg00' "ak009.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==25]
+/AliasSet [132] 'cg00' "ak010a.bmp"
+/AliasSet [133] 'cg01' "ak010b.bmp"
+/AliasSet [134] 'cg02' "ak010c.bmp"
+/AliasSet [135] 'cg03' "ak010d.bmp"
+/AliasSet [136] 'cg04' "ak010e.bmp"
+/AliasSet [137] 'cg05' "ak010f.bmp"
+/jump	@viewer
+/endif
+
+/if	[$menu==26]
+/AliasSet [138] 'cg00' "ak011a.bmp"
+/AliasSet [139] 'cg01' "ak011b.bmp"
+/AliasSet [140] 'cg02' "ak011c.bmp"
+/AliasSet [141] 'cg03' "ak011d.bmp"
+/AliasSet [999] 'cg04' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==27]
+/AliasSet [142] 'cg00' "ak012.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==28]
+/AliasSet [143] 'cg00' "ak013a.bmp"
+/AliasSet [144] 'cg01' "ak013b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==29]
+/AliasSet [145] 'cg00' "ak014.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+#30
+/if	[$menu==30]
+/AliasSet [152] 'cg00' "ak115.bmp"
+/AliasSet [146] 'cg01' "ak015.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==31]
+/AliasSet [153] 'cg00' "ak116.bmp"
+/AliasSet [147] 'cg01' "ak016.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==32]
+/AliasSet [154] 'cg00' "ak117a.bmp"
+/AliasSet [155] 'cg01' "ak117b.bmp"
+/AliasSet [148] 'cg02' "ak017a.bmp"
+/AliasSet [149] 'cg03' "ak017b.bmp"
+/AliasSet [999] 'cg04' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==33]
+/AliasSet [150] 'cg00' "ak018.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==34]
+/AliasSet [151] 'cg00' "ak019.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==35]
+/AliasSet [156] 'cg00' "he000.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==36]
+/AliasSet [157] 'cg00' "he001.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==37]
+/AliasSet [158] 'cg00' "he002.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==38]
+/AliasSet [159] 'cg00' "he003.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==39]
+/AliasSet [160] 'cg00' "he004.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+#40
+/if	[$menu==40]
+/AliasSet [161] 'cg00' "he005.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==41]
+/AliasSet [162] 'cg00' "he006.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==42]
+/AliasSet [163] 'cg00' "he007a.bmp"
+/AliasSet [164] 'cg01' "he007b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==43]
+/AliasSet [165] 'cg00' "he008.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==44]
+/AliasSet [166] 'cg00' "he009.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==45]
+/AliasSet [167] 'cg00' "he010a.bmp"
+/AliasSet [168] 'cg01' "he010b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==46]
+/AliasSet [169] 'cg00' "he011a.bmp"
+/AliasSet [170] 'cg01' "he011b.bmp"
+/AliasSet [171] 'cg02' "he011c.bmp"
+/AliasSet [172] 'cg03' "he011d.bmp"
+/AliasSet [173] 'cg04' "he011e.bmp"
+/AliasSet [999] 'cg05' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==47]
+/AliasSet [174] 'cg00' "he012.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==48]
+/AliasSet [175] 'cg00' "he013.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==49]
+/AliasSet [176] 'cg00' "he014.bmp"
+/AliasSet [177] 'cg01' "he014b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+#50
+/if	[$menu==50]
+/AliasSet [183] 'cg00' "he115.bmp"
+/AliasSet [178] 'cg01' "he015.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==51]
+/AliasSet [184] 'cg00' "he116.bmp"
+/AliasSet [179] 'cg01' "he016.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==52]
+/AliasSet [185] 'cg00' "he117.bmp"
+/AliasSet [180] 'cg01' "he017.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==53]
+/AliasSet [181] 'cg00' "he018.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==54]
+/AliasSet [182] 'cg00' "he019.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==55]
+/AliasSet [187] 'cg00' "kh000.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==56]
+/AliasSet [188] 'cg00' "kh001a.bmp"
+/AliasSet [189] 'cg01' "kh001b.bmp"
+/AliasSet [190] 'cg02' "kh001c.bmp"
+/AliasSet [191] 'cg03' "kh001d.bmp"
+/AliasSet [999] 'cg04' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==57]
+/AliasSet [192] 'cg00' "kh002.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==58]
+/AliasSet [193] 'cg00' "kh003.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==59]
+/AliasSet [194] 'cg00' "kh004.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+#60
+/if	[$menu==60]
+/AliasSet [195] 'cg00' "kh005.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==61]
+/AliasSet [196] 'cg00' "kh006.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==62]
+/AliasSet [197] 'cg00' "kh007.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==63]
+/AliasSet [198] 'cg00' "kh008.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==64]
+/AliasSet [199] 'cg00' "kh009.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==65]
+/AliasSet [200] 'cg00' "kh011.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==66]
+/AliasSet [201] 'cg00' "kh012.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==67]
+/AliasSet [202] 'cg00' "kh013.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==68]
+/AliasSet [203] 'cg00' "kh014a.bmp"
+/AliasSet [204] 'cg01' "kh014b.bmp"
+/AliasSet [205] 'cg02' "kh014c.bmp"
+/AliasSet [206] 'cg03' "kh014d.bmp"
+/AliasSet [207] 'cg04' "kh014e.bmp"
+/AliasSet [208] 'cg05' "kh014f.bmp"
+/AliasSet [999] 'cg06' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==69]
+/AliasSet [209] 'cg00' "kh015a.bmp"
+/AliasSet [210] 'cg01' "kh015b.bmp"
+/AliasSet [211] 'cg02' "kh015c.bmp"
+/AliasSet [212] 'cg03' "kh015d.bmp"
+/AliasSet [999] 'cg04' "NULL"
+/jump	@viewer
+/endif
+
+#70
+/if	[$menu==70]
+/AliasSet [213] 'cg00' "kh016.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==71]
+/AliasSet [218] 'cg00' "kh117.bmp"
+/AliasSet [214] 'cg01' "kh017.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==72]
+/AliasSet [219] 'cg00' "kh118.bmp"
+/AliasSet [215] 'cg01' "kh018.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==73]
+/AliasSet [216] 'cg00' "kh019.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==74]
+/AliasSet [217] 'cg00' "kh020.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==75]
+/AliasSet [220] 'cg00' "nk000.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==76]
+/AliasSet [221] 'cg00' "nk001.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==77]
+/AliasSet [222] 'cg00' "nk002.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==78]
+/AliasSet [223] 'cg00' "nk003.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==79]
+/AliasSet [224] 'cg00' "nk004.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+#80
+/if	[$menu==80]
+/AliasSet [225] 'cg00' "nk005.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==81]
+/AliasSet [226] 'cg00' "nk006.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==82]
+/AliasSet [227] 'cg00' "nk007.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==83]
+/AliasSet [228] 'cg00' "nk008.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==84]
+/AliasSet [229] 'cg00' "nk009.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==85]
+/AliasSet [230] 'cg00' "nk010.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==86]
+/AliasSet [231] 'cg00' "nk011a.bmp"
+/AliasSet [232] 'cg01' "nk011b.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==87]
+/AliasSet [233] 'cg00' "nk012.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==88]
+/AliasSet [234] 'cg00' "nk013a.bmp"
+/AliasSet [235] 'cg01' "nk013b.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==89]
+/AliasSet [236] 'cg00' "nk014a.bmp"
+/AliasSet [237] 'cg01' "nk014b.bmp"
+/AliasSet [238] 'cg02' "nk014c.bmp"
+/AliasSet [239] 'cg03' "nk014d.bmp"
+/AliasSet [999] 'cg04' "NULL"
+/jump	@viewer
+/endif
+
+#90
+/if	[$menu==90]
+/AliasSet [240] 'cg00' "nk015.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==91]
+/AliasSet [241] 'cg00' "nk016.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==92]
+/AliasSet [245] 'cg00' "nk117.bmp"
+/AliasSet [242] 'cg01' "nk017.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==93]
+/AliasSet [246] 'cg00' "nk118.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==94]
+/AliasSet [244] 'cg00' "nk019.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==95]
+/AliasSet [247] 'cg00' "ta000.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==96]
+/AliasSet [248] 'cg00' "ta001.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==97]
+/AliasSet [249] 'cg00' "ta002.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==98]
+/AliasSet [250] 'cg00' "ta003.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==99]
+/AliasSet [251] 'cg00' "ta004.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+#99
+/if	[$menu==100]
+/AliasSet [252] 'cg00' "ta005.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==101]
+/AliasSet [253] 'cg00' "ta013.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==102]
+/AliasSet [254] 'cg00' "ta014.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==103]
+/AliasSet [257] 'cg00' "ta115.bmp"
+/AliasSet [255] 'cg01' "ta015.bmp"
+/AliasSet [999] 'cg02' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==104]
+/AliasSet [256] 'cg00' "ta017.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+/if	[$menu==105]
+/AliasSet [122] 'cg00' "ah999.bmp"
+/AliasSet [999] 'cg01' "NULL"
+/jump	@viewer
+/endif
+
+
+;----開く準備----
+#viewer
+/SaveData	[6]
+/BgLock		<BG>
+/InitAll	<BG>
+/SaveScreen	<BG>	[0]
+
+/AliasGet	'cg00'
+/jump	[$ret==0]	@p1
+/SysGet	[$ret]
+/jump	[$ret==0]	@p1
+/Disolve	<BG>	"cg\%cg00%"
+/keywait
+/jump	<CMD_CANCEL>	@vend
+
+#p1
+/AliasGet	'cg01'
+/jump	[$ret==999]	@vend
+/jump	[$ret==0]	@p2
+/SysGet	[$ret]
+/jump	[$ret==0]	@p2
+/Disolve	<BG>	"cg\%cg01%"
+/keywait
+/jump	<CMD_CANCEL>	@vend
+
+#p2
+/AliasGet	'cg02'
+/jump	[$ret==999]	@vend
+/jump	[$ret==0]	@p3
+/SysGet	[$ret]
+/jump	[$ret==0]	@p3
+/Disolve	<BG>	"cg\%cg02%"
+/keywait
+/jump	<CMD_CANCEL>	@vend
+
+#p3
+/AliasGet	'cg03'
+/jump	[$ret==999]	@vend
+/jump	[$ret==0]	@p4
+/SysGet	[$ret]
+/jump	[$ret==0]	@p4
+/Disolve	<BG>	"cg\%cg03%"
+/keywait
+/jump	<CMD_CANCEL>	@vend
+
+#p4
+/AliasGet	'cg04'
+/jump	[$ret==999]	@vend
+/jump	[$ret==0]	@p5
+/SysGet	[$ret]
+/jump	[$ret==0]	@p5
+/Disolve	<BG>	"cg\%cg04%"
+/keywait
+/jump	<CMD_CANCEL>	@vend
+
+#p5
+/AliasGet	'cg05'
+/jump	[$ret==999]	@vend
+/jump	[$ret==0]	@vend
+/SysGet	[$ret]
+/jump	[$ret==0]	@vend
+/Disolve	<BG>	"cg\%cg05%"
+/keywait
+
+
+;----閉じる準備----
+#vend
+/BgLock		<BG>
+/InitAll	<BG>
+
+/LoadScreen	<CHR_1>	[0]
+/DispOff	<CHR_1>
+/FadeIn		<CHR_1>
+/FadeWait
+
+/Restore	[6]
+/jump	@loop
+/jump	[$chr==0]	@nk0
+/jump	[$chr==1]	@hn0
+/jump	[$chr==2]	@kh0
+/jump	[$chr==3]	@ak0
+/jump	[$chr==4]	@ah0
+/jump				@etc0

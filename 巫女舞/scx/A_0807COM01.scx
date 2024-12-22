@@ -1,0 +1,123 @@
+; OriginalFile: COM_48.txt
+;■ターン　:048
+;■タイトル:祭り当日の掃除（共通）
+;■発生条件:強制。
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:共通で強制。
+;・発生ターン:048
+;・タイトル:祭り当日の掃除（共通）
+;・発生条件:強制。
+;============================================
+;◇000:本筋その1
+;ここ、共通で描いとくね。（048:朝のターンで）
+;七夕祭り
+/MesCls
+/Wait	[2000]
+/SePlay	[053]	; 小鳥のさえずり。（気分いい朝のカンジ）
+/Wait	[1000]
+/FadeIn	<BG>	"bg\bg016D.bmp"	;BG:自分の部屋
+
+
+
+/Mes	[5587]
+いよいよ八月七日。
+/MesWait
+
+
+/Mes	[5588]
+七夕祭り当日だ！
+/MesWait
+
+/allfadeout
+/BgmPlay	[11]	; お祭りの準備っぽい感じ
+/FadeIn	<BG>	"bg\bg005F.bmp"	;BG:祭り境内。
+/ChrIn	<CHR_1>	(LEFT)	"stand\セイノスケ＿通常.tga"	;清之介on
+/ChrIn	<CHR_2>	(RIGHT)	"stand\ヒナコ＿通常.tga"	;雛子on
+
+/Mes	[5589]	'雛子'	"voice\15621.ogg"
+「それじゃみなさん、今日はよろしくお願いしますね」
+/MesWait
+
+
+/Mes	[5590]	'清之介'	"voice\15622.ogg"
+「事故のないように、頼んだぞ」
+/MesWait
+
+
+
+
+/Mes	[5591]
+みんな一斉に返事をして頭をさげる。
+なんか部活みたいだ。
+/MesWait
+
+
+/Mes	[5592]
+清之介さんも今日は出動ということで、ちょっと顔つきが違
+う。
+/MesWait
+
+
+/Mes	[5593]	'清之介'	"voice\15624.ogg"
+「うむ。さて、私も着替えてくるかな」
+/MesWait
+
+/ChrOut	<CHR_1>	;清之介off
+
+
+
+/Mes	[5594]	'雛子'	"voice\15625.ogg"
+「$nameさんは、いつものように、みんなを手伝ってあげ
+　てくださいね」
+/MesWait
+
+
+/Mes	[5595]	'$name'
+「はい。わかりました」
+/MesWait
+
+
+/Mes	[5596]	'雛子'	"voice\15627.ogg"
+「それでは、お願いしますね」
+/MesWait
+
+/ChrOut	<CHR_2>	;雛子off
+/ChrIn	<CHR_1>(LEFT)	"stand\０２アカネ巫女＿笑い.tga"	;茜on
+/ChrIn	<CHR_2>	(RIGHT)	"stand\０３ヒサナ現代＿楽.tga"	
+
+
+/Mes	[5597]	'茜'	"voice\15628.ogg"
+「よぉっし！　それじゃ祭りの開始ーーっ！」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０３ヒサナ現代＿楽しい.tga"	;久奈on
+
+/Mes	[5598]	'久奈'	"voice\15629.ogg"
+「おーっ！」
+/MesWait
+
+/ChrOut	<CHR_1>
+/SetPos	<CHR_2>	(Center)
+/Change	<CHR_2>	"stand\０３ヒサナ現代＿ニッコリ.tga"
+
+
+/Mes	[5599]
+……こいつは何を手伝うんだ……？
+/MesWait
+
+/ChrOut	<CHR_2>
+
+
+/Mes	[5600]
+まぁいいや。
+それじゃ、今年は裏方として、祭りに参加するか！
+/MesWait
+
+
+/allfadeout
+;end
+/End
+/end

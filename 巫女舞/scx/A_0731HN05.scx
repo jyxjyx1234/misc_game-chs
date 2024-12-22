@@ -1,0 +1,1513 @@
+; OriginalFile: 0_HN011.txt
+;■ターン　:011
+;■タイトル:のぞかれる
+;■発生条件:強制フラグ（HER000）あり。（指定フラグonでブリッヂ前に発生）
+;■アラスジ
+;　　・夜になって、一人部屋でくつろいでる主人公。
+;　　・プスっという音。
+;　　・障子に穴が。
+;　　・もう一度プっという音。
+;　　・そのちょっと上に障子の穴が。
+;　　・いきなり障子の穴をのぞきんでやる主人公。
+;　　・「うわっ」の声に障子を開ける主人公。
+;　　・久奈と久音。
+;　　・のぞこうとする久奈に久音が追従してきたということ。
+;　　・やっぱりヘンな姉妹だ。そう思う主人公。
+;■使用予定1枚絵
+;　・ナシ
+;■使用予定BG
+;　・主人公の部屋。
+;　・廊下。
+;■収得する進行フラグ
+;　・HER003（ルートフラグ）うっかり姉妹。
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:強制フラグあり
+;・発生ターン:011
+;・タイトル:のぞかれる
+;・発生条件:HER000がonで発生。
+;============================================
+;◇000:本筋その1
+;注:夜間は、選択はない。イベント発生しない場合、
+;主人公の部屋BGで、今日はもう寝るかーで終了。
+;ある場合は、始まりは必ず主人公の部屋から。
+;なお、複数キャラ発生する場合、夏希優先。
+/MesCls
+/Wait	[2000]
+/SoundFadein	<ENV>	(0,30)[070]	; 静かに、虫の音。夏の虫で。
+
+
+/SePlay	[029]	; フスマ開く「すっ」
+/FadeIn	<BG>	"bg\bg016N.bmp"	;BG:母屋。主人公の部屋（夜）。
+
+
+/Mes	[1599]
+しかし、今日もあちこち歩きまわったなぁ……。
+/MesWait
+
+
+/Mes	[1600]
+なんか一回座ったら動きたくなくなりそうだ。
+先に布団引いてしまおう。
+/MesWait
+
+
+/Mes	[1601]	'$name'
+「これでみんなで布団並べてワイワイやれたら……。
+　そんなこと言ったら殴られそうだな」
+/MesWait
+
+
+/Mes	[1602]
+折り畳んであった敷き布団を広げ、シーツを整えていく。
+/MesWait
+
+
+/Mes	[1603]
+自宅なら適当に済ませてしまうところだが、さすがにこうい
+う部分でだらしないと思われたくない。
+/MesWait
+
+
+/Mes	[1604]
+枕を置いて、夏用のタオルケットをかぶせて……。
+/MesWait
+
+
+/Mes	[1605]
+就寝準備完了。
+/MesWait
+
+
+/Mes	[1606]	'$name'
+「ん～～～、つっかれた……」
+/MesWait
+
+
+/Mes	[1607]
+……寝るか。こんな時間に寝るなんて小学生か俺。
+/MesWait
+
+
+/AllFadeOut
+/SoundFadeout	<ENV>
+/Wait	[2000]
+
+
+/Mes	[1608]
+…………。
+/MesWait
+
+
+/MesCls
+/SePlay	[007]	; 障子に指で穴開ける音。「プスっ」
+/Wait	[1000]
+
+
+/Mes	[1609]
+……ん？
+/MesWait
+
+
+/FadeIn	<BG>	"bg\bg016N.bmp"	;BG:母屋。主人公の部屋（夜）。
+
+
+/Mes	[1610]
+今、なんか音がしたような……？
+/MesWait
+
+
+/MesCls
+/SePlay	[007]	; 障子に指で穴開ける音。「プスっ」
+/Wait	[1000]
+
+
+/Mes	[1611]
+……なーるほどな。その音か……。
+/MesWait
+
+
+/BgmPlay	[21]
+
+
+/Mes	[1612]
+なんてことはない。
+あの音は、障子に指で穴をあけたときの音だ。
+/MesWait
+
+
+/Mes	[1613]
+もし、障子越しにこっそりと部屋を覗きたいのなら、指先を
+唾かなにかで湿らせてからやれば、余計な音を立てないで済
+む。
+/MesWait
+
+
+/Mes	[1614]
+ガキの頃によくやって叱られているうちに、自分で開発した
+小技だが、さて……。
+/MesWait
+
+
+/Mes	[1615]
+俺は覗いているのが誰なのか、見当をつけた。
+/MesWait
+
+
+/Mes	[1616]
+……まぁ、なんつーか。
+/MesWait
+
+
+/Mes	[1617]
+こんなことをするのは久奈くらいなものだろう。
+/MesWait
+
+
+/Mes	[1618]
+ふっふっふ……。
+いきなり障子を開け放って、驚かしてやるか。
+これも久奈の今後のためだ。
+/MesWait
+
+
+/Mes	[1619]
+悪戯は子どもの仕事、叱るのが大人の仕事。
+そうして、してはいけないことを覚えていくのだ。
+/MesWait
+
+
+/Mes	[1620]
+俺は素知らぬフリをして、敢えてそちらに目線を向けないま
+ま、そぉっと廊下側の障子に手をかけた。
+/MesWait
+
+
+/Mes	[1621]
+いくぞ、せーの……っ。
+/MesWait
+
+
+/BGMStop
+/MesCls
+/SePlay	[031]	; フスマ開く。閉じる（強）「すたぁん！」
+/DispOff	<BG>
+/Wait	[500]
+
+
+/Mes	[1622]	'$name'
+「こらぁぁあああ、久奈ーーーーーーっ！」
+/MesWait
+
+
+/FadeIn	<BG>	"bg\bg013N.bmp"	;BG:母屋。廊下（夜）。
+
+
+/Mes	[1623]	'$name'
+「………って、あら？」
+/MesWait
+
+
+/Mes	[1624]
+思いきり滑りのいい障子が全開状態になった時、俺の視界に
+飛びこんできたのは久奈ではなく……。
+/MesWait
+
+
+/BgmPlay	[04]	; マーチ系
+/ChrIn	<CHR_1>	"stand\０４ヒサネ現代夜＿楽.tga"	;久音on
+
+
+/Mes	[1625]	'久音'	"voice\04576.ogg"
+「ええっと、私は久音です」
+/MesWait
+
+
+/Mes	[1626]	'$name'
+「あ、あれれ。久音さん？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1627]
+ぱちくり。
+という音が相応しい瞬きをして、久音さんは俺を見た。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1628]	'久音'	"voice\04578.ogg"
+「はい。そうですよ。私は久音です」
+/MesWait
+
+
+/Mes	[1629]
+俺は慌てて身体を起こして、姿勢を正した。
+え、でも……久音さんが俺の部屋を覗いてたのか？　障子に
+穴まで開けて……？
+/MesWait
+
+
+/Mes	[1630]	'$name'
+「すみません、びっくりしたでしょう？　てっきり久奈だと
+　思って……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1631]	'久音'	"voice\20394.ogg"
+「今、びっくりしました……」
+/MesWait
+
+
+/Mes	[1632]
+あ、ああ……そう。ワンテンポ遅いのか。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1633]	'久音'	"voice\20395.ogg"
+「久奈の予言が当たったものですから……」
+/MesWait
+
+
+/Mes	[1634]	'$name'
+「へ？　……久奈もそういうことするんですか……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1635]
+血筋ってやつなのかな。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1636]	'久音'	"voice\20397.ogg"
+「いえ、しません。だから、少し、びっくり……」
+/MesWait
+
+
+/BgmStop
+
+
+/Change	<CHR_1>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1637]	'久奈'	"voice\04581.ogg"
+「ふーん。もうお布団ひいてあるんだー。
+　このバッグは$nameのー？　開けて中見てもいい～？」
+/MesWait
+
+
+/Mes	[1638]
+……って。
+/MesWait
+
+
+/AllFadeOut
+/BgmPlay	[07]	; パニック系
+/FadeIn	<BG>	"bg\bg016N.bmp"	;BG:母屋。主人公の部屋（夜）。
+/ChrIn	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"	;久奈on
+
+
+/Mes	[1639]	'$name'
+「おまえなぁ、いつの間に部屋へ入ったんだよ！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿ニッコリ.tga"
+
+
+/Mes	[1640]	'久奈'	"voice\04584.ogg"
+「自分で大声上げながら障子開けたくせに、ヘンなのー」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"
+
+
+/Mes	[1641]	'$name'
+「『ヘンなのー』じゃないだろ！　それよりもいいからその
+　バッグを下に置けッ！　布団から下りてさっさと部屋から
+　出ろッ！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿不機嫌.tga"		;腕を前にだして威嚇
+
+
+/Mes	[1642]	'久奈'	"voice\04586.ogg"
+「んー。わかったよー」
+/MesWait
+
+
+/Mes	[1643]
+……まったく油断も隙もないな、コイツ……。
+/MesWait
+
+
+/ChrOut	<CHR_1>	;久奈off
+/AllFadeOut
+/FadeIn	<BG>	"bg\bg013N.bmp"	;BG:母屋。廊下（夜）。
+/ChrIn	<CHR_1>	(LEFT)	"stand\０３ヒサナ現代夜＿楽.tga"	;久奈on
+/ChrIn	<CHR_2>	(RIGHT)	"stand\０４ヒサネ現代夜＿楽.tga"	;久音on
+
+
+/Mes	[1644]	'$name'
+「……俺の部屋なんか覗いてどうすんだよ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿ニッコリ.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1645]	'久奈'	"voice\04589.ogg"
+「だって、『障子に指をプズッってしてノゾく』のがしたかっ
+　たんだもん」
+/MesWait
+
+
+/Mes	[1646]	'久奈'	"voice\04590.ogg"
+「ほかの部屋はぜーんぶ知ってるから、ノゾくところがなかっ
+　たんだけど、$nameの部屋はわかんないしねー」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽.tga"
+
+
+/Mes	[1647]	'$name'
+「……それで、久音さんまで揃って、俺の部屋なんて覗いて
+　楽しいんですか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"			;無表情、普通
+
+
+/Mes	[1648]	'久音'	"voice\04592.ogg"
+「楽しいです」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿悲しい.tga"		;直立、正面顔
+
+
+/Mes	[1649]	'久奈'	"voice\04593.ogg"
+「……あんまり楽しくない」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿落ち込み.tga"	;横向きでうつむいている
+
+
+/Mes	[1650]	'久音'	"voice\04594.ogg"
+「楽しくないです」
+/MesWait
+
+
+/Mes	[1651]
+おいおい……。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿真顔.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿儚げ.tga"
+
+
+
+/Mes	[1652]	'$name'
+「いや、あのね久音さん。
+　妹の精神年齢に合わせて一緒に遊んであげるのも、姉とし
+　て素晴らしいことだと思いますよ。思うけど……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1653]
+俺は、久奈を見てため息をついた。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿不機嫌.tga"		;腕を前にだして威嚇
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1654]	'久奈'	"voice\04597.ogg"
+「あー！　バカにしたー！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿真顔.tga"	
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1655]	'$name'
+「ばかにしてるわけじゃないよ。ただなぁ……。
+　おまえ、お姉さん振りまわすのはよくないぞ。
+　久音さんも時々ははっきり言った方がこいつのためです」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"		;流し目でブリッコ手
+
+
+/Mes	[1656]	'久音'	"voice\04598.ogg"
+「久奈にはいろいろ教わっていますから」
+/MesWait
+
+
+/Mes	[1657]	'$name'
+「いろいろ？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽.tga"	
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1658]	'久音'	"voice\04600.ogg"
+「箸の持ち方とか」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿ニッコリ.tga"	
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿ニッコリ.tga"
+
+
+/Mes	[1659]
+そういえば食事の時、気になっていたのだが、ふたりの箸の
+持ち方は、ともに『グー握り』だった。
+……それは教えてもらわない方が良かったのでは……。
+/MesWait
+
+
+/Mes	[1660]
+いや、ずれてるずれてる。そうじゃなくて……。
+/MesWait
+
+
+/Mes	[1661]
+うーん……。
+俺が口出すことじゃないって言われたら、それまでだが。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽.tga"	
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1662]	'$name'
+「久音さん、敢えて言おう。もっとしっかりしましょう！」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1663]	'久音'	"voice\04603.ogg"
+「私はしっかりしてますよ。久奈がしっかりしてますもん」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽しい.tga"		;両目とじでジャンプ
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1664]	'久奈'	"voice\04604.ogg"
+「そうだよー。『しっかり姉妹』で有名なんだからねー、あ
+　たしたち」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽.tga"
+
+
+/Mes	[1665]
+どっちかっつーと、このままじゃ『がっかり姉妹』だ……。
+しかし久音さん、暖簾に腕押しを具現化したような人かも。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1666]	'$name'
+「いや、どちらかというと、久音さんが久奈の模範となって
+　いくべきであって」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1667]	'久音'	"voice\20406.ogg"
+「模範……見本ですか」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1668]	'$name'
+「まぁそんな感じ。姉を見習って妹ががんばるとかね。
+　そういう……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽しい.tga"		;両目とじでジャンプ
+
+
+/Mes	[1669]	'久奈'	"voice\04564.ogg"
+「たいきゃーく！」
+/MesWait
+
+
+/SePlay	[008]	; 木製の廊下を駆け出す音：重「ドタドタドタ………」
+/ChrOut	<CHR_1>	;久奈off
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1670]	'$name'
+「あ」
+/MesWait
+
+
+/SetPos <CHR_2> (CENTER)
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1671]
+久奈は形勢不利と見たか、障子にもうひとつ穴を開けて、部
+屋を駆けだしていった。
+/MesWait
+
+
+/Mes	[1672]	'$name'
+「引き際鮮やかに離脱時の一撃も忘れないとは……」
+/MesWait
+
+
+/Mes	[1673]
+ガキの時分に同年代だったら最凶タッグ組んでそうだ……。
+だからどうにも、憎めないんだな。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1674]	'$name'
+「ふぅ……しょうがねぇな。
+　障子の張り替えは絶対手伝わせてやる」
+/MesWait
+
+
+/Mes	[1675]
+開いた障子から廊下を覗くと、もう久奈の姿はなかった。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1676]	'久音'	"voice\20410.ogg"
+「私もお手伝いした方が、いいのでしょうか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1677]
+お手伝いっていうか、久音さんも共犯……なんだろうな。
+/MesWait
+
+
+/Mes	[1678]
+障子にあいた穴を見ればわかる。
+ちょうど、ふたりが並んだ間隔くらいで一つずつ。
+それからさっき久奈が去り際に開けたのが一つ。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1679]	'$name'
+「まぁ、久音さんも自分がやった分は直しましょう」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1680]	'久音'	"voice\20412.ogg"
+「見えなかったはずなのに……。
+　すごいです……心眼、ですね」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1681]
+いや、ただの状況判断なんだけど……まぁいいか。
+心眼で見抜かれると思えば、悪戯も減る、かも、しれない。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1682]	'久音'	"voice\20413.ogg"
+「あ」
+/MesWait
+
+
+/Mes	[1683]
+ぽむ、と手を打って久音さんは俺を見あげた。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1684]	'$name'
+「ん？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿ニッコリ.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1685]	'久音'	"voice\20415.ogg"
+「今夜もお風呂、ご一緒しますか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1686]	'$name'
+「いや、さっきもう入ったから……。って、そういう問題じゃ
+　なく！」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1687]	'$name'
+「それも久奈が教えてくれたんですか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1688]	'久音'	"voice\20418.ogg"
+「はい、そうです。きっと喜ぶよーって」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿儚げ.tga"
+
+
+/Mes	[1689]
+くっ、あのマセガキめ……。
+俺が喜ばなかったせいなのか、久音さんちょっと困ってる。
+/MesWait
+
+
+/Mes	[1690]
+困ってるのは俺だ。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1691]	'久音'	"voice\20419.ogg"
+「…………」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1692]	'$name'
+「まぁ、それは暇があれば――」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1693]
+ん？　久音さん、もしや別の意味で困ってるんじゃ……。
+なにかまだ言いたげな気配が伝わってくる。
+/MesWait
+
+
+/Mes	[1694]
+そういや今までの行動からして一緒に出てくところだよな。
+俺が出口塞いでるせいか。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1695]	'$name'
+「あ、えと、これは他意はないです、はい。
+　お帰りはこちらで」
+/MesWait
+
+
+/Mes	[1696]
+妙な言いまわしで、丁寧に道を開く。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1697]	'久音'	"voice\20422.ogg"
+「家の中なら迷わないです……」
+/MesWait
+
+
+/Mes	[1698]
+そういう意味で言ったわけでは……。
+なかなか久音さんと話すポイントってのがつかみにくいな。
+/MesWait
+
+
+/BgmFade
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1699]	'久音'	"voice\20423.ogg"
+「久奈も行ってしまったので……。
+　もう少しお話ししてもよろしいでしょうか？」
+/MesWait
+
+
+/Mes	[1700]	'$name'
+「え、ええ……そりゃいいですけど……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1701]
+そろそろ戻りたいのかと思ったけど、逆だったのか。
+/MesWait
+
+
+/Mes	[1702]
+一応、障子は開けたままにして、座った。
+また誤解されるのは御免こうむる。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1703]
+久音さんも俺の前にちょこんと座った。
+もしかして覗きにきたのも話があってのことだったのかな。
+/MesWait
+
+
+/Mes	[1704]	'$name'
+「それで、話って……？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1705]	'久音'	"voice\20426.ogg"
+「えっと、$nameさんは……。
+　私のこと……好き、ですか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1706]	'$name'
+「…………」
+/MesWait
+
+
+/Mes	[1707]	'$name'
+「……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1708]	'$name'
+「はいぃぃぃっ！？」
+/MesWait
+
+
+/BgmPlay	[03]	; マーチ系
+
+
+/Mes	[1709]
+な、な、なっ……なにを言いだすんだ。
+/MesWait
+
+
+/Mes	[1710]
+いくらなんでも突然すぎるだろう！
+/MesWait
+
+
+/Mes	[1711]
+昨日、会ったばかりじゃないか……。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1712]	'久音'	"voice\20430.ogg"
+「あ、やっぱり、『はい』なんですね」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1713]	'$name'
+「いや、待った待った待った！　今のは違う！」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1714]	'久音'	"voice\20432.ogg"
+「違うんですか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1715]
+残念という風でもなく、久音さんは俺の答えを待った。
+/MesWait
+
+
+/Mes	[1716]	'$name'
+「いや、あの……少なくとも嫌いではないですけど、そう簡
+　単に答えられる問題でもなく……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1717]
+いや、待て。この人が一筋縄じゃいかなそうなのは、なんと
+なくわかるぞ。
+/MesWait
+
+
+/Mes	[1718]
+ストレートに受けとめるんじゃなく、発言の真意を探らない
+と、とんでもない自爆をするかも。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1719]	'$name'
+「ええとですね。
+　順序よく話しましょう」
+/MesWait
+
+
+/Mes	[1720]	'$name'
+「まず……どうしてそれを知りたいと思ったんです？」
+/MesWait
+
+
+;★C_JOB0HN00から移動。
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1721]	'久音'	"voice\04347.ogg"
+「これは前に夏希さんに聞いたことがあるお話なのですが」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1722]	'久音'	"voice\20436.ogg"
+「あと、今日、久奈にも言われたことなのですが……」
+/MesWait
+
+
+/Mes	[1723]	'$name'
+「うん」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1724]	'久音'	"voice\04351.ogg"
+「男の人が、私の前で『男だぞー』って振舞うのは、その人
+　が私のことを好きだからだよってふたりがよく言うんです」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿儚げ.tga"
+
+
+/Mes	[1725]	'久音'	"voice\04352.ogg"
+「だから、$nameさんもそうなのかと思って……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1726]	'$name'
+「…………？」
+/MesWait
+
+
+/Mes	[1727]
+俺は思わず身体ごと斜めになって首を傾げた。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1728]	'$name'
+「話が見えませんが……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1729]	'久音'	"voice\20439.ogg"
+「お話は言葉なので、目に見えたら凄いです」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1730]
+……いや、ここで真正面から答えるとおかしくなるぞ。
+話を戻そう。
+/MesWait
+
+
+/Mes	[1731]	'$name'
+「男だぞー、ですか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1732]	'久音'	"voice\20441.ogg"
+「はい、『男だぞー』です。あ、えと、昼間の、です」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1733]	'$name'
+「…………ああ、あれ。あれのことか」
+/MesWait
+
+
+/Mes	[1734]
+微妙な小っ恥ずかしさが蘇ってくる。
+久奈め……。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1735]
+まぁ、女の子にかっこいいところ見せようとするのは、相手
+の気を引きたいという心理があるのは確かだ。
+だから、それは当たらずとも遠からずってところだけど。
+/MesWait
+
+
+/Mes	[1736]
+でも、不思議そうな顔で、『私のこと……好き、ですか？』っ
+て聞かれてもなぁ……。
+/MesWait
+
+
+/Mes	[1737]
+正直、どうリアクションしていいやら……。
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1738]	'久音'	"voice\04356.ogg"
+「好きなんでしょうか？　$nameさん？」
+/MesWait
+
+
+/BGMFade
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1739]	'$name'
+「う……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1740]	'久奈'	"voice\04358.ogg"
+「…………」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1741]	'久音'	"voice\04359.ogg"
+「私のこと、好きですか？　答えてください、$nameさん」
+/MesWait
+
+
+/Mes	[1742]
+こ、答えなくちゃいけないのか？
+/MesWait
+
+
+/Mes	[1743]	'$name'
+「ええと……」
+/MesWait
+
+
+/SetPos <CHR_2> (RIGHT)
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿直立.tga"
+/ChrIn	<CHR_1>	(LEFT)	"stand\０３ヒサナ現代夜＿不機嫌.tga"	;;暫定入れ込み　sakae
+
+
+
+/Mes	[1744]	'久奈'	"voice\04362.ogg"
+「だめーーーーーっ！」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿不機嫌.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1745]	'$name'
+「うあぁあっ！　お、おまえ戻ったんじゃなかったのか」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿疑問.tga"
+
+
+/Mes	[1746]	'久奈'	"voice\04364.ogg"
+「夏はまだ始まったばかりだよ！　だから、あせって結論を
+　出しちゃつまんないよ」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿悲しい.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1747]
+……どこからパクってきたんだ、そんな台詞……。
+ていうかどこから出てきたんだよ今。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿不機嫌.tga"
+
+
+/Mes	[1748]	'久奈'	"voice\04366.ogg"
+「それに、ひさねはまだ男の人のこと好きなったことないん
+　だから、そういうこと聞いちゃだめだよー」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿真顔.tga"
+
+
+/Mes	[1749]	'$name'
+「好きになったことが、ない？」
+/MesWait
+
+
+/BgmPlay	[13]	; 環境系（湖）
+
+
+/Mes	[1750]
+……恋を知らないってことなのかな？　でもそんなことって
+あるのだろうか？
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿悲しい.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿儚げ.tga"
+
+
+/Mes	[1751]	'久音'	"voice\04369.ogg"
+「私には、人を好きになるっていう気持ちが……。
+　えっと…つまり『恋をする』ってことが、わからないんで
+　す」
+/MesWait
+
+
+/Mes	[1752]	'久音'	"voice\04370.ogg"
+「好きだって、言われることはよくあるんですけど、その気
+　持ちがわからないから、いつもどう答えていいかわからな
+　いし……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿真顔.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1753]	'久音'	"voice\04371.ogg"
+「だから、もし$nameさんがそれを知っているのなら、私、
+　教えてほしいんです」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿儚げ.tga"
+
+
+/Mes	[1754]	'$name'
+「ええっと、つまり『恋』がどんなものかってことを？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1755]	'久音'	"voice\04373.ogg"
+「はい。お願いします。教えてください」
+/MesWait
+
+
+/Mes	[1756]
+……そんな真顔で言われても……正直、困る。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1757]	'久奈'	"voice\04375.ogg"
+「んー。$nameに教えられるのかなー？」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿儚げ.tga"
+
+
+/Mes	[1758]
+ぬ。久奈が俺では心許ないといった風に見ている。
+それもまた悔しいが、いい加減に答えるわけにはいかない。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿悲しい.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿落ち込み.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1759]	'久音'	"voice\04376.ogg"
+「だめでしょうか、$nameさん？」
+/MesWait
+
+
+/Mes	[1760]	'$name'
+「恋、か……」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿真顔.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿儚げ.tga"
+
+
+/Mes	[1761]
+そういうのは教えてもらうものというより、自分の中から生
+まれてくるようでないと、本物とは言えないかもしれない。
+/MesWait
+
+
+/Mes	[1762]
+久音さんは気になる人とかもいないのかな。
+/MesWait
+
+
+/Mes	[1763]
+こういうことを言いだすってことは、それなりに原動力にな
+る『なにか』があるとは思うんだが。
+/MesWait
+
+
+/Mes	[1764]
+そういう相手がいれば、ある程度は手伝えるかも……。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿ちょっと驚き.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1765]	'$name'
+「……わかった」
+/MesWait
+
+
+/BgmFade
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿楽.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1766]	'久音'	"voice\04396.ogg"
+「えっ？　教えてくれるんですか？」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1767]	'$name'
+「絶対って約束はできないけど、俺にできる範囲で、やれる
+　ことはやってみるよ」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿ニッコリ.tga"
+
+
+/Mes	[1768]	'久音'	"voice\04398.ogg"
+「ありがとうございます、$nameさん」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1769]	'$name'
+「うん。まぁその、よろしく……」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿笑い.tga"
+
+
+/Mes	[1770]	'久音'	"voice\04400.ogg"
+「はい……」
+/MesWait
+
+
+/Mes	[1771]
+……なんか妙なことになった……かもしれない。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代夜＿ニッコリ.tga"
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿微笑.tga"
+
+
+/Mes	[1772]
+大丈夫か、俺？
+/MesWait
+
+
+/Mes	[1773]
+これって人様の一大事、だよなぁ。
+/MesWait
+
+
+;★移動ここまで
+
+
+/ChrOut	<CHR_1>
+/Change	<CHR_2>	"stand\０４ヒサネ現代夜＿楽.tga"
+
+
+/Mes	[1774]
+…………。
+/MesWait
+
+
+/AllFadeOut
+/BgmPlay	[21]	; 象の行進
+/FadeIn	<BG>	"bg\bg016N.bmp"	;BG:母屋。主人公の部屋（夜）。
+/ChrIn	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"	;久奈on
+
+
+/Mes	[1775]	'$name'
+「って……おまえはその隙になにをやろうとしてるんだ」
+/MesWait
+
+
+/Mes	[1776]
+布団の中に潜りこもうとしていた久奈をつまみあげる。
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽しい.tga"
+
+
+/Mes	[1777]	'久奈'	"voice\04560.ogg"
+「ていさつにんむはヒミツなのだ」
+/MesWait
+
+
+/setpos	<CHR_1>	(LEFT)
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿楽.tga"
+/ChrIn	<CHR_2>	(RIGHT)	"stand\０４ヒサネ現代＿笑い.tga"	;久音on
+
+
+/Mes	[1778]	'久音'	"voice\04561.ogg"
+「偵察任務はヒミツなのです」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代＿楽.tga"	
+
+
+/Mes	[1779]	'$name'
+「久音さんは真似しなくてよろしい。おい、久奈。
+　いい加減にしないと優しい俺でもオシオキしちゃうぞー」
+/MesWait
+
+
+/Change	<CHR_1>	"stand\０３ヒサナ現代＿ニッコリ.tga"
+
+
+/Mes	[1780]
+すとんと畳におろすと、久奈は俺に蹴りを一発くれた。
+まぁ俺からすれば痛くもかゆくもない程度だったが。
+/MesWait
+
+
+/ChrIn	<CHR_1>	(LEFT)	"stand\０３ヒサナ現代＿楽しい.tga"	;;暫定入れ込み　sakae
+
+
+/Mes	[1781]	'久奈'	"voice\04606.ogg"
+「今だ！　たいきゃーく！」
+/MesWait
+
+
+/Change	<CHR_2>	"stand\０４ヒサネ現代＿ニッコリ.tga"	
+
+
+/Mes	[1782]	'久音'	"voice\04608.ogg"
+「てっしゅうー！」
+/MesWait
+
+
+/BgmFade
+/SePlay	[008]	; 木製の廊下を駆け出す音：重「ドタドタドタ………」
+/ChrOut	<CHR_1>
+/ChrOut	<CHR_2>	;久音off
+/Wait	[1000]
+
+
+
+
+/Mes	[1783]
+やれやれだ……。
+/MesWait
+
+
+/Mes	[1784]
+おっとりしているけど、本気……だったよな。
+/MesWait
+
+
+/Mes	[1785]
+俺は久音さんの言葉を心中で繰り返しながら、障子を閉じた。
+/MesWait
+
+
+/Mes	[1786]
+ちょっと風通しがよくなった……。
+というか、これ、蚊とか入り放題なんじゃ。
+/MesWait
+
+
+/Mes	[1787]
+しょうがねぇな……。
+/MesWait
+
+
+/Mes	[1788]
+清之介さんか雛子さんに紙とテープもらってこよう。
+応急処置して寝直しだ。
+/MesWait
+
+
+/AllFadeOut
+
+
+
+
+
+/SetFlag	[1103]	;フラグ拾得:HER003on
+;↑ここは見るだけでこのフラグは立つ。
+
+
+/wait	[2000]
+;end
+/End
+/end

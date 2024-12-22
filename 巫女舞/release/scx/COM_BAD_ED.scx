@@ -1,0 +1,146 @@
+; OriginalFile: COM_BAD_ED.txt
+;■ターン　:---
+;■時間　　:---
+;■タイトル:バッドエンド２
+;■発生条件:いろいろ。七夕祭り以降、もしくは飛鳥編用のバッドエンド
+;■あらすじ
+;　・すでに宮合がダム湖沈む情報を持っているので、
+;　　廃線の日からだいぶ時間が経過し、湖底に沈んだ
+;　　宮合を忍んでいる、といった風なED。
+;■使用予定1枚絵
+;　・TA005:ダム湖畔の図。
+;■使用予定BG
+;　・なし
+;■収得する進行フラグ
+;　・なし
+;===========================================
+;■スクリプト
+;===========================================
+;・分類:エンディング
+;・発生ターン:---
+;・タイトル:バッドエンド２
+;・発生条件:バッドエンド
+;============================================
+;◇000:本筋その1
+;ブラック
+/MesCls
+/Wait	[3000]
+/SoundFadein	<ENV>	[056]	; ヒグラシの鳴き声。「シシシシシ……」
+/Wait	[2000]
+
+/Mes	[12786]
+……从那漣起，已驤幟了多久暉。
+/MesWait
+
+
+;ブラックフェードイン
+/FadeIn	<BG>	"cg\TA005.bmp"	;□TA005:ダム湖畔の図。
+/SysSet	[252]	; ■□TA005.bmp
+
+
+/Mes	[12787]
+鐙合柵没在大緻的湖底。
+/MesWait
+
+
+/Mes	[12788]
+我出生檻大的家也是。
+/MesWait
+
+
+/Mes	[12789]
+草壁神社也是。
+/MesWait
+
+
+/Mes	[12790]
+承噛着我童年回軾的地方，在瘡鐺的山碵貎貮的映辭下，漬漬而
+静静地，腐朽着。
+/MesWait
+
+
+/Mes	[12791]
+撈了不瀘回軾被邇上『不会更新的信息』的軋轜，藏在嶄軾橢鵠
+的角落里，綏当夏天来酳，我都会襪諦来到襪里。
+/MesWait
+
+
+/Mes	[12792]
+然而，襪可能是最后一次了。
+/MesWait
+
+
+;■BG:適当にいくつか。フェードしながら。
+/allfadeout
+/fadein	<BG>	"bg\bg001D.bmp"	;BG01:草壁神社　境内　御神木
+/Wait	[500]
+/allfadeout
+/fadein	<BG>	"bg\bg025D.bmp"	;BG01:草壁神社　境内　御神木
+/Wait	[500]
+/allfadeout
+/fadein	<BG>	"bg\bg002D.bmp"	;BG01:草壁神社　境内　御神木
+/Wait	[500]
+/allfadeout
+/fadein	<BG>	"bg\bg004D.bmp"	;BG01:草壁神社　境内　御神木
+
+/Mes	[12793]
+鐙合也…………
+/MesWait
+
+/allfadeout
+;/FadeIn	<BG>	"CG:一まいえ。適当にいくつか。フェードしながら。朝の掃除とかかな。"	;□CG:一まいえ。適当にいくつか。フェードしながら。朝の掃除とかかな。
+/FadeIn	<BG>	"cg\HE000.bmp"	;
+/SysSet	[156]	; ■□HE000.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\KH000.bmp"	;
+/SysSet	[187]	; ■□KH000.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\NK001.bmp"	;
+/SysSet	[221]	; ■□NK001.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\TA003.bmp"	;
+/SysSet	[250]	; ■□TA003.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\AK002.bmp"	;
+/SysSet	[125]	; ■□AK002.bmp
+/Wait	[500]
+/allfadeout
+/FadeIn	<BG>	"cg\NK002.bmp"	;
+/SysSet	[222]	; ■□NK002.bmp
+/Wait	[500]
+/allfadeout
+
+
+/Mes	[12794]
+那年夏天的一系列事件也………
+/MesWait
+
+
+/FadeIn	<BG>	"cg\TA005.bmp"	;□TA005:ダム湖畔の図。
+/SysSet	[252]	; ■□TA005.bmp
+
+
+/Mes	[12795]
+静静地，腐朽着。
+/MesWait
+
+;ブラックまま
+
+
+/Mes	[12796]
+在我心中，慢慢地…………
+/MesWait
+
+
+/AllFadeOut
+/SoundFadeout	<ENV>
+/wait	[3000]
+;終了。
+;end
+;=========================================
+/End
+/end

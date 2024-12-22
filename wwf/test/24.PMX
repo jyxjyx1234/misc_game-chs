@@ -1,0 +1,10 @@
+NonStop=0
+Calc 0,,YesNoFlag = ON
+Return 0,@PmpExist+LOADCD ON;@WavExist+LOADCD ON
+Return 0,@PmpExist+LOADCD ON;SoundOn OFF
+SoundOff 0,
+Calc 0,,YesNoMes = CD + LOADCD
+Calc 0,,YesNoMes = YesNoMes + を入れてください
+SelStr 0,,YesNoMes,18,0,221,213,18,8421504,1,0,1,16777215,0,16711680,10:0:0:0::0:0:0:0:0,　　　［ＯＫ］　　　,15::-1,0
+Calc 0,,YesNoFlag = OFF
+Jump 0,,25,,-1
