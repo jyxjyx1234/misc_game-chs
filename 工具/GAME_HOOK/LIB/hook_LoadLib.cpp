@@ -22,6 +22,14 @@ HMODULE WINAPI HookedLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile, DWORD dw
             InstallHook_replacetext();
         }
     }
+    if (lpLibFileName && strstr(lpLibFileName, "sc00.dll") != nullptr) {
+        printf("sc00.dll HOOKED!");
+        rr::RConfig config;
+        config.ReadConfig("hook.ini");
+        if (config.ReadInt("TEXTPROCESS", "MODE", 0) == 2) {
+            InstallHook_replacetext2();
+        }
+    }
     return hModule;
 }
 

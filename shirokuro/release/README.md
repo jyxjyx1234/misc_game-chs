@@ -17,3 +17,5 @@ github主页：[https://github.com/jyxjyx1234](https://github.com/jyxjyx1234)
 如果启动不成功请先尝试安装 https://aka.ms/vs/17/release/vc_redist.x64.exe 后重启。
 
 在hook.ini中将REMOVE_TIME_LIMIT改为1，可以解除选项限时。（实验性，可能有未知bug）
+
+默认为官方更新的1.1版（20241220更新）如果是老版本请在hook.ini中将VERSION改为1

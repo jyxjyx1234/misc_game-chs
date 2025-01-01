@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from Lib import *
 
 with open('CODE', 'rb') as f:
     data = f.read()
@@ -22,18 +23,35 @@ def get_plane_text(text:bytes)->bytes:
 #文本：\x1B\x12\x00\x01\x06\x00\x20\x64\x00\x00\x00\xFF\x02\x06\x00\x19\x41\xA8\x00\x00\xFF\xFF +文本内容+\x1B\x03\x00\x01\x06\x00\x19\xA1\xAE\x00\x00\xFF\xFF
 #不同游戏会有细微不同，需要修改
 #这里没有匹配人名，翻译效果较差。在こいなか的文本处理代码中进行了人名匹配。
-name_and_message=re.compile(b'(\x78\x85\x00\x00\x00\x79\x01\x7a\x00[\x00-\xff])([\x00-\xff]*?)(\x42\x7b)|(\x1B\x12\x00\x01\x06\x00\x20\x64\x00\x00\x00\xFF\x02\x06\x00\x19\x41\xA8\x00\x00\xFF\xFF)([\x00-\xff]*?)(\x1B\x03\x00\x01\x06\x00\x19\xA1\xAE\x00\x00\xFF\xFF)')
+name_and_message=re.compile(b'(\x78\x85\x00\x00\x00\x79\x01\x7a\x00[\x00-\xff])([\x00-\xff]*?)(\x42\x7b)|(\x1B\x12\x00\x01\x06\x00\x20\x64\x00\x00\x00\xFF\x02\x06\x00\x19\x41\xA8\x00\x00\xFF\xFF)([\x00-\xff]*?)(\x1B\x03\x00\x01\x06\x00\x19\xA1\xAE\x00\x00\xFF\xFF)|(\x78\x63\x00\x00\x00\x79\x01\x7a\x00)([\x00-\xff])([\x00-\xff]*?)(\x42\x7b)|(\x79\x03\x7A\x00)([\x00-\xff])([\x00-\xff]*?)(\x42\x7b)')
 
 #匹配
 msgs=name_and_message.findall(data)
 
 #根据匹配的正则，这里可能需要调整。msg是一个元组，这里msg[1]对应的是正则中第二组匹配到的内容，即选项文本。
+out = OriJsonOutput()
 for msg in msgs:
     if msg[1]!=b'':
-        outjson.append({'message':get_plane_text(msg[1]).decode(encoding='sjis')})
+        out.add_text(get_plane_text(msg[1]).decode(encoding='sjis'))
+        out.append_dict()
     if msg[4]!=b'':
-        outjson.append({'message':get_plane_text(msg[4]).decode(encoding='sjis')})
+        out.add_text(get_plane_text(msg[4]).decode(encoding='sjis'))
+        out.append_dict()
+    if msg[8]!=b'':
+        out.add_name(msg[8].decode(encoding='sjis'))
+    if msg[12]!=b'':
+        out.add_name(msg[12].decode(encoding='sjis'))
 
-outf=open('CODE_re.json','w',encoding='utf8')
+#out.save_json("gt_input\\CODE", split=10)
+#save_json("namedict.json", out.get_names())
+print(out.textcount)
 
-json.dump(outjson,outf,indent=4,ensure_ascii=False)
+chenghao = open_file_b("稱號.bin")
+out = OriJsonOutput()
+for i in re.finditer(rb"(?<=\x00\x00\x00\x7A\x00)[\x00-\xff]", chenghao):
+    end = i.end()
+    length = from_bytes(i.group())
+    msg = chenghao[end:end+length]
+    out.add_text(msg.decode("shift-jis"))
+    out.append_dict()
+out.save_json("gt_input\\称号.json")

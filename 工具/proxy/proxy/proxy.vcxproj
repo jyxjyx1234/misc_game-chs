@@ -1154,7 +1154,9 @@
     <ClInclude Include="..\libogg\dll_proxy.h" />
     <ClInclude Include="..\live\dll_proxy.h" />
     <ClInclude Include="..\msacm32\dll_proxy.h" />
-    <ClInclude Include="..\Ogg\dll_proxy.h" />
+    <ClInclude Include="..\Ogg\dll_proxy.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Ogg|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\version\dll_proxy.h" />
     <ClInclude Include="..\version_win7\dll_proxy.h" />
     <ClInclude Include="..\winmm\dll_proxy.h" />
@@ -1164,7 +1166,6 @@
     <ClInclude Include="readconfig.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\unityplayer\dll_proxy.h" />
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="dllmain.cpp">
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='dsound|Win32'">MultiThreadedDLL</RuntimeLibrary>
@@ -1199,17 +1200,6 @@
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='version|x64'">MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <ClCompile Include="readconfig.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\unityplayer\UnityPlayer_jump.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='unityplayer|Win32'">false</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='unityplayer|x64'">false</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='unityplayer|Win32'">ml64 /Fo $(IntDir)%(fileName).obj /c /Cp "D:\CHS\misc_game-chs\工具\proxy\unityplayer\UnityPlayer_jump.asm"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='unityplayer|x64'">ml64 /Fo $(IntDir)%(fileName).obj /c /Cp "D:\CHS\misc_game-chs\工具\proxy\unityplayer\UnityPlayer_jump.asm"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='unityplayer|Win32'">$(IntDir)%(fileName).obj;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='unityplayer|x64'">$(IntDir)%(fileName).obj;%(Outputs)</Outputs>
-    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

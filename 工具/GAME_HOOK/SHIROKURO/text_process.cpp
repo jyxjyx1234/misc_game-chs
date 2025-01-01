@@ -92,9 +92,16 @@ void InstallHook_replace_text()
     DWORD oldProtect;
 	uint64_t baseAddr = (uint64_t)GetModuleHandleA("GameAssembly.dll");
     std::cout << "baseAddr: " << std::hex << baseAddr << std::endl;
-    originalFuncAddr = baseAddr + 0x462CE0;
-    returnAddress = baseAddr + 0x462CED;
-	call_addr1 = baseAddr + 0x5061E0;
+	if (config.ReadString("UNITY", "VERSION", "1.1") != "1.1") {
+		originalFuncAddr = baseAddr + 0x462CE0;
+		returnAddress = baseAddr + 0x462CED;
+		call_addr1 = baseAddr + 0x5061E0;
+	}
+	else {
+		originalFuncAddr = baseAddr + 0x462CE0;
+		returnAddress = baseAddr + 0x462CED;
+		call_addr1 = baseAddr + 0x506230;
+	}
 
     VirtualProtect((LPVOID)originalFuncAddr, 13, PAGE_EXECUTE_READWRITE, &oldProtect);
     *(uint64_t*)&trampolineCode[3] = (uint64_t)_hook_replace_text;

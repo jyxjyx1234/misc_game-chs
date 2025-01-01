@@ -8,6 +8,7 @@
 #include "hook_LoadLib.h"
 #include "readconfig.h"
 
+
 void CreateConsole()
 {
 	// 分配新的控制台
@@ -25,29 +26,18 @@ void CreateConsole()
 void HOOK_main() {
 	rr::RConfig config;
 	config.ReadConfig("hook.ini");
+
 	if (config.ReadInt("GLOBAL", "DEBUG", 0) == 1) {
 		CreateConsole();
 	}
-
-	if (config.ReadInt("GLOBAL", "CHANGECHARSET", 0) == 1) {
-		hook_createfontindirectA_changecharset_main();
-	}
-
-	if (config.ReadInt("GLOBAL", "CHANGEFONT", 0) == 1) {
-		std::string fontname = config.ReadString("GLOBAL", "FONTNAME", "");
-		std::string fontfilename = config.ReadString("GLOBAL", "FONTFILENAME", "");
-		hook_createfontindirectA_changefont_main(fontname, fontfilename);
-	}
+	HOOK_LL_main();
 
 	if (config.ReadInt("TEXTPROCESS", "ENABLE", 0) == 1) {
 		HMODULE a = GetModuleHandleA("resident.dll");
-
+		HMODULE b = GetModuleHandleA("sc00.dll");
 		if (config.ReadInt("TEXTPROCESS", "MODE", 0) == 1){
 			if (a) {
 				InstallHook_dumptext();
-			}
-			else {
-				HOOK_LL_main();
 			}
 		}
 
@@ -55,8 +45,8 @@ void HOOK_main() {
 			if (a) {
 				InstallHook_replacetext();
 			}
-			else {
-				HOOK_LL_main();
+			if (b) {
+				InstallHook_replacetext2();
 			}
 		}
 	}

@@ -36,7 +36,6 @@ std::map<std::string, std::string> readKeyValuePairsFromFile(const std::string& 
             result[key] = value;
         }
     }
-    printf("Read %d trans!\n", result.size());
     file.close();
     return result;
 }

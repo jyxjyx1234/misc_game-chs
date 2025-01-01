@@ -3,12 +3,21 @@
 #include <fstream>
 #include <iostream>
 #include "HOOK_main.h"
+#include "readconfig.h"
+#include "convert.h"
 
-VOID __declspec(dllexport) stratmessage()
+VOID __declspec(dllexport) startmessage()
 {
-    //MessageBoxW(NULL, L"TEST", L"TEST", NULL);
-    //MessageBoxW(NULL, L"本补丁由jyxjyx1234/ALyCE免费制作并发布于github/2dfan，使用cluade-3-haiku进行翻译，仅供交流学习。如遇运行问题可到github或2dfan补丁评论区反馈。", NULL, NULL);
+    rr::RConfig config;
+    config.ReadConfig("hook.ini");
+    std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3-haiku");
+    LPCWSTR modeltypew = string2LPCWSTR(modeltype);
+    std::wstring msg = L"本补丁由ALyCE / jyxjyx1234制作，使用"
+        + std::wstring(modeltypew)
+        + L"进行翻译，免费发布，首发2dfan、jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n本人制作以及参与制作的所有补丁禁止转载至“鲲Galgame”补丁站。\n请仔细阅读README.md，如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
+    MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
 }
+
 
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -19,7 +28,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        stratmessage();
+		startmessage();
         HOOK_main();
         break;
     case DLL_THREAD_ATTACH:

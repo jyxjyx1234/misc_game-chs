@@ -3,6 +3,7 @@
 // created by AheadLib
 // github:https://github.com/strivexjun/AheadLib-x86-x64
 //
+#pragma once
 
 #include <windows.h>
 #include <Shlwapi.h>
@@ -11,52 +12,73 @@
 
 #pragma comment(linker, "/EXPORT:ogg_packet_clear=_AheadLib_ogg_packet_clear,@1")
 #pragma comment(linker, "/EXPORT:ogg_page_bos=_AheadLib_ogg_page_bos,@2")
-#pragma comment(linker, "/EXPORT:ogg_page_continued=_AheadLib_ogg_page_continued,@3")
-#pragma comment(linker, "/EXPORT:ogg_page_eos=_AheadLib_ogg_page_eos,@4")
-#pragma comment(linker, "/EXPORT:ogg_page_granulepos=_AheadLib_ogg_page_granulepos,@5")
-#pragma comment(linker, "/EXPORT:ogg_page_packets=_AheadLib_ogg_page_packets,@6")
-#pragma comment(linker, "/EXPORT:ogg_page_pageno=_AheadLib_ogg_page_pageno,@7")
-#pragma comment(linker, "/EXPORT:ogg_page_serialno=_AheadLib_ogg_page_serialno,@8")
-#pragma comment(linker, "/EXPORT:ogg_page_version=_AheadLib_ogg_page_version,@9")
-#pragma comment(linker, "/EXPORT:ogg_stream_clear=_AheadLib_ogg_stream_clear,@10")
-#pragma comment(linker, "/EXPORT:ogg_stream_destroy=_AheadLib_ogg_stream_destroy,@11")
-#pragma comment(linker, "/EXPORT:ogg_stream_eos=_AheadLib_ogg_stream_eos,@12")
-#pragma comment(linker, "/EXPORT:ogg_stream_flush=_AheadLib_ogg_stream_flush,@13")
-#pragma comment(linker, "/EXPORT:ogg_stream_init=_AheadLib_ogg_stream_init,@14")
-#pragma comment(linker, "/EXPORT:ogg_stream_packetin=_AheadLib_ogg_stream_packetin,@15")
-#pragma comment(linker, "/EXPORT:ogg_stream_packetout=_AheadLib_ogg_stream_packetout,@16")
-#pragma comment(linker, "/EXPORT:ogg_stream_packetpeek=_AheadLib_ogg_stream_packetpeek,@17")
-#pragma comment(linker, "/EXPORT:ogg_stream_pagein=_AheadLib_ogg_stream_pagein,@18")
-#pragma comment(linker, "/EXPORT:ogg_stream_pageout=_AheadLib_ogg_stream_pageout,@19")
-#pragma comment(linker, "/EXPORT:ogg_stream_reset=_AheadLib_ogg_stream_reset,@20")
-#pragma comment(linker, "/EXPORT:ogg_stream_reset_serialno=_AheadLib_ogg_stream_reset_serialno,@21")
-#pragma comment(linker, "/EXPORT:ogg_sync_buffer=_AheadLib_ogg_sync_buffer,@22")
-#pragma comment(linker, "/EXPORT:ogg_sync_clear=_AheadLib_ogg_sync_clear,@23")
-#pragma comment(linker, "/EXPORT:ogg_sync_destroy=_AheadLib_ogg_sync_destroy,@24")
-#pragma comment(linker, "/EXPORT:ogg_sync_init=_AheadLib_ogg_sync_init,@25")
-#pragma comment(linker, "/EXPORT:ogg_sync_pageout=_AheadLib_ogg_sync_pageout,@26")
-#pragma comment(linker, "/EXPORT:ogg_sync_pageseek=_AheadLib_ogg_sync_pageseek,@27")
-#pragma comment(linker, "/EXPORT:ogg_sync_reset=_AheadLib_ogg_sync_reset,@28")
-#pragma comment(linker, "/EXPORT:ogg_sync_wrote=_AheadLib_ogg_sync_wrote,@29")
-#pragma comment(linker, "/EXPORT:oggpack_adv=_AheadLib_oggpack_adv,@30")
-#pragma comment(linker, "/EXPORT:oggpack_adv1=_AheadLib_oggpack_adv1,@31")
-#pragma comment(linker, "/EXPORT:oggpack_bits=_AheadLib_oggpack_bits,@32")
-#pragma comment(linker, "/EXPORT:oggpack_bytes=_AheadLib_oggpack_bytes,@33")
-#pragma comment(linker, "/EXPORT:oggpack_get_buffer=_AheadLib_oggpack_get_buffer,@34")
-#pragma comment(linker, "/EXPORT:oggpack_look=_AheadLib_oggpack_look,@35")
-#pragma comment(linker, "/EXPORT:oggpack_look1=_AheadLib_oggpack_look1,@36")
-#pragma comment(linker, "/EXPORT:oggpack_read=_AheadLib_oggpack_read,@37")
-#pragma comment(linker, "/EXPORT:oggpack_read1=_AheadLib_oggpack_read1,@38")
-#pragma comment(linker, "/EXPORT:oggpack_readinit=_AheadLib_oggpack_readinit,@39")
-#pragma comment(linker, "/EXPORT:oggpack_reset=_AheadLib_oggpack_reset,@40")
-#pragma comment(linker, "/EXPORT:oggpack_write=_AheadLib_oggpack_write,@41")
-#pragma comment(linker, "/EXPORT:oggpack_writealign=_AheadLib_oggpack_writealign,@42")
-#pragma comment(linker, "/EXPORT:oggpack_writeclear=_AheadLib_oggpack_writeclear,@43")
-#pragma comment(linker, "/EXPORT:oggpack_writeinit=_AheadLib_oggpack_writeinit,@44")
+#pragma comment(linker, "/EXPORT:ogg_page_checksum_set=_AheadLib_ogg_page_checksum_set,@3")
+#pragma comment(linker, "/EXPORT:ogg_page_continued=_AheadLib_ogg_page_continued,@4")
+#pragma comment(linker, "/EXPORT:ogg_page_eos=_AheadLib_ogg_page_eos,@5")
+#pragma comment(linker, "/EXPORT:ogg_page_granulepos=_AheadLib_ogg_page_granulepos,@6")
+#pragma comment(linker, "/EXPORT:ogg_page_packets=_AheadLib_ogg_page_packets,@7")
+#pragma comment(linker, "/EXPORT:ogg_page_pageno=_AheadLib_ogg_page_pageno,@8")
+#pragma comment(linker, "/EXPORT:ogg_page_serialno=_AheadLib_ogg_page_serialno,@9")
+#pragma comment(linker, "/EXPORT:ogg_page_version=_AheadLib_ogg_page_version,@10")
+#pragma comment(linker, "/EXPORT:ogg_stream_clear=_AheadLib_ogg_stream_clear,@11")
+#pragma comment(linker, "/EXPORT:ogg_stream_destroy=_AheadLib_ogg_stream_destroy,@12")
+#pragma comment(linker, "/EXPORT:ogg_stream_eos=_AheadLib_ogg_stream_eos,@13")
+#pragma comment(linker, "/EXPORT:ogg_stream_flush=_AheadLib_ogg_stream_flush,@14")
+#pragma comment(linker, "/EXPORT:ogg_stream_init=_AheadLib_ogg_stream_init,@15")
+#pragma comment(linker, "/EXPORT:ogg_stream_packetin=_AheadLib_ogg_stream_packetin,@16")
+#pragma comment(linker, "/EXPORT:ogg_stream_packetout=_AheadLib_ogg_stream_packetout,@17")
+#pragma comment(linker, "/EXPORT:ogg_stream_packetpeek=_AheadLib_ogg_stream_packetpeek,@18")
+#pragma comment(linker, "/EXPORT:ogg_stream_pagein=_AheadLib_ogg_stream_pagein,@19")
+#pragma comment(linker, "/EXPORT:ogg_stream_pageout=_AheadLib_ogg_stream_pageout,@20")
+#pragma comment(linker, "/EXPORT:ogg_stream_reset=_AheadLib_ogg_stream_reset,@21")
+#pragma comment(linker, "/EXPORT:ogg_stream_reset_serialno=_AheadLib_ogg_stream_reset_serialno,@22")
+#pragma comment(linker, "/EXPORT:ogg_sync_buffer=_AheadLib_ogg_sync_buffer,@23")
+#pragma comment(linker, "/EXPORT:ogg_sync_clear=_AheadLib_ogg_sync_clear,@24")
+#pragma comment(linker, "/EXPORT:ogg_sync_destroy=_AheadLib_ogg_sync_destroy,@25")
+#pragma comment(linker, "/EXPORT:ogg_sync_init=_AheadLib_ogg_sync_init,@26")
+#pragma comment(linker, "/EXPORT:ogg_sync_pageout=_AheadLib_ogg_sync_pageout,@27")
+#pragma comment(linker, "/EXPORT:ogg_sync_pageseek=_AheadLib_ogg_sync_pageseek,@28")
+#pragma comment(linker, "/EXPORT:ogg_sync_reset=_AheadLib_ogg_sync_reset,@29")
+#pragma comment(linker, "/EXPORT:ogg_sync_wrote=_AheadLib_ogg_sync_wrote,@30")
+#pragma comment(linker, "/EXPORT:oggpackB_adv=_AheadLib_oggpackB_adv,@31")
+#pragma comment(linker, "/EXPORT:oggpackB_adv1=_AheadLib_oggpackB_adv1,@32")
+#pragma comment(linker, "/EXPORT:oggpackB_bits=_AheadLib_oggpackB_bits,@33")
+#pragma comment(linker, "/EXPORT:oggpackB_bytes=_AheadLib_oggpackB_bytes,@34")
+#pragma comment(linker, "/EXPORT:oggpackB_get_buffer=_AheadLib_oggpackB_get_buffer,@35")
+#pragma comment(linker, "/EXPORT:oggpackB_look=_AheadLib_oggpackB_look,@36")
+#pragma comment(linker, "/EXPORT:oggpackB_look1=_AheadLib_oggpackB_look1,@37")
+#pragma comment(linker, "/EXPORT:oggpackB_read=_AheadLib_oggpackB_read,@38")
+#pragma comment(linker, "/EXPORT:oggpackB_read1=_AheadLib_oggpackB_read1,@39")
+#pragma comment(linker, "/EXPORT:oggpackB_readinit=_AheadLib_oggpackB_readinit,@40")
+#pragma comment(linker, "/EXPORT:oggpackB_reset=_AheadLib_oggpackB_reset,@41")
+#pragma comment(linker, "/EXPORT:oggpackB_write=_AheadLib_oggpackB_write,@42")
+#pragma comment(linker, "/EXPORT:oggpackB_writealign=_AheadLib_oggpackB_writealign,@43")
+#pragma comment(linker, "/EXPORT:oggpackB_writeclear=_AheadLib_oggpackB_writeclear,@44")
+#pragma comment(linker, "/EXPORT:oggpackB_writecopy=_AheadLib_oggpackB_writecopy,@45")
+#pragma comment(linker, "/EXPORT:oggpackB_writeinit=_AheadLib_oggpackB_writeinit,@46")
+#pragma comment(linker, "/EXPORT:oggpackB_writetrunc=_AheadLib_oggpackB_writetrunc,@47")
+#pragma comment(linker, "/EXPORT:oggpack_adv=_AheadLib_oggpack_adv,@48")
+#pragma comment(linker, "/EXPORT:oggpack_adv1=_AheadLib_oggpack_adv1,@49")
+#pragma comment(linker, "/EXPORT:oggpack_bits=_AheadLib_oggpack_bits,@50")
+#pragma comment(linker, "/EXPORT:oggpack_bytes=_AheadLib_oggpack_bytes,@51")
+#pragma comment(linker, "/EXPORT:oggpack_get_buffer=_AheadLib_oggpack_get_buffer,@52")
+#pragma comment(linker, "/EXPORT:oggpack_look=_AheadLib_oggpack_look,@53")
+#pragma comment(linker, "/EXPORT:oggpack_look1=_AheadLib_oggpack_look1,@54")
+#pragma comment(linker, "/EXPORT:oggpack_read=_AheadLib_oggpack_read,@55")
+#pragma comment(linker, "/EXPORT:oggpack_read1=_AheadLib_oggpack_read1,@56")
+#pragma comment(linker, "/EXPORT:oggpack_readinit=_AheadLib_oggpack_readinit,@57")
+#pragma comment(linker, "/EXPORT:oggpack_reset=_AheadLib_oggpack_reset,@58")
+#pragma comment(linker, "/EXPORT:oggpack_write=_AheadLib_oggpack_write,@59")
+#pragma comment(linker, "/EXPORT:oggpack_writealign=_AheadLib_oggpack_writealign,@60")
+#pragma comment(linker, "/EXPORT:oggpack_writeclear=_AheadLib_oggpack_writeclear,@61")
+#pragma comment(linker, "/EXPORT:oggpack_writecopy=_AheadLib_oggpack_writecopy,@62")
+#pragma comment(linker, "/EXPORT:oggpack_writeinit=_AheadLib_oggpack_writeinit,@63")
+#pragma comment(linker, "/EXPORT:oggpack_writetrunc=_AheadLib_oggpack_writetrunc,@64")
 
 
 PVOID pfnAheadLib_ogg_packet_clear;
 PVOID pfnAheadLib_ogg_page_bos;
+PVOID pfnAheadLib_ogg_page_checksum_set;
 PVOID pfnAheadLib_ogg_page_continued;
 PVOID pfnAheadLib_ogg_page_eos;
 PVOID pfnAheadLib_ogg_page_granulepos;
@@ -84,6 +106,23 @@ PVOID pfnAheadLib_ogg_sync_pageout;
 PVOID pfnAheadLib_ogg_sync_pageseek;
 PVOID pfnAheadLib_ogg_sync_reset;
 PVOID pfnAheadLib_ogg_sync_wrote;
+PVOID pfnAheadLib_oggpackB_adv;
+PVOID pfnAheadLib_oggpackB_adv1;
+PVOID pfnAheadLib_oggpackB_bits;
+PVOID pfnAheadLib_oggpackB_bytes;
+PVOID pfnAheadLib_oggpackB_get_buffer;
+PVOID pfnAheadLib_oggpackB_look;
+PVOID pfnAheadLib_oggpackB_look1;
+PVOID pfnAheadLib_oggpackB_read;
+PVOID pfnAheadLib_oggpackB_read1;
+PVOID pfnAheadLib_oggpackB_readinit;
+PVOID pfnAheadLib_oggpackB_reset;
+PVOID pfnAheadLib_oggpackB_write;
+PVOID pfnAheadLib_oggpackB_writealign;
+PVOID pfnAheadLib_oggpackB_writeclear;
+PVOID pfnAheadLib_oggpackB_writecopy;
+PVOID pfnAheadLib_oggpackB_writeinit;
+PVOID pfnAheadLib_oggpackB_writetrunc;
 PVOID pfnAheadLib_oggpack_adv;
 PVOID pfnAheadLib_oggpack_adv1;
 PVOID pfnAheadLib_oggpack_bits;
@@ -98,7 +137,9 @@ PVOID pfnAheadLib_oggpack_reset;
 PVOID pfnAheadLib_oggpack_write;
 PVOID pfnAheadLib_oggpack_writealign;
 PVOID pfnAheadLib_oggpack_writeclear;
+PVOID pfnAheadLib_oggpack_writecopy;
 PVOID pfnAheadLib_oggpack_writeinit;
+PVOID pfnAheadLib_oggpack_writetrunc;
 
 
 static
@@ -166,6 +207,7 @@ BOOL WINAPI Init()
 {
 	pfnAheadLib_ogg_packet_clear = GetAddress("ogg_packet_clear");
 	pfnAheadLib_ogg_page_bos = GetAddress("ogg_page_bos");
+	pfnAheadLib_ogg_page_checksum_set = GetAddress("ogg_page_checksum_set");
 	pfnAheadLib_ogg_page_continued = GetAddress("ogg_page_continued");
 	pfnAheadLib_ogg_page_eos = GetAddress("ogg_page_eos");
 	pfnAheadLib_ogg_page_granulepos = GetAddress("ogg_page_granulepos");
@@ -193,6 +235,23 @@ BOOL WINAPI Init()
 	pfnAheadLib_ogg_sync_pageseek = GetAddress("ogg_sync_pageseek");
 	pfnAheadLib_ogg_sync_reset = GetAddress("ogg_sync_reset");
 	pfnAheadLib_ogg_sync_wrote = GetAddress("ogg_sync_wrote");
+	pfnAheadLib_oggpackB_adv = GetAddress("oggpackB_adv");
+	pfnAheadLib_oggpackB_adv1 = GetAddress("oggpackB_adv1");
+	pfnAheadLib_oggpackB_bits = GetAddress("oggpackB_bits");
+	pfnAheadLib_oggpackB_bytes = GetAddress("oggpackB_bytes");
+	pfnAheadLib_oggpackB_get_buffer = GetAddress("oggpackB_get_buffer");
+	pfnAheadLib_oggpackB_look = GetAddress("oggpackB_look");
+	pfnAheadLib_oggpackB_look1 = GetAddress("oggpackB_look1");
+	pfnAheadLib_oggpackB_read = GetAddress("oggpackB_read");
+	pfnAheadLib_oggpackB_read1 = GetAddress("oggpackB_read1");
+	pfnAheadLib_oggpackB_readinit = GetAddress("oggpackB_readinit");
+	pfnAheadLib_oggpackB_reset = GetAddress("oggpackB_reset");
+	pfnAheadLib_oggpackB_write = GetAddress("oggpackB_write");
+	pfnAheadLib_oggpackB_writealign = GetAddress("oggpackB_writealign");
+	pfnAheadLib_oggpackB_writeclear = GetAddress("oggpackB_writeclear");
+	pfnAheadLib_oggpackB_writecopy = GetAddress("oggpackB_writecopy");
+	pfnAheadLib_oggpackB_writeinit = GetAddress("oggpackB_writeinit");
+	pfnAheadLib_oggpackB_writetrunc = GetAddress("oggpackB_writetrunc");
 	pfnAheadLib_oggpack_adv = GetAddress("oggpack_adv");
 	pfnAheadLib_oggpack_adv1 = GetAddress("oggpack_adv1");
 	pfnAheadLib_oggpack_bits = GetAddress("oggpack_bits");
@@ -207,7 +266,9 @@ BOOL WINAPI Init()
 	pfnAheadLib_oggpack_write = GetAddress("oggpack_write");
 	pfnAheadLib_oggpack_writealign = GetAddress("oggpack_writealign");
 	pfnAheadLib_oggpack_writeclear = GetAddress("oggpack_writeclear");
+	pfnAheadLib_oggpack_writecopy = GetAddress("oggpack_writecopy");
 	pfnAheadLib_oggpack_writeinit = GetAddress("oggpack_writeinit");
+	pfnAheadLib_oggpack_writetrunc = GetAddress("oggpack_writetrunc");
 	return TRUE;
 }	
 
@@ -232,6 +293,7 @@ DWORD WINAPI ThreadProc(LPVOID lpThreadParameter)
 	return 0;
 }
 
+
 EXTERN_C __declspec(naked) void __cdecl AheadLib_ogg_packet_clear(void)
 {
 	__asm jmp pfnAheadLib_ogg_packet_clear;
@@ -240,6 +302,11 @@ EXTERN_C __declspec(naked) void __cdecl AheadLib_ogg_packet_clear(void)
 EXTERN_C __declspec(naked) void __cdecl AheadLib_ogg_page_bos(void)
 {
 	__asm jmp pfnAheadLib_ogg_page_bos;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_ogg_page_checksum_set(void)
+{
+	__asm jmp pfnAheadLib_ogg_page_checksum_set;
 }
 
 EXTERN_C __declspec(naked) void __cdecl AheadLib_ogg_page_continued(void)
@@ -377,6 +444,91 @@ EXTERN_C __declspec(naked) void __cdecl AheadLib_ogg_sync_wrote(void)
 	__asm jmp pfnAheadLib_ogg_sync_wrote;
 }
 
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_adv(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_adv;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_adv1(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_adv1;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_bits(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_bits;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_bytes(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_bytes;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_get_buffer(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_get_buffer;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_look(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_look;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_look1(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_look1;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_read(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_read;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_read1(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_read1;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_readinit(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_readinit;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_reset(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_reset;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_write(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_write;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_writealign(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_writealign;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_writeclear(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_writeclear;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_writecopy(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_writecopy;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_writeinit(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_writeinit;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpackB_writetrunc(void)
+{
+	__asm jmp pfnAheadLib_oggpackB_writetrunc;
+}
+
 EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpack_adv(void)
 {
 	__asm jmp pfnAheadLib_oggpack_adv;
@@ -447,8 +599,18 @@ EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpack_writeclear(void)
 	__asm jmp pfnAheadLib_oggpack_writeclear;
 }
 
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpack_writecopy(void)
+{
+	__asm jmp pfnAheadLib_oggpack_writecopy;
+}
+
 EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpack_writeinit(void)
 {
 	__asm jmp pfnAheadLib_oggpack_writeinit;
+}
+
+EXTERN_C __declspec(naked) void __cdecl AheadLib_oggpack_writetrunc(void)
+{
+	__asm jmp pfnAheadLib_oggpack_writetrunc;
 }
 
