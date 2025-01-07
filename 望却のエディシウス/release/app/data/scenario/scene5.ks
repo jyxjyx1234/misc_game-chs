@@ -5,12 +5,12 @@
 
 [bg storage="jishitsu_yonaka_01.jpg" time="800"]
 
-不知道这样过了多久。[p]
-再次冲了个澡，回到同一张床上时，时间已经跨过了午夜。[p]
+不知道这样持续了多长时间。[p]
+再次洗完澡回到同一张床上时，时间已经跨过了午夜。[p]
 
 [bg storage="jishitsu_yonaka_04.jpg" time="800"]
 
-彼此炽热的情绪如今已消退，两人放松地在床上依偎在一起。[r]
+之前彼此充满热情的样子现在已经消退，我们放松地依偎在床上。[r]
 [p]
 
 [setreplay name="CG19_2" storage="scene5_replay.ks" label="*CG19_replay2"]
@@ -22,15 +22,15 @@
 
 [nozomi_window]
 #望
-朔。[p]
+朔[p]
 
 [saku_window]
 #朔
-嗯？[p]
+怎么了？[p]
 
 [nozomi_window]
 #望
-我有件事必须要告诉你。[p]
+我有件事必须告诉你[p]
 
 #
 [default_window]
@@ -39,29 +39,29 @@
 
 [nozomi_window]
 #望
-我今天一天都决定要「把自己想做的事情全都做完！」你知道为什么吗？[r]
+我今天一整天都决定要「做自己想做的所有事情！」你知道为什么吗？[r]
 [p]
 
 [saku_window]
 #朔
-……你这么问我也不知道啊。[p]
+……突然这么问我也……[p]
 
 [default_window]
 #
-我根本不可能知道答案。[p]
-是为了发泄无处可去的压力，还是有自毁倾向，我想了很多种可能性。[p]
-但说出这些感觉对望非常失礼。[p]
+我怎么可能知道。[p]
+我想象了各种可能性，比如她在发泄无处安放的压力，或者有自毁倾向之类的。[p]
+但是说出这些感觉对望太不礼貌了。[p]
 
 [bg storage="CG19/CG19_yoru_shirt_4.jpg" time="800"]
 [cg storage="CG19/CG19_yoru_shirt_4.jpg"]
 
 [nozomi_window]
 #望
-那个啊，你还记得我在海边说过的话吗？[p]
+那个，你还记得我在海边说过的话吗？[p]
 
 [saku_window]
 #朔
-聊了挺多的……你指的是哪句？[p]
+我们聊了很多啊……你指哪一句？[p]
 
 #
 [default_window]
@@ -70,11 +70,11 @@
 
 [nozomi_window]
 #望
-『我杀了我的父母』那句。[p]
+「我父母是被我杀死的」这句[p]
 
 [saku_window]
 #朔
-啊，好像是听你说过……但那是开玩笑的吧？[p]
+啊，我记得你确实说过……不过那是开玩笑的吧？[p]
 
 #
 [default_window]
@@ -82,7 +82,7 @@
 
 [nozomi_window]
 #望
-嗯嗯。[p]
+嗯嗯[p]
 
 #
 [default_window]
@@ -90,7 +90,7 @@
 
 [nozomi_window]
 #望
-是真的。[p]
+这是真的[p]
 
 [saku_window]
 #朔
@@ -98,12 +98,12 @@
 
 [default_window]
 #
-想说她居然能两次开同样的玩笑，真是够啰嗦的……本想这么笑着回应她。[p]
-但周围弥漫着一种让人觉得这是真的的紧张感。[p]
+同样的玩笑说两次，未免太过分了……我本想这样笑着说。[p]
+但是周围弥漫着一种让人感觉这是事实的紧张气氛。[p]
 
 [saku_window]
 #朔
-为什么偏偏现在，要特意说这种事？[p]
+为什么现在要特意说这种事？[p]
 
 #
 [default_window]
@@ -111,11 +111,11 @@
 
 [nozomi_window]
 #望
-因为我今天想做的事情，全都做完了呀。[p]
+因为我今天想做的事，全都做完了[p]
 
 [saku_window]
 #朔
-……是真的吗？[p]
+……这是真的吗？[p]
 
 #
 [default_window]
@@ -124,7 +124,7 @@
 
 [nozomi_window]
 #望
-我不是说过了吗，是真的哦。[p]
+我不是说了嘛。是真的哦[p]
 
 [saku_window]
 #朔
@@ -137,22 +137,22 @@
 
 [nozomi_window]
 #望
-因为虐待太严重了。所以我杀了他们。[p]
+虐待太严重了。所以我杀了他们[p]
 
 [saku_window]
 #朔
-喂，望。[p]
+喂，望[p]
 
 #
 [default_window]
 [bg storage="CG19/CG19_yoru_shirt_11.jpg" time="800"]
 
-这只是个完全没有现实感的告白。[p]
-我一直以为，这种人只会出现在虚构故事里。[p]
+这完全不真实的告白。[p]
+我一直以为这种人只存在于虚构故事中。[p]
 说自己杀了父母的望。[p]
-一定……是真的吧。[p]
-即使过去再怎么痛苦、再怎么凄惨……[p]
-杀了人，杀了自己的父母之后────[p]
+肯定……是真的吧。[p]
+就算过去再怎么痛苦和凄惨……[p]
+杀了人，杀了父母────[p]
 
 [saku_window]
 #朔
@@ -168,14 +168,14 @@
 [bg storage="CG19/CG19_yoru_shirt_10_2.jpg" time="300"]
 [bg storage="CG19/CG19_yoru_shirt_10.jpg" time="600"]
 
-内心深处感到了一阵『恐惧』。[p]
+我内心深处感到了「恐惧」。[p]
 
 [bg storage="CG19/CG19_yoru_shirt_2.jpg" time="500"]
 [cg storage="CG19/CG19_yoru_shirt_2.jpg"]
 
 [nozomi_window]
 #望
-啊哈哈……我居然还能笑出来啊。[p]
+啊哈哈…………我，能好好地笑出来呢[p]
 
 #
 [default_window]
@@ -183,31 +183,31 @@
 
 [nozomi_window]
 #望
-这说明和朔在一起的时光，真的很开心呢。[p]
+这就说明和朔在一起的时光有多开心啊[p]
 
 [default_window]
 #
-都已经做爱了，现在说这种话我也没资格──[p]
+都已经做爱了，现在说这种话我觉得没资格，不过──[p]
 
 [bg storage="monolog_01.jpg" time="800"]
 
-……别把我牵扯进来。[p]
-望一定很快就会被警察抓走吧。[p]
-和这种人扯上关系，我也不知道自己会变成什么样。[p]
-一起度过的那些非日常时光，确实让我发自内心地感到快乐。[p]
+……别把我牵扯进去。[p]
+望肯定很快就会被警察抓住吧。[p]
+要是和这种人扯上关系，我也不知道自己会变成什么样。[p]
+度过的非日常确实很开心，这是实话。[p]
 但是。[p]
-无法回归日常生活，那可不行。[p]
-即使是再糟糕透顶的日常生活，也一样。[p]
-──到此为止，我和望的关系就结束吧。[p]
-现在对她温柔一点，等睡醒后就让她马上离开……[p]
-正当我这么想着的时候。[p]
+我可不想再也回不到日常生活了。[p]
+就算日常生活再怎么糟糕，也是一样。[p]
+──该结束和望的关系了。[p]
+现在只是温柔对待她，等睡醒后就立即让她回去吧……[p]
+就在我这么想的时候。[p]
 
 [bg storage="kuro.jpg" time="800"]
 [wait time=" 500"]
 
 [nozomi_window]
 #望
-──所以，就这样结束吧。[p]
+──所以，到此为止了[p]
 
 #
 [default_window]
@@ -217,8 +217,8 @@
 [bg storage="jishitsu_yonaka_04.jpg" time="800"]
 [wait time=" 200"]
 
-仿佛是在替我的内心发声一般，她平静地说道。[p]
-望从床上坐起身，在昏暗中穿起了衣服。[p]
+她仿佛在代言我内心的想法，静静地说道。[p]
+望从床上起身，在黑暗中穿上衣服。[p]
 
 [playse buf="3"  storage="swish.mp3" volume="30"]
 [wait time=" 800"]
@@ -229,7 +229,7 @@
 
 [nozomi_window]
 #望
-……谢谢你陪了我一天。我玩得特别开心！[p]
+……谢谢你陪我一整天。真的非常开心！[p]
 
 #
 [default_window]
@@ -237,7 +237,7 @@
 
 [nozomi_window]
 #望
-不用在意回去的时间，不用担心衣服会弄脏，也不用顾忌别人的目光……能这样自由自在地度过一天，真的很高兴。[r]
+回家的时间、衣服弄脏、别人的眼光……完全不用在意这些，能够自由自在地度过。我真的很高兴[r]
 [p]
 
 [stopse buf="3"]
@@ -247,13 +247,13 @@
 _　[r]
 _　[cm] 
 
-那语气，就像是在对再也不会见面的人告别一样。[p]
+那话语听起来就像是对永远不会再见面的人说的告别。[p]
 
 [chara_mod  name="望1_ネックレス有" face="metoji_dark" cross=false time=500]
 
 [nozomi_window]
 #望
-最后能觉得开心……我真的很幸福了。[p]
+能在最后觉得很开心，我很幸福[p]
 
 #
 [default_window]
@@ -307,15 +307,15 @@ _　[cm]
 [cg storage="CG8/CG8_ushiro.jpg"]
 [playbgm storage="08Voices_orgel.mp3" volume="40"]
 
-『仿佛从一开始就决定好要这么做』似的──[p]
-她毫不犹豫地将脚踏上了栏杆。[p]
+『就好像从一开始就决定要这么做』一般──[p]
+毫不犹豫地，她将脚搭上了栏杆。[p]
 
 [bg storage="CG8/CG8_yokogao_3.jpg" time="800"]
 [cg storage="CG8/CG8_yokogao_3.jpg"]
 
-直到我注意到这一点，我才终于明白望想要做什么。[p]
-她要越过这8楼阳台的另一侧。[p]
-这一行为的意义，实在是过于明了。[p]
+直到意识到这一点，我才终于明白望想要做什么。[p]
+她要越过8楼阳台的另一边。[p]
+这个行为所意味的东西，再明显不过了。[p]
 
 [saku_window]
 #朔
@@ -326,41 +326,41 @@ _　[cm]
 [bg storage="CG8/CG8_yokogao_1.jpg" time="800"]
 [cg storage="CG8/CG8_yokogao_1.jpg"]
 
-望看向了我。[p]
-那双饱含忧愁的眼睛，倒映着黑暗的夜色。[p]
+望正看着这边。[p]
+她那充满忧愁的眼神，映照着漆黑夜晚的黑暗。[p]
 
 [bg storage="CG8/CG8_yokogao_1_zoom.jpg" time="800"]
 [cg storage="CG8/CG8_yokogao_1_zoom.jpg"]
 
-可即便如此……[p]
-她的身影却在某种程度上……[p]
-无意识中，让我觉得美丽得不可思议。[p]
+尽管如此……[p]
+我却不知为何觉得她那身影……有些美丽。[p]
+我无意识地产生了这种感觉。[p]
 ──然而。[p]
 
 [bg storage="CG8/CG8_yokogao_2.jpg" time="800"]
 [cg storage="CG8/CG8_yokogao_2.jpg"]
 
-再走几步就能触碰到她了。[p]
-可即便如此，这段距离却仿佛遥不可及。[p]
-我拼命地伸出手，想要阻止望。[p]
-一定要阻止她！[p]
-一定要阻止她──。[p]
+再几步就能够到了。[p]
+可是，那段距离却仿佛永远无法跨越。[p]
+我拼命伸手想要阻止望。[p]
+必须阻止她！[p]
+一定要阻止──。[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="kuro.jpg" time="0"]
 [stopbgm]
 [mask_off time="300" wait="true"]
 
-──因为如果不阻止她，从这里跳下去的话……[p]
-被逮捕为协助自杀的可是我啊──[p]
+──因为如果不阻止的话，让她从这里跳下去的话……[p]
+因为会以协助自杀罪被逮捕的，可是我啊──[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="CG8/CG8_yokogao_1.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-所以我伸出了手──却够不到。[p]
+所以我伸出手去──但够不到。[p]
 
-就在我踏出阳台的瞬间，望已经──[p]
+我刚走到阳台上的那一刻，望已经──[p]
 
 [clearfix name="role_button"]
 @layopt layer=message0 visible=false
@@ -389,7 +389,7 @@ _　[cm]
 
 [nozomi_window]
 #望
-再见了。[p]
+拜拜[p]
 
 #
 [default_window]
@@ -430,15 +430,15 @@ _　[cm]
 #
 [default_window]
 [bg storage="kuro.jpg" time="300"]
-在坠落的瞬间，我们对上了视线。[p]
-她带着幸福的微笑，泪珠在空中飞舞。[p]
-然后望的身体被黑暗吞没……[p]
+在她坠落的瞬间，我们的目光相遇了。[p]
+她幸福地笑着，泪珠在空中飞舞。[p]
+然后望的身体被黑暗吞噬……[p]
 
 [wait time=" 500"]
 [playse buf="3"  storage="BodyDrop_echo.mp3" volume="60"]
 [wait time=" 3500"]
 
-我确确实实地目睹了那个景象，听到了那个声音。[p]
+我确实亲眼目睹了那一幕，亲耳听到了那声音。[p]
 
 [bg storage="CG8/CG8_haikei.jpg" time="500"]
 
@@ -451,42 +451,42 @@ _　[cm]
 [playse buf="3"  storage="heartbeats.mp3" volume="40" loop=true]
 [playbgm  storage="tinnitus3.mp3" volume="20"]
 [bg storage="monolog_02.jpg" time="500"]
-急促的心跳声。[p]
-粗重的呼吸声。[p]
-忽明忽暗的视野和心象。[p]
-将渐渐模糊的意识──无意识地拉回。[p]
-为了不让意识中断，我拼命地反复思考。[p]
+心跳加速。[p]
+呼吸变得急促。[p]
+视野和心象交替闪烁。[p]
+意识逐渐模糊──却又被无意识地维系着。[p]
+我拼命重复思考，努力不让意识中断。[p]
 
 [bg storage="kuro.jpg" time="800"]
 
 望的死亡。[p]
 自杀。[p]
-还有协助。[p]
-结果只是这样而已，我并不是──[p]
-我并没有那样的打算。[p]
+还有帮助。[p]
+虽然结果是这样，但我——[p]
+并不是那个意思。[p]
 
 [bg storage="kuro.jpg" time="800"]
 
-──不────[p]
-绝不能承认这一点。[p]
+——不————[p]
+不能承认这一点。[p]
 如果接受眼前的现实，我就会……[p]
-背负上『协助他人自杀的罪』。[p]
-这个『罪』也可以换成『责任』来表达。[p]
+背负上「协助他人自杀的罪」。[p]
+这个「罪」也可以换成「责任」这个词。[p]
 
 [bg storage="kuro.jpg" time="800"]
 
-我讨厌『责任』这个词。[p]
-因为我自己最清楚，我不是能够承担什么的人。[p]
+我讨厌「责任」这个词。[p]
+因为我自己最清楚，我没有能力去背负什么。[p]
 ……不，不对。[p]
 这只是借口而已。[p]
-我只是单纯地，不想背负罪责和责任而已。[p]
+我只是单纯地不想背负罪责，不想承担责任而已。[p]
 
 [fadeoutbgm]
 [fadeoutse buf="3"]
 [fadeoutse buf="1"]
 [fadeoutse]
 
-所以────────────[p]
+所以————————[p]
 
 [mask time=" 1000" graphic="kuro.jpg"]
 [chara_hide_all time=0 wait=true]

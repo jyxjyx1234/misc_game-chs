@@ -8,6 +8,7 @@
 #include "convert.h"
 #include "timer.h"
 #include <thread>
+#include "resource2.h"
 
 VOID __declspec(dllexport) stratmessage()
 {
@@ -20,7 +21,7 @@ VOID __declspec(dllexport) stratmessage()
         + L"进行翻译，免费发布，首发2dfan、jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n本人制作以及参与制作的所有补丁禁止转载至“鲲Galgame”补丁站。\n请仔细阅读README.md，如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
     //std::wstring t1(L"本补丁由Steins;Gate，julixian，coroz，SUAD，ALyCE，是幼微鸭mua，冥语，魔神海谢拉 等共同出资，使用官方渠道claude-3.5-sonnet进行翻译，免费发布，首发2dfan及github，禁止任何形式的收费转载。\n如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从网赚盘（如飞猫云）or 付费下载到本补丁，请顺手点个举报。");
     //msg = L"适度游戏益脑，沉迷游戏伤身\n 仅供学习交流，请于24小时删除 ^ ^";
-    //MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
+    MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
 }
 
 
@@ -41,6 +42,19 @@ VOID __declspec(dllexport) stratmessage()
 //    font_cache_del_flag = true;
 //}
 
+//void loadfontmem(HMODULE hModule) {
+//    HRSRC hRes = FindResource(hModule, MAKEINTRESOURCE(IDR_FONT1), RT_FONT);
+//    if (hRes) {
+//        HGLOBAL hResData = LoadResource(hModule, hRes);
+//        if (hResData) {
+//            void* pFontData = LockResource(hResData);
+//            DWORD fontSize = SizeofResource(hModule, hRes);
+//            DWORD numFonts = 0;
+//            HANDLE hFont = AddFontMemResourceEx(pFontData, fontSize, NULL, &numFonts);
+//        }
+//	}
+//}
+
 
 rr::RConfig config1;
 
@@ -58,6 +72,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
         //del_font_cache();
+		//loadfontmem(hModule);
         HOOK_main();
         stratmessage();
         config1.ReadConfig("hook.ini");

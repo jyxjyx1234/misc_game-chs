@@ -17,13 +17,13 @@
 
 [saku_window]
 #朔
-如果一直待在家里，应该不会暴露。但要是出门的话……多半，完了。[p]
+我觉得只要一直待在家里就不会被发现。但如果出去的话……大概就完蛋了[p]
 
 [default_window]
 #
-接下来，要让望怎么生活下去呢……我一路回家的时候一直在思考。[p]
-但是无论怎么想，都想不到让她出门的办法。[p]
-……不过，那是因为害怕被抓住的缘故。[p]
+在回家的路上，我一直在思考今后该如何安排望的生活。[p]
+但无论怎么想，都想不出能让她离开家的选择。[p]
+……如果害怕被抓的话。[p]
 
 ;画面揺らし
 [chara_hide_all time=100 wait=true]
@@ -37,7 +37,7 @@ TYRANO.kag.ftag.master_tag.quake.log_join = true;
 
 [nozomi_window]
 #望
-…………啊ーーーーーーーーーーーーーーーーーーーーー啊啊！！
+…………啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊！！
 [wait time=1200]
 [quake count=20 time=1500 hmax=5 wait=false]
 [p]
@@ -60,7 +60,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = true;
 
 [nozomi_window]
 #望
-……哈，哈……。……啊——，舒服多了！
+……哈、哈……。……啊啊啊，舒服多了！
 [wait time=2500]
 [chara_mod  name="望1_ネックレス有" face="egao" cross=false time=500]
 [p]
@@ -72,13 +72,13 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [saku_window]
 #朔
-别喊得太大声，会有人投诉的……！[p]
+叫得太大声会有人投诉的……！[p]
 
 [chara_mod  name="望1_ネックレス有" face="metoji" cross=false time=500]
 
 [nozomi_window]
 #望
-对不起，不过……已经没事了。[p]
+对不起，不过……我已经没事了[p]
 
 [saku_window]
 #朔
@@ -94,12 +94,12 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-果然，我这种杀人犯，是不该拥有幸福的。我明白了。所以，已经没事了。[r]
+我明白了，像我这样的杀人犯，是不应该获得幸福的。所以，我已经没事了[r]
 [p]
 
 [saku_window]
 #朔
-──────那是指？[p]
+──────那是不是意味着[p]
 
 #
 [default_window]
@@ -109,11 +109,11 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-……嗯。[p]
+……嗯[p]
 
 [saku_window]
 #朔
-不要……不是，嗯，不是这样的。[p]
+不要……别光说嗯[p]
 
 #
 [default_window]
@@ -123,7 +123,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-活着并不代表就是幸福啊[p]
+活着并不是唯一的幸福啊[p]
 
 [saku_window]
 #朔
@@ -137,18 +137,18 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-……如果只是活着就能感到幸福，那就不会这么辛苦了[p]
+……如果仅仅活着就能获得幸福，那就不会这么辛苦了[p]
 
 [chara_mod  name="望1_ネックレス有" face="metoji4" cross=false time=500]
 #望
-那种幸福是被选中的人才能拥有的特权。我没有被选中[p]
+那样的幸福只是被选中的人的特权。我没有被选中[p]
 
 [chara_mod  name="望1_ネックレス有" face="utsumuki3" cross=false time=500]
 #望
-从一开始，我就没有去的地方，也没有归宿[p]
+从一开始就没有可去的地方，也没有可回的地方[p]
 
 #望
-我没办法连赎罪都去做，还指望重新来过……因为！！[p]
+我不认为赎罪之后还能重新开始人生。……因为！！[p]
 
 #
 [default_window]
@@ -158,14 +158,14 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-……连怎么走路，都没人教过我啊[p]
+……没有人教过我该如何前进啊[p]
 
 [default_window]
 #
 我无法反驳。[p]
 ──看着已经下定决心的望的表情。[p]
-我什么话都说不出来了。[p]
-希望她和我一起活下去……这样的自私想法，无法束缚住望。[p]
+我什么也说不出来。[p]
+想和她一起活下去……我无法用这种自私的想法束缚住望。[p]
 对望来说，在那个选择中，已经没有通往幸福的路了。[p]
 
 #
@@ -176,28 +176,28 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-而且……从一开始，我就知道不可能真正意义上「幸福」起来[p]
+而且……我从一开始就知道，无法获得真正意义上的『幸福』[p]
 
 [default_window]
 #
-……我在内心深处，察觉到了这样的望的真心。[p]
+……我在内心深处，察觉到了望的这种真实想法。[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [chara_hide_all time=0 wait=true]
 [bg storage="monolog_01.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-所谓真正意义上的「幸福」，是无法实现的事情。[p]
-我伸出的手，不过是一个暂时性的救赎方式……[p]
-无法真正拯救望的内心，这一点我自己很清楚。[p]
-真是……真是残酷的伪善啊。[p]
+无法获得真正意义上的『幸福』这件事。[p]
+我伸出的手，只是一种暂时的救济形式……[p]
+我自己也明白，这无法成为真正拯救望的内心的方法。[p]
+多么……多么残酷的伪善啊。[p]
 
 [mask time=" 300" graphic="shiro.jpg"]
 [bg storage="jishitsu_hiru_01.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-可是，即使只是暂时的，我也希望望的心能得到安慰。[p]
-即便是权宜之计伸出的手，这份心意却是真的。[p]
+但是，我还是希望即使是暂时的，也能让望的心情得到慰藉。[p]
+即便是权宜之计伸出的手，这份心意至少是真诚的。[p]
 
 [saku_window]
 #朔
@@ -207,11 +207,11 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-没事的啦，朔。我已经没事了。[p]
+没事的，朔。我已经没事了[p]
 
 [saku_window]
 #朔
-……不是，不是这样的。我想说的不是这个啊。[p]
+……不，不是的。我想说的不是这个[p]
 
 [default_window]
 #
@@ -221,13 +221,13 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 [bg storage="monolog_01.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-无法适应社会的我，还有弑亲的望。[p]
-我们都是无法融入／回归人类圈子的人。[p]
-就像彼此依偎着舔舐伤口一般。[p]
-逃避进暂时的快感和虚假的安心中。[p]
+无法适应社会的我，和杀害父母的望。[p]
+无法融入／无法回归人群的同类。[p]
+就像是依偎在一起舔舐彼此伤口一般。[p]
+我们逃进了暂时的快乐和虚假的安心中。[p]
 但是。[p]
-我觉得，没有必要为了回到原来的生活而连法律都要逃避了。[p]
-也不再需要继续逃下去了。[p]
+我感觉到，没有必要不惜逃避法律也要回到从前的生活。[p]
+也不需要再继续逃避下去了。[p]
 
 [fadeoutbgm]
 [mask time=" 300" graphic="shiro.jpg"]
@@ -239,7 +239,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [saku_window]
 #朔
-我也可以，去你那边吗？[p]
+我也可以去那边吗？[p]
 
 #
 [default_window]
@@ -249,14 +249,14 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [playbgm  storage="05Homecoming.mp3" volume="40"]
 
-我已经满足了。[p]
-觉得再也没有必要追求更多了。[p]
+我已经心满意足了。[p]
+不需要再追求更多了。[p]
 
 [chara_hide_all time=800 wait=false]
 [bg storage="monolog_03.jpg" time="800"]
 
-我理解了一个人，仅仅一个人。[p]
-这种喜悦，让我肯定了自己的存在。[p]
+我终于理解了一个人。[p]
+这份喜悦肯定了我的存在。[p]
 望似乎察觉到了我的意图，露出了难以置信的表情。[p]
 
 [bg storage="jishitsu_hiru_01.jpg" time="800"]
@@ -264,27 +264,27 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-你觉得，我会说可以吗？[p]
+你以为我会说可以吗？[p]
 
 [saku_window]
 #朔
-……可是望不是说过『不希望被阻止』吗？[p]
+……望不是也说过「不想被阻止」吗[p]
 
 [nozomi_window]
 #望
-但是……！ 我不想让朔……死去啊[p]
+可是……！我不想朔……死[p]
 
 [saku_window]
 #朔
-这种话，我也一直，一直都在说呢……[p]
+我也一直、一直在说同样的话啊……[p]
 
 [nozomi_window]
 #望
-……就算你这么说！ ……就算你这么说啊……[p]
+……就算你这么说！……就算你这么说啊……[p]
 
 [saku_window]
 #朔
-嘛，总之就是彼此彼此吧。[p]
+嘛，总之就是彼此彼此啦[p]
 
 #
 [default_window]
@@ -294,12 +294,12 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-我……不会承认的哦？[p]
+我……不会同意的哦？[p]
 
 [saku_window]
 #朔
-我只是随便待在你身边而已。不承认也没关系。[p]
-而且……两个人一起试过还没有呢。[p]
+我只是自作主张地待在你身边而已。你不同意也没关系[p]
+而且……我们还没试过两个人一起呢[p]
 
 #
 [default_window]
@@ -309,28 +309,28 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-一起……死……是这个意思吗？[p]
+你是说……一起……死？[p]
 
 [saku_window]
 #朔
-我说了让我待在你身边，直到最后也是。[p]
+我说过要让我待在你身边，直到最后[p]
 
 [chara_mod  name="望1_ネックレス有" face="utsumuki2" cross=false time=500]
 
 [nozomi_window]
 #望
-哈哈哈……朔，你真是奇怪。为什么？[p]
+啊哈哈……真奇怪啊，朔。为什么呢？[p]
 
 [default_window]
 #
-我本该无奈地笑出来……但事实并非如此。[p]
+她并非只是惊讶得笑不出来……的那种样子。[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [chara_hide_all time=100 wait=true]
 [bg storage="kuro.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-她的声音里……夹杂着一丝微不可察的喜悦。[p]
+那声音里……包含着一丝微小的喜悦。[p]
 
 [mask time=" 300" graphic="shiro.jpg"]
 [bg storage="jishitsu_hiru_01.jpg" time="0"]
@@ -339,40 +339,40 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [saku_window]
 #朔
-我一直都觉得，「必须活下去」。[p]
-即使被别人恶劣对待，即使没有目标或目的，也要活下去。[p]
-在过去的生活中，没有一件事能让我全身心投入到填补无聊，也没有一段关系值得我去维系。[r]
+我一直在想「必须活下去」[p]
+即使受到他人恶劣的对待，即使没有目标和目的，也必须活下去[p]
+到目前为止的人生中，没有一件事能让我全身心投入到忘记无聊，也没有想要维系的人际关系[r]
 [p]
-至少表面上装作能好好融入社会，但实际上却是空洞的。[p]
+我至少装作能够很好地融入社会生活的样子，但实际上那只是表面文章[p]
 
 [default_window]
 #
-啊──[p]
-当我开口时，话语竟然顺畅得不可思议地溜了出来。[p]
-到现在为止，我一直无法接受自己所处的境地。[p]
-但现在不一样了。[p]
+啊——[p]
+说出口时，出乎意料地顺畅。[p]
+直到现在，我一直无法接受自己所处的状况。[p]
+但是，现在不同了。[p]
 如果说过去和现在有什么不同的话，那就是……[p]
-关键在于内心是否能获得安宁。[p]
+就是内心是否获得了平静。[p]
 
 [saku_window]
 #朔
-……知道了望的心意，我就安心了。[p]
+……了解了望的心情后，我安心了[p]
 
 #朔
 @layopt layer=message0 visible=false
 [nowait]
-我觉得，这样的「结束方式」也不错。
+我觉得那样的『结局』也不错
 [endnowait]
 [cm]
 @layopt layer=message0 visible=true
 
 [nolog]
-我觉得，这样的「生活方式」也可以接受。[p]
+我觉得那样的『生存方式』也不错[p]
 [endnolog]
 
 [default_window]
 #
-「死亡是救赎」这种看似虚假的话，现在我却能相信了。[p]
+现在我甚至相信了「死亡是救赎」这种听起来虚伪的话。[p]
 
 [chara_mod  name="望1_ネックレス有" face="utsumuki" cross=false time=500]
 [nozomi_window]
@@ -381,7 +381,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [saku_window]
 #朔
-已经没有了。[p]
+已经不后悔了[p]
 
 #
 [default_window]
@@ -391,12 +391,12 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-……已经没有了，是吗。这样啊……喂，如果我们还能回去的话……你还会陪着我吗？[r]
+……不后悔，了啊。这样啊……呐。如果，再回去的话……你还会陪在我身边吗？[r]
 [p]
 
 [saku_window]
 #朔
-当然会。[p]
+当然[p]
 
 #
 [default_window]
@@ -406,11 +406,11 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-那……我可以靠近点吗？[p]
+那……我可以靠近你吗？[p]
 
 [saku_window]
 #朔
-可以啊，不过，什么叫「那」呢？[p]
+可以啊，不过为什么说『那』？[p]
 
 #
 [default_window]
@@ -418,11 +418,11 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-因为啊，再也不能靠近取暖了嘛。[p]
+因为，靠在一起取暖，很快就再也做不到了嘛[p]
 
 [saku_window]
 #朔
-……确实。我也再感受不到望的体温了呢。[p]
+……确实。我也再也感受不到望的体温了呢[p]
 
 #
 [default_window]
@@ -431,23 +431,23 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 [chara_show  name="望1_ネックレス有" face="metoji" top="-160" width="2558" height="3541" time=250]
 [anim name="望1_ネックレス有" top="-130" time=250]
 
-两人不约而同地靠近彼此。[p]
-隔着触碰到的布料，握紧的手中，感受到望的体温。[p]
+不约而同地靠近彼此。[p]
+透过相触的衣物，牵着的手，感受着望的体温。[p]
 
 [chara_mod  name="望1_ネックレス有" face="egao2" cross=false time=500]
 
 [nozomi_window]
 #望
-好温暖啊……呢。感觉特别安定。以前的那些悲伤啊、痛苦啊，好像全都消失了。[r]
+好温暖啊……呢。让人特别安心。感觉以前所有悲伤的事，痛苦的事，都在慢慢消失[r]
 [p]
 
 [saku_window]
 #朔
-……我也是。就像融化了一样，心情很安宁。[p]
+……我也是。就像要融化一样，感到非常平静[p]
 
 [nozomi_window]
 #望
-呵呵……。有点……奇怪呢。[p]
+呵呵……。总觉得……有点奇怪呢[p]
 
 [saku_window]
 #朔
@@ -455,7 +455,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-……开心、平静、温暖……可是呢，总觉得……[p]
+……明明很开心，很平静，很温暖……但是呢，总觉得……[p]
 
 #
 [default_window]
@@ -463,7 +463,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-啊，怎么回事？对，对不起。本来不想哭的……为什么……[p]
+啊，咦？对、对不起。明明不是想哭的……为什么……[p]
 
 [saku_window]
 #朔
@@ -479,10 +479,10 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 [chara_hide_all time=0]
 [mask_off time="300" wait="true"]
 
-────不要说了。[p]
-就这样不说也可以。[p]
-如果说出来的话，望一定会……知道那感情的真相。[p]
-而我也会因此……意识到的。[p]
+────不要。[p]
+就这样不说出来也好。[p]
+大概如果说出来的话，望一定会……知道那感情的真相。[p]
+而我也会……意识到吧。[p]
 
 [mask time=" 500" graphic="shiro.jpg"]
 [bg storage="jishitsu_hiru_01_bokasi.jpg" time="0"]
@@ -491,13 +491,13 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [saku_window]
 #朔
-…………对不起啊，望。[p]
+…………对不起，望[p]
 
 #
 [default_window]
 [chara_hide_all time=1000 wait=true]
 
-所以……就这样结束吧。[p]
+所以……就到此为止吧。[p]
 
 ;;; 夜
 [mask time=" 2500" graphic="kuro.jpg"]
@@ -508,10 +508,10 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [saku_window]
 #朔
-奇怪的是啊……心情却很开朗呢。[p]
+不可思议地……感到心情舒畅[p]
 
 #朔
-我一直都是漫无目的地活着……现在终于感觉找到了自己想做的事情。[p]
+我一直以来都是漫无目的地活着……现在终于觉得找到了自己想做的事[p]
 
 #
 [default_window]
@@ -520,16 +520,16 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-想做的事情，真的就是这个吗？[p]
+你真的确定这就是你想做的事吗？[p]
 
 [saku_window]
 #朔
-嗯。[p]
+嗯[p]
 
 [wait time=" 500"]
 
 #朔
-没问题的。[p]
+没问题的[p]
 
 #
 [default_window]
@@ -539,7 +539,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-…………是吗。[p]
+……………………这样啊[p]
 
 #
 [default_window]
@@ -549,16 +549,16 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 [mask_off time="800" wait="true"]
 
 夜的深处。[p]
-黑暗深邃，仿佛层层叠叠地织进了无尽的黑色，看不到尽头的漆黑。[p]
+黑暗而深邃，仿佛层层交织着无数黑色，看不到尽头的黑暗。[p]
 
 [bg storage="CG8/CG8_haikei_bokasi.jpg" time="800" wait=true]
 [chara_show  name="望1_ネックレス有" face="metoji3" top="-130" width="2558" height="3541" time=500 wait=true]
 
-站在阳台上，与望牵着手。[p]
-远处零星点缀的城市灯光，仿佛静静地等待着我们下去一般。[p]
-比那城市灯光更加鲜明、美丽地闪耀着的是星辰与月亮。[p]
-辉煌璀璨的夜空，温柔地照耀着我们。[p]
-宛如──站在华丽舞台上，被聚光灯笼罩的主角一般。[p]
+站在阳台上，我牵着望的手。[p]
+远处零星分布的街灯，仿佛在静静地等待着我们下去。[p]
+比那街灯更加鲜明，美丽闪耀的星星和月亮。[p]
+皎洁明亮的夜空，温柔地照耀着我们。[p]
+就像是──在华丽的舞台上，成为了沐浴在聚光灯下的主角一样。[p]
 
 [saku_window]
 #朔
@@ -573,16 +573,16 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 [chara_mod  name="望2_ネックレス有" face="metoji2" cross=false time=500]
 [wait time=" 500"]
 
-稍微俯下身，与望轻轻触碰嘴唇。[p]
-不到一秒的瞬间，却因为想到这是最后的吻而顿时变得难以割舍。[p]
-但愿，这段时间能永远持续下去。[p]
-虽然已经无法继续了，但即便如此。[p]
+我稍微弯下身，与望的嘴唇相触。[p]
+不到一秒的瞬间，一想到这可能是最后一个吻，突然就觉得格外珍惜。[p]
+多希望这一刻能永远持续下去。[p]
+虽然知道不可能继续了，但是还是。[p]
 
 [chara_mod  name="望2_ネックレス有" face="metoji" cross=false time=500]
 
 [saku_window]
 #朔
-真是幸福啊。[p]
+真是幸福啊[p]
 
 #
 [default_window]
@@ -592,12 +592,12 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 
 [nozomi_window]
 #望
-如果能幸福……就好了。[p]
+如果能幸福……就好了[p]
 
 [default_window]
 #
-希望我们选择的方向，是正确的──[p]
-这样祈祷着。[p]
+愿我们选择的前路，是正确的──[p]
+我如此祈祷着。[p]
 
 [setreplay name="BAD_CG" storage="scene16_bad_replay.ks" label="*BAD_CG_replay"]
 
@@ -610,30 +610,30 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 [wait time=" 500"]
 [bg storage="kuro.jpg" time="500" method="fadeInUp"]
 
-一边微笑着说「真是幸福」，一边──[p]
-像祈祷般牵着手，翻过栏杆，坠入夜的深渊。[p]
-被重力吸引，开始下坠。[p]
+带着幸福的笑容──[p]
+像祈祷一样紧握着手，越过栏杆，坠入夜的深处。[p]
+被重力牵引，开始坠落。[p]
 
 [stopbgm]
 [bg storage="BAD_CG/ED2_namida.jpg" time="1000" ]
 [bg storage="kuro.jpg" time="500"]
 
-然而，就在坠落的瞬间，有什么东西闪烁了一下。[p]
+但是，就在坠落的瞬间，有什么闪烁了一下。[p]
 [wait time=" 300"]
 既不是星光，也不是城市的灯光。[p]
 [wait time=" 300"]
 
 [saku_window]
 #朔
-────────啊！[p]
+────────啊[p]
 
 #
 [default_window]
 [wait time=" 300"]
 
-以为彼此微笑着说「真是幸福」，然后一起跳了下去──[p]
+我以为我们是带着「很幸福」的笑容一起跳下去的──[p]
 [wait time=" 300"]
-可为什么────[p]
+可是，为什么────[p]
 [wait time=" 300"]
 
 [bg storage="BAD_CG/ED2.jpg" time="1000"]
@@ -642,7 +642,7 @@ TYRANO.kag.ftag.master_tag.chara_mod.log_join = false;
 为什么──────[p]
 [wait time=" 300"]
 
-为什么要露出那样的表情────────[p]
+为什么你会露出那样的表情────────[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 

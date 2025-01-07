@@ -29,11 +29,11 @@
 
 [nozomi_window]
 #望
-……总觉得……坐上去好丢人啊[p]
+……总觉得……骑上来好丢人啊[p]
 
 [saku_window]
 #朔
-说要换姿势的是你吧，望。[p]
+明明是望你说要换姿势的吧[p]
 
 #
 [default_window]
@@ -41,11 +41,11 @@
 
 [nozomi_window]
 #望
-啊，换个味道很重要嘛……！[p]
+啊，我觉得换换口味很重要嘛……！[p]
 
 [saku_window]
 #朔
-别说什么换味道啊。[p]
+别说什么换口味啊[p]
 
 #
 [default_window]
@@ -53,14 +53,14 @@
 
 [nozomi_window]
 #望
-哈哈哈，请好好享用哦～。那，我开始了……？[p]
+啊哈哈。请慢慢享用哦。那么，我要开始了……？[p]
 
 #
 [default_window]
 [playse buf="3"  storage="H/H_sounyu.mp3" volume="50"]
 [bg storage="CG7/CG7_misounyu_teoroshi_aka_2.jpg" time="800"]
 
-当望将我的东西对准她的秘部，慢慢坐下去时，伴随着「滋扑扑」的声音，被一点点吞没般插入了进去。[r]
+望将我的那话儿对准秘处，慢慢地坐了下来，噗嗤一声，仿佛被吞噬般插了进去。[r]
 [p]
 
 [bg storage="CG7/CG7_misounyu_teoroshi_aka_5.jpg" time="800"]
@@ -73,35 +73,35 @@
 [default_window]
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_5.jpg" time="800"]
 
-完全进入之后，望的身体再次痉挛了起来。[p]
-分泌的爱液作为润滑剂，传递着滑腻的触感和温暖……。[p]
-说实话，太爽了。[p]
+当完全进入后，望的身体再次颤抖起来。[p]
+分泌的爱液成了润滑剂，传来光滑的触感和温暖……[p]
+老实说，太厉害了。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_6.jpg" time="800"]
 [playse buf="3"  storage="H/H_panpan03.mp3" volume="50" loop=true]
 
 [nozomi_window]
 #望
-哈啊啊……啊、啊……嗯嗯～……啊啊，腰、自己、动起来了……♡[p]
+哈啊……啊，啊……嗯嗯～……啊啊，腰，不由自主地，动起来了……♡[p]
 
 [default_window]
 #
-可能是因为骑乘位能够刺激到自己喜欢的位置，望像是用力压着腰一样动了起来。[p]
+也许是因为骑乘位能刺激到自己喜欢的位置，望扭动着腰，仿佛在用力压向我。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_8.jpg" time="800"]
 
 [nozomi_window]
 #望
-朔的鸡鸡刚好碰到我最舒服的地方，好厉害……[p]
+朔的鸡鸡，正好顶到我舒服的地方，太要命了……[p]
 
 [default_window]
 #
-不仅能清楚地看到望的身体，那融化般的表情和说话方式也……[p]
+不仅能清楚地看到望的身体，连她那副陶醉的表情和说话方式都……[p]
 望的一切，都在激起我的兴奋。[p]
 
 [saku_window]
 #朔
-可以再随心一点地动哦。[p]
+你可以更随心所欲地动哦[p]
 
 #
 [default_window]
@@ -110,12 +110,12 @@
 
 [nozomi_window]
 #望
-嗯……真的？ 那……嘿♡[p]
+嗯……真的吗？那么……嘿♡[p]
 
 #
 [default_window]
 
-话音刚落，她抬起了腰……下一瞬间猛地坐下，开始剧烈地上下律动起来。[r]
+她一边这么说着，一边抬起腰……下一瞬间又猛地沉下腰，开始激烈地抽插起来。[r]
 [p]
 
 [playse buf="3"  storage="H/H_panpan01.mp3" volume="50" loop=true]
@@ -135,7 +135,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = true;
 
 [nozomi_window]
 #望
-嗯、嗯、嗯嗯……啊哈♡ 朔，看起来你感觉超棒的……
+啊，嗯，嗯嗯……啊哈♡朔，看起来好舒服的样子……
 [wait time=" 1500"]
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_7.jpg" time="800"]
 [p]
@@ -147,7 +147,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [saku_window]
 #朔
-这个，太强了……[p]
+这个，太厉害了……[p]
 
 #
 [default_window]
@@ -155,7 +155,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-啪嗒、啪嗒的声音，好舒服啊……啊、啊、啊……啊啊，我也超喜欢这个……♡[r]
+啪唧啪唧的声音，好舒服啊……啊，啊，啊……啊啊，我也最喜欢这个了……♡[r]
 [p]
 
 #
@@ -164,33 +164,33 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 _　[r]
 _　[cm] 
 
-望巧妙地利用床垫的弹性，反复进行着上下的往复运动。[p]
+望灵巧地利用床垫的弹性，重复着上下往复运动。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_6.jpg" time="800"]
 
 [nozomi_window]
 #望
-朔，就这样……亲亲吧……？[p]
+朔，就这样……亲一下……？[p]
 
 #
 [default_window]
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_6_sekkin.jpg" time="800"]
 
-一边律动着腰，一边身体前倾，望的脸逐渐靠近。[p]
+她一边扭动腰肢，一边前倾身体，望的脸慢慢靠近。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_8_sekkin.jpg" time="800"]
 
 [nozomi_window]
 #望
-嗯、呼、哈……嗯……啾、舔、舔舔舔……嗯、嗯……噗哈、啊、啊……一边贴着亲亲一边骑乘位，好舒服哦……[r]
+嗯，呼，呼啊……嗯……啾，啾，啾……嗯，嗯……呼啊，啊，啊……紧贴着亲吻的同时骑乘，好舒服……[r]
 [p]
 
 #望
-啊，不行了，朔……听我说，我又要来了……♡[p]
+啊，不行了，朔……呐，我又，要去了……♡[p]
 
 [saku_window]
 #朔
-要到了吗？[p]
+要高潮了？[p]
 
 #
 [default_window]
@@ -203,7 +203,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = true;
 
 [nozomi_window]
 #望
-嗯，已经、不行了啦……！ 啊、啊、啊────♡♡[r]
+嗯，已经，不行了……！啊，啊，啊────♡♡[r]
 [wait time=" 2000"]
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_8_sekkin.jpg" time="800"]
 [p]
@@ -223,25 +223,25 @@ _　[cm]
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_8.jpg" time="0"]
 [mask_off time="750" wait="true"]
 
-伴随着全身剧烈地颤抖，望扑倒在我的身上。[p]
+望全身剧烈颤抖着，倒在我身上。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_3.jpg" time="800"]
 
 [nozomi_window]
 #望
-……我才没有到呢。真的。……真的啦！[p]
+……我还没高潮呢。真的。……真的啦！[p]
 
 [saku_window]
 #朔
-我问你是不是快到了，你可是说了嗯的哦。[p]
+我问你是不是要高潮了，你不是说「嗯」了吗[p]
 
 [nozomi_window]
 #望
-我才没说过那种话呢！[p]
+我才没说过那种话呢[p]
 
 [saku_window]
 #朔
-你记性也太差了吧……[p]
+你失忆的速度也太快了吧……[p]
 
 #
 [default_window]
@@ -249,11 +249,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-话说……是不是只有我一个人在爽啊……？[p]
+话说回来……总感觉，只有我一个人在享受……？[p]
 
 [saku_window]
 #朔
-才没有，我也很舒服啊。[p]
+没有的事，我也很舒服啊[p]
 
 #
 [default_window]
@@ -261,19 +261,19 @@ _　[cm]
 
 [nozomi_window]
 #望
-真的……？那你可以更随心所欲一点哦？[p]
+真的吗……？你可以更随心所欲一点哦？[p]
 
 [saku_window]
 #朔
-那……就这样继续骑乘位吧。[p]
+那……就保持这个骑乘位继续吧[p]
 
 [nozomi_window]
 #望
-不用自己动吗？[p]
+你自己不动也可以吗？[p]
 
 [saku_window]
 #朔
-被望主导我更喜欢，心跳加速呢。[p]
+我更喜欢被望主导。会让我心跳加速[p]
 
 #
 [default_window]
@@ -281,11 +281,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-……啊——。不会是想偷懒吧？[p]
+……啊。难道说，你没有在享受？[p]
 
 [saku_window]
 #朔
-呃。[p]
+呃[p]
 
 #
 [default_window]
@@ -293,27 +293,27 @@ _　[cm]
 
 [nozomi_window]
 #望
-不过没关系哦。我想让最爱的人感到舒服嘛。那么，我再动起来咯……♡[p]
+不过，没关系。我也想让最爱的人舒服起来。那么，我再动了哦……♡[p]
 
 #
 [default_window]
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_5.jpg" time="800"]
 [playse buf="3"  storage="H/H_panpan01.mp3" volume="50" loop=true]
 
-上下的往复运动再次开始了。[p]
-不过，这次和刚才有些不同……。[p]
+她再次开始上下起伏。[p]
+然而，与刚才相比稍有不同……。[p]
 
 [bg storage="CG7/CG7_sounyu_te_aka_6.jpg" time="800"]
 
-这次两人握着双手，巧妙地控制着重心。[p]
-因为更加紧密的连接带来的幸福感，望的脸上也似乎浮现出了幸福的表情。[p]
-而且……被包裹着的触感也发生了变化。[p]
+这次她一边牵着双手，一边灵巧地控制着重心。[p]
+从更加紧密相连的幸福感中，望的脸上似乎也浮现出幸福的表情。[p]
+而且……被包裹的感觉也有了变化。[p]
 
 [bg storage="CG7/CG7_sounyu_te_aka_8.jpg" time="800"]
 
 [nozomi_window]
 #望
-嘻嘻……这样，小穴，紧～紧地夹住……鸡鸡会不会很舒服呢？[p]
+呵呵……这样子，小穴，紧～紧地夹住的话……鸡鸡会舒服吗？[p]
 
 [saku_window]
 #朔
@@ -321,18 +321,18 @@ _　[cm]
 
 [default_window]
 #
-就像是要挤榨出来一样紧紧地夹住，同时上下移动着……。[p]
+就像要榨干似的紧紧夹住，同时上下动作着……。[p]
 
 [bg storage="CG7/CG7_sounyu_te_aka_7.jpg" time="800"]
 
 [nozomi_window]
 #望
-啊哈……你的表情看起来超级享受……但我也快不行了呀……♡啊、啊、啊……我们一起，变得更舒服吧？[r]
+啊哈……你那表情……好像很舒服呢。不过我也快不行了……♡啊、啊、啊……一起、舒服起来、好吗？[r]
 [p]
 
 [saku_window]
 #朔
-如果……继续这样下去的话，我可能真的不行了……！[p]
+这样……继续下去的话，可能会坚持不住……[p]
 
 #
 [default_window]
@@ -340,11 +340,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-嗯～？不行是指什么呢？不说出来的话，我可不知道哦……♡[p]
+嗯、坚持不住、是什么意思……？不说清楚的话，我可不明白哦……♡[p]
 
 [saku_window]
 #朔
-我是说，我也快要射了……！[p]
+我是说我也快要去了……！[p]
 
 #
 [default_window]
@@ -352,11 +352,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-嗯～？是吗？不过还没关系吧……啊，但是鸡鸡已经开始颤抖了呢……[p]
+嗯～？是这样吗？但是应该还可以坚持吧……啊，不过鸡鸡，刚才跳动了一下呢……[p]
 
 [saku_window]
 #朔
-所以我才说已经不行了啊……！[p]
+所以说已经坚持不住了啊……！[p]
 
 #
 [default_window]
@@ -369,31 +369,31 @@ _　[cm]
 [default_window]
 #
 [nolog]
-不，这样下去的话，就会直接射在花径里了啊……！[p]
+不是，这样下去的话就要射在花径里了……！[p]
 [endnolog]
 
-[pushlog text="不要，这样下去会直接射在花径里啊……！"]
+[pushlog text="不是，这样下去的话就要射在花径里了……！"]
 
-但是你说喜欢这样直接来……意思就是……可以的吧……！？[p]
+但是她说想要生的意思是……就是这个意思吧……！？[p]
 
 [bg storage="CG7/CG7_sounyu_te_aka_6.jpg" time="800"]
 
 [nozomi_window]
 #望
-啊、嗯、啊啊、啊……嗯，喂，我又要来了……♡明明已经去了好几次了，还、还要来了……♡喂～喂，我们一起去吧……？[r]
+啊、啊嗯、啊啊、啊……嗯，那个，我又要去了……♡明明已经去了好几次了，又要去了……♡ 呐呐，一起去吧……？[r]
 [p]
 
 [saku_window]
 #朔
 @layopt layer=message0 visible=false
 [nowait]
-要是射在花径里了就糟了……稍微，停一下，停一下……！
+因为会射在花径里……稍微，停一下……！
 [endnowait]
 [cm]
 @layopt layer=message0 visible=true
 
 [nolog]
-要是射在花径里了就糟了……稍微，停一下，停一下……！[p]
+因为会射在花径里……稍微，停一下……！[p]
 [endnolog]
 
 #
@@ -406,7 +406,7 @@ _　[cm]
 #望
 @layopt layer=message0 visible=false
 [nowait]
-射在花径里，可以哦……？♡拜托了，拜托你了……射在花径里吧……♡
+射在花径里，可以哦……？♡ 拜托，拜托……射在花径里……♡
 [endnowait]
 [cm]
 @layopt layer=message0 visible=true
@@ -418,7 +418,7 @@ _　[cm]
 _　[r]
 _　[cm] 
 
-射在花径里，可以哦……？♡拜托了，拜托你了……射在花径里吧……♡
+射在花径里，可以哦……？♡ 拜托，拜托……射在花径里……♡
 [nolog]
 [p]
 [endnolog]
@@ -429,18 +429,18 @@ _　[cm]
 
 [default_window]
 #
-被这么一说，我已经没有能停下来的理性了。[p]
-望随着我的动作在上面扭动腰，我也从下方用力顶上去。[p]
+被这样说了，已经没有能停下来的理智了。[p]
+配合着望在我身上扭动腰部的动作，我也从下面顶起腰来。[p]
 
 [bg storage="CG7/CG7_sounyu_te_aka_7.jpg" time="800"]
 
 [nozomi_window]
 #望
-嗯嗯呜……啊，你也一起动腰了呢……快去了？已经不行了吗？要出来了吗？[p]
+嗯嗯……啊，一起在动腰呢……。要去了吗？已经不行了？要射了吗？[p]
 
 [saku_window]
 #朔
-啊啊，真是的……！[p]
+啊啊，已经……！[p]
 
 #
 [default_window]
@@ -448,19 +448,19 @@ _　[cm]
 
 [nozomi_window]
 #望
-嗯，我知道啦……牵着手，一边紧紧地，一边尽情地射出来吧……？[p]
+嗯，我知道了……一边牵着手，一边尽情地射出来吧……？[p]
 
 #
 [default_window]
-我支撑着将身体交给我的望，用恋人般的十指相扣，同时专注于彼此的腰部动作。[p]
-从腰部深处传来沸腾般的射精感袭来。[p]
-想射出来，想射出来，想射出来……！！！[p]
+我用十指相扣的姿势支撑着依偎在我身上的望，两人都专注于腰部的动作。[p]
+从腰的深处，一股沸腾般的射精感迫近。[p]
+想射，想射，想射……！！！[p]
 只是遵从本能────[p]
-已经，什么都无法思考了……！[p]
+已经，除此之外什么都想不了了……[p]
 
 [nozomi_window]
 #望
-嗯嗯、啊、啊……啊……一起，一起呀……嗯、啊、哈啊……啊、啊、啊啊……♡[p]
+嗯嗯，啊，啊……啊……一起，一起……嗯，啊，哈啊……啊，啊，啊啊……♡[p]
 
 #
 [default_window]
@@ -468,15 +468,15 @@ _　[cm]
 
 [nozomi_window]
 #望
-啊，不要了，要去了，要去了，好大的，要来了啦……！[p]
+啊，已经不行了，要去了，要去了，大的，要来了……！[p]
 
 [default_window]
 #
-就在望即将绝顶的瞬间，那紧紧收缩的感觉让我忍耐达到了极限。[p]
+在望即将绝顶的瞬间，被紧紧包裹的感觉让我的忍耐达到了极限。[p]
 
 [saku_window]
 #朔
-要出来了……！[p]
+要射了……！！[p]
 
 #
 [default_window]
@@ -484,7 +484,7 @@ _　[cm]
 
 [nozomi_window]
 #望
-嗯、呼啊、啊啊……！　……嗯啊啊啊啊啊啊♡♡♡[p]
+嗯，呼啊，啊啊……！ ……嗯啊啊啊啊啊啊啊♡♡♡[p]
 
 [fadeoutse buf="3"]
 #
@@ -510,8 +510,8 @@ _　[cm]
 @layopt layer=message0 visible=true
 @layopt layer=message1 visible=true
 
-将沸腾滚烫的精液一滴不剩地注入了望的体内。[p]
-望的小穴就像在吸吮我的精液一样，不断地紧缩着。[p]
+沸腾的精液一滴不剩地注入了望的体内。[p]
+望的小穴像是在吸吮我的精液一样，不断地收缩着。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_seieki_aka_8.jpg" time="800"]
 
@@ -519,7 +519,7 @@ _　[cm]
 #望
 @layopt layer=message0 visible=false
 [nowait]
-啊……我真的被射在花径里了……暖暖的东西流进来了，我能感觉到哦……？
+啊……我，真的被射在花径里了……能感觉到温热的东西在流出来……？
 [endnowait]
 [cm]
 @layopt layer=message0 visible=true
@@ -528,24 +528,24 @@ _　[cm]
 _　[r]
 _　[cm] 
 
-啊……我真的被射在花径里了……暖暖的东西流进来了，我能感觉到哦……？
+啊……我，真的被射在花径里了……能感觉到温热的东西在流出来……？
 [nolog]
 [p]
 [endnolog]
 
 #
 [default_window]
-从头顶到脚尖，一种从未体验过的快感袭遍全身。[p]
-能够感受到，在深处迎来绝顶时，全身都在欢喜雀跃。[p]
+从头顶到脚尖，前所未有的快感席卷全身。[p]
+我能感觉到全身都在为在最深处迎来绝顶而欢欣雀跃。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_1_sekkin.jpg" time="800"]
 
-或许是因为彼此同时达到了绝顶，望一下子脱力倒向了我的怀里。[p]
-彼此都没有说话，只是喘着粗气……但依然紧握着彼此的手，没有松开。[p]
+可能是因为我们同时达到了绝顶，望突然脱力倒在了我身上。[p]
+无言地，彼此都还在急促地喘息着……即便如此，我们依然没有松开紧握的手。[p]
 
 [saku_window]
 #朔
-啊，哈啊，哈啊……抱歉，我忍不住了……[p]
+呼、哈啊、哈啊……对不起，我忍不住了……[p]
 
 #
 [default_window]
@@ -553,11 +553,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-嗯嗯，是我说想要的……没关系哦？不过朔也一副很想射出来的表情呢……[p]
+嗯~嗯，是我说想要的……所以没关系哦？不过朔也是，一副想射的表情……[p]
 
 [saku_window]
 #朔
-什么表情啊那是……[p]
+那是什么表情啊……[p]
 
 #
 [default_window]
@@ -565,23 +565,23 @@ _　[cm]
 
 [nozomi_window]
 #望
-嘻嘻，不告诉你♡[p]
+呵呵，秘~密♡[p]
 
 [default_window]
 #
-真不太想自己去想象啊……。[p]
-我坐起身来，和望抱在了一起。[p]
-虽然满是汗水的身体已经凉了下来，但依然感到温暖，也许是因为我们仍然连在一起吧。[p]
+我可不太想想象自己是什么表情……[p]
+我从躺着的姿势坐起来，和望抱在一起。[p]
+虽然身体因出汗而变得冰凉，但还是能感受到温暖，可能是因为我们还保持着结合的状态吧。[p]
 
 [bg storage="CG7/CG7_sounyu_teoroshi_aka_2_sekkin.jpg" time="800"]
 
 [nozomi_window]
 #望
-居然主动抱过来……朔，意外地挺爱撒娇的嘛。[p]
+居然主动抱过来……朔，意外地喜欢撒娇呢[p]
 
 [saku_window]
 #朔
-谁知道呢……可能只是有点渴望人气吧。[p]
+是吗……可能是有点想要人的体温吧[p]
 
 #
 [default_window]
@@ -589,7 +589,7 @@ _　[cm]
 
 [nozomi_window]
 #望
-那个……谢谢你。[p]
+那个……谢谢你[p]
 
 [saku_window]
 #朔
@@ -601,11 +601,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-没什么，就是突然想说而已。[p]
+没什么，就是想说而已[p]
 
 [saku_window]
 #朔
-感觉这话该我说才对吧……出了这么多汗……再去冲个澡吧。[p]
+我觉得应该是我说才对……。出了好多汗……再去冲个澡吧[p]
 
 #
 [default_window]
@@ -613,7 +613,7 @@ _　[cm]
 
 [nozomi_window]
 #望
-啊，等一下嘛。[p]
+啊，等一下[p]
 
 [saku_window]
 #朔
@@ -621,28 +621,28 @@ _　[cm]
 
 [nozomi_window]
 #望
-……再这样一会儿。[p]
+……再这样待一会儿[p]
 
 [default_window]
 #
-这么说着，望把手绕到我的背后，紧紧地抱住了我。[p]
-受到她的影响，我也用同样的力度抱紧了望。[p]
+望一边这么说着，一边将手环绕在我的背上，紧紧地抱住了我。[p]
+受她影响，我也用同样的力道抱紧了望。[p]
 
 [fadeoutbgm]
 [bg storage="monolog_01.jpg" time="800"]
 
-然后。[p]
-从望的双手中，又传来了微微的颤抖。[p]
+这时。[p]
+从望的双手传来了微微的颤抖。[p]
 
 [nolog]
-似乎并不是因为在花径中被释放而感到恐惧。[p]
+看来她并不是因为被射在花径里而感到恐惧。[p]
 [endnolog]
 
-[pushlog text="似乎并不是因为在花径中被释放而感到恐惧。"]
+[pushlog text="看来她并不是因为被射在花径里而感到恐惧。"]
 
-那么……她到底在害怕什么呢？[p]
-彼此沉浸在快感的余韵中……[p]
-对于这样的望，我却没有心情去追问。[p]
+那么……她到底在害怕什么呢。[p]
+我们彼此沉浸在快感的余韵中……[p]
+面对这样的望，我却无法开口询问。[p]
 
 
 

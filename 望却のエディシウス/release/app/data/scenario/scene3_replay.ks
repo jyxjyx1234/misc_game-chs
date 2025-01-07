@@ -69,35 +69,35 @@
 
 [nozomi_window]
 #渚
-冰凉的，真舒服──[p]
+冰凉舒适──[p]
 
 [default_window]
 #
-感受到浪花拍打后又退去，从脚下带走沙子的触感，我不禁觉得有些痒痒的。[p]
-忽然看了一眼手表，我想起了一件事。[p]
+感受着涨落的海浪从脚下冲刷走沙子的触感，不禁觉得有些痒痒的。[p]
+我不经意间看了眼手表，突然想起了一件事。[p]
 
 [saku_window]
 #朔
-……啊……这个时间应该正忙着收尾工作吧……[p]
+……啊……这会儿应该正忙着收尾工作吧……[p]
 
 [default_window]
 #
-明明已经尽情享受了假期，可一旦回过神来，脑海中浮现的却全是工作的事情。[p]
-本来或许该抱怨几句才对……[p]
-即使被逼到想跳进电车轨道的地步，脑海里首先浮现的却是担忧和不安之类的情绪。[p]
-看来，这种心态已经深深地烙印在我身上了。[p]
+明明正尽情享受着假期，一回过神来想起的却全是工作的事。[p]
+本该抱怨几句的，但是……[p]
+即便被逼到跳上电车轨道的地步，首先想到的却是担心和焦虑之类的情绪。[p]
+看来，我已经被这样的习惯根深蒂固地影响了。[p]
 
 [stopse buf="3"]
 [bg storage="CG4/CG4_sage_2.jpg" time="800"]
 [cg storage="CG4/CG4_sage_2.jpg"]
 [nozomi_window]
 #渚
-朔，你的工作开心吗？[p]
+朔的工作有意思吗？[p]
 
 [saku_window]
 #朔
-一点都不开心啊。每天都在重复同样的事情，却连休息的时间都没有……[p]
-这个话题要是开始说起来就没完没了了。[p]
+哪里有意思啊。每天都是重复同样的事，还没时间休息……[p]
+这话题一开始就没完没了了[p]
 
 #
 [default_window]
@@ -105,19 +105,19 @@
 
 [nozomi_window]
 #渚
-虽然无聊，但每天都一直努力着呢。我也能理解那种对重复日子的厌倦感。[p]
+即使很无聊，您也一直在坚持呢。我也能理解每天重复同样的事情会让人厌烦的心情[p]
 
 [default_window]
 #
-渚补充了一句，说自己并没有在工作。[p]
+渚补充道，虽然我没有工作。[p]
 
 [saku_window]
 #朔
-这种时候还要想起工作的事情，真是没必要啊。[p]
+这种时候就别想起工作的事了[p]
 
 [default_window]
 #
-我这么嘟囔了一句，渚突然轻轻提起了自己的裙摆──[p]
+我这么嘟囔着，渚突然抓起自己裙子的下摆──[p]
 
 [clearfix name="role_button"]
 @layopt layer=message0 visible=false
@@ -138,17 +138,17 @@
 
 [saku_window]
 #朔
-哇啊……！好凉！[p]
+哇……！好冷！[p]
 
 [bg storage="CG4/CG4_sage_4.jpg" time="800"]
 [cg storage="CG4/CG4_sage_4.jpg"]
 [nozomi_window]
 #渚
-约会的时候要开心点嘛！陪着朔的可不是工作，而是我哦？[p]
+约会的时候就该开心点嘛！朔的对象可是我，不是工作哦？[p]
 
 [saku_window]
 #朔
-这倒是没错……[p]
+话是这么说没错……[p]
 
 #
 
@@ -167,18 +167,18 @@
 
 [nozomi_window]
 #渚
-在沙滩上互相泼水也是约会的乐趣之一啊！[p]
+在海滩上互相泼水不也是约会的乐趣之一吗！[p]
 
 #
 [default_window]
 [bg storage="CG4/CG4_age_6_zoom.jpg" time="800"]
 [cg storage="CG4/CG4_age_6_zoom.jpg"]
-阳光下，波光粼粼的水面映衬着渚无忧无虑的笑容。[p]
-那笑容，比大海，比太阳还要耀眼夺目。[p]
+在波光粼粼的水面反射中，渚无忧无虑地笑着。[p]
+她的表情看起来比海洋更明媚，比太阳更耀眼。[p]
 
 [bg storage="CG4/CG4_sage_2.jpg" time="800"]
 
-然而，我却在担心被海水弄湿的套装。[p]
+然而，我却在担心被海水打湿的套装。[p]
 
 [saku_window]
 #朔
@@ -186,15 +186,15 @@
 
 [default_window]
 #
-并不是讨厌套装被弄湿了。[p]
-而是讨厌自己竟然会在意像「套装被弄湿」这种『无聊的小事』。[p]
-所以──[p]
+我并不是讨厌套装被打湿。[p]
+我讨厌的是那个在意套装被打湿这种「无聊事」的自己。[p]
+所以——[p]
 
 [bg storage="CG4/CG4_age_2_zoom.jpg" time="800"]
 [cg storage="CG4/CG4_age_2_zoom.jpg"]
 [saku_window]
 #朔
-你给我记住啊啊啊啊啊！！[p]
+好啊，你竟敢这么做！！[p]
 
 [bg storage="CG4/CG4_age_5_zoom.jpg" time="800"]
 [cg storage="CG4/CG4_age_5_zoom.jpg"]
@@ -223,53 +223,53 @@
 
 [nozomi_window]
 #渚
-……等、等下，朔——！？[p]
+……诶，朔——！！？[p]
 
 [default_window]
 #
-假装要往渚身上泼海水，我却直接全身跳进了海里。[p]
+我装作要向渚泼水，实际上却整个人扑进了海里。[p]
 
 [fadeoutse buf="3"]
 [nozomi_window]
 #渚
-你、你在干什么啊！？套装都湿透了啊！[p]
+你、你在干什么啊！？套装都湿透了不是吗！[p]
 
 #
 [default_window]
 [bg storage="aozora2.jpg" time="800"]
 
-从稍远的地方，听到了渚担忧的声音。[p]
-啊，确实湿透了，别提多难受了。[p]
-漂浮在水面上，我仰望着天空。[p]
+从稍远的地方，传来了渚担心的声音。[p]
+啊，确实湿透了，难受得不得了。[p]
+漂浮在水中，仰望着天空。[p]
 但是……[p]
 
 [stopse buf="3"]
 [bg storage="densha_01_kako.jpg" time="1200" method="vanishIn"]
 
-逃避工作，特意跑到这遥远的卯之岛，和渚尽情地玩闹了一番，可我却……[p]
+翘掉工作，特意跑到卯之岛这么远的地方，和渚玩了个痛快，可我却……[p]
 
 [bg storage="monolog_01.jpg" time="1200" method="vanishIn"]
 
-依然没能跨过那个「界限」。[p]
-对自己所处的境况……对偏离轨道后的方向，我依然无法由衷地感到享受。[p]
-另一个冷静的自己，从轨道上冷漠地注视着我。[p]
-我意识到了这一点。[p]
-我的心还在试图回到原来的生活中去。[p]
+还是没能到达「另一边」。[p]
+我还不能从内心真正地享受自己所处的状况……脱离轨道后的前路。[p]
+另一个冷静的自己，正站在轨道上用冷漠的眼神看着我。[p]
+我突然意识到了这一点。[p]
+内心深处，我仍在试图回到原来的生活。[p]
 
 [bg storage="mizu.jpg" time="1200" ]
 
-正因为不甘心，所以才想强迫自己去做那些平常绝对不会做的事。[p]
-当然，做了这些也不会让什么发生改变……[p]
+我讨厌这样，所以才想着无论如何也要做一些平常的我绝对不会做的事。[p]
+当然，做了这些事也不会有什么改变……[p]
 
 [bg storage="aozora2.jpg" time="800"]
 [saku_window]
 #朔
-……哈啊。[p]
+……哈哈[p]
 
 [default_window]
 #
 我到底在干什么啊？[p]
-做这种事，衣服被海水弄湿了，只会增加洗衣服的麻烦而已。[p]
+这样做，只会让衣服被海水浸湿，增加洗衣服的麻烦而已。[p]
 但是…………[p]
 
 [saku_window]
@@ -278,14 +278,14 @@
 
 [default_window]
 #
-心情稍微有点豁然开朗了。[p]
+感觉心情稍微轻松了一些。[p]
 
 [bg storage="umi01_2.jpg" time="800"]
 [chara_show  name="望1_ネックレス有" face="gyagu2" top="50" width="1600" height="2259"]
 
 [nozomi_window]
 #渚
-快点回来啊！[p]
+快点回来啊——！[p]
 
 [default_window]
 #
@@ -293,11 +293,11 @@
 
 [saku_window]
 #朔
-抱歉，抱歉。[p]
+抱歉，抱歉[p]
 
 [default_window]
 #
-从漂浮的姿势站起来，试图回到渚身边……[p]
+从漂浮的姿势站起来，准备回到渚那里……[p]
 
 [chara_hide_all time=500 wait=false]
 [playse buf="3"  storage="Diving.mp3" volume="50"]
@@ -309,18 +309,18 @@
 
 [default_window]
 #
-可能是被冲得比想象中更远了，脚踩空了，脸直接扑进了水里。[p]
+可能是被冲得比想象中还要远，想要踩到底的脚落空了，整张脸都扎进了水里。[p]
 
 [bg storage="CG4/CG4_age_4_zoom.jpg" time="800"]
 [cg storage="CG4/CG4_age_4_zoom.jpg"]
 
 [nozomi_window]
 #渚
-真是的。我可没带毛巾哦？[p]
+哎呀。我可没带毛巾之类的东西哦？[p]
 
 [saku_window]
 #朔
-没事，反正现在感觉什么都无所谓了。湿了也完全不在意。[p]
+没事。感觉什么都无所谓了。就算湿透了也完全不在乎[p]
 
 #
 [default_window]
@@ -328,7 +328,7 @@
 
 [nozomi_window]
 #渚
-……不过确实，现在的朔，看起来真的很开心呢。[p]
+……不过确实，现在的朔看起来非常开心呢[p]
 
 #
 [default_window]
@@ -336,36 +336,36 @@
 
 [saku_window]
 #朔
-渚你也试试吧。[p]
+渚也来试试吧[p]
 
 [default_window]
 #
-虽然是开玩笑这么说的……[p]
+虽然是半开玩笑地这么说……[p]
 
 [bg storage="CG4/CG4_age_7_zoom.jpg" time="800"]
 [cg storage="CG4/CG4_age_7_zoom.jpg"]
 
 [nozomi_window]
 #渚
-……真的？[p]
+……真的吗？[p]
 
 [saku_window]
 #朔
-既然是约会，怎么能只有一方参与呢？[p]
+这可是约会啊，只有一个人玩可不行吧[p]
 
 [default_window]
 #
-虽然我自己也觉得这理由有点强词夺理。[p]
+虽然我自己也觉得这理由荒谬至极。[p]
 
 [bg storage="CG4/CG4_age_4_zoom.jpg" time="800"]
 
 [nozomi_window]
 #渚
-你不会是在开玩笑吧？[p]
+你不是在开玩笑吧？[p]
 
 [saku_window]
 #朔
-要是不愿意的话，那我一个人再去游一圈好了。[p]
+要是你不愿意的话，我就自己再游一会儿[p]
 
 #
 [default_window]
@@ -373,7 +373,7 @@
 
 [nozomi_window]
 #渚
-啊——真是的，好吧！那、那我也……跳下去就是了！[p]
+啊——好吧我知道了！那、那我也……跳进去就是了[p]
 
 #
 [default_window]
@@ -381,15 +381,15 @@
 
 [nozomi_window]
 #渚
-欸、欸——！[p]
+呃、咿！[p]
 
 #
 [default_window]
 [playse buf="3"  storage="Splash2.mp3" volume="50"]
 [bg storage="umi01_2.jpg" time="800"]
 
-小心翼翼地跳了下去……[p]
-结果水很浅，只浸到了腰。[p]
+虽然战战兢兢地跳了进去……[p]
+看来水很浅，只没到腰部。[p]
 
 [chara_show  name="望1_ネックレス有" face="gyagu1" top="50" width="1600" height="2259" time=200]
 [wait  time="100"]
@@ -403,7 +403,7 @@
 
 [saku_window]
 #朔
-哈哈，我觉得你很可爱啊。[p]
+哈哈，我在想你真可爱[p]
 
 #
 [default_window]
@@ -413,11 +413,11 @@
 
 [nozomi_window]
 #渚
-那当然了，我可是很可爱的。[p]
+那是当然。我本来就很可爱[p]
 
 [saku_window]
 #朔
-我来给你示范一下，跳水应该是这样的——！[p]
+让我来示范一下。跳水应该是这样的——！[p]
 
 #
 [default_window]
@@ -432,11 +432,11 @@
 
 [nozomi_window]
 #渚
-哇扑！[p]
+哇噗！[p]
 
 [default_window]
 #
-跳水的冲击力激起的水花，直接击中了渚的脸。[p]
+飞溅起的水直接击中了渚的脸。[p]
 
 [chara_mod  name="望1_ネックレス有" face="gimon" cross=false time=500 wait=false]
 
@@ -454,8 +454,8 @@
 [playse buf="3"  storage="Diving.mp3" volume="30"]
 [wait  time="1000"]
 
-渚也用力地跳进了海水里，全身都湿透了。[p]
-刚一露出脸站起来，看来是呛了一口海水……[p]
+渚也猛地跳进海水中，整个身子都湿透了。[p]
+我还以为她马上就露出脸站起来了，但看来似乎是不小心喝到了海水……[p]
 
 [mask time=" 500" graphic="shiro.jpg"]
 [chara_hide_all time=0 wait=true]
@@ -465,17 +465,17 @@
 
 [nozomi_window]
 #渚
-……好咸啊——！呸，呸！[p]
+……好咸————！呸、呸[p]
 
 [saku_window]
 #朔
-哈哈哈，跳得不错嘛！[p]
+哈哈哈，你跳得真不错！[p]
 
 [bg storage="CG4/CG4_age_4_zoom.jpg" time="800"]
 
 [nozomi_window]
 #渚
-呜呜……这样子我们怎么回去啊！[p]
+呜呜……这种状态要怎么回去啊[p]
 
 [saku_window]
 #朔
@@ -484,19 +484,19 @@
 [bg storage="CG4/CG4_age_7_zoom.jpg" time="800"]
 [nozomi_window]
 #渚
-欸，那就是说……不回去了！？[p]
+诶，那……意思是不回去了！？[p]
 
 [saku_window]
 #朔
-不回去的话，这样的状态还能去哪儿啊？[p]
+不回去的话你想去哪啊，这种状态[p]
 
 [nozomi_window]
 #渚
-欸……？那、那个……比如酒店之类的……？[p]
+诶……？那个……酒、酒店之类的……？[p]
 
 #
 [default_window]
-心里突然一阵小鹿乱撞。[p]
+我心里突然一惊。[p]
 
 [clearfix name="role_button"]
 @layopt layer=message0 visible=false
@@ -514,7 +514,7 @@
 
 [nozomi_window]
 #渚
-你脸红什么呀！难、难道你是个处男吗？[p]
+你脸红什么啊！你、你该不会是处男吧？[p]
 
 #
 [clearfix name="role_button"]
@@ -533,7 +533,7 @@
 
 [saku_window]
 #朔
-因为完全没想到你会说这种话嘛……[p]
+因为没想到你会说这种话……[p]
 
 #
 [default_window]
@@ -541,18 +541,18 @@
 
 [nozomi_window]
 #渚
-真是的，当然是在开玩笑啦！[p]
+真是的，这不是明摆着在开玩笑吗！[p]
 
 [default_window]
 #
-渚经常开玩笑，但有时候会夹杂一些让人分不清是不是玩笑的话，真是让人头疼……。[p]
+渚经常开玩笑，但有时候会混杂一些分不清是不是玩笑的话，这就麻烦了……[p]
 
 [bg storage="umi02.jpg" time="800"]
 [chara_show  name="望1_ネックレス有" face="gimon" top="50" width="1600" height="2259" time=500]
 
 [saku_window]
 #朔
-我就这样湿着回去吧。这时间段的电车应该还算空。[p]
+我就这样湿着回去吧。这个时间电车应该也不太挤[p]
 
 #
 [default_window]
@@ -562,11 +562,11 @@
 
 [nozomi_window]
 #渚
-朔要是感冒了我可不管哦！[p]
+朔要是感冒了我可不管哦？[p]
 
 [default_window]
 #
-她倒是完全不担心自己会不会感冒……。[p]
+她倒是不担心自己会感冒啊……[p]
 
 
 ;;; リプレイモード終了

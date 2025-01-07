@@ -52,14 +52,14 @@
 [bg storage="CG8/CG8_ushiro.jpg" time="800"]
 [playbgm storage="08Voices_orgel.mp3" volume="40"]
 
-『就好像从一开始就下定了决心』一般──[p]
-毫不犹豫地，踩上了栏杆。[p]
+仿佛从一开始就决定要这么做一样——[p]
+毫不犹豫地，她把脚搭上了栏杆。[p]
 
 [bg storage="CG8/CG8_yokogao_3.jpg" time="800"]
 
-直到注意到这一点，我才终于明白望打算做什么。[p]
-她要去8楼阳台的另一侧。[p]
-这一行为的意义，实在是再明显不过了。[p]
+直到注意到这一点，我才终于明白望想要做什么。[p]
+她要越过8楼阳台的另一侧。[p]
+这个行为所意味的东西，再明显不过了。[p]
 
 [saku_window]
 #朔
@@ -69,39 +69,39 @@
 [default_window]
 [bg storage="CG8/CG8_yokogao_1.jpg" time="800"]
 
-望看向了我。[p]
-那饱含忧伤的目光，映照着黑暗的夜色。[p]
+望看向了这边。[p]
+她那充满忧愁的眼神，映照着漆黑夜晚的黑暗。[p]
 
 [bg storage="CG8/CG8_yokogao_1_zoom.jpg" time="800"]
 
-可即便如此……[p]
-她的身影，却让我觉得有种莫名的美……[p]
-不自觉地，这样感觉到了。[p]
-──然而。[p]
+尽管如此……[p]
+我却无意识地感觉到……[p]
+她那身影有种说不出的美。[p]
+——然而。[p]
 
 [bg storage="CG8/CG8_yokogao_2.jpg" time="800"]
 
-再走几步就能触碰到她了。[p]
-可即便如此，这段距离却仿佛遥不可及。[p]
-我拼命伸手想要阻止望。[p]
-一定要阻止她！[p]
-一定要阻止她──。[p]
+再走几步就能够到她了。[p]
+可是，那段距离却仿佛永恒一般遥远。[p]
+我拼命伸出手想要阻止望。[p]
+必须阻止她！[p]
+一定要阻止她——[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="kuro.jpg" time="0"]
 [stopbgm]
 [mask_off time="300" wait="true"]
 
-──因为如果不阻止她，从这里跳下去的话……[p]
-被以协助自杀罪逮捕的，就是我啊──[p]
+——因为如果不阻止的话，让她从这里跳下去的话……[p]
+因为协助自杀而被逮捕的，可是我啊——[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="CG8/CG8_yokogao_1.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-所以我伸出了手，却──够不到。[p]
+所以我伸出手——却够不到。[p]
 
-就在我踏出阳台的瞬间，望已经──[p]
+我冲出阳台的瞬间，望已经——[p]
 
 [clearfix name="role_button"]
 @layopt layer=message0 visible=false
@@ -126,7 +126,7 @@
 
 [nozomi_window]
 #望
-拜拜。[p]
+拜拜[p]
 
 #
 [default_window]
@@ -161,20 +161,20 @@
 
 [saku_window]
 #朔
-──────啊！[p]
+——————！[p]
 
 #
 [default_window]
 [bg storage="kuro.jpg" time="300"]
-在下落的过程中，我们的目光交汇了。[p]
-她露出幸福的笑容，同时泪珠在空中飞舞。[p]
-然后，望的身体被黑暗吞噬……[p]
+在她坠落的过程中，我们的目光相遇了。[p]
+她幸福地笑着，泪珠在空中飞舞。[p]
+然后望的身体被黑暗吞噬……[p]
 
 [wait time=" 500"]
 [playse buf="3"  storage="BodyDrop_echo.mp3" volume="60"]
 [wait time=" 3500"]
 
-我确实看到了那一幕，听到了那个声音。[p]
+我确实亲眼目睹了那一幕，亲耳听到了那声音。[p]
 
 
 ;;; リプレイモード終了

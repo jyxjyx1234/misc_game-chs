@@ -55,10 +55,10 @@ HFONT WINAPI HookedCreateFontIndirectW(CONST LOGFONTW* lplf)
         printf("Change Charset sucess!\n");
     }
 
-    int scale_factor = configW.ReadInt("FONT", "ScaleFactor", 10);
+    int scale_factor = configW.ReadInt("FONT", "ScaleFactor", 100);
 
-    modifiedLf.lfHeight = modifiedLf.lfHeight * scale_factor / 10;
-    modifiedLf.lfWidth = modifiedLf.lfWidth * scale_factor / 10;
+    modifiedLf.lfHeight = modifiedLf.lfHeight * scale_factor / 100;
+    modifiedLf.lfWidth = modifiedLf.lfWidth * scale_factor / 100;
 
     printf("Change Font: Sucessful!\n\n");
 

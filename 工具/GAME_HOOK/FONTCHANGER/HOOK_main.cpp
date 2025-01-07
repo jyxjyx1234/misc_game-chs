@@ -38,6 +38,7 @@ void loadfont(){
     }
 }
 
+
 void HOOK_main() {
 	rr::RConfig config;
 	config.ReadConfig("hook.ini");

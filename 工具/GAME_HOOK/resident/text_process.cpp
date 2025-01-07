@@ -197,6 +197,7 @@ HFONT change_font(HDC hdc, BOOL isForce = false) {
 
 DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMETRICS lpgm, DWORD cbBuffer, LPVOID lpvBuffer, const MAT2* lpmat2)
 {
+    DWORD res;
     char bytes[3]; 
     UINT t = uChar;
     bytes[0] = static_cast<char>((t >> 8) & 0xFF); 
@@ -207,25 +208,28 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
 	}
     if (bytes[0] == '\x00') {
         HFONT oriFont = change_font(hdc);
-        DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
         SelectObject(hdc, oriFont);
-        return res;
+		return res;
+    }
+    else {
+        std::string str(bytes);
+        std::wstring wstr = sjisStringToWString(str);
+        if (charReplaceMap.find(wstr) != charReplaceMap.end()) {
+            wstr = charReplaceMap[wstr];
+            uChar = static_cast<UINT>(wstr.c_str()[0]);
+            HFONT oriFont = change_font(hdc);
+            res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+            SelectObject(hdc, oriFont);
+        }
+        else {
+            HFONT oriFont = change_font(hdc);
+            res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+            SelectObject(hdc, oriFont);
+        }
     }
 
-    std::string str(bytes);
-    std::wstring wstr = sjisStringToWString(str);
-    if (charReplaceMap.find(wstr) != charReplaceMap.end()) {
-        wstr = charReplaceMap[wstr];
-        uChar = static_cast<UINT>(wstr.c_str()[0]);
-        HFONT oriFont = change_font(hdc);
-        DWORD res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        SelectObject(hdc, oriFont);
-        return res;
-    }
-
-	HFONT oriFont = change_font(hdc);
-    DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-    SelectObject(hdc, oriFont);
+    // 返回修改后的字形位图大小
     return res;
 }
 

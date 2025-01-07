@@ -97,10 +97,11 @@ class OriJsonOutput():
         self.dic = {}
     
     def add_text(self, text):
-        self.dic['message'] = self.dic.get("message","") + text
+        self.dic['ori'] = self.dic.get("message","") + text
+        self.dic['message'] = self.preProcess(self.dic['ori'])
     
     def add_name(self, name):
-        self.dic['name'] = name
+        self.dic['name'] = self.preProcess(name)
     
     def remove_name(self):
         try:
@@ -115,26 +116,24 @@ class OriJsonOutput():
             l = len(self.outlist) // split
             for i in range(split):
                 outlist = self.outlist[i*l : i*l + l] if i+1 != split else self.outlist[i*l : ]
-                save_json(f'{i+1}_{path}', outlist)
+                save_json(f'{path}_{i+1}.json', outlist)
     
     def append_dict(self, quchong = False, remove_name = True):
         if "message" not in self.dic or not self.savefilter(self.dic):
             return
         
-        self.dic["message"] = self.preProcess(self.dic["message"])
         if "name" in self.dic:
-            self.dic["name"] = self.preProcess(self.dic["name"])
             if self.dic["name"] == "":
                 del self.dic["name"]
 
         if quchong:
-            if self.dic['message'] in self.messageset:
+            if self.dic['ori'] in self.messageset:
                 self.dic = {}
                 return
 
         self.outlist.append(self.dic)
         self.textcount += len(self.dic['message'])
-        self.messageset.add(self.dic['message'])
+        self.messageset.add(self.dic['ori'])
         if 'name' in self.dic:
             if not remove_name:
                 self.dic = {'name':self.dic['name']}

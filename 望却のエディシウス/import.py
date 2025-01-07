@@ -35,6 +35,5 @@ for i in range(len(f)):
 如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。[p]
 @layopt layer=message0 visible=false
 @layopt layer=message1 visible=false
-
 ''')
 fw.close()

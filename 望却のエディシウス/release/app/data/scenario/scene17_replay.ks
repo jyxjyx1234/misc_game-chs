@@ -27,7 +27,7 @@
 
 [saku_window]
 #朔
-你说你睡不着在想事情，那到底在想什么啊？[p]
+你说你睡不着在想事情，到底在想什么呢？[p]
 
 #
 [default_window]
@@ -35,7 +35,7 @@
 
 [nozomi_window]
 #望
-……嗯……就是关于过去的自己啊……还有未来的事情之类的……[p]
+……那个……在想过去的自己啊……还有以后的事情之类的[p]
 
 #
 [default_window]
@@ -43,11 +43,11 @@
 
 [nozomi_window]
 #望
-我啊，到现在都完全没有主动去做过什么事情……[p]
+我啊，到现在为止几乎从来没有主动去做过什么……[p]
 
 [saku_window]
 #朔
-啊——……所以你才想着一个人去吗？[p]
+啊——……所以你才想一个人去吗[p]
 
 #
 [default_window]
@@ -55,7 +55,7 @@
 
 [nozomi_window]
 #望
-也有这个原因啦，不过……最主要还是刚才说的那个理由。[p]
+这也是原因之一，不过……最主要的还是刚才说的那个理由[p]
 
 #
 [default_window]
@@ -63,11 +63,11 @@
 
 [nozomi_window]
 #望
-想着要好好做事的话，果然不能再给朔添麻烦了嘛。[p]
+我觉得自己必须要好好做，所以果然不能给朔添麻烦啊[p]
 
 [saku_window]
 #朔
-无所谓啦……[p]
+我倒是无所谓……[p]
 
 #
 [default_window]
@@ -80,7 +80,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = true;
 
 [nozomi_window]
 #望
-不行。我啊，昨天在想呢……朔真是个奇怪的人。
+不行。我啊，昨天在想……朔真是个奇怪的人呢
 [wait time=" 6500"]
 [bg storage="CG19/CG19_shihuku_n_8.jpg" time="800"]
 [p]
@@ -92,7 +92,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [saku_window]
 #朔
-我还以为是什么事呢，结果突然被骂了…………[p]
+我还以为什么呢，突然就开始说坏话了…………[p]
 
 #
 [default_window]
@@ -100,7 +100,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-嗯嗯。我不是想骂你啦……[p]
+嗯——嗯。我不是想说坏话……[p]
 
 #
 [default_window]
@@ -108,10 +108,10 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-因为嘛……一开始愿意当我的约会对象，然后又收留了无处可去的我……[p]
+因为……你不仅愿意做我的约会对象，还收留了无处可去的我……[p]
 
 #望
-还没有放弃意志薄弱的我……甚至还给了我直面自己的勇气。[p]
+没有抛弃意志薄弱的我……还给了我面对自己的勇气[p]
 
 #
 [default_window]
@@ -119,11 +119,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-所以，我就觉得，真是个奇怪的人呢。[p]
+所以，我觉得你是个奇怪的人[p]
 
 [saku_window]
 #朔
-这是在夸我吗……？[p]
+这算是在夸我吗……？[p]
 
 #
 [default_window]
@@ -131,7 +131,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-哈哈，这就不知道啦？……不过朔，你一开始不就是只用色色的眼光看我吗？[r]
+啊哈哈，谁知道呢？……不过朔，你一开始只是用色眯眯的眼光看我吧[r]
 [p]
 
 [saku_window]
@@ -144,11 +144,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-沉默了呢。[p]
+你不说话了[p]
 
 [saku_window]
 #朔
-太真实了，我都无话可说了。[p]
+太真实了，我无言以对[p]
 
 #
 [default_window]
@@ -161,7 +161,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = true;
 
 [nozomi_window]
 #望
-哈哈哈。不过……看到朔想要改变自己啊，我就觉得，啊，朔真厉害……
+啊哈哈。不过……看着朔努力想要改变的样子，我就在想，啊，朔真了不起……
 [wait time=" 600"]
 [bg storage="CG19/CG19_shihuku_n_3.jpg" time="800" wait=false]
 [p]
@@ -172,7 +172,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 [endscript]
 
 #望
-像那样想着去改变自己，我以前都从来没想过……[p]
+像这样想要改变自己，我从来都没有想过……[p]
 
 #
 [default_window]
@@ -180,11 +180,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-所以呢，多亏了朔，我……虽然只是一点点，但感觉自己也能慢慢改变了。[p]
+所以啊，多亏了朔，我……虽然是一点点，但感觉自己也能慢慢改变了[p]
 
 [saku_window]
 #朔
-那作为感谢，给我一个吻也可以吧？[p]
+那作为感谢，亲一下我也不过分吧[p]
 
 #
 [default_window]
@@ -192,11 +192,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-呵呵呵……笨蛋。不过，谢谢你…………[p]
+呵呵呵……傻瓜。不过，谢谢你…………[p]
 
 [saku_window]
 #朔
-……虽然我觉得这是个很糟糕的请求，不过，你说的「谢谢」是谢什么啊？[p]
+……我还以为这是个过分的要求呢，你说「谢谢」是在谢什么啊？[p]
 
 #
 [default_window]
@@ -204,7 +204,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-…………我啊…………连同朔的……像这样的地方在内………………[p]
+…………我啊…………朔的……包括这样的地方在内………………[p]
 
 #
 [default_window]
@@ -224,17 +224,17 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [saku_window]
 #朔
-(睡得也太快了吧！)[p]
+（睡得真快！）[p]
 
 [default_window]
 #
-(不过她昨天说没睡好啊……。)[p]
-望那张安详的睡脸上，已经完全看不到曾经被不安和内疚折磨的痕迹了。[p]
+不过她昨天说没睡好……。[p]
+望平静的睡颜上，看不到一丝曾经被不安和愧疚折磨的痕迹。[p]
 
 [bg storage="jishitsu_hiru_01.jpg" time="1000" wait=true]
 
 我也稍微小睡一会儿……[p]
-等醒来后再查查关于自首的手续吧。[p]
+醒来后就去查查自首的相关手续吧。[p]
 
 ………………[p]
 …………[p]

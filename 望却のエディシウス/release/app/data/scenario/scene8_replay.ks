@@ -29,7 +29,7 @@
 
 [saku_window]
 #朔
-望，你在干什么……！！？[p]
+望！你在干什么……！！？[p]
 
 [nozomi_window]
 #望
@@ -53,7 +53,7 @@
 
 [saku_window]
 #朔
-────────啊[p]
+────────唔[p]
 
 #
 [default_window]
@@ -64,26 +64,26 @@
 
 啊────[p]
 
-这次的，特别糟糕……是个噩梦。[p]
-望──想要杀了我。[p]
-瞬间，身体僵硬了。[p]
+这次的，尤其糟糕……是个可怕的噩梦。[p]
+望──正试图杀死我。[p]
+瞬间，我的身体僵硬了。[p]
 
 ;ナイフ部分ズーム
 [bg storage="CG9/CG9_sasumae_2_3.jpg" time="800"]
 
-然后，那把仅仅为了『刺下去』而握紧的刀。[p]
+然后，是那把只为「刺杀」而握着的刀。[p]
 
 [bg storage="kuro.jpg" time="800"]
 
-几乎是无意识地，用双手遮住了脸。[p]
+几乎是下意识地，我用双臂遮住了脸。[p]
 纯粹的恐惧。[p]
 死亡的预感。[p]
 
 [bg storage="CG9/CG9_sasumae_2_2.jpg" time="800"]
 
-但是，杀人这种事────。[p]
-……『正常来说』应该会犹豫吧。[p]
-就在那一瞬间，这个念头从脑海中闪过。[p]
+然而，杀人这种事────。[p]
+……「正常来说」应该会产生犹豫才对。[p]
+就在这个念头一闪而过的瞬间。[p]
 
 [mask time=" 400" graphic="kuro.jpg"]
 [stop_kanim]
@@ -112,15 +112,15 @@
 @layopt layer=message0 visible=true
 @layopt layer=message1 visible=true
 
-脖子上，一股炙热的东西猛地刺了进来。[p]
-这已经不是擦过那么简单了──[p]
+有什么灼热的东西悄然刺入了我的脖颈。[p]
+这已经不是擦伤的程度了──[p]
 
 [mask time=" 400" graphic="red.jpg"]
 [wait time=" 400"]
 [bg storage="CG9/CG9_sashi_udenashi_3_1.jpg" time="0"]
 [mask_off time="250" wait="true"]
 
-仅仅是为了完成一个单一的目的────[p]
+为了单一的目的────[p]
 
 [mask time=" 400" graphic="red.jpg"]
 [bg storage="CG9/CG9_sashi_udenashi_3_2.jpg" time="0"]
@@ -132,13 +132,13 @@
 [bg storage="CG9/CG9_sashi_udenashi_3_3.jpg" time="0"]
 [mask_off time="250" wait="true"]
 
-仿佛要直达脊髓一般──────[p]
+仿佛要刺穿脊髓一般──────[p]
 
 [bg storage="red.jpg" time="800"]
 
 [saku_window]
 #朔
-──呃……啊啊啊啊啊啊啊啊！！！！！[p]
+──唔……啊啊啊啊啊啊啊啊啊！！[p]
 
 #
 [default_window]
@@ -146,9 +146,9 @@
 [bg storage="CG9/CG9_sashi_udenashi_3_2.jpg" time="0"]
 [mask_off time="250" wait="true"]
 
-几乎是本能地惨叫出声。[p]
-痛楚伴随着炙热感袭来。[p]
-炙热感不由分说地让人联想到死亡。[p]
+我几乎是条件反射般地尖叫出声。[p]
+疼痛伴随着热量。[p]
+热量不由自主地让人联想到死亡。[p]
 
 [bg storage="CG9/CG9_sashi_udenashi_3_2_2.jpg" time="800"]
 
@@ -156,41 +156,41 @@
 
 [bg storage="CG9/CG9_sashi_udenashi_3_2_1.jpg" time="800"]
 
-好烫……啊！！！[p]
-几乎是自动反应般，用尽全力挣扎着挥动四肢。[p]
+好烫……！！！[p]
+我几乎是下意识地用四肢使劲反抗。[p]
 
 [bg storage="CG9/CG9_sashi_udenashi_3_3_1.jpg" time="800"]
 
-但望却丝毫没有松手的意思。[p]
+但望却丝毫没有松开的意思。[p]
 不对──[p]
 
 [mask time=" 400" graphic="kuro.jpg"]
 [bg storage="kuro.jpg" time="300"]
 [mask_off time="250" wait="true"]
 
-不仅如此，她还在不断用更大的力气把刀刃刺进去。[p]
-为了绝对达成杀人的目的，只是为了这一点──[p]
+不仅如此，她还在持续施加强大的力量，试图将刀刃刺得更深。[p]
+她只有一个念头，那就是必须完成杀害──[p]
 我……[p]
-不知什么时候，我开始拼命试图堵住从脖子里涌出的液体。[p]
-恐惧扭曲了我的内心，甚至不知道自己现在在做什么……[p]
+不知不觉中，我已经在拼命地试图阻止从脖子上流出的液体。[p]
+恐惧扭曲了我的心智，甚至连自己现在在做什么都不知道……[p]
 
 [fadeoutbgm]
 [bg storage="CG9/CG9_sashi_udenashi_3_2_1.jpg" time="800"]
 
 [nozomi_window]
 #望
-……明明死一次就够了啊。[p]
+……明明只死一次就够了[p]
 
 #
 [default_window]
 [bg storage="CG9/CG9_sashi_udenashi_3_2_3.jpg" time="800"]
 
-啊啊────已经……[p]
-力气……[p]
+啊────已经[p]
+使不上[p]
 
 [bg storage="CG9/CG9_sashi_udenashi_3_2_4.jpg" time="800"]
 
-使不上了……………………[p]
+力气了……………………[p]
 
 ;;; 以降、セリフごとに刺される演出を入れる。ここから
 [playbgm storage="01Voices_horror2.mp3" volume="50"]
@@ -203,12 +203,12 @@
 [playse buf="3"  storage="knife_saku.mp3" volume="40"]
 [nozomi_window]
 #望
-早就已经做好死的准备了。无数次下定决心，无数次去执行……！[p]
+明明早就做好了死亡的准备。一次又一次地下定决心，付诸实践……！[p]
 
 [wait time=500]
 
 #望
-可是，就是死不了──[p]
+可是，却死不了──[p]
 
 #
 [default_window]
@@ -220,7 +220,7 @@
 
 [nozomi_window]
 #望
-──为什么要一次又一次地救我！！！[p]
+──别一次又一次地救我啊！！！[p]
 
 #
 [default_window]
@@ -232,12 +232,12 @@
 
 [nozomi_window]
 #望
-你这个伪善者。[p]
+你这个伪善者[p]
 
 [wait time=500]
 
 #望
-如果你要来妨碍我的话……那就代替我去……[p]
+如果你要妨碍我……那就由你来……[p]
 
 #
 [default_window]
@@ -246,7 +246,7 @@
 
 [nozomi_window]
 #望
-去死吧。[p]
+去死[p]
 
 #
 [default_window]

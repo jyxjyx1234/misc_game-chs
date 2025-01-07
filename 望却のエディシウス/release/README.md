@@ -1,4 +1,4 @@
-本补丁由ALyCE\jyxjyx1234制作，使用gpt-4o进行翻译。
+本补丁由ALyCE\jyxjyx1234制作，使用claude-3.5-sonnet进行翻译。
 
 本补丁免费发布于2dfan\github。如果从 网赚盘（如飞猫云） or 付费 下载到本补丁，请顺手点个举报。
 

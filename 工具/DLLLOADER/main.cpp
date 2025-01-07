@@ -11,11 +11,58 @@
 #include "convert.h"
 #include "LE.h"
 
+bool IsRunAsAdmin()
+{
+    BOOL fIsRunAsAdmin = FALSE;
+    PSID pAdministratorsGroup = NULL;
+
+    // 创建一个 SID for the Administrators group.
+    SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+    if (AllocateAndInitializeSid(
+        &NtAuthority, 2,
+        SECURITY_BUILTIN_DOMAIN_RID,
+        DOMAIN_ALIAS_RID_ADMINS,
+        0, 0, 0, 0, 0, 0,
+        &pAdministratorsGroup))
+    {
+        CheckTokenMembership(NULL, pAdministratorsGroup, &fIsRunAsAdmin);
+        FreeSid(pAdministratorsGroup);
+    }
+
+    return fIsRunAsAdmin;
+}
+
+int RequestAdminPrivileges()
+{
+    TCHAR szPath[MAX_PATH];
+    if (!GetModuleFileName(NULL, szPath, ARRAYSIZE(szPath)))
+        return 1;
+
+    SHELLEXECUTEINFO sei = { sizeof(sei) };
+    sei.lpVerb = TEXT("runas");
+    sei.lpFile = szPath;
+    sei.nShow = SW_NORMAL;
+
+    if (!ShellExecuteEx(&sei))
+    {
+        DWORD dwError = GetLastError();
+        if (dwError == ERROR_CANCELLED)
+            std::cout << "User canceled the elevation.\n";
+        return 1;
+    }
+
+    return 0;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     PSTR lpCmdLine, int nCmdShow)
 {
     //FreeConsole();
+    if (!IsRunAsAdmin())
+    {
+        std::cout << "Not running as admin, attempting to elevate...\n";
+        return RequestAdminPrivileges();
+    }
     
     std::wstring current_path = std::filesystem::current_path().wstring();
 	rr::RConfig config;
@@ -44,10 +91,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         WideStringToLPCSTR(dllPathW, GetACP()),             // DLL 路径
         NULL);             // 保留字段
     ResumeThread(pi.hThread);
-    //WaitForSingleObject(pi.hProcess, INFINITE);
 
-    // 清理句柄
-    //CloseHandle(pi.hProcess);
-    //CloseHandle(pi.hThread);
+	/*CreateProcessW(targetW.c_str(), NULL, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi);
+    ResumeThread(pi.hThread);*/
     return 0;
 }

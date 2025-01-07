@@ -7,7 +7,7 @@
 
 [saku_window]
 #朔
-我不清楚……抱歉。我没见过。[p]
+不太清楚呢……抱歉。我没有印象[p]
 
 
 @jump storage="scene15.ks"

@@ -10,24 +10,24 @@
 [bg storage="kuro.jpg" time="0"]
 [mask_off time="2000" wait="true"]
 
-那一天我们彼此哭了又哭，哭了很久，直到哭累了……[p]
-看来我好像先睡着了。[p]
+那天我们互相哭泣，哭泣，哭到精疲力尽……[p]
+看来是我先睡着了。[p]
 
 [playbgm  storage="VSQSE_0586_city_bird.mp3" volume="50"]
 [bg storage="jishitsu_hiru_03.jpg" time="1500"]
 
-然后，第二天清晨。[p]
+然后，第二天早晨。[p]
 
 [bg storage="jishitsu_hiru_04.jpg" time="1000"]
 
 [saku_window]
 #朔
-……嗯嗯……？[p]
+…………嗯嗯……？[p]
 
 [default_window]
 #
-被一些声音吵醒了。[p]
-伸手想确认望是否还在身旁……但本该睡在旁边的望……不见了。[p]
+我被声响吵醒了。[p]
+伸手想确认望是否还在身边……但本应睡在旁边的望……不见了。[p]
 
 [saku_window]
 #朔
@@ -38,8 +38,8 @@
 [playse buf="3"  storage="huton.mp3" volume="30"]
 [bg storage="jishitsu_hiru_01.jpg" time="800"]
 
-我慌忙地跳了起来。[p]
-然后────[p]
+我慌忙跳起来。[p]
+这时────[p]
 
 [fadeoutbgm]
 [bg storage="jishitsu_hiru_02.jpg" time="800" wait=true]
@@ -48,15 +48,15 @@
 
 [nozomi_window]
 #望
-啊。抱歉……吵醒你了吧。现在才早上六点哦？[p]
+啊。对不起……吵醒你了。现在才6点哦？[p]
 
 [default_window]
 #
-望好像正在整理她的行李。[p]
+望似乎在整理自己的行李。[p]
 
 [saku_window]
 #朔
-望……？你要出门吗？[p]
+望……？你要……出门吗？[p]
 
 #
 [default_window]
@@ -64,16 +64,16 @@
 
 [nozomi_window]
 #望
-嗯。有点事儿。[p]
+嗯。就一会儿[p]
 
 [saku_window]
 #朔
-这么早就要出去？而且……[p]
+这么大清早？而且……[p]
 
 [default_window]
 #
-这几天总是在担心望出门后会不会出什么事……[p]
-对此最清楚的，应该是望自己吧。[p]
+这几天我一直在担心望出门后会怎么样……[p]
+最了解这一点的恐怕就是望自己了。[p]
 
 #
 [default_window]
@@ -81,7 +81,7 @@
 
 [nozomi_window]
 #望
-……瞒着也没用啊。那个……[p]
+……隐瞒也没用吧。那个……[p]
 
 #
 [default_window]
@@ -91,7 +91,7 @@
 
 [nozomi_window]
 #望
-我要去自首了。[p]
+我要去自首[p]
 
 [saku_window]
 #朔
@@ -105,7 +105,7 @@
 
 [nozomi_window]
 #望
-本来是打算一个人去的……结果还是把你吵醒了呢。[p]
+本来是打算一个人去的……不过把你吵醒了呢[p]
 
 [saku_window]
 #朔
@@ -117,11 +117,11 @@
 
 [nozomi_window]
 #望
-为什么……你也知道，我必须去自首吧？[p]
+为什么……你应该明白我必须去自首吧？[p]
 
 [saku_window]
 #朔
-我不是这个意思。……为什么要一个人去？[p]
+我不是这个意思。……为什么要一个人去[p]
 
 #
 [default_window]
@@ -131,13 +131,13 @@
 
 [nozomi_window]
 #望
-……我不能再给朔添麻烦了啊。[p]
+……我不能再给朔添麻烦了[p]
 
 [default_window]
 #
-但就算这样，也没必要一个人去吧。[p]
-……这是从我的角度来说的想法……[p]
-对望来说，却并不是这样。[p]
+就算这样，也不用一个人去吧。[p]
+……这只是我的想法罢了……[p]
+对望来说，是不一样的。[p]
 
 #
 [default_window]
@@ -147,7 +147,7 @@
 
 [nozomi_window]
 #望
-一直以来给你添了很多麻烦，还让你担心，但你却没有抛下我，我真的很感激。[p]
+给你添了那么多负担和麻烦……但你还是没有抛弃我，我真的很感谢[p]
 
 #
 [default_window]
@@ -155,18 +155,18 @@
 
 [nozomi_window]
 #望
-但是，正因如此，我才要一个人去。这一切都是因为我把朔卷进来的啊。[p]
+但是，正因如此，我要一个人去。把朔卷入这件事的人是我啊[p]
 
 #
 [default_window]
-望的决心看起来非常坚定。[p]
-我的麻烦……你其实不用放在心上的。[p]
-但是，我还是有些在意。[p]
+望的决心看起来相当坚定。[p]
+我的麻烦什么的……你其实不用考虑的。[p]
+不过，我心里还是有些在意的地方。[p]
 
 [saku_window]
 #朔
-喂，望。自首的话，不需要我的证词吗？[p]
-反过来说，我去自首也需要望的证词吧。[p]
+那个，望。自首的话不是也需要我的证词吗？[p]
+反过来说，我自首的话也需要望的证词[p]
 
 #
 [default_window]
@@ -176,7 +176,7 @@
 
 [nozomi_window]
 #望
-啊——确实是这样呢。我说我在哪儿的时候，也会问到朔的情况吧。[p]
+啊——……说的也是呢。我说明自己在哪里的时候，肯定也会问到朔的事情吧[p]
 
 #
 [default_window]
@@ -186,31 +186,31 @@
 
 [nozomi_window]
 #望
-本来想着不麻烦朔了……不过，反倒是可以请朔陪我一起去吗？[p]
+我本来是想着不给朔添麻烦的……不过这样的话，朔能一起来吗？[p]
 
 [saku_window]
 #朔
-嗯，没问题啊。[p]
+嗯，我没问题[p]
 
 [default_window]
 #
-我本来也打算一起去的。[p]
+我本来也打算去的。[p]
 
 [chara_mod  name="望1_ネックレス有" face="odoroki2" cross=false time=800]
 
 [nozomi_window]
 #望
-而且我还以为只要去了就行了，完全没考虑需要准备些什么。[p]
+而且我还以为只要去就行了，完全没考虑过要准备些什么[p]
 
 [default_window]
 #
-我对自首的方法也一无所知，正如望所说，事先查清楚再去才是合理的做法吧。[p]
+关于如何自首，我也一无所知，正如望所说，事先调查清楚再去才是合适的。[p]
 
 [chara_mod  name="望1_ネックレス有" face="metoji3" cross=false time=800]
 
 [nozomi_window]
 #望
-那我来查查自首的方法哦，借用一下朔的桌子啦！[p]
+那我去查查自首的方法，借用一下朔的桌子哦[p]
 
 #
 [default_window]
@@ -221,12 +221,12 @@
 
 [nozomi_window]
 #望
-──……哎呀。[p]
+——……呃[p]
 
 [default_window]
 #
-看上去她好像突然失去了平衡。[p]
-我慌忙站起身，跑向望那边。[p]
+她看起来一瞬间失去了平衡。[p]
+我慌忙站起来，冲到望的身边。[p]
 
 #
 [default_window]
@@ -236,19 +236,19 @@
 
 [nozomi_window]
 #望
-啊，对不起……昨天稍微没睡好，被晨光晃得有点头晕了。[p]
+啊，抱歉……。昨天，我没怎么睡好。被晨光晃得有点头晕[p]
 
 [saku_window]
 #朔
-我待会儿帮你查，望你先睡吧。[p]
+我待会儿来查吧。望你去睡觉吧[p]
 
 [nozomi_window]
 #望
-嗯……虽然我刚才说稍微没睡好，其实是一点都没睡着。[p]
+嗯…………那个，我刚才说没睡好，其实是一整晚都没睡着[p]
 
 [saku_window]
 #朔
-你这种状态还想出门吗……难道是我打呼噜太吵了？[p]
+你这种状态还想出门……该不会是我打呼噜太吵了吧？[p]
 
 #
 [default_window]
@@ -258,20 +258,20 @@
 
 [nozomi_window]
 #望
-不是啦……就是想事情想得睡不着了。[p]
+不是……只是想事情想得睡不着了[p]
 
 #
 [default_window]
 [chara_hide_all time=500 wait=false]
 [bg storage="jishitsu_hiru_04.jpg" time="800" wait=true]
 
-一边说着，望钻进了被窝里。[p]
-和她交错而过，我坐到桌前打开了电脑。[p]
-正准备敲键盘输入搜索词的时候……[p]
+边说着，望就慢慢钻进了被窝。[p]
+我则与望交换位置，走向桌子开启电脑。[p]
+正当我准备在键盘上输入搜索词时……[p]
 
 [nozomi_window]
 #望
-……朔……[p]
+……朔…………[p]
 
 [saku_window]
 #朔
@@ -279,11 +279,11 @@
 
 [default_window]
 #
-听见望用困倦的声音喊着我的名字。[p]
+我听到望用困倦的声音在叫我。[p]
 
 [nozomi_window]
 #望
-……朔，你不睡吗……？[p]
+…………朔不睡觉吗……？[p]
 
 [saku_window]
 #朔
@@ -291,9 +291,9 @@
 
 [default_window]
 #
-──比计划早醒了，确实有点困啊。等查完东西再睡吧。[p]
-……不过，这种话也没办法认真回答下去。[p]
-被望那撒娇的声音吸引着，我钻进了同一条被窝里。[p]
+——确实比预定的时间起得早，是有点困。查完资料就睡吧。[p]
+……像这样认真回答是不可能的。[p]
+仿佛被望撒娇般的声音吸引，我钻进了同一个被窝。[p]
 
 [setreplay name="CG19_3" storage="scene17_replay.ks" label="*CG19_replay3"]
 
@@ -305,7 +305,7 @@
 
 [saku_window]
 #朔
-你说睡不着在想事情，想的是什么？[p]
+你说睡不着在想事情，到底在想什么呢？[p]
 
 #
 [default_window]
@@ -314,7 +314,7 @@
 
 [nozomi_window]
 #望
-……嗯……就是以前的自己啊……还有以后的事情什么的。[p]
+……那个嘛……想了很多，比如过去的自己啊……还有以后的事情之类的[p]
 
 #
 [default_window]
@@ -323,11 +323,11 @@
 
 [nozomi_window]
 #望
-我啊，以前从来没有主动去做过什么……[p]
+我啊，到现在为止几乎从来没有主动去做过什么……[p]
 
 [saku_window]
 #朔
-啊……所以才想一个人去吗？[p]
+啊——……所以你才想一个人去吗[p]
 
 #
 [default_window]
@@ -336,7 +336,7 @@
 
 [nozomi_window]
 #望
-也有这个原因啦，不过……最主要的还是刚才说的理由。[p]
+这也是原因之一，不过……最主要的还是刚才说的那个理由[p]
 
 #
 [default_window]
@@ -344,11 +344,11 @@
 
 [nozomi_window]
 #望
-想着要好好做事，果然不能给朔添麻烦。[p]
+我觉得自己必须要好好做，果然还是不能给朔添麻烦啊[p]
 
 [saku_window]
 #朔
-其实我不介意啦……[p]
+我倒是无所谓……[p]
 
 #
 [default_window]
@@ -362,7 +362,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = true;
 
 [nozomi_window]
 #望
-不行。我昨天在想啊……朔真是个奇怪的人呢。
+不行的。我昨天在想……朔真是个奇怪的人呢
 [wait time=" 6500"]
 [bg storage="CG19/CG19_shihuku_n_8.jpg" time="800"]
 [p]
@@ -374,7 +374,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [saku_window]
 #朔
-还以为是什么，突然就说坏话了…………[p]
+我还以为什么呢，突然就开始说坏话了吗…………[p]
 
 #
 [default_window]
@@ -382,7 +382,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-嗯嗯。我不是想说坏话……[p]
+嗯——嗯。我不是想说坏话……[p]
 
 #
 [default_window]
@@ -390,10 +390,10 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-因为……你本来只是答应做我的约会对象，却收留了无处可去的我……[p]
+因为……你不仅愿意做我的约会对象，还收留了无处可去的我……[p]
 
 #望
-没有放弃意志薄弱的我，还给了我面对自己的勇气。[p]
+没有抛弃意志薄弱的我……还给了我面对自己的勇气[p]
 
 #
 [default_window]
@@ -402,11 +402,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-所以，我觉得你是个奇怪的人。[p]
+所以，我觉得你是个奇怪的人[p]
 
 [saku_window]
 #朔
-这是在夸我吗……？[p]
+这算是在夸我吗……？[p]
 
 #
 [default_window]
@@ -415,7 +415,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-哈哈，谁知道呢？……不过朔，你一开始不就是只用色色的眼光看我吗？[r]
+啊哈哈，谁知道呢？……不过朔，你一开始只是用色眯眯的眼光看我吧[r]
 [p]
 
 [saku_window]
@@ -429,11 +429,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-不说话了啊？[p]
+你不说话了[p]
 
 [saku_window]
 #朔
-事实太明显了，完全不知道该怎么回答。[p]
+事实太过真实，我无言以对[p]
 
 #
 [default_window]
@@ -446,7 +446,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = true;
 
 [nozomi_window]
 #望
-哈哈。不过啊……看到朔努力改变自己，我就觉得，哎呀，朔真厉害……
+啊哈哈。不过……看着朔想要改变的样子，我就在想，啊，朔真了不起……
 [wait time=" 600"]
 [bg storage="CG19/CG19_shihuku_n_3.jpg" time="800" wait=false]
 [p]
@@ -457,7 +457,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 [endscript]
 
 #望
-像那样试图改变自己什么的，我之前连想都没想过……[p]
+像这样想要改变自己，我从来都没有想过……[p]
 
 #
 [default_window]
@@ -465,11 +465,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-所以呢，多亏了朔，我……觉得自己也有可能一点点地改变了呢。[p]
+所以啊，多亏了朔，我……虽然是一点点，但感觉自己也能慢慢改变了[p]
 
 [saku_window]
 #朔
-那作为感谢，给我一个吻怎么样？[p]
+那作为谢礼，亲一下也不过分吧[p]
 
 #
 [default_window]
@@ -478,11 +478,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-呵呵呵……笨蛋。不过，谢谢你…………[p]
+呵呵呵……傻瓜。不过，谢谢你…………[p]
 
 [saku_window]
 #朔
-……虽然刚才我的请求挺无耻的，但这个「谢谢」是什么意思啊？[p]
+……我还以为这是个过分的要求呢，你说「谢谢」是在谢什么啊？[p]
 
 #
 [default_window]
@@ -490,7 +490,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-……我啊……连同朔的……那些地方一起…………[p]
+…………我啊…………朔的……包括这样的地方在内………………[p]
 
 #
 [default_window]
@@ -507,7 +507,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-……呼…………呼…………[p]
+……呼………………呼…………[p]
 
 [saku_window]
 #朔
@@ -516,12 +516,12 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 [default_window]
 #
 不过她昨天说没睡好……。[p]
-平静的望的睡颜上，过去被不安和内疚折磨的样子一点也看不出来。[p]
+望平静的睡颜上，看不到一丝曾经被不安和愧疚折磨的痕迹。[p]
 
 [bg storage="jishitsu_hiru_01.jpg" time="1000" wait=true]
 
 我也稍微小憩一下……[p]
-醒来后就查一下自首相关的手续吧。[p]
+醒来后就去查查自首的相关手续吧。[p]
 
 ………………[p]
 …………[p]
@@ -535,18 +535,18 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 [wait time=" 3500"]
 [mask_off time="1000" wait="true"]
 
-然后过了一周……[p]
-……迎来了那一天。[p]
+就这样过了一周……[p]
+……那一天终于到来了。[p]
 
 ;;; 警察署前
 [playbgm  storage="City_Ambi-Street02-1.mp3" volume="20"]
 [bg storage="keisatsusho.jpg" time="800"]
 
-在一座宏伟的建筑面前，我和望站着。[p]
-我手里拿着的大包里装满了现金和我们两个人的换洗衣物。[p]
+我和望站在那座气势恢宏的建筑物前。[p]
+我手里提着的大包里装着现金和两人份的换洗衣物。[p]
 
-像是要去短途旅行一样的行李准备，而目的地却是警察局，真是有点滑稽。[p]
-考虑到被逮捕后的拘留期间，我们准备了现金和换洗衣物。[p]
+这样的行李打包方式就像是要去小旅行一样，但目的地却是警察署，实在是有些滑稽。[p]
+考虑到逮捕后的拘留期，我们准备了现金和换洗衣物。[p]
 
 [fadeoutbgm]
 
@@ -557,7 +557,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-朔。[p]
+朔[p]
 
 [saku_window]
 #朔
@@ -571,17 +571,17 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-果然，还是有点害怕呢。[p]
+果然，还是有点害怕呢[p]
 
 [default_window]
 #
-承认自己的罪行，在法律的审判下接受裁决。[p]
-不可能不害怕……我也感到害怕。[p]
-但望的话，恐怕比我要害怕好几倍吧。[p]
+承认自己的罪行，接受法律的制裁。[p]
+不可能不害怕。……连我都感到恐惧。[p]
+但望肯定比我更加害怕吧，恐怕是我的好几倍。[p]
 
 [saku_window]
 #朔
-……是啊。[p]
+……是啊[p]
 
 #
 [default_window]
@@ -590,20 +590,20 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 [bg storage="monolog_01.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-『……不过，考虑到望所经历的事情——也许会有减刑的可能。』[p]
-脱口而出的这些话……被我紧紧封住了嘴巴。[p]
-这些话不该说出口。[p]
-因为这无异于一种「可能会轻松解决」的甜蜜低语罢了。[p]
-望应该会被判杀人罪。[p]
-而我，会被判窝藏罪。[p]
-我们共同背负罪责，共同接受惩罚，然后重新开始。[p]
+『……不过，考虑到望遭遇的事情——也许有可能减刑』[p]
+我把脱口而出的那些话……牢牢地封在心里。[p]
+我不该说出来的。[p]
+因为那无异于「也许能轻松了事」这种甜蜜的低语。[p]
+望肯定会背负杀人罪。[p]
+我则是包庇罪。[p]
+我们将平等地承担罪责，平等地接受惩罚，然后重新开始。[p]
 
 [mask time=" 300" graphic="shiro.jpg"]
 [chara_show  name="望2_ネックレス有" face="metoji2" top="50" width="1600" height="2259" time=0]
 [bg storage="keisatsusho.jpg" time="0"]
 [mask_off time="300" wait="true"]
 
-这是我和望立下的誓言。[p]
+这就是我和望立下的誓言。[p]
 
 #
 [default_window]
@@ -613,11 +613,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-就算分开了……我们还能再见面吧？[p]
+即使分开了……我们还能再见面的，对吧？[p]
 
 [saku_window]
 #朔
-我一定会去找你。而且，下次见面的时候……有些话想对你说。[p]
+我会去见你的。那个，下次见面的时候……我有话想对你说[p]
 
 #
 [default_window]
@@ -625,11 +625,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-啊哈哈……说不定到时候我也正好想说同样的话呢。[p]
+啊哈哈……说不定到时候我也想说同样的话呢[p]
 
 [saku_window]
 #朔
-真的吗？[p]
+是这样吗？[p]
 
 #
 [default_window]
@@ -637,12 +637,12 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-因为啊，上次都没好好说出口嘛。[p]
+因为，我还没有好好地说出来呢[p]
 
 [saku_window]
 #朔
-……哈哈，是啊，说得对。[p]
-那就现在先别说，等到再见面的时候再来确认答案吧。[p]
+……哈哈，是啊。确实如此[p]
+那么，现在就先不说了，等再见面的时候再来对答案吧[p]
 
 #
 [default_window]
@@ -652,11 +652,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-那要不先定个见面的地点吧？就选我们第一次见面的地方！[p]
+那么，我们来决定那时候的集合地点吧？就选我和朔第一次见面的地方吧！[p]
 
 [saku_window]
 #朔
-那时间也得定在早上九点之前才行。[p]
+那时间也得定在早上9点前了[p]
 
 #
 [default_window]
@@ -664,19 +664,19 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-诶——早上那么早，真是要命～～～……[p]
+诶——，早上那么早完全不行啦～～～……[p]
 
 [saku_window]
 #朔
-好好活下去就意味着要早起，这也是其中一部分啊。[p]
+好好生活也意味着要早起啊[p]
 
 [nozomi_window]
 #望
-才不会那么顺你意呢！[p]
+才不会那么顺你的意呢[p]
 
 [saku_window]
 #朔
-因为啊，在同一个地方、同一个时间再见面……是不是更有感觉？[p]
+因为，在同一个地方同一个时间重逢……不是很有感觉吗？[p]
 
 #
 [default_window]
@@ -686,12 +686,12 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-晚上九点可以哦？既不会太显眼，夜晚的卯之岛氛围也不错，还能变成夜间约会！[r]
+晚上9点的话就可以哦？既不引人注目，夜晚的卯之岛氛围也很好，还能变成夜间约会呢！[r]
 [p]
 
 [saku_window]
 #朔
-那个时间出门很危险的吧。[p]
+那种时间出门很危险的好吧[p]
 
 #
 [default_window]
@@ -701,12 +701,12 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-……总觉得你在把我当小孩子看待！[p]
+……总觉得被当成小孩子对待了[p]
 
 [saku_window]
 #朔
-你本来就是小孩子啊。我也是。[p]
-……啊，对了。这个还是先给你吧。[p]
+我们还是小孩子啊。望也是，我也是[p]
+……啊，对了。我还是把这个给你吧[p]
 
 #
 [default_window]
@@ -721,7 +721,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 @layopt layer=message0 visible=true
 @layopt layer=message1 visible=true
 
-说着，我拿起圆珠笔在一张小纸条上写下东西，然后撕下来递给望。[p]
+说着，我在一张小纸条上用圆珠笔写了些什么，然后撕下来递给了望。[p]
 
 #
 [default_window]
@@ -735,7 +735,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [saku_window]
 #朔
-嗯。如果能打电话的话，随时都可以打过来。[p]
+嗯。如果可以打电话的话，随时都可以打给我[p]
 
 #
 [default_window]
@@ -745,11 +745,11 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-每天都可以打吗？[p]
+每天打也可以吗？[p]
 
 [saku_window]
 #朔
-每天？可是望你又没有手机啊。[p]
+每天？望你不是没有手机吗[p]
 
 #
 [default_window]
@@ -757,15 +757,15 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-就跟警察借呗。[p]
+我可以借啊，从警察那里[p]
 
 [saku_window]
 #朔
-哪能干这种事情啊……[p]
+怎么可能做得到啊……[p]
 
 [default_window]
 #
-……不可能吧？[p]
+……不可能的吧？[p]
 
 #
 [default_window]
@@ -775,21 +775,21 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-哈哈，开玩笑啦！不过要是真的忍不住太寂寞～～！我就会打给你哦[p]
+开玩笑啦！如果实在是太寂寞了的话，我会打给你的[p]
 
 #
 [default_window]
 [fadeoutbgm]
 [chara_hide_all time=800 wait=true]
 
-正说着话，一辆车开进了警察署的院子里。[p]
-那是我们委托的律师的车。[p]
-为了自首，我们请他来说明我们的情况。[p]
-花了不少钱……不过，这些都无所谓了。[p]
+正说着，一辆车驶入了警察署的院内。[p]
+是我们委托的律师的车。[p]
+为了自首，我们请他来解释我们的情况。[p]
+虽然花了不少钱……不过，那都无所谓了。[p]
 
 [saku_window]
 #朔
-差不多到时间了吧[p]
+差不多，是时候了[p]
 
 #
 [default_window]
@@ -797,7 +797,7 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-……嗯……那个，朔[p]
+……嗯……。那个，朔[p]
 
 [saku_window]
 #朔
@@ -805,20 +805,20 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [default_window]
 #
-望紧握的双手──[p]
-仿佛在忍耐着什么，压抑着不安，轻轻地颤抖着。[p]
+望紧握的双手——[p]
+仿佛在忍耐着什么，像是在压抑着不安，轻轻地颤抖着。[p]
 
 [playbgm  storage="05Homecoming.mp3" volume="40"]
 [chara_mod  name="望3_ネックレス有" face="metoji3" cross=false time=500]
 
 [nozomi_window]
 #望
-我……没事的！绝对、绝对、绝——对没事！所以……相信我，等着我！[r]
+我……没事的！绝对、绝对、绝——对没问题！所以……相信我，等着我[r]
 [p]
 
 [saku_window]
 #朔
-嗯，没事的。我知道，也相信你。[p]
+嗯，没问题的。我明白，我相信你[p]
 
 #
 [default_window]
@@ -843,26 +843,26 @@ TYRANO.kag.ftag.master_tag.bg.log_join = false;
 
 [nozomi_window]
 #望
-嗯────[p]
+嗯————[p]
 
 #
 [default_window]
 [chara_hide_all time=800 wait=false]
 [bg storage="keisatsusho.jpg" time="800" wait=true]
-松开紧握的手后，我们彼此相握，然后我和望接吻了。[p]
+我们松开紧握的手，十指相扣，我和望接吻了。[p]
 [wait time=" 300"]
-……像是在惜别，又像是在立下誓言。[p]
+……仿佛在惜别，又像是在立誓。[p]
 [wait time=" 300"]
-这是与之前不同的一个吻，带着泪水的滋味。[p]
+这是一个与以往不同的，带着泪水味道的吻。[p]
 
 [bg storage="shiro.jpg" time="200"]
 [bg storage="aozora3.jpg" time="1000"]
 
 没事的。[p]
 [wait time=" 300"]
-一定没事。[p]
+一定没事的。[p]
 [wait time=" 300"]
-一定还能再见面。[p]
+我们一定能再见面。[p]
 
 [mask time=" 3000" graphic="shiro.jpg"]
 [fadeoutbgm]

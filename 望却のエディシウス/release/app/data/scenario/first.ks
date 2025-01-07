@@ -1,6 +1,6 @@
 ;一番最初に呼び出されるファイル
 
-[title name="望却のエディシウス gpt-4o机翻 by ALyCE/jyxjyx1234"]
+[title name="望却のエディシウス claude-3.5-sonnet机翻 by ALyCE/jyxjyx1234"]
 [plugin name="theme_kopanda_22"]
 [plugin name=awakegame_ex]
 [plugin name=voiceplay_ex]

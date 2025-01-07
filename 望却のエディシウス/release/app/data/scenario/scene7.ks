@@ -20,8 +20,8 @@
 @layopt layer=message0 visible=true
 @layopt layer=message1 visible=true
 
-战战兢兢地睁开眼——[p]
-又是同样的地方，同样的时间。[p]
+我战战兢兢地睁开眼睛——[p]
+又是同样的地点，同样的时间。[p]
 
 [bg storage="unoshima02_zoom_bokasi_2.jpg" time="200"]
 [playse buf="3"  storage="heartbeat.mp3" volume="40"]
@@ -29,17 +29,17 @@
 
 [saku_window]
 #朔
-呜，呃——[p]
+呃、呜——————[p]
 
 #
 [default_window]
 
-就在意识到这一瞬间，感到体内的东西开始逆流的不适感。[p]
-同样的地方。[p]
-同样的时间。[p]
-不断延续下来的记忆。[p]
-从哪里开始是梦，到哪里为止是梦——[p]
-界限早已模糊不清，甚至无法确认现在是否真正是现实……[p]
+意识到这一点的瞬间，我感到体内的内容物逆流而上的不适感。[p]
+相同的地方。[p]
+相同的时间。[p]
+连续不断的记忆。[p]
+哪里是梦境，哪里又是现实————[p]
+界限早已模糊不清，甚至无法确定现在是否真实存在……[p]
 
 [bg storage="unoshima02_zoom_bokasi2.jpg" time="500"]
 [saku_window]
@@ -48,22 +48,22 @@
 
 #
 [default_window]
-不顾旁人的目光，把胃里的东西吐了出来。[p]
-从眼睛、鼻腔深处……身体的每个孔洞都像要将什么东西强行推出体外般的强烈压迫感。[p]
-周围的游客既惊讶又小心翼翼地绕开走了过去。[p]
-但就在这时，有一个人跑了过来。[p]
+我不顾他人目光，将体内的东西吐了出来。[p]
+从眼睛和鼻子深处……从每个孔洞都感受到一种强烈的压迫感，仿佛要将什么东西从体内挤出来。[p]
+周围的游客虽然惊讶，但还是像对待瘟疫一样避开我走过。[p]
+然而就在这时，有个人朝我跑了过来。[p]
 
 [filter layer="0" blur="3"]
 [chara_show  name="望1_ネックレス有" face="odoroki" top="50" width="1600" height="2259" time=500]
 [nozomi_window]
 #望
-那、你没事吧！？先、先喝点这个吧！[p]
+你、你没事吧？！先、先把这个喝了！[p]
 
 [default_window]
 #
-模糊的视线中映出了望的身影。[p]
-望递过来的是一瓶矿泉水。[p]
-顾不上嘴角还脏着，拼命地喝了起来。[p]
+模糊的视野中映出了望的身影。[p]
+望递给我的是一瓶矿泉水。[p]
+不顾嘴边还有污渍，我神志恍惚地喝了起来。[p]
 
 [saku_window]
 #朔
@@ -71,28 +71,28 @@
 
 [default_window]
 #
-刚用水冲下去的呕吐物再次涌上来，但拼命忍住了。[p]
+被水冲下去的呕吐物又一次涌了上来，我拼命地想要忍住。[p]
 
 [chara_mod  name="望1_ネックレス有" face="tuujou" cross=false time=500 wait=false]
 [nozomi_window]
 #望
-这种时候吐出来会舒服点哦？配合着呼气，用力收紧腹部……[p]
+这种时候吐出来会舒服一些哦？配合呼气，用力收紧腹部……[p]
 
 [default_window]
 #
-按她说的做后，随着吞下去的水，呕吐物又一次被排出了体外。[p]
-然后猛地把剩下的水一口气喝完。[p]
+按照她说的做，伴随着喝下的水，呕吐物再次被排出体外。[p]
+然后我大口大口地喝完了剩下的水。[p]
 
 [bg storage="unoshima02_zoom.jpg" time="800" wait=false]
 [free_filter ]
 
-多亏如此，胃酸的不适感和食道里的异物感减轻了不少。[p]
-在梦醒前感受到的头痛依然持续着，不过……[p]
-比起这个，现在更重要的是。[p]
+多亏如此，胃酸的不适感和食道的异物感减轻了。[p]
+醒来前感受到的头痛现在还在持续……[p]
+但比起那个，现在更重要的是。[p]
 
 [saku_window]
 #朔
-你去哪儿了，望！[p]
+你刚才去哪儿了，望！[p]
 
 #
 [default_window]
@@ -102,7 +102,7 @@
 
 [nozomi_window]
 #望
-去哪儿？我一直就在朔你旁边啊……？这么远离开我，你会这么不愿意吗？[p]
+哪儿？我一直就在朔的身边啊……？你这么不想我离开吗？[p]
 
 [saku_window]
 #朔
@@ -110,18 +110,18 @@
 
 [default_window]
 #
-问出口后猛然惊觉。[p]
-我竟然把那个白日梦的情景误以为是真实发生的。[p]
+问完后我才恍然大悟。[p]
+我把那个白日梦中发生的事误以为是现实。[p]
 
 [chara_mod  name="望2_ネックレス有" face="tuujou" cross=false time=500 wait=false]
 
-望的反应和买饰品时的反应一模一样。[p]
-果然……只有我一个人做了那个梦吗。[p]
+望的反应，和买首饰时一模一样。[p]
+果然……那只是我一个人做的梦吗。[p]
 
 [chara_mod  name="望2_ネックレス有" face="metoji2" cross=false time=500 wait=false]
 
-偶尔会做一些真实到让人误以为是现实的梦……[p]
-但刚才那个梦，无疑让我觉得那就是『现实』，触感真实得令人深信不疑。[p]
+虽然有时会做一些逼真到把梦中内容误认为现实的梦……[p]
+但刚才那个梦却有一种让人不由自主地相信是「现实」的质感。[p]
 
 #
 [default_window]
@@ -131,17 +131,17 @@
 
 [nozomi_window]
 #望
-那个……如果你没事的话，可以告诉我刚才发生了什么吗？[p]
+那个……如果你觉得没事了的话，能告诉我刚才发生了什么吗？[p]
 
 [saku_window]
 #朔
-……好吧。我们去个能静下来坐着的地方吧。[p]
+……好吧。我们找个能安静坐下的地方吧。[p]
 
 #
 [default_window]
 [chara_hide_all time=500 wait=true]
 
-于是，我们决定去附近的一家咖啡馆。[p]
+于是，我们决定去附近的咖啡厅。[p]
 
 [fadeoutbgm]
 [mask time=" 1000" graphic="kuro.jpg"]
@@ -150,19 +150,19 @@
 [mask_off time="1000" wait="true"]
 [playbgm storage="01Voices.mp3" volume="40"]
 
-一直以来，我都对把梦里的内容告诉望感到犹豫。[p]
-因为我担心，如果望真的有过轻生的念头怎么办。[p]
-不过，从望的反应来看，梦中的望和眼前的望似乎是完全不同的两个人。[p]
-于是，我决定向望坦白这些年来我所做过的白日梦。[p]
-更重要的是……我已经无法再一个人承受这些了。[p]
-实际上，每当开始思考梦与现实的界限时，恶心感就会再次涌上来。[p]
-如果不相信现在是现实，我根本无法继续下去。[p]
-所以，我尽量不去想……[p]
+到目前为止，我一直犹豫要不要把梦中的内容告诉望。[p]
+因为担心如果望真的有自杀的想法的话。[p]
+但是，从望的反应来看，梦中的望和现在眼前的望是不同的。[p]
+我……决定向望坦白这些白日梦的内容。[p]
+最重要的是……我已经无法独自承受这些了。[p]
+事实上，一开始思考梦境和现实的界限，我就又开始感到恶心。[p]
+如果不相信现在是现实的话，我就无法继续下去了。[p]
+所以，我尽量不去思考……[p]
 
 [bg storage="aozora2.jpg" time="800"]
 
 把一切都告诉了她。[p]
-从望约会的原因，到她杀了父母……甚至她最后也投河自尽的事。[r]
+从望约会的理由，到望杀害了父母……最后望自己也跳楼自杀的事。[r]
 [p]
 
 [bg storage="unoshima06_2.jpg" time="800"]
@@ -170,7 +170,7 @@
 
 [nozomi_window]
 #望
-嗯——………………[p]
+嗯ー………………[p]
 
 [default_window]
 #
@@ -179,11 +179,11 @@
 [chara_mod  name="望2_ネックレス有" face="utsumuki" cross=false time=500 wait=false]
 [nozomi_window]
 #望
-……朔，你是不是喜欢那种『循环』的故事？[p]
+……朔是喜欢那种『循环类』的故事吗？[p]
 
 [saku_window]
 #朔
-我可不是在说我喜欢的类型！[p]
+我可不是在讲自己喜欢的类型的故事啊！[p]
 
 #
 [default_window]
@@ -193,15 +193,15 @@
 
 [nozomi_window]
 #望
-你得好好分清楚虚构和现实才行……[p]
+你得好好分清虚构和现实才行啊……[p]
 
 [saku_window]
 #朔
-即使是梦，也挺难受的。如果在我面前死了的话。[p]
+就算是梦也很难受啊。眼睁睁看着你死去[p]
 
 [nozomi_window]
 #望
-是吗……确实是这样呢。[p]
+这样啊……也是呢[p]
 
 #
 [default_window]
@@ -211,11 +211,11 @@
 
 [nozomi_window]
 #望
-在朔眼中，我竟然是那样的形象啊。有点奇怪的感觉。[p]
+原来朔是这样看我的啊。感觉有点奇怪[p]
 
 [saku_window]
 #朔
-我还是想确认一下，望为什么要和我约会？[p]
+我想确认一下，望为什么要和我约会呢？[p]
 
 #
 [default_window]
@@ -225,7 +225,7 @@
 
 [nozomi_window]
 #望
-啊。等等！我的名字……你怎么知道的？我是不是在哪说过？[r]
+啊。话说！我的名字……你怎么知道的？我是不是在哪里说漏嘴了？[r]
 [p]
 
 [default_window]
@@ -233,21 +233,21 @@
 _　[r]
 _　[cm] 
 
-这是一段曾经有过的对话。[p]
+这是一段似曾相识的对话。[p]
 
 [saku_window]
 #朔
-因为在我的梦里你也自称是望，所以我想你应该在哪说过吧。[p]
+在我的梦里你也自称望，所以我想你应该是在哪里说过[p]
 
 [default_window]
 #
-望原本自称是渚。[p]
-我一直以为那只是梦里的事……但肯定是在哪说过吧。[p]
+望原本自称渚。[p]
+我还以为只是在梦里……看来肯定是在哪里说过了。[p]
 不然就说不通了。[p]
 
 [saku_window]
 #朔
-话说回来，你为什么要跟我约会？[p]
+回到刚才的话题。你为什么要和我约会？[p]
 
 #
 [default_window]
@@ -258,11 +258,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-哼哼，现实中的我会好好告诉你的。[p]
+哼哼。让现实中的我好好告诉你吧[p]
 
 [saku_window]
 #朔
-好吧好吧，拜托了……[p]
+好好，拜托了……[p]
 
 #
 [default_window]
@@ -270,7 +270,7 @@ _　[cm]
 
 [nozomi_window]
 #望
-直截了当！[p]
+直截了当地说！[p]
 
 ;;; ドアップ演出
 #
@@ -286,7 +286,7 @@ _　[cm]
 
 [nozomi_window]
 #望
-援助交际！！！！！[p]
+援交！！！！！[p]
 
 ;;; ドアップ戻し
 
@@ -314,11 +314,11 @@ _　[cm]
 
 [nozomi_window]
 #望
-为什么一副这么无语的表情啊！？[p]
+你干嘛露出那种目瞪口呆的表情啊！？[p]
 
 [saku_window]
 #朔
-不要……这也太意料之中了吧。而且，你真的能对我说这种话吗？[p]
+不是……太符合预想了。话说，你这样直接告诉我没问题吗？[p]
 
 #
 [default_window]
@@ -326,7 +326,7 @@ _　[cm]
 
 [nozomi_window]
 #望
-总比被误会成奇怪的事要好吧。[p]
+比起被奇怪地误会，这样还好一点吧[p]
 
 #
 [default_window]
@@ -336,56 +336,56 @@ _　[cm]
 
 [nozomi_window]
 #望
-再说了，我们只是今天限时的关系嘛。[p]
+而且我们只是今天的关系而已[p]
 
 [saku_window]
 #朔
-嗯，确实是这样。[p]
+嗯，确实[p]
 
 #
 [default_window]
 [chara_hide_all time=500 wait=false]
 [bg storage="aozora.jpg" time="800"]
 
-聊天时，我突然有了种感觉。[p]
-把望带回家然后做点什么的念头……已经消失了。[p]
+聊着聊着，突然有了一种感觉。[p]
+把望带回家做些什么的念头……已经消失了。[p]
 毕竟刚做了一堆奇怪的梦。[p]
-至于所谓的「援助交际」这个目的嘛……嗯。[p]
-果然是这样啊，感觉理所当然。[p]
-现在我能因为望的坦然而感到安心。[p]
-我们之间，是仅限今天的关系。[p]
-也就是说……之后不用承担任何责任。[p]
-享受一番之后分开，各自回到自己的日常生活就好。[p]
+至于援交这个目的嘛……嗯。[p]
+感觉就是「果然如此啊」。[p]
+现在能安心的是望能够看得开。[p]
+我们彼此都只是今天的关系。[p]
+也就是说……之后不需要负任何责任。[p]
+尽情享受之后分别，然后各自回到日常生活就好。[p]
 
 [bg storage="unoshima06.jpg" time="800"]
 
-这样想着，我结了咖啡的账单。[p]
-当然，全部是我付的。[p]
+带着这样的想法，我结清了咖啡厅的账单。[p]
+当然全额由我来付。[p]
 
 [chara_show  name="望1_ネックレス有" face="egao" top="20" width="1600" height="2259" time="500"]
 [nozomi_window]
 #望
-诶，可以吗？谢谢款待啦～！[p]
+诶，这样可以吗？谢谢款待[p]
 
 [saku_window]
 #朔
-你本来就是打算让我请客吧？[p]
+本来就是这么打算的吧[p]
 
 #
 [default_window]
 [chara_hide_all time=500 wait=false]
 
-一边说着这场茶番对话，一边走出了店门。[p]
-我的思绪渐渐恢复了冷静。[p]
-然后，我又意识到了一件事。[p]
+一边进行着这种客套的对话，我们离开了店铺。[p]
+思绪慢慢恢复了冷静。[p]
+然后我意识到了一件新的事情。[p]
 
 [bg storage="monolog_01.jpg" time="800"]
 
-望并没有经历过我梦中发生的那些事。[p]
+望并没有经历过我在梦中看到的那些事。[p]
 
 [bg storage="unoshima06.jpg" time="800"]
 
-从她对被称作「望」这个名字的反应，我确信了这一点。[p]
+从她对被称呼为「望」这个名字的反应，我可以确定这一点。[p]
 
 ;;; 海辺へ移動
 [fadeoutbgm]
@@ -409,15 +409,15 @@ _　[cm]
 @layopt layer=message0 visible=true
 @layopt layer=message1 visible=true
 
-仿佛是为了再现梦中的内容一般，度过了这一天的约会。[p]
+带着仿佛要重现梦境内容的心情，我度过了那天的约会。[p]
 
 [mask time=" 1000" graphic="shiro.jpg"]
 [bg storage="umi02.jpg" time="0"]
 [mask_off time="1000" wait="true"]
 [playbgm  storage="07umi.mp3" volume="30"]
 
-站在海边。[p]
-梦里玩得浑身湿透，但现在只是把脚浸在海水里而已。[p]
+我们站在海边。[p]
+在梦里我们玩得浑身湿透，但现在只是把脚浸在海水里。[p]
 
 [clearfix name="role_button"]
 @layopt layer=message0 visible=false
@@ -434,14 +434,14 @@ _　[cm]
 
 [nozomi_window]
 #望
-凉凉的，真舒服——[p]
+好凉爽舒服啊——[p]
 
 [default_window]
 #
-我们互相脱下鞋子，赤脚站在海水中。[p]
-波浪一点点地带走脚下的沙子。[p]
-梦里望开心地踢着海水玩耍，而现在她只是静静地感受着海水的冰凉。[p]
-明明还说什么「这才是约会的乐趣」呢。[p]
+我们都脱掉鞋子，赤脚站在海水中。[p]
+波浪一点点冲刷着脚下的沙子。[p]
+在梦里，望开心地踢着海水玩耍，但现在她只是静静地感受着海水的凉意。[p]
+明明说过这是约会的精髓。[p]
 
 [clearfix name="role_button"]
 @layopt layer=message0 visible=false
@@ -458,9 +458,9 @@ _　[cm]
 @layopt layer=message0 visible=true
 @layopt layer=message1 visible=true
 
-与此同时，夕阳渐渐变成了橙色和紫色交织的颜色。[p]
-夜幕降临。[p]
-望一边看着景色，一边轻声说道。[p]
+同时，夕阳的颜色逐渐变成了橙色和紫色交织的色彩。[p]
+夜晚即将来临。[p]
+望一边眺望着风景，一边轻声说道。[p]
 
 #
 [playbgm  storage="05Homecoming.mp3" volume="40"]
@@ -469,36 +469,36 @@ _　[cm]
 
 [nozomi_window]
 #望
-真漂亮啊。如果世界一直都这么美就好了呢。[p]
+真美啊。要是世界一直这么美就好了[p]
 
 #
 [default_window]
 [chara_hide_all time=500 wait=false]
 [bg storage="yuuyake.jpg" time="800"]
 
-我好像以前听过同样的话。[p]
-望是抱着什么样的想法才说出这句话的呢？[p]
-……不要。[p]
-这跟我没关系。[p]
-在这里我和望分别，然后再也不会有交集了。[p]
-这样不是挺好吗？[p]
+我感觉以前也听过同样的话。[p]
+望说这句话时在想些什么呢。[p]
+……不。[p]
+这与我无关。[p]
+在这里我和望就要分开了，之后再也不会有交集。[p]
+这样不是很好吗。[p]
 
 [bg storage="umi02_yuu.jpg" time="800"]
 [chara_show  name="望2_ネックレス有" face="utsumuki" top="50" width="1600" height="2259" time=500]
 
 [saku_window]
 #朔
-天快黑了，差不多该回去了吧？[p]
+天快黑了，差不多该回去了吧[p]
 
 [nozomi_window]
 #望
-……是啊。[p]
+……是啊[p]
 
 #
 [default_window]
 [chara_hide_all time=500 wait=false]
 
-擦干湿漉漉的脚，穿上鞋子走了起来。[p]
+我们擦干湿漉漉的脚，穿上鞋子走路。[p]
 
 ;;; 長い橋の上
 [mask time=" 700" graphic="shiro.jpg"]
@@ -511,13 +511,13 @@ _　[cm]
 
 [saku_window]
 #朔
-那就这样吧。[p]
+那么[p]
 
 [chara_show  name="望2_ネックレス有" face="utsumuki" top="50" width="1600" height="2259" time=500]
 
 [nozomi_window]
 #望
-谢谢……您了。[p]
+谢谢你[p]
 
 #
 [default_window]
@@ -527,75 +527,75 @@ _　[cm]
 [wait  time="300"]
 [chara_hide_all time=500 wait=true]
 
-与梦中不同，这次的告别出奇地平淡无奇。[p]
-我回到了原本的日常生活中去。[p]
-突然想起今天无故旷了工。[p]
+与梦中不同，这是一个出乎意料的简单告别。[p]
+我要回到原来的日常生活中去了。[p]
+想起今天擅自请假没去上班的事。[p]
 [fadeoutse buf="3"]
 
 [bg storage="unoshimaeki01_yuu.jpg" time="800"]
 
-这样就好了。[p]
 这样就好。[p]
-一想到会被说些什么，身体就会吓得发抖，但我强迫自己接受。[p]
+这样就好。[p]
+想象会被说些什么，身体都吓得发抖，但我强迫自己接受。[p]
 
 [bg storage="yuuyake.jpg" time="800"]
 
-不过，望……她有可以回去的地方吗？[p]
-我不知道，但这不是我需要知道的事情。[p]
+话说回来，望……她有回去的地方吗？[p]
+不清楚，但这也不是我需要知道的事。[p]
 
 [bg storage="unoshimaeki01_yuu.jpg" time="800"]
 
 [chara_show  name="望2_ネックレス有" face="utsumuki" top="350" width="760" height="1073" time=500]
 
-忽然回头一看，远处能看到望的背影。[p]
-……我不需要知道。[p]
-本来如此。[p]
-这是不需要知道的事情。[p]
+突然回头一看，远处能看到望的背影。[p]
+……我没必要知道。[p]
+本来就是。[p]
+这是不需要知道的事。[p]
 
 [chara_hide_all time=500 wait=false]
 [stopse buf="3"]
 
 但是……[p]
 但是？[p]
-没有什么但是。[p]
+没什么但是。[p]
 我只是……想要安心而已。[p]
-通过目送她回去，就不必再为望担心了。[p]
-回过神来时，我已经在追赶望的背影了。[p]
+通过确认她回去，让自己不用再为望担心。[p]
+回过神来，我已经在追随望的背影了。[p]
 
 [fadeoutbgm]
 
 ;;; 駅のホーム
 [bg storage="yuuyake.jpg" time="1500"]
 
-从卯之岛站坐几站电车后，有一个可以换乘别的线路快速电车的车站。[p]
-望在那站下车，我也跟着下车。[p]
-保持不远不近的距离，同时在人群中不让她从视线中消失。[p]
-先出了检票口，然后移动到快速电车的站台。[p]
+从卯之岛站坐几站电车，就有一个换乘其他线路快速列车的车站。[p]
+我也跟着下车，像是在追赶下车的望。[p]
+保持着不远不近的距离，小心不要在人群中跟丢她。[p]
+出了一次检票口，然后移动到快速列车的站台。[p]
 
 [playbgm storage="04_zankyou.mp3" volume="30"]
 [bg storage="eki_02.jpg" time="800"]
 
-虽然是无关紧要的事……但她有没有准备好足够的交通费啊？[p]
-嗯……要是回不去就得不偿失了。[p]
+虽然这不关我的事……但她有足够的交通费吗？[p]
+嘛……如果回不去的话就前功尽弃了。[p]
 
 [bg storage="eki_01.jpg" time="800"]
 [playse buf="3" storage="rail_station.mp3" volume="20" loop=true]
 
-为了不让望从视线中消失，我一路跟到了快速电车的站台。[p]
+为了不跟丢望，我一直跟到快速列车站台。[p]
 
 [bg storage="shiro.jpg" time="300"]
 [bg storage="densha_10.jpg" time="800"]
 
-我自己是不会乘坐这条线路的……不过，大不了就说是误入检票口了，应该没问题吧。[p]
-随便怎么编个借口都行。[p]
-就在这时，快速电车即将到站的广播响了起来。[p]
-就是在这个时候。[p]
+虽然我不会乘坐这条线路……不过，就说是不小心进了检票口好了。[p]
+随便找个借口都行。[p]
+这时，快速列车即将到站的广播响起。[p]
+就在那时。[p]
 
 [chara_show  name="駅員" top="100" time=500]
 
 [mob_window]
 #站务员
-那个，有其他乘客举报说您在进行跟踪行为，可以麻烦您配合我们了解一下情况吗？[r]
+那个。有其他乘客报告说你在进行跟踪行为。能稍微谈谈吗？[r]
 [p]
 
 [saku_window]
@@ -604,53 +604,53 @@ _　[cm]
 
 [mob_window]
 #站务员
-喂！听得到吗！[p]
+喂！[p]
 
 [saku_window]
 #朔
-啊，啊？[p]
+啊，什么？[p]
 
 [mob_window]
 #站务员
-我说，有人举报您在进行跟踪行为。如果您真的在尾随某人，那可是犯罪行为哦。能麻烦您到那边详细说明一下情况吗？[p]
+我是说，有人报告你在进行跟踪行为。如果你真的在跟踪某人的话，那可是犯罪行为。能到那边详细谈谈吗？[p]
 
 [saku_window]
 #朔
-等、等一下。你说我是跟踪狂？[p]
+等、等一下。我是跟踪狂？[p]
 
 #
 [fadeoutbgm]
 [default_window]
 
-……糟了。[p]
-虽然确实有太多可疑之处，但我绝不能承认……。[p]
-闹得太大可能会被望发现我的存在。[p]
-最重要的是，我的未来可能就此完蛋……。[p]
+……糟糕了。[p]
+虽然有太多可疑之处，但绝不能承认……[p]
+闹得太大的话，也可能会被望看到我的身影。[p]
+更重要的是，我的未来可能就此毁掉……[p]
 
 [mob_window]
 #站务员
-所以说，就是有人这么举报了啊。你看，这里人来人往的，能麻烦你到那边去吗？[p]
+所以我说，有人这样举报了啊。喂，这里会有乘客经过。能到那边去吗？[p]
 
 [default_window]
 #
-最终还是被抓住了手臂。[p]
+我的手臂终于被抓住了。[p]
 
 [chara_hide_all time=500 wait=false]
 [bg storage="densha_11.jpg" time="800"]
 [playbgm storage="tinnitus3.mp3" volume="20"]
 
-电车来了。[p]
+列车来了。[p]
 
 [bg storage="densha_10_nozomi.jpg" time="800"]
 
-望依然站在原地……等待着电车。[p]
+望停在原地……等待着列车。[p]
 [playse buf="1" storage="heartbeats_fast.mp3" volume="40" loop=true]
 
-看到她的身影，不由得心头一震。[p]
+看到她的身影，我的心脏不禁猛跳起来。[p]
 
 [bg storage="eki.jpg" time="500"]
 
-就像是从旁观者的角度看着今天早上试图跳电车的自己一般……一阵焦虑感袭来。[p]
+就像是在客观地看着今早想要跳上电车的自己一样……一种焦躁感。[p]
 
 [bg storage="densha_10_nozomi.jpg" time="500"]
 [chara_show  name="駅員" top="100" time=500]
@@ -668,12 +668,12 @@ _　[cm]
 [chara_hide_all time=500 wait=false]
 [bg storage="monolog_01.jpg" time="800"]
 
-抓着手臂的力道变得更大了。[p]
-在这股力量下踉跄了一下，视线短暂地离开了望。[p]
+拉扯我手臂的力道变强了。[p]
+被那股力道带得踉跄了一下，我瞬间把目光从望身上移开了。[p]
 
 [bg storage="densha_10_nozomi.jpg" time="800"]
 
-等我再抬起头的瞬间──[p]
+再次抬头的瞬间——[p]
 
 [wait time=500]
 [fadeoutse buf="1"]
@@ -691,7 +691,7 @@ _　[cm]
 [stopse buf="1"]
 [stopbgm]
 
-望的身影──────────。[p]
+望的身影——[p]
 
 [wait time=800]
 
@@ -701,12 +701,12 @@ _　[cm]
 
 [wait time=500]
 
-出现在快速电车的『正前方』。[p]
+出现在快速列车的「正前方」。[p]
 
 [nozomi_window]
 [playse buf="1" storage="Train_attack.mp3" volume="50"]
 #望
-────────────────────────────────[p]
+——[p]
 
 #
 [default_window]
@@ -725,8 +725,8 @@ _　[cm]
 @layopt layer=message0 visible=true
 @layopt layer=message1 visible=true
 
-跳到电车正前方的望的身体────[p]
-像失去力量的人偶一样，被电车压得稀巴烂，紧接着掉到了铁轨上……[p]
+跳到列车前方的望的身体——[p]
+像失去力气的人偶一样被列车压得粉碎，随即掉落到轨道上……[p]
 [wait time=1000]
 望的身影，就此消失不见了。[p]
 
@@ -737,63 +737,63 @@ _　[cm]
 
 [saku_window]
 #朔
-……不、不可能吧[p]
+……这不可能吧[p]
 
 #
 [fadeoutse buf="3"]
 [default_window]
 
 刺耳的刹车声。[p]
-──撕裂、粉碎、削减的声音。[p]
+——撕裂、碎裂、磨削的声音。[p]
 [playse buf="3"  storage="Train_alarm.mp3" volume="50" loop=true]
-紧接着，响起了通知紧急停车的警报声。[p]
+紧接着，紧急停车的警报声响彻整个车站。[p]
 
 [bg storage="red.jpg" time="800"]
 [playbgm storage="tinnitus3.mp3" volume="20"]
 
 [saku_window]
 #朔
-梦……啊，对了，这也是……对吧，因为这种事……[p]
+是梦吧……啊，对了，这也是……没错吧，因为这种事……[p]
 
 [bg storage="kuro.jpg" time="200"]
 [bg storage="red.jpg" time="300"]
 
 [saku_window]
 #朔
-不可能、绝对不可能……为什么，会这样、呜……[p]
+不可能发生的……为什么啊……[p]
 
 [bg storage="kuro.jpg" time="200"]
 [bg storage="red.jpg" time="300"]
 
 [saku_window]
 #朔
-────呜、咕啊[p]
+——呃，唔[p]
 
 #
 [default_window]
 [fadeoutse buf="3"]
 [wait time=800]
 
-头痛得仿佛要裂开一般。[p]
+仿佛要裂开的头痛。[p]
 
 [stopse buf="3"]
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="red.jpg" time="0"]
 [mask_off time="200" wait="true"]
 
-心跳、呼吸、视野、感知、重力。[p]
+心跳、呼吸、视线、感觉、重力。[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="CG8/CG8_haikei_kako2.jpg" time="0"]
 [mask_off time="200" wait="true"]
 
-坠落──黑暗──自杀。[p]
+坠落——黑暗——自杀。[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="densha_13.jpg" time="0"]
 [mask_off time="200" wait="true"]
 
-撞击──黑暗──自杀。[p]
+冲撞——黑暗——自杀。[p]
 
 [mask time=" 300" graphic="kuro.jpg"]
 [bg storage="effect_01.jpg" time="0"]
@@ -806,14 +806,14 @@ _　[cm]
 [mask_off time="200" wait="true"]
 
 这是梦。[p]
-这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦────[p]
+这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦，这是梦————[p]
 
 [bg storage="red.jpg" time="2000"]
 
-即使闭上眼，视野依然被赤红覆盖。[p]
-赤红。[p]
-鲜艳的赤红。[p]
-炽烈闪耀的，生命的颜色。[p]
+即使闭上眼睛，视野中依然被红色覆盖。[p]
+红色。[p]
+鲜艳的红色。[p]
+灼灼发光的，生命的颜色。[p]
 
 [fadeoutbgm]
 [mask time=" 1000" graphic="kuro.jpg"]
@@ -822,10 +822,10 @@ _　[cm]
 [mask_off time="200" wait="true"]
 [stopbgm]
 
-不知是第几次了，象征着从梦中醒来的信号。[p]
-不对。[p]
-还没有从梦中醒来。[p]
-一直，都在这无法醒来的梦中────。[p]
+不知是第几次，梦醒的信号。[p]
+不。[p]
+梦并未醒来。[p]
+一直，身处在无法醒来的梦中————。[p]
 
 [mask time=" 1000" graphic="kuro.jpg"]
 [bg storage="kuro.jpg" time="0"]
