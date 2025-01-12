@@ -21,10 +21,14 @@ files = get_all_files_in_folder("gt_output")
 for file in files:
     if file[-4:] == 'json':
         transdata = open_json(file)
-        for i in transdata:
-            i["message"] = replace_halfwidth_with_fullwidth(h.hanzitihuan(i["message"]))
-            if "name" in i:
-                i["name"] = h.hanzitihuan(i["name"])
+        if type(transdata) == dict:
+            for i in transdata:
+                transdata[i] = replace_halfwidth_with_fullwidth(h.hanzitihuan(transdata[i]))
+        elif type(transdata) == list:
+            for i in transdata:
+                i["message"] = replace_halfwidth_with_fullwidth(h.hanzitihuan(i["message"]))
+                if "name" in i:
+                    i["name"] = h.hanzitihuan(i["name"])
         outp = "release/" + file
         os.makedirs(os.path.dirname(outp), exist_ok=True)
         save_json("release/" + file, transdata)

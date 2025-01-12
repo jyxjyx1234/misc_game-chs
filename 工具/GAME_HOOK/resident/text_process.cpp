@@ -191,7 +191,7 @@ HFONT change_font(HDC hdc, BOOL isForce = false) {
     LOGFONTA logFont;
     GetObjectA(oriFont, sizeof(LOGFONT), &logFont);
 	//printf("FontHeight: %d\n", logFont.lfHeight);
-    SelectObject(hdc, changedFont[abs(logFont.lfHeight) * 9 / 10]);
+    SelectObject(hdc, changedFont[abs(logFont.lfHeight) * 8 / 10]);
     return oriFont;
 }
 

@@ -94,8 +94,9 @@ HWND WINAPI HOOKEDCreateWindowExA(
     rr::RConfig config;
     config.ReadConfig("hook.ini");
     std::string WindowName = config.ReadString("WINDOW", "WINDOWNAME", "");
-    std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3-5-sonnet");
-    std::string WindowName_n = WindowName + " " + modeltype + name;
+    //std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3-5-sonnet");
+    //std::string WindowName_n = WindowName + " " + modeltype + name;
+	std::string WindowName_n = WindowName;
     WindowName_n = ANSIToANSI(WindowName_n.c_str(), 936, GetACP());
     char newWindowName[200];
     strcpy_s(newWindowName, 200, WindowName_n.c_str());

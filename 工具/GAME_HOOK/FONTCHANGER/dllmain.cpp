@@ -8,7 +8,6 @@
 #include "convert.h"
 #include "timer.h"
 #include <thread>
-#include "resource2.h"
 
 VOID __declspec(dllexport) stratmessage()
 {
