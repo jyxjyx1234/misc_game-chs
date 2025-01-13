@@ -28,6 +28,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH: {
 		//MessageBoxA(NULL, "DLL_PROCESS_ATTACH", "DLL_PROCESS_ATTACH", MB_OK);
+        if (GetACP() != 936) {
+			MessageBoxW(NULL, L"请在简体中文 (CP936) 环境下运行！", L"错误", MB_ICONERROR);
+			exit(0);
+        }
         loadfontmem(hModule);
 		windowHook_main();
         textprocess_main();
