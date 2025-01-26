@@ -14,7 +14,7 @@ LPCWSTR string2LPCWSTR(std::string str)
 		NULL,
 		0);
 	wchar_t* buffer = new wchar_t[wLen + 1];
-	memset(buffer, 0, (wLen + 1) * sizeof(wchar_t));
+	memset(buffer, 0, (wLen + 1) * 2);
 	MultiByteToWideChar(936, 0, str.c_str(), size, (LPWSTR)buffer, wLen);
 	return buffer;
 }

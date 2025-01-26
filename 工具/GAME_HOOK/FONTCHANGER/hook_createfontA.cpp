@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include "winapi_def.h"
 #include "detours.h"
 #include <fstream>
 #include "readconfig.h"
@@ -10,23 +10,7 @@
 #endif
 #include "hook_createfontA.h"
 
-typedef HFONT(WINAPI* pCREATEFONTA)(
-    int    cHeight,
-    int    cWidth,
-    int    cEscapement,
-    int    cOrientation,
-    int    cWeight,
-    DWORD  bItalic,
-    DWORD  bUnderline,
-    DWORD  bStrikeOut,
-    DWORD  iCharSet,
-    DWORD  iOutPrecision,
-    DWORD  iClipPrecision,
-    DWORD  iQuality,
-    DWORD  iPitchAndFamily,
-    LPCSTR pszFaceName
-    );
-pCREATEFONTA TrueCreateFontA = CreateFontA;
+pCreateFontA TrueCreateFontA = CreateFontA;
 
 bool ifchange(
     int    cHeight,

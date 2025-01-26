@@ -4,31 +4,26 @@
 #include <iostream>
 #include "HOOK_main.h"
 #include "readconfig.h"
-#include "hook_createfontA.h"
-#include "hook_createfontindrectA.h"
-#include "hook_createfontindrectW.h"
-#include "hook_setWindowTextA.h"
-#include "hook_createfontW.h"
+#include "hookFont.h"
+#include "HookTitle.h"
 #include "LE.h"
+#include "textReplacer.h"
 //#include "FVPSaveChanger.h"
+
+rr::RConfig config;
 
 void CreateConsole()
 {
-	// 分配新的控制台
 	if (AllocConsole())
 	{
 		FILE* fp;
 		freopen_s(&fp, "CONOUT$", "w", stdout);
 		setlocale(LC_CTYPE, "zh-ch");
-		// 设置控制台代码页为UTF-8
-		//_setmode(_fileno(stdout), _O_U16TEXT);
-		SetConsoleOutputCP(932);
+		SetConsoleOutputCP(95003);
 	}
 }
 
 void loadfont(){
-	rr::RConfig config;
-    config.ReadConfig("hook.ini");
     std::string fontfn = config.ReadString("FONT", "FONTFILENAME", "");
     if (AddFontResourceExA(fontfn.c_str(), FR_PRIVATE, 0) != 0) {
         printf("Load Font %s: Sucessful!\n", fontfn.c_str());
@@ -38,11 +33,8 @@ void loadfont(){
     }
 }
 
-
 void HOOK_main() {
-	rr::RConfig config;
 	config.ReadConfig("hook.ini");
-
 	if (config.ReadInt("GLOBAL", "DEBUG", 0) == 1) {
 		CreateConsole();
 	}
@@ -50,30 +42,24 @@ void HOOK_main() {
 		install_LE();
 	}
 	LoadLibraryA(config.ReadString("GLOBAL", "LOADDLL", "").c_str());
-	if (config.ReadInt("GLOBAL", "MODE", 0) == 1) {
-		loadfont();
-		hook_createfontA_main();
-		hook_createfontW_main();
-	}	
-	if (config.ReadInt("GLOBAL", "MODE", 0) == 2) {
-		loadfont();
-		hook_createfontindirectA_main();
-		hook_createfontindirectW_main();
+
+	std::string newFontNameA = config.ReadString("FONT", "FONTNAME", "NOTCHANGE");
+	newFontName = GBKStringToWString(newFontNameA);
+	HeightScaleFactor = config.ReadInt("FONT", "HEIGHTSCALEFACTOR", 100);
+	WidthScaleFactor = config.ReadInt("FONT", "WIDTHSCALEFACTOR", 100);
+	newWeight = config.ReadInt("FONT", "WEIGHT", 0);
+	newCharset = config.ReadInt("FONT", "CHARSET", 1);
+	loadfont();
+	installFontHook_main(config.ReadInt("FONT","A", 0), config.ReadInt("FONT", "W", 0), config.ReadInt("FONT", "IA", 0), config.ReadInt("FONT", "IW", 0));
+
+	if (config.ReadInt("WINDOW", "ENABLE", 0) == 1) {
+		changeWindowCfg.oriWindowName = config.ReadString("WINDOW", "ORI", "");
+		changeWindowCfg.newWindowName = config.ReadString("WINDOW", "NEW", "");
+		changeWindowCfg.modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3.5-sonnet");
+		changeWindowCfg.isCheckOri = config.ReadInt("WINDOW", "CHECKORI", 1);
+		hookTitle_main();
 	}
-	if (config.ReadInt("GLOBAL", "MODE", 0) == 3) {
-		loadfont();
-		hook_createfontA_main();
-		hook_createfontW_main();
-		hook_createfontindirectA_main();
-		//hook_createfontindirectW_main();
+	if (config.ReadInt("TEXTREPLACE", "MODE", 0) != 0) {
+		install_hook_textreplace(config.ReadInt("TEXTREPLACE", "MODE", 0));
 	}
-	if (config.ReadInt("GLOBAL", "CHANGEWINDOW", 0) == 1) {
-		hook_setWindowTextA_main();
-	}
-	if (config.ReadInt("TEXTREPLACE", "TextOutA", 0) == 1) {
-		//hook_TextOutA_textReplace_main();
-	}
-	/*if (config.ReadInt("FVPSaveChanger", "ENABLE", 0) == 1) {
-		InstallHook_savechanger(config.ReadInt("FVPSaveChanger", "offset", 0));
-	}*/
 }

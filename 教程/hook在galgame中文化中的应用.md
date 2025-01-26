@@ -145,7 +145,7 @@ HFONT WINAPI HookedCreateFontIndirectA(CONST LOGFONTA* lplf)
 }
 ```
 
-LOGFONTA的结构查阅文档可以获得。注意这里不能直接`modifiedLf.lfFaceName = "SimSun"`，而是应该用上面这种方法。然后像前面那样调用Detours的相关函数。
+LOGFONTA的结构查阅文档可以获得。注意这里不能直接 `modifiedLf.lfFaceName = "SimSun"`，而是应该用上面这种方法。然后像前面那样调用Detours的相关函数。
 
 #### 修改游戏窗口标题
 
@@ -160,3 +160,55 @@ DrawTextA/W、DrawTextExA/W有时用于窗口菜单栏的绘制。
 GetGlyphOutlineA/W用于生成字形，修改这个函数有时能实现很多奇怪的功能（比如类似uif的文字替换功能）
 
 同样，对TextOutA/W、ExtTextOutA/W函数有时会用于游戏文本生成，修改这个函数有时也能实现很多奇怪的功能。
+
+## DLL注入
+
+我们已经生成了一个dll，让游戏运行dll中的代码，我们之前写的hook代码才能生效。怎么实现这一点呢？这里介绍2类方法。
+
+### 修改导入表
+
+detouts里提供了一个小工具setdll.exe，可以将dll添加到导入表中：
+
+```
+setdll /d:your_dll_path.dll game_exe_path.exe
+```
+
+也可以制作一个启动器exe，从启动器启动，调用 `DetourCreateProcessWithDllW`函数：
+
+```
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+    PSTR lpCmdLine, int nCmdShow)
+{
+    std::string current_path = std::filesystem::current_path().string();
+	std::string dllPath = current_path + "name_of_your_dll.dll";// dll需要使用完整路径
+  
+    STARTUPINFO si = { sizeof(STARTUPINFOA) };
+    PROCESS_INFORMATION pi = { 0 };
+    si.cb = sizeof(si);
+    DetourCreateProcessWithDllW(
+        L"name_of_game_exe.exe",           // 目标 EXE 路径
+        NULL,                // 命令行参数（可为空）
+        NULL,                // 安全属性
+        NULL,                // 线程安全属性
+        TRUE,               // 是否继承句柄
+        CREATE_SUSPENDED, // 创建标志
+        NULL,                // 环境变量
+        NULL,                // 工作目录
+        &si,                 // STARTUPINFO
+        &pi,                 // PROCESS_INFORMATION
+        dllPath.c_str(),             // DLL 路径
+        NULL);             // 保留字段
+    ResumeThread(pi.hThread);
+    return 0;
+}
+```
+
+但是，如果游戏带某些保护壳，或者有签名验证之类的操作，此方法将不适用。
+
+### DLL劫持
+
+游戏自身也会调用一系列dll，如果我们用一个同名的dll对原本调用的进行替代，那就可以让游戏自己调用我们的代码了。但是，原本的dll中也有一些函数，所以，我们的dll需要充当一个中转的角色，复现原本dll的导出函数表，在游戏调用这些原本的dll中的函数时进行中转，去调用原本的dll。简单来说，我们需要制作一个夹带私货的中间人。
+
+有的游戏会自带一些dll文件，这种情况下劫持这些dll是很好的选择。有的游戏没有自带的dll，但是一定会调用很多windows的dll，如winmm.dll、version.dll、dxgi.dll、d3d9.dll等等，具体可以自己尝试或者查看exe的导入表。游戏查找系统的dll时，会先在游戏目录下查找
+
+中转的步骤已经有很多工具能够自动实现。这里我用的是[AheadLib](https://github.com/strivexjun/AheadLib-x86-x64)。将想要劫持的dll拖入该软件，会生成一个cpp文件。

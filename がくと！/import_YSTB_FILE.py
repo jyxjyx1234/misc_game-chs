@@ -16,6 +16,7 @@ print(encrypt)
 filelist = os.listdir(trans_path)
 
 for filename in filelist:
+    print(filename)
     YSTB_f = YSTB_FILE_v2(path=ori_path + filename.replace(".tra.txt", ""), encrypt=encrypt)
     try:
         trans_f = open(trans_path + filename, "r", encoding="utf8")

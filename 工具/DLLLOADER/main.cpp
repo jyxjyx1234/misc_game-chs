@@ -58,18 +58,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     PSTR lpCmdLine, int nCmdShow)
 {
     //FreeConsole();
-    if (!IsRunAsAdmin())
-    {
-        std::cout << "Not running as admin, attempting to elevate...\n";
-        return RequestAdminPrivileges();
-    }
-    
-    std::wstring current_path = std::filesystem::current_path().wstring();
+
 	rr::RConfig config;
 	config.ReadConfig("hook.ini");
+    if (config.ReadInt("LOADER", "ADMIN", 0) == 1) {
+        if (!IsRunAsAdmin())
+        {
+            std::cout << "Not running as admin, attempting to elevate...\n";
+            return RequestAdminPrivileges();
+        }
+    }
+    std::wstring current_path = std::filesystem::current_path().wstring();
     if (config.ReadInt("GLOBAL", "LE", 1) == 1) install_LE();
-
-	std::string target = config.ReadString("LOADER", "target", "");
+	std::string target = config.ReadString("LOADER", "TARGET", "");
     std::wstring targetW = GBKStringToWString(target);
     std::string dllPath = config.ReadString("LOADER", "DLL", "");
 	std::wstring dllPathW = GBKStringToWString(dllPath);

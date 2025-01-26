@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include "winapi_def.h"
 #include "detours.h"
 #include <fstream>
 #if defined(_M_X64) || defined(__amd64__)
@@ -11,8 +11,8 @@
 #include "readconfig.h"
 #include <iostream>
 
-typedef HFONT(WINAPI* CREATEFONTINDIRECTA)(CONST LOGFONTA* lplf);
-CREATEFONTINDIRECTA TrueCreateFontIndirectA = CreateFontIndirectA;
+
+pCreateFontIndirectA TrueCreateFontIndirectA = CreateFontIndirectA;
 
 rr::RConfig config;
 

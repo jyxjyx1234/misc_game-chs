@@ -18,7 +18,7 @@ for fileName in fileNames:
         allText.append(d["message"])
 h = HanziReplacer()
 h.ReadTransAndGetHanzidict([allText, namedict, ["中文测试"]])
-h.ChangeFont("WenQuanYi.ttf", "release\\NekonadeFont.ttf", "NekonadeFont")
+#h.ChangeFont("WenQuanYi.ttf", "release\\NekonadeFont.ttf", "NekonadeFont")
 
 for n in namedict:
     namedict[n] = h.hanzitihuan(namedict[n])

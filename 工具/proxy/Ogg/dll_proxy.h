@@ -3,7 +3,6 @@
 // created by AheadLib
 // github:https://github.com/strivexjun/AheadLib-x86-x64
 //
-#pragma once
 
 #include <windows.h>
 #include <Shlwapi.h>
@@ -167,7 +166,7 @@ BOOL WINAPI Load()
 
 	//GetSystemDirectory(tzPath, MAX_PATH); //默认获取系统目录的
 
-	lstrcat(tzPath, TEXT("\\ogg_ori.dll"));
+	lstrcat(tzPath, TEXT("\\ogg_.dll"));
 
 	g_OldModule = LoadLibrary(tzPath);
 	if (g_OldModule == NULL)
@@ -292,6 +291,7 @@ DWORD WINAPI ThreadProc(LPVOID lpThreadParameter)
 
 	return 0;
 }
+
 
 
 EXTERN_C __declspec(naked) void __cdecl AheadLib_ogg_packet_clear(void)

@@ -167,7 +167,8 @@ typedef DWORD(WINAPI* pGetGlyphOutlineA)(
 	LPVOID lpvBuffer,
 	const MAT2* lpmat2
 	);
-pGetGlyphOutlineA TrueGetGlyphOutlineA = GetGlyphOutlineA;
+
+pGetGlyphOutlineA TrueGetGlyphOutlineA;
 
 DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMETRICS lpgm, DWORD cbBuffer, LPVOID lpvBuffer, const MAT2* lpmat2)
 {

@@ -164,8 +164,8 @@ void textprocess_main() {
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 	DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA);
-    DetourAttach(&(PVOID&)TrueCreateFontA, HookedCreateFontA);
-    DetourAttach(&(PVOID&)TrueCreateFontIndirectA, HookedCreateFontIndirectA);
+    //DetourAttach(&(PVOID&)TrueCreateFontA, HookedCreateFontA);
+    //DetourAttach(&(PVOID&)TrueCreateFontIndirectA, HookedCreateFontIndirectA);
     //DetourAttach(&(PVOID&)TrueGetTextExtentExPointA, HookedGetTextExtentExPointA);
     //DetourAttach(&(PVOID&)TrueGetTextExtentPoint32A, HookedGetTextExtentPoint32A);
 	DetourTransactionCommit();

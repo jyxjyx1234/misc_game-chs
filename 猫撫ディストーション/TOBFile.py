@@ -91,10 +91,13 @@ class TOBText():
         transedDatas = []
         for i in self.datas:
             transed = i
+            self.delta_len = 0
             if self.NamePatten.search(i):
                 def _(match):
                     oriName = match.group("name").decode("932")
+                    self.delta_len -= len(match.group("name"))
                     transName = namedict[oriName].encode("932")
+                    self.delta_len += len(transName)
                     transNameLen = to_bytes(len(transName) + 1, 2)
                     return transNameLen + transName
                 transed = self.NamePatten.sub(_, i)
@@ -113,8 +116,9 @@ class TOBText():
 
             commandLen = from_bytes(i[5:9])
             text = i[5 + commandLen : ]
+            commandLen += self.delta_len
             if text and text[0] != 0x5b and b"\x00" not in text: 
-                transed = i[ : 5 + commandLen] + transBytesList.pop(0)
+                transed = transed[ : 5] + to_bytes(commandLen, 4) + transed[ 9 : 5 + commandLen] + transBytesList.pop(0)
             transedDatas.append(transed)
         self.datas = transedDatas
         if len(transBytesList)!=0:

@@ -1,6 +1,13 @@
 from Lib import *
 import os
 
+def open_file_b(path)->bytes:
+    return open(path,'rb').read()
+
+def save_file_b(path,data)->None:
+    with open(path,'wb') as f:
+        f.write(data)
+
 ori_exe_name="カラホワ.exe"#原exe名称
 
 ori_exe = open_file_b(ori_exe_name)
@@ -48,7 +55,3 @@ new_exe = ori_exe.replace(sjis_list,gbk_list)
 
 new_exe_name = ori_exe_name.replace(".exe","_chs.exe")
 save_file_b(new_exe_name, new_exe)
-
-os.system("setdll /d:MyDll.dll "+new_exe_name)
-os.system(f"copy {new_exe_name} Release\\")
-os.system(f"copy MyDll.dll Release\\")
