@@ -82,6 +82,12 @@ class SPT_FILE:
             if command.op == b"\x13":
                 idx = command.datas[0].content
                 namebuffer = name_idx.get(str(idx), "")
+            if command.op == b"\x15":
+                offset = command.datas[0].content
+                text = self.texts.read_text(offset - self.text_start + 0xa0 + self.unk1len)
+                if text != b"":
+                    out.add_text(text.decode("utf-8"), isappend=False)
+                    out.append_dict()
             if command.op == b"\x0b":
                 if command.datas[0].content == 0xc7:
                     offset = command.datas[1].content

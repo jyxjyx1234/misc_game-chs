@@ -1,0 +1,36 @@
+0x800: "i",
+0x801: "s",
+0x803, "ldc.r", "r", ".f");
+0x80f, "call",  null, "h0a", "[*#a].*");
+0x810, "callp", "h0a", "[*#a].");
+0x829, "alloca", "t", ".[#t]");
+0x82b, "ret", "", "[*].", "return");
+0x82c, "br", "j", ".", "jmp");
+0x82d, "brtrue", "j", "p.", "brinst", "jnz", "jne");
+0x82e, "brfalse", "j", "p.", "brnull", "brzero", "jz", "je");
+0x82f, "pop", "", "*.");
+0x830, "br.case", "j", "p.", "br.v", "jmp.v");
+0x831, "bne.case", "j", "p.", "bne.v", "jne.v");
+0x832, "bge.case", "j", "p.", "bge.v", "jge.v");
+0x833, "ble.case", "j", "p.", "ble.v", "jle.v");
+0x838, "blt.case", "j", "p.", "blt.v", "jlt.v");
+0x839, "bgt.case", "j", "p.", "bgt.v", "jgt.v");
+0x834, "syscall",  null, "ha", "[*#a].*");
+0x835, "syscallp", "ha", "[*#a].");
+0x836, "argcheck", "t", ".[#t]", "sigchk");
+0x837, "ldelem", "fho", "[i#d].#t");
+0x83a, "line", "l", ".");
+0x83b, "bsel.1", "j", ".");
+0x83c, "bsel.3", "j", ".");
+0x83d, "bsel.2", "j", ".");
+0x83e, "conv.i", "", "f.i");
+0x83f, "conv.r", "", "i.f");
+0x840, "text", "s", ".");
+0x841, "proc", "", ".");
+0x842, "ctrl", "s", "[#s].");
+0x843, "bsel.x", "j", ".");
+0x844, "bsel.clr", "", ".");
+0x845, "bsel.4", "j", ".");
+0x846, "bsel.jmp.4", "", ".");
+0x847, "bsel.5", "j", ".");
+0x850, "switch", "c", "i.");

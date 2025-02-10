@@ -3,6 +3,7 @@
 std::map<std::wstring, std::wstring> charReplaceMap;
 pGetGlyphOutlineA TrueGetGlyphOutlineA = GetGlyphOutlineA;
 pTextOutA TrueTextOutA = TextOutA;
+pExtTextOutA TrueExtTextOutA = ExtTextOutA;
 
 std::wstring MultiByteToWide(const std::string& str, int cp) {
     int size_needed = MultiByteToWideChar(cp, 0, &str[0], (int)str.size(), NULL, 0);
@@ -75,8 +76,31 @@ BOOL WINAPI HOOK_TextOutA(
     LPCSTR lpString,
     int cbString
 ) {
+    // 获取当前字体
+	printf("Hooked TextOutA\n");
+    HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+    LOGFONTA logFont;
+    GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+
+    // 修改当前字体的字符集为936
+    logFont.lfCharSet = 936;
+    HFONT hNewFont = CreateFontIndirectA(&logFont);
+    HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
+
     std::wstring new_wstr = changeText(lpString);
-    return TextOutW(hdc, nXStart, nYStart, new_wstr.c_str(), wcslen(new_wstr.c_str()));
+	LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
+    BOOL result = TrueTextOutA(hdc, nXStart, nYStart, new_str, cbString);
+
+    // 恢复原始字体
+    SelectObject(hdc, hOldFont);
+    DeleteObject(hNewFont);
+
+    return result;
+}
+
+BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* lprc, LPCSTR lpString, UINT cbCount, const INT* lpDx) {
+	std::wstring new_wstr = changeText(lpString);
+	return ExtTextOutW(hdc, X, Y, fuOptions, lprc, new_wstr.c_str(), wcslen(new_wstr.c_str()), lpDx);
 }
 
 DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMETRICS lpgm, DWORD cbBuffer, LPVOID lpvBuffer, const MAT2* lpmat2)
@@ -97,9 +121,21 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
         wstr = charReplaceMap[wstr];
         uChar = static_cast<UINT>(wstr.c_str()[0]);
         DWORD res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        if (res == -1) {
+            printf("GetGlyphOutlineW FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        }
+        else {
+            printf("GetGlyphOutlineW SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        }
         return res;
     }
     DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+    if (res == -1) {
+        printf("GetGlyphOutlineA FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+    }
+    else {
+		printf("GetGlyphOutlineA SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+    }
     return res;
 }
 
@@ -116,6 +152,9 @@ void install_hook_textreplace(int mode) {
 	}
 	else if (mode == 2) {
 		DetourAttach(&(PVOID&)TrueGetGlyphOutlineA, HOOK_GetGlyphOutlineA);
+	}
+	else if (mode == 3) {
+		DetourAttach(&(PVOID&)TrueExtTextOutA, HOOK_ExtTextOutA);
 	}
 	DetourTransactionCommit();
 }

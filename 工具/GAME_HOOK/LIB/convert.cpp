@@ -104,6 +104,14 @@ std::wstring sjisStringToWString(const std::string& str)
 	return wstrTo;
 }
 
+std::wstring ACPStringToWString(const std::string& str)
+{
+	int size_needed = MultiByteToWideChar(GetACP(), 0, &str[0], (int)str.size(), NULL, 0);
+	std::wstring wstrTo(size_needed, 0);
+	MultiByteToWideChar(GetACP(), 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+	return wstrTo;
+}
+
 
 std::wstring sjisLPCSTRToWideString(LPCSTR str)
 {
@@ -141,7 +149,7 @@ LPCSTR WideStringToGBKLPCSTR(std::wstring str)
 
 LPCSTR WideStringToSJISLPCSTR(std::wstring str)
 {
-	int nLen = WideCharToMultiByte(936, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
+	int nLen = WideCharToMultiByte(932, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
 
 	if (nLen == 0)
 	{

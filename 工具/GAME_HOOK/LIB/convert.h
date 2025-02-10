@@ -19,4 +19,5 @@ std::string ANSIToANSI(const char* str, int codepage1, int codepage2);
 std::string replaceSubString(const std::string& ori, const std::string& a, const std::string& b);
 std::wstring sjisStringToWString(const std::string& str);
 std::wstring GBKStringToWString(const std::string& str);
+std::wstring ACPStringToWString(const std::string& str);
 #endif

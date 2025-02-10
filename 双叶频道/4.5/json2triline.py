@@ -13,7 +13,7 @@ namedict = open_json("namedict.json")
 
 h = HanziReplacer()
 h.ReadTransAndGetHanzidictFromFolder("gt_output\\", [namedict])
-h.ChangeFont("wenquanyi.ttf", "release\\futaba3.5.ttf", "futaba3.5")
+h.ChangeFont("wenquanyi.ttf", "release\\futaba4.5.ttf", "futaba4.5")
 for n in namedict:
     namedict[n] = h.hanzitihuan(namedict[n])
     

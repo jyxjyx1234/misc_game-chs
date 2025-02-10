@@ -9,12 +9,12 @@ extern psetWindowTextA TruesetWindowTextA;
 extern psetWindowTextW TruesetWindowTextW;
 extern pCreateWindowExA TrueCreateWindowExA;
 extern pCreateWindowExW TrueCreateWindowExW;
-
+extern pRegisterClassA TrueRegisterClassA;
 struct WindowHookConfig
 {
-    std::string oriWindowName;// 936±àÂë
-    std::string newWindowName;// 936±àÂë
-    std::string modeltype;// 936±àÂë
+    std::string oriWindowName = "";// 936±àÂë
+    std::string newWindowName = "";// 936±àÂë
+    std::string modeltype = "";// 936±àÂë
     BOOL isCheckOri = true;
 };
 

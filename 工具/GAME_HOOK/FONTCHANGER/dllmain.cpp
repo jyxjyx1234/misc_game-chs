@@ -8,6 +8,11 @@
 #include "convert.h"
 #include "timer.h"
 #include <thread>
+
+#ifndef Release_for_others
+#include "resource.h"
+#endif
+
 #if defined(_M_X64) || defined(__amd64__)
 #pragma comment(lib, "detours_x64.lib")
 #else
@@ -22,11 +27,15 @@ VOID __declspec(dllexport) stratmessage()
     LPCWSTR modeltypew = string2LPCWSTR(modeltype);
     std::wstring msg = L"本补丁由ALyCE / jyxjyx1234制作，使用"
         + std::wstring(modeltypew) 
-        + L"进行翻译，免费发布，首发2dfan、jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n本人制作以及参与制作的所有补丁禁止转载至“鲲Galgame”补丁站。\n请仔细阅读README.md，如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
+        + L"进行翻译，免费发布于jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n请仔细阅读README.md，如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
     //std::wstring t1(L"本补丁由Steins;Gate，julixian，coroz，SUAD，ALyCE，是幼微鸭mua，冥语，魔神海谢拉 等共同出资，使用官方渠道claude-3.5-sonnet进行翻译，免费发布，首发2dfan及github，禁止任何形式的收费转载。\n如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从网赚盘（如飞猫云）or 付费下载到本补丁，请顺手点个举报。");
     //msg = L"适度游戏益脑，沉迷游戏伤身\n 仅供学习交流，请于24小时删除 ^ ^";
 #ifndef Release_for_others
     MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
+    //if (GetACP() != 936) {
+    //    MessageBoxW(NULL, L"请在简体中文 (CP936) 环境下运行！", L"错误", MB_ICONERROR);
+    //    exit(0);
+    //}
 #endif
 }
 
@@ -45,11 +54,14 @@ void del_font_cache_majiro() {
     if (font_cache_del_flag) return;
     std::string path = "savedata";
     if (!std::filesystem::exists(path)) {
+		printf("未找到文件夹：%s\n", path.c_str());
         return;
     }
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
+		//printf("文件：%s\n", entry.path().string().c_str());
         if (entry.path().extension() == ".fcd") {
             std::filesystem::remove(entry.path());
+			printf("删除文件：%s\n", entry.path().string().c_str());
         }
     }
     font_cache_del_flag = true;
@@ -62,19 +74,20 @@ BOOL HaveCHSPath() {
     return res;
 }
 
-//void loadfontmem(HMODULE hModule) {
-//    HRSRC hRes = FindResource(hModule, MAKEINTRESOURCE(IDR_FONT1), RT_FONT);
-//    if (hRes) {
-//        HGLOBAL hResData = LoadResource(hModule, hRes);
-//        if (hResData) {
-//            void* pFontData = LockResource(hResData);
-//            DWORD fontSize = SizeofResource(hModule, hRes);
-//            DWORD numFonts = 0;
-//            HANDLE hFont = AddFontMemResourceEx(pFontData, fontSize, NULL, &numFonts);
-//        }
-//	}
-//}
-
+#ifndef Release_for_others
+void loadfontmem(HMODULE hModule) {
+    HRSRC hRes = FindResource(hModule, MAKEINTRESOURCE(IDR_FONT1), RT_FONT);
+    if (hRes) {
+        HGLOBAL hResData = LoadResource(hModule, hRes);
+        if (hResData) {
+            void* pFontData = LockResource(hResData);
+            DWORD fontSize = SizeofResource(hModule, hRes);
+            DWORD numFonts = 0;
+            HANDLE hFont = AddFontMemResourceEx(pFontData, fontSize, NULL, &numFonts);
+        }
+	}
+}
+#endif
 
 rr::RConfig config1;
 
@@ -88,15 +101,17 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        config1.ReadConfig("hook.ini");
+        HOOK_main();
         if (config1.ReadInt("GLOBAL", "MED", 0) == 1) del_font_cache_MED();
         if (config1.ReadInt("GLOBAL", "MAJIRO", 0) == 1) del_font_cache_majiro();
-		//loadfontmem(hModule);
+#ifndef Release_for_others
+		loadfontmem(hModule);
+#endif
         if (HaveCHSPath()) {
             MessageBoxW(NULL, (L"检测到有中文路径，请修改后重新启动:" + std::filesystem::current_path().wstring()).c_str(), NULL, NULL);
             exit(1);
         }
-        HOOK_main();
-        config1.ReadConfig("hook.ini");
         if (config1.ReadInt("GLOBAL", "TIMER", 0) == 1) InitializeTimer();
         break;
     case DLL_THREAD_ATTACH:

@@ -34,7 +34,14 @@ HFONT WINAPI HookedCreateFontW(
     cWidth = cWidth * WidthScaleFactor / 100;
     if (newWeight) cWeight = newWeight;
     if (newCharset != 1 ) iCharSet = newCharset;
-    if (newFontName != L"NOTCHANGE") pszFaceName = newFontName.c_str();
+  //  if (newFontName != L"NOTCHANGE") {
+  //      pszFaceName = newFontName.c_str();
+		//printf("New Font Name: %ls\n", pszFaceName);
+  //  }
+	if (std::wstring(pszFaceName) == L"£Í£Ó £Ð¥´¥·¥Ã¥¯" || std::wstring(pszFaceName) == L"£Í£Ó ¥´¥·¥Ã¥¯") {
+        pszFaceName = newFontName.c_str();
+	}
+
     return TrueCreateFontW(cHeight,
         cWidth,
         cEscapement,
@@ -53,7 +60,7 @@ HFONT WINAPI HookedCreateFontW(
 
 HFONT WINAPI HookedCreateFontIndirectW(CONST LOGFONTW* lplf) {
     printf("CreateFontIndirectW\n");
-	return HookedCreateFontW(lplf->lfHeight, lplf->lfWeight, lplf->lfEscapement, lplf->lfOrientation, lplf->lfWeight, lplf->lfItalic, lplf->lfUnderline, lplf->lfStrikeOut, lplf->lfCharSet, lplf->lfOutPrecision, lplf->lfClipPrecision, lplf->lfQuality, lplf->lfPitchAndFamily, lplf->lfFaceName);
+	return HookedCreateFontW(lplf->lfHeight, lplf->lfWidth, lplf->lfEscapement, lplf->lfOrientation, lplf->lfWeight, lplf->lfItalic, lplf->lfUnderline, lplf->lfStrikeOut, lplf->lfCharSet, lplf->lfOutPrecision, lplf->lfClipPrecision, lplf->lfQuality, lplf->lfPitchAndFamily, lplf->lfFaceName);
 }
 
 HFONT WINAPI HookedCreateFontA(

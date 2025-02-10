@@ -1,0 +1,1 @@
+.\arc_pack.exe xp3 release\patch release\update.dat

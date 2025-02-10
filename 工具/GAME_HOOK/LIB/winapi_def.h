@@ -95,3 +95,18 @@ typedef HWND(WINAPI* pCreateWindowExW)(
 
 typedef HMODULE(WINAPI* pLoadLibraryExA)(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
 typedef HMODULE(WINAPI* pLoadLibraryA)(LPCSTR lpLibFileName);
+typedef HMODULE(WINAPI* pLoadLibraryW)(LPCWSTR lpLibFileName);
+typedef HMODULE(WINAPI* pLoadLibraryExW)(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
+
+typedef BOOL(WINAPI* pExtTextOutA)(
+	HDC hdc,
+	int X,
+	int Y,
+	UINT fuOptions,
+	const RECT* lprc,
+	LPCSTR lpString,
+	UINT cbCount,
+	const INT* lpDx
+	);
+
+typedef ATOM(WINAPI* pRegisterClassA)(const WNDCLASSA*);

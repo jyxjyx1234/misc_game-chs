@@ -116,11 +116,11 @@ namespace rr
 	}
 
 	bool RConfig::ReadConfig(const std::string& filename) {
-		//char app[1024] = { 0 };
-		//GetAppPath(app, sizeof(app));
-		//std::string fpath = std::string(app) + "\\" + filename;
+		char app[1024] = { 0 };
+		GetAppPath(app, sizeof(app));
+		std::string fpath = std::string(app) + "\\" + filename;
 
-		std::ifstream infile(filename);
+		std::ifstream infile(fpath);
 
 		if (!infile) {
 			MessageBoxW(NULL, GBKStringToWString("Œ¥’“µΩ" + filename + "!").c_str(), NULL, NULL);
