@@ -137,7 +137,7 @@ class HanziReplacer(object):
             except:
                 errorchars += f'字体中不存在:{value}, unicode: {j}\n'
         if not errorchars:
-            subprocess.run(['otfccbuild.exe', '-O3', '-o', outpath,"--keep-average-char-width"], input=json.dumps(obj), encoding='utf-8')
+            subprocess.run(['otfccbuild.exe', '-O3', '-s', '-o', outpath,"--keep-average-char-width"], input=json.dumps(obj), encoding='utf-8')
         else:
             raise RuntimeError('字体替换失败, 请从译文中手动删除不支持的字符:\n'+errorchars)
 
@@ -147,8 +147,3 @@ def teshuzifutihuan(text):#匹配时去除特殊字符
 
 def fuhaotihuan(text):#替换掉译文中一些不支持的常见特殊符号形式，以正常显示
     return text.replace('—','ー').replace('～','〜').replace('“','「').replace('”','」').replace('·','・')
-
-if __name__ == "__main__":
-    h = HanziReplacer()
-    h.ReadTransAndGetHanzidict([["测试"]])
-    h.ChangeFont("WenQuanYi.ttf", "D:\\CHS\\misc_game-chs\\工具\\GAME_HOOK\\いつか降る雪\\WenQuanYi.ttf", "alyce")

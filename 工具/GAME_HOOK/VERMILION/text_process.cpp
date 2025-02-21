@@ -106,8 +106,9 @@ HMODULE WINAPI HookedLoadLibraryW(LPCWSTR lpLibFileName) {
 
 void InstallHook_replacetext() {
     DWORD oldProtect;
-    originalFuncAddr = 0x522d52;  
-    returnAddress = 0x522d5c;
+	DWORD baseAddr = (DWORD)GetModuleHandle(NULL);
+    originalFuncAddr = baseAddr + 0x122d52;
+    returnAddress = baseAddr + 0x122d5c;
 
     // 修改内存保护
     VirtualProtect((LPVOID)originalFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);

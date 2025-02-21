@@ -126,6 +126,7 @@ class KS_FILE():
                     trans_text_dic = trans_json.pop(0)
                     hangshu = trans_text_dic['line']
                     trans_text = trans_text_dic['message']
+                    trans_text = trans_text.replace("\n", "\\n")
                     trans_text = processQuote(trans_text)
                     trans_text = changeTextOutBrackets(l.text, trans_text)
                     trans_text = trans_text.replace("\\n", "[r]")
@@ -134,6 +135,7 @@ class KS_FILE():
             elif l.type == "nameMsg":
                 trans_text_dic = trans_json.pop(0)
                 trans_text = trans_text_dic['message']
+                trans_text = trans_text.replace("\n", "\\n")
                 l.text = re.sub(r'(@voice file=".*?" name=".*?" text=")(.*?)"', lambda x: x.group(1) + trans_text + '"', l.text)
             elif l.type == "opt":
                 opts = re.search(r'@links target=.*?text="(.*?)"', l.text).group(1)

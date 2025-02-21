@@ -69,16 +69,55 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         }
     }
     std::wstring current_path = std::filesystem::current_path().wstring();
-    if (config.ReadInt("GLOBAL", "LE", 1) == 1) install_LE();
+    std::string current_pathA = std::filesystem::current_path().string();
+    if (config.ReadInt("GLOBAL", "DEBUG", 1) == 1) {
+        if (AllocConsole())
+        {
+            FILE* fp;
+            freopen_s(&fp, "CONOUT$", "w", stdout);
+            setlocale(LC_CTYPE, "zh-ch");
+            SetConsoleOutputCP(95003);
+        }
+    }
+    if (config.ReadInt("GLOBAL", "LE", 1) == 1) {
+        if (std::filesystem::exists(current_path + L"\\LocaleEmulator")) {
+            install_LE();
+        } else {
+            std::cout << "LocaleEmulator.dll not found, skipping install_LE.\n";
+        }
+    }
+    std::vector<LPCSTR> dllpaths;
+
 	std::string target = config.ReadString("LOADER", "TARGET", "");
     std::wstring targetW = GBKStringToWString(target);
-    std::string dllPath = config.ReadString("LOADER", "DLL", "");
-	std::wstring dllPathW = GBKStringToWString(dllPath);
-    dllPathW = current_path + L"\\" + dllPathW;
+    std::string dllPath = current_pathA + "\\" + config.ReadString("LOADER", "DLL", "");
+	LPCSTR full_dllpath = new char[100];
+	strcpy_s((char*)full_dllpath, 100, dllPath.c_str());
+	dllpaths.push_back(full_dllpath);
+	int i = 2;
+    while (1) {
+		dllPath = current_pathA  + "\\" + config.ReadString("LOADER", ("DLL" + std::to_string(i)).c_str(), "");
+		if (dllPath == current_pathA + "\\") {
+			break;
+		}
+        LPCSTR full_dllpath = new char[100];
+        strcpy_s((char*)full_dllpath, 100, dllPath.c_str());
+		dllpaths.push_back(full_dllpath);
+		i++;
+    }
+
+    LPCSTR* dllArray = new LPCSTR[dllpaths.size() + 1]; // +1 是为了最后一个元素为 nullptr
+    for (size_t j = 0; j < dllpaths.size(); j++) {
+        dllArray[j] = dllpaths[j];
+		printf("DLL Path: %s\n", dllArray[j]);
+    }
+    dllArray[dllpaths.size()] = nullptr; // 最后一个元素设置为 nullptr
+
     STARTUPINFO si = { sizeof(STARTUPINFOA) };
     PROCESS_INFORMATION pi = { 0 };
     si.cb = sizeof(si);
-    DetourCreateProcessWithDllW(
+    
+    DetourCreateProcessWithDllsW(
         targetW.c_str(),           // 目标 EXE 路径
         NULL,                // 命令行参数（可为空）
         NULL,                // 安全属性
@@ -88,12 +127,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         NULL,                // 环境变量
         NULL,                // 工作目录
         &si,                 // STARTUPINFO
-        &pi,                 // PROCESS_INFORMATION
-        WideStringToLPCSTR(dllPathW, GetACP()),             // DLL 路径
+        &pi,
+        dllpaths.size(),
+        dllArray,            // DLL 路径
         NULL);             // 保留字段
     ResumeThread(pi.hThread);
-
-	/*CreateProcessW(targetW.c_str(), NULL, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi);
-    ResumeThread(pi.hThread);*/
     return 0;
 }

@@ -38,9 +38,16 @@ HFONT WINAPI HookedCreateFontW(
   //      pszFaceName = newFontName.c_str();
 		//printf("New Font Name: %ls\n", pszFaceName);
   //  }
+#ifdef CHECK_ORI_FONT
 	if (std::wstring(pszFaceName) == L"£Í£Ó £Ð¥´¥·¥Ã¥¯" || std::wstring(pszFaceName) == L"£Í£Ó ¥´¥·¥Ã¥¯") {
-        pszFaceName = newFontName.c_str();
+		pszFaceName = newFontName.c_str();
 	}
+#else
+    if (newFontName != L"NOTCHANGE") {
+        pszFaceName = newFontName.c_str();
+        printf("New Font Name: %ls\n", pszFaceName);
+    }
+#endif
 
     return TrueCreateFontW(cHeight,
         cWidth,

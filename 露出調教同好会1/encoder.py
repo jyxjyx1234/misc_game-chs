@@ -78,4 +78,4 @@ codecs.register(custom_codec_search)
 
 if __name__ == "__main__":
     codecs.register(custom_codec_search)
-    print('でも、いつの間にそんな格好おぼえたんだい'.encode('sb').hex())
+    print('秋の夜空はどこか儚く見えた。'.encode('sb').hex())

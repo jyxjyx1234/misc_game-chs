@@ -1,6 +1,16 @@
 from Lib import *
 from SCD_FILE_reader import *
 
+namelist = ["ちさと",
+"未来",
+"まこと",
+"あゆみ",
+"まゆみ",
+"あゆみ まゆみ",
+"高坂",
+"蘇我博士",
+"？"]
+
 def process_symbol_for_GBK(text, encoding):
     if encoding != "936":
         return text
@@ -39,9 +49,18 @@ class SCD_FILE_pack:
             filename = entry["filename"]
             outfile = open(os.path.join(output_dir, filename) + ".txt", 'w', encoding='utf-8')
             # outfile.write(f"name:{filename}\noffset:{self.filesdata.p}\n")
+            out = OriJsonOutput()
             while self.filesdata.p < entry["size"] + entry["offset"]:
-                outfile.write(self.filesdata.readOP() + '\n')
+                text = self.filesdata.readOP()
+                outfile.write(text + '\n')
+                if re.search(r"#1200\|u16\(([0-9])\)", text):
+                    out.add_name(namelist[int(re.search(r"#1200\|u16\(([0-9])\)", text).group(1))])
+                if re.search(r"strt\(.*?\)", text):
+                    out.add_text(re.search(r"strt\((.*?)\)", text).group(1))
+                    out.append_dict()
             outfile.close()
+            os.makedirs("ori_txt", exist_ok=True)
+            out.save_double_line("ori_txt\\" + filename + ".txt")
 
     def pre_compile(self, input_dir, encoding):
         contents = []
@@ -153,10 +172,10 @@ class Line:
 
 
 if __name__ == "__main__":
-    mode = "pack"
+    mode = "unpack"
     if mode == "unpack":
         scd = SCD_FILE_pack("scr.scd", b"\xa5")
         scd.unpack("scr_unpack_dec")
     if mode == "pack":
         scd = SCD_FILE_pack("scr.scd", b"\xa5")
-        scd.pack("scr_unpack_dec\\", "release\\scr.scd", "932")
+        scd.pack("scr_unpack_dec_trans\\", "release\\scr.scd", "932")

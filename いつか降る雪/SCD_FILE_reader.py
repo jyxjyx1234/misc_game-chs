@@ -54,7 +54,8 @@ if __name__ == "__main__":
         reader = SCD_Reader(data)
         l = len(data)
         while reader.p < l - 2:
-            outfile.write(reader.readOP() + '\n')
+            text = reader.readOP()
+            outfile.write(text + '\n')
         # if reader.p == l - 2 and reader.readU16() == 0:
         #     outfile.write(f"@{reader.p}|0000")
         # else:

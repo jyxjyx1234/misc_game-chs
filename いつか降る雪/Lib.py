@@ -142,6 +142,18 @@ class OriJsonOutput():
         else:
             self.dic = {}
     
+    def save_double_line(self, path):
+        out = open(path, 'w', encoding='utf8')
+        for i in range(len(self.outlist)):
+            idx = i + 1
+            name = ""
+            if "name" in self.outlist[i]:
+                name = self.outlist[i]["name"]
+            text = self.outlist[i]["message"]
+            out.write(f"☆{idx:06d}☆{name}☆{text}\n")
+            out.write(f"★{idx:06d}★{name}★{text}\n\n")
+        out.close()
+    
     def get_names(self):
         namedict = {}
         for i in self.outlist:

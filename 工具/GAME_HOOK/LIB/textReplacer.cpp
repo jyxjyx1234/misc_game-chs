@@ -21,7 +21,7 @@ std::string WideToMultiByte(const std::wstring& wstr, int cp) {
 
 std::map<std::wstring, std::wstring> readReplaceMap(const std::string& filename, std::string k) {
     std::map<std::wstring, std::wstring> result;
-    std::ifstream file(filename);
+    std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
 		MessageBoxA(NULL, (std::string("Unable to open file ") + filename).c_str(), "Error", MB_OK);
 		exit(1);
@@ -83,7 +83,7 @@ BOOL WINAPI HOOK_TextOutA(
     GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
 
     // 修改当前字体的字符集为936
-    logFont.lfCharSet = 936;
+    logFont.lfCharSet = 134;
     HFONT hNewFont = CreateFontIndirectA(&logFont);
     HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
 
@@ -121,21 +121,21 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
         wstr = charReplaceMap[wstr];
         uChar = static_cast<UINT>(wstr.c_str()[0]);
         DWORD res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        if (res == -1) {
-            printf("GetGlyphOutlineW FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        }
-        else {
-            printf("GetGlyphOutlineW SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        }
+        //if (res == -1) {
+        //    printf("GetGlyphOutlineW FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        //}
+        //else {
+        //    printf("GetGlyphOutlineW SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        //}
         return res;
     }
     DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-    if (res == -1) {
-        printf("GetGlyphOutlineA FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-    }
-    else {
-		printf("GetGlyphOutlineA SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-    }
+  //  if (res == -1) {
+  //      printf("GetGlyphOutlineA FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+  //  }
+  //  else {
+		//printf("GetGlyphOutlineA SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+  //  }
     return res;
 }
 

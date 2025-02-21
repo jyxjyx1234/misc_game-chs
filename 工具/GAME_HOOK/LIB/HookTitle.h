@@ -16,6 +16,7 @@ struct WindowHookConfig
     std::string newWindowName = "";// 936±àÂë
     std::string modeltype = "";// 936±àÂë
     BOOL isCheckOri = true;
+	BOOL isCheckStart = false;
 };
 
 extern WindowHookConfig changeWindowCfg;

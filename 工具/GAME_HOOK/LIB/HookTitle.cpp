@@ -7,8 +7,8 @@ pCreateWindowExA TrueCreateWindowExA = CreateWindowExA;
 pCreateWindowExW TrueCreateWindowExW = CreateWindowExW;
 WindowHookConfig changeWindowCfg;
 
-std::string tag = " 机翻 by ALyCE / jyxjyx1234";
-std::wstring tagW = L" 机翻 by ALyCE / jyxjyx1234";
+std::string tag = "Deepseek-R1 机翻 by jyxjyx1234@ai2.moe";
+std::wstring tagW = L"Deepseek-R1 机翻 by jyxjyx1234@ai2.moe";
 
 std::string newWindowName;
 std::wstring newWindowNameW;
@@ -22,6 +22,12 @@ BOOL WINAPI HookedSetWindowTextA(HWND hWnd, LPCSTR lpString)
              return TruesetWindowTextA(hWnd, lpString);
         }
     }
+	else if (changeWindowCfg.isCheckStart) {
+		if (oriname.find(ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, GetACP())) == std::string::npos) {
+			return TruesetWindowTextA(hWnd, lpString);
+		}
+	}
+
     if (changeWindowCfg.newWindowName != "") {
         newWindowName = changeWindowCfg.newWindowName;
         newWindowName = ANSIToANSI(oriname.c_str(), 936, GetACP());
