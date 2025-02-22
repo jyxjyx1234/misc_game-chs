@@ -102,7 +102,7 @@ class OriJsonOutput():
         self.dic = {}
     
     def add_text(self, text):
-        # self.dic["line"] = self.dic.get("line",0) + 1
+        self.dic["line"] = self.dic.get("line",0) + 1
         self.dic['ori'] = self.dic.get("message","") + text
         self.dic['message'] = self.preProcess(self.dic['ori'])
     
@@ -128,6 +128,7 @@ class OriJsonOutput():
     
     def append_dict(self, quchong = False, remove_name = True):
         if "message" not in self.dic or not self.savefilter(self.dic):
+            self.dic = {}
             return
         
         if self.dic['message'] == "":
