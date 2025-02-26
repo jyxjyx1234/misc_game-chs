@@ -25,9 +25,9 @@ VOID __declspec(dllexport) stratmessage()
     config.ReadConfig("hook.ini");
     std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3-haiku");
     LPCWSTR modeltypew = string2LPCWSTR(modeltype);
-    std::wstring msg = L"本补丁由ALyCE / jyxjyx1234制作，使用"
+    std::wstring msg = L"本补丁由jyxjyx1234制作，使用"
         + std::wstring(modeltypew) 
-        + L"进行翻译，免费发布于jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n请仔细阅读README.md，如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
+        + L"进行翻译，免费发布于jyxjyx1234的博客（jyxjyx1234.github.io)、御爱同萌（ai2.moe），禁止任何形式的收费转载。\n请仔细阅读README.md，如果补丁运行遇到问题，可发邮件至jyxjyx1234@outlook.com或通过御爱同萌站内信反馈。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
     //std::wstring t1(L"本补丁由Steins;Gate，julixian，coroz，SUAD，ALyCE，是幼微鸭mua，冥语，魔神海谢拉 等共同出资，使用官方渠道claude-3.5-sonnet进行翻译，免费发布，首发2dfan及github，禁止任何形式的收费转载。\n如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从网赚盘（如飞猫云）or 付费下载到本补丁，请顺手点个举报。");
     //msg = L"适度游戏益脑，沉迷游戏伤身\n 仅供学习交流，请于24小时删除 ^ ^";
 #ifndef Release_for_others

@@ -1,0 +1,5075 @@
+readmark enable
+
+func $fd13d1b2() {
+ entry:
+  line          #15
+  argcheck      []
+  alloca        []
+  line          #16
+  ldstr         "cursor_touch"
+  syscallp      $sound (1)
+  line          #17
+  ldc.i         0
+  ret          
+}
+
+func $e97d43fc() {
+ entry:
+  line          #18
+  argcheck      []
+  alloca        [int]
+  line          #21
+  ldstr         ""
+  callp         $aa37c76f (1)
+  line          #23
+  syscallp      $console_off (0)
+  line          #24
+  ldc.i         3000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #25
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #26
+  ldc.i         3000
+  ldstr         "次回へジャンプ1_off"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #27
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #29
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  line          #30
+  ldc.i         -1
+  ldstr         "次回へジャンプ1_off"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #33
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "black"
+  callp         $$buttonmenu_file_set@BUTONMENU (1) ; $buttonmenu_file_set@BUTONMENU
+  line          #34
+  ldc.i         20
+  ldc.i         0
+  ldstr         "次回へジャンプ1_on"
+  callp         $$buttonmenu_file_add@BUTONMENU (3) ; $buttonmenu_file_add@BUTONMENU
+  line          #36
+  ldc.i         61
+  ldc.i         198
+  ldc.i         99
+  ldc.i         20
+  add.i        
+  ldc.i         449
+  ldc.i         0
+  callp         $$buttonmenu_set@BUTONMENU (5) ; $buttonmenu_set@BUTONMENU
+  line          #37
+  ldc.i         61
+  ldc.i         198
+  ldc.i         206
+  ldc.i         20
+  add.i        
+  ldc.i         449
+  ldc.i         1
+  callp         $$buttonmenu_set@BUTONMENU (5) ; $buttonmenu_set@BUTONMENU
+  line          #39
+  syscallp      $reset_fast_mode (0)
+  line          #40
+  callp         $$reset_fast_disp@CONSOLE (0) ; $reset_fast_disp@CONSOLE
+  line          #42
+  ldc.i         -49032782
+  ldstr         "BUTTONMENU_ON"
+  syscallp      $event_hook (2)
+  line          #43
+  ldc.i         0
+  call          $$button_menu@BUTONMENU (1) ; $button_menu@BUTONMENU
+  st.i          local int $f463cc85 0
+  pop          
+  line          #44
+  ldc.i         -49032782
+  ldstr         "BUTTONMENU_ON"
+  syscallp      $event_release (2)
+  line          #46
+  ld            local int $f463cc85 0
+  ldc.i         1
+  ceq.i        
+  brfalse       @block_0281
+
+ block_0279:
+  syscallp      $exit (0)
+
+ block_0281:
+  line          #48
+  ldc.i         3000
+  ldstr         "black"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #49
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #51
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "KUROHANE"
+  callp         $aa37c76f (1)
+  line          #52
+  ldstr         "kr03"
+  syscallp      $exec (1)
+  line          #53
+  ldc.i         0
+  ret          
+}
+
+func $1d128f30() entrypoint { ; $main@GLOBAL
+ entry:
+  line          #55
+  argcheck      []
+  alloca        []
+  line          #61
+  ldc.i         0
+  syscallp      $music_vol (1)
+  line          #62
+  ldstr         "K_BGM01A"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #63
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #65
+  ldstr         "Bg56A01"
+  callp         $$disp_back@PIC (1) ; $disp_back@PIC
+  line          #66
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #68
+  ldc.i         1000
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #70
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0001"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #71
+  text          %{L1} ; "アイン「こんにちは、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L2} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #73
+  ldstr         "v02co0167"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #74
+  text          %{L3} ; "ココ「こんにちは、です」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L4} ; " \nボクもお辞儀するよ、ちゃんとね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #77
+  ldstr         "v02co0168"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #78
+  text          %{L5} ; "ココ「（――このヒトが『アイン』でいいんだよね？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L6} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #80
+  ldstr         "v02co0169"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #81
+  text          %{L7} ; "ココ「アイン？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L8} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #83
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #85
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0002"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #86
+  text          %{L9} ; "アイン「そうだが――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L10} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #88
+  text          %{L11} ; "黒くて長い服を着てて――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #90
+  text          %{L12} ; "同じぐらい長い髪をした男の人。\nアインとヒメサマ、どっちが髪の毛長いのかなぁ？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #93
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #95
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0003"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #96
+  text          %{L13} ; "アイン「どうかしたのかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L14} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #98
+  text          %{L15} ; "すごく不思議そうな顔されちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #100
+  ldstr         "ein_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #102
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0004"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #103
+  text          %{L16} ; "アイン「もしかして、忘れてしまったのか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L17} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #105
+  text          %{L18} ; "アインはボクのお名前知ってるのに、\nボクはアインのこと――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #108
+  ldstr         "v02co0170"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #109
+  text          %{L19} ; "ココ「うううぅぅ、ごめんなさい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L20} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #111
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #113
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0005"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #114
+  text          %{L21} ; "アイン「いいのだ、謝らなくとも。だいたいのことは『姫君』より\n聞かされている」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L22} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #117
+  ldstr         "v02co0171"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #118
+  text          %{L23} ; "ココ「ひめぎみー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L24} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #120
+  ldstr         "v22ef0077"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #121
+  text          %{L25} ; "エファ「姫様のことよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L26} ; "エファが小さい声で教えてくれた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #123
+  ldstr         "v02co0172"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #124
+  text          %{L27} ; "ココ「あー、ヒメサマー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L28} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #126
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #128
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L29} ; "アインはヒメサマのこと、『ひめぎみ』って呼ぶんだね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #130
+  ldstr         "v02co0173"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #131
+  text          %{L30} ; "ココ「ヒメサマが、ボクのこと、いってたの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L31} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #133
+  ldstr         "ein_b07"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #135
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0006"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #136
+  text          %{L32} ; "アイン「うん？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L33} ; "いや、そうだな――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L34} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #138
+  ldstr         "v02co0174"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #139
+  text          %{L35} ; "ココ「？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L36} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #141
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #143
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0007"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #144
+  text          %{L37} ; "アイン「姫君は『ココは面白い子です』と、おっしゃっていた」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L38} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #146
+  ldstr         "v02co0175"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #147
+  text          %{L39} ; "ココ「おもしろい、の？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L40} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #149
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #151
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0008"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #152
+  text          %{L41} ; "アイン「自分の胸に手を当てて訊いてみるといい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L42} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #154
+  text          %{L43} ; "うんうん、わかった！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L44} ; "訊いてみます。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #156
+  ldstr         "v02co0176"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #157
+  text          %{L45} ; "ココ「ボクって、おもしろい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L46} ; "胸に手を当てて、わくわく！"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #159
+  ldstr         "v02co0177"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #160
+  text          %{L47} ; "ココ「（――んー？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L48} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #162
+  ldstr         "v02co0178"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #163
+  text          %{L49} ; "ココ「――よくわかんない、ねー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L50} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #165
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #167
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0009"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #168
+  text          %{L51} ; "アイン「――いや、もう手を下ろしていいよ。キミは充分に面白い子だから」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L52} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #170
+  text          %{L53} ; "アインが困ったような顔で笑ったけど、本当に面白かったのかな？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #172
+  text          %{L54} ; "ただ、胸に手を当てて質問しただけなのに。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #174
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #176
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0010"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #177
+  text          %{L55} ; "アイン「――ところで、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L56} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #179
+  ldstr         "v02co0179"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #180
+  text          %{L57} ; "ココ「あーい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L58} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #182
+  ldstr         "v24ei0011"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #183
+  text          %{L59} ; "アイン「こんな廊下で、何をしているのかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L60} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #185
+  ldstr         "v02co0180"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #186
+  text          %{L61} ; "ココ「えーっと――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L62} ; "ボク、なにしてるんだろう？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #188
+  text          %{L63} ; "急に訊かれると、分からないよね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #190
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #192
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0012"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #193
+  text          %{L64} ; "アイン「遊んでいたのかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L65} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #195
+  ldstr         "v02co0181"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #196
+  text          %{L66} ; "ココ「ち、ちがいます」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L67} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #198
+  ldstr         "ein_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #200
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L68} ; "アインは、ジッとボクを見つめる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #202
+  ldstr         "v24ei0013"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #203
+  text          %{L69} ; "アイン「エファと一緒に散歩？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L70} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #205
+  ldstr         "v02co0182"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #206
+  text          %{L71} ; "ココ「えっと、えっと」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L72} ; "ど、ど、どうしよう？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #208
+  ldstr         "v24ei0014"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #209
+  text          %{L73} ; "アイン「それとも、城内の見学を？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L74} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #211
+  ldstr         "v02co0183"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #212
+  text          %{L75} ; "ココ「じょうない？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L76} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #214
+  ldstr         "v22ef0078"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #215
+  text          %{L77} ; "エファ「お城の中のことね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L78} ; "またエファが教えてくれた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #217
+  ldstr         "v02co0184"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #218
+  text          %{L79} ; "ココ「あー、おしろだったんだー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L80} ; " \nだから、ヒメサマが居るんだね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #221
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #223
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0015"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #224
+  text          %{L81} ; "アイン「目的の場所があるなら、私が案内しようか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L82} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #226
+  text          %{L83} ; "うわぁ、お話続いてたの！？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #228
+  ldstr         "v02co0185"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #229
+  text          %{L84} ; "ココ「うぅ、うううぅぅ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L85} ; " \nアインのおめめって、細くてちょっと怖い。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #232
+  text          %{L86} ; "だから、うまく答えられなくて――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #234
+  ldstr         "v22ef0079"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #235
+  text          %{L87} ; "エファ「――ココは、部屋を出て迷子になったの。そうよね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L88} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #237
+  ldstr         "v02co0186"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #238
+  text          %{L89} ; "ココ「う、うん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L90} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #240
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #242
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0016"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #243
+  text          %{L91} ; "アイン「そうか。それで？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L92} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #245
+  ldstr         "v02co0187"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #246
+  text          %{L93} ; "ココ「うー、あー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L94} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #248
+  ldstr         "v22ef0080"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #249
+  text          %{L95} ; "エファ「姫様が見つけて、さっきまで話をしていたの。そうよね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L96} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #251
+  ldstr         "v02co0188"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #252
+  text          %{L97} ; "ココ「うん！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L98} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #254
+  ldstr         "v24ei0017"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #255
+  text          %{L99} ; "アイン「それで、姫君は？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L100} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #257
+  ldstr         "v02co0189"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #258
+  text          %{L101} ; "ココ「えーっと」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L102} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #260
+  ldstr         "v22ef0081"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #261
+  text          %{L103} ; "エファ「デュアの呼ぶ声がしたので、そちらへ行きました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L104} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #263
+  ldstr         "v02co0190"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #264
+  text          %{L105} ; "ココ「そうそう、そうです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L106} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #266
+  text          %{L107} ; "アインの質問でボクが困ると、エファが答えてくれる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #268
+  text          %{L108} ; "楽ちん、楽ちん。エファにお任せー。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #270
+  ldstr         "ein_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #272
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0018"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #273
+  text          %{L109} ; "アイン「デュアか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L110} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #275
+  text          %{L111} ; "あ。アインが何か考えてるみたい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #277
+  text          %{L112} ; "えへへ、まねっこしてみよう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #279
+  ldstr         "v02co0191"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #280
+  text          %{L113} ; "ココ「デュア、かーぁ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L114} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #282
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #284
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0019"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #285
+  text          %{L115} ; "アイン「……ん？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L116} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #287
+  ldstr         "v22ef0082"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #288
+  text          %{L117} ; "エファ「……どうしたの、ココ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L118} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #290
+  ldstr         "v02co0192"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #291
+  text          %{L119} ; "ココ「――あれれ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L120} ; "ふたりがボクを見てるよ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #293
+  ldstr         "v24ei0020"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #294
+  text          %{L121} ; "アイン「ココ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L122} ; "デュアが、どうかしたのか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L123} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #296
+  ldstr         "v02co0193"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #297
+  text          %{L124} ; "ココ「デュア、しらないです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L125} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #299
+  ldstr         "ein_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #301
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0021"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #302
+  text          %{L126} ; "アイン「うん？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L127} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #304
+  ldstr         "v02co0194"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #305
+  text          %{L128} ; "ココ「あわわ。デュアって、ダレですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L129} ; " \nどうしよう。また細めたおめめで見られちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #308
+  ldstr         "v22ef0083"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #309
+  text          %{L130} ; "エファ「ココは、あのあと『まだ』デュアと会っていません」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L131} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #311
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #313
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0022"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #314
+  text          %{L132} ; "アイン「――あぁ、そういうことか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L133} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #316
+  ldstr         "v02co0195"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #317
+  text          %{L134} ; "ココ「そうそう、そうです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L135} ; " \nアインが頷くのを見て、ボクも首を縦にブンブン振ってみる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #320
+  text          %{L136} ; "そうしたらアインは、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #322
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #324
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0023"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #325
+  text          %{L137} ; "アイン「――解ってなさそうだが、良しとしよう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L138} ; "だって。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #327
+  text          %{L139} ; "良かったー。\nまねっこしたら、アインがちょこっとだけ笑ってくれたし。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #330
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #332
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0024"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #333
+  text          %{L140} ; "アイン「――それで、ひとりで部屋に戻れそうかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L141} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #335
+  ldc.i         1000
+  ldstr         ""
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #337
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co0196"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #338
+  text          %{L142} ; "ココ「もどれそうかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L143} ; "まねっこで、エファに質問。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #340
+  ldc.i         1000
+  ldstr         "efa_a05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #342
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0084"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #343
+  text          %{L144} ; "エファ「えっ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L145} ; "私が訊かれたの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L146} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #345
+  ldc.i         1000
+  ldstr         ""
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #347
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co0197"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #348
+  text          %{L147} ; "ココ「きかれたの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L148} ; "まねっこで、アインに質問。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #350
+  ldc.i         1000
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #352
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0025"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #353
+  text          %{L149} ; "アイン「いや、キミに訊いたのだが？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L150} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #355
+  ldc.i         1000
+  ldstr         ""
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #357
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co0198"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #358
+  text          %{L151} ; "ココ「きいたのだが？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L152} ; "またまたエファにー。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #360
+  ldstr         "efa_a05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #362
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0085"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #363
+  text          %{L153} ; "エファ「え？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L154} ; "それは、私が答えるのではなくて――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L155} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #365
+  ldc.i         1000
+  ldstr         ""
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #369
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0086a"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #370
+  ctrl          "z"
+  text          %{L156} ; "エファ「答えるのは、ココなの」\nアイン「答えるべきは、ココだよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L157} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #373
+  ldc.i         500
+  ldstr         "coc_c05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #374
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L158} ; "うわぁー、ふたりから同じこと言われちゃった！"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #376
+  ldc.i         500
+  ldstr         "coc_c06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #377
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co0199"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #378
+  text          %{L159} ; "ココ「ボク、どっちのまねっこすれば、いいのー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L160} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #380
+  ldstr         ""
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #382
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L161} ; "困っちゃうね。とっても、困っちゃうよ、ねー？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #385
+  ldc.i         1000
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #387
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0027"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #388
+  text          %{L162} ; "アイン「――ふっ。もう真似はしなくていいよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L163} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #390
+  text          %{L164} ; "――あ、アインが笑った。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #392
+  ldstr         "v24ei0028"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #393
+  text          %{L165} ; "アイン「……まぁ、いい。キミが部屋に戻る前に、確認しておきたい\nことがあるのだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L166} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #396
+  ldstr         "v02co0200"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #397
+  text          %{L167} ; "ココ「なんですかー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L168} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #399
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #401
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0029"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #402
+  text          %{L169} ; "アイン「キミは、自分がどこから来た『何者』か、憶えているかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L170} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #404
+  ldstr         "v22ef0087"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #405
+  text          %{L171} ; "エファ「アイン、それはココの記憶を――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L172} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #407
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #409
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0030"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #410
+  text          %{L173} ; "アイン「安心したまえ。必要以上のことは口にしない」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L174} ; " \nそう言ってアインが、エファの前に手を伸ばすの。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #413
+  ldstr         "v22ef0088"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #414
+  text          %{L175} ; "エファ「…………はい、分かりました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L176} ; " \nよく分からないけど、ふたりにはそれだけで分かるみたい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #417
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #419
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0031"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #420
+  text          %{L177} ; "アイン「――では。どうかな、ココ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L178} ; "どこから来たかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L179} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #422
+  text          %{L180} ; "どこから来たのかなぁ、ボク？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #424
+  ldstr         "v02co0201"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #425
+  text          %{L181} ; "ココ「うーん、わかりま、せん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L182} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #427
+  ldstr         "v24ei0032"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #428
+  text          %{L183} ; "アイン「それでは、いまキミの居るこの場所は？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L184} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #430
+  ldstr         "v02co0202"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #431
+  text          %{L185} ; "ココ「うーん、うーん。おしろー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L186} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #433
+  ldstr         "v24ei0033"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #434
+  text          %{L187} ; "アイン「その通り。ここは白の国、ドルンシュタイン城。\n――『白のお城』でもいい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L188} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #437
+  ldstr         "v02co0203"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #438
+  text          %{L189} ; "ココ「しろのおしろー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L190} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #440
+  ldstr         "v24ei0034"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #441
+  text          %{L191} ; "アイン「城主がクリスティナ姫」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L192} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #443
+  ldstr         "v02co0204"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #444
+  text          %{L193} ; "ココ「ヒメサマー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L194} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #446
+  ldstr         "v24ei0035"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #447
+  text          %{L195} ; "アイン「そして、キミは東にある『青の国』――ブリューから」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L196} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #449
+  ldstr         "v02co0205"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #450
+  text          %{L197} ; "ココ「（――ブリュー？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L198} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #452
+  ldstr         "v24ei0036"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #453
+  text          %{L199} ; "アイン「目の前に居るエファは、\n西にある『赤の国』――カーディナルからやってきた」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L200} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #456
+  ldstr         "v02co0206"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #457
+  text          %{L201} ; "ココ「ボク、アオのくに？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L202} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #459
+  ldstr         "v24ei0037"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #460
+  text          %{L203} ; "アイン「あぁ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L204} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #462
+  ldstr         "v02co0207"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #463
+  text          %{L205} ; "ココ「エファ、アカのくになのー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L206} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #465
+  ldstr         "v22ef0089"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #466
+  text          %{L207} ; "エファ「そうよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L208} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #468
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #470
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0038"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #471
+  text          %{L209} ; "アイン「ふたりは、ドルンシュタイン城に招かれた『お客様』なのだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L210} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #473
+  text          %{L211} ; "そうだったんだー。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #475
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #477
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0039"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #478
+  text          %{L212} ; "アイン「もし、まだ分からないことがあるなら質問を」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L213} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #480
+  ldstr         "v02co0208"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #481
+  text          %{L214} ; "ココ「あーい、しつもんでーす」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L215} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #483
+  ldstr         "v24ei0040"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #484
+  text          %{L216} ; "アイン「どうぞ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L217} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #486
+  ldstr         "v02co0209"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #487
+  text          %{L218} ; "ココ「アインって、ダーレ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L219} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #489
+  ldstr         "ein_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #491
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0041"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #492
+  text          %{L220} ; "アイン「…………私がアインだが」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L221} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #494
+  ldstr         "v02co0210"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #495
+  text          %{L222} ; "ココ「あ、そうじゃなくてー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L223} ; " \n……間違えちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #498
+  ldstr         "v02co0211"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #499
+  text          %{L224} ; "ココ「アインって、なにするひと、ですかー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L225} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #501
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #503
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0042"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #504
+  text          %{L226} ; "アイン「私は、姫君の後見人――といって解るかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L227} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #506
+  ldstr         "v02co0212"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #507
+  text          %{L228} ; "ココ「こーけーにーん？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L229} ; "わかりま、せん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L230} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #509
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #511
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0043"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #512
+  text          %{L231} ; "アイン「姫君が正式な国王になるまでの間、色々な面で補助をする\n役目の人間だよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L232} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #515
+  ldstr         "v02co0213"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #516
+  text          %{L233} ; "ココ「おてつだい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L234} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #518
+  ldstr         "v24ei0044"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #519
+  text          %{L235} ; "アイン「そういうことだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L236} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #521
+  ldstr         "v02co0214"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #522
+  text          %{L237} ; "ココ「じゃあ、アインは、おてつだいさん？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L238} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #524
+  ldstr         "v22ef0090"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #525
+  text          %{L239} ; "エファ「――違うわ、ココ。アインはとっても偉い人よ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L240} ; " \nエファが、ボクの左手をちょっと引っ張る。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #528
+  ldstr         "v02co0215"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #529
+  text          %{L241} ; "ココ「うーん？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L242} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #531
+  ldstr         "v22ef0091"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #532
+  text          %{L243} ; "エファ「姫様が１番。アインは、その次に偉い人なの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L244} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #534
+  ldstr         "v02co0216"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #535
+  text          %{L245} ; "ココ「そうなの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L246} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #537
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #539
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0045"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #540
+  text          %{L247} ; "アイン「一応は、な」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L248} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #542
+  ldstr         "v02co0217"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #543
+  text          %{L249} ; "ココ「すごいねー、アイン」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L250} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #546
+  ldstr         "v24ei0046"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #547
+  text          %{L251} ; "アイン「それだけ仕事も多いし、責任も重大だがね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L252} ; " \nアインが、首を横に振って寂しそうに笑うの。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #550
+  ldstr         "v02co0218"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #551
+  text          %{L253} ; "ココ「おしごと、たいへん？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L254} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #553
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #555
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0047"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #556
+  text          %{L255} ; "アイン「大変というよりは、大切なことだね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L256} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #558
+  ldstr         "v02co0219"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #559
+  text          %{L257} ; "ココ「たいせつー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L258} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #561
+  ldstr         "v24ei0048"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #562
+  text          %{L259} ; "アイン「そして、キミたちにも大切な仕事があるよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L260} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #564
+  ldstr         "v02co0220"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #565
+  text          %{L261} ; "ココ「えー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L262} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #567
+  ldstr         "ein_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #569
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0049"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #570
+  text          %{L263} ; "アイン「忘れてしまったかい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L264} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #572
+  ldstr         "v02co0221"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #573
+  text          %{L265} ; "ココ「……おへやのおそうじ、とかー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L266} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #575
+  ldstr         "v24ei0050"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #576
+  text          %{L267} ; "アイン「いや、演劇」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L268} ; " \nうわぁ、またジーッと見られてます。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #579
+  ldstr         "v02co0222"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #580
+  text          %{L269} ; "ココ「えんげきー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L270} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #582
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #584
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0051"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #585
+  text          %{L271} ; "アイン「そうだ。姫君と一緒に劇をするため、キミたち『ふたり』は\n呼ばれたのだから」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L272} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #588
+  ldstr         "v02co0223"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #589
+  text          %{L273} ; "ココ「うーん、うーん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L274} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #591
+  ldstr         ""
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #593
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L275} ; "ヒメサマと、劇をするために――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #595
+  text          %{L276} ; "どんな劇をするんだろう？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #597
+  text          %{L277} ; "ヒメサマがさらわれて、ボクが助けに行くのかなぁ？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #599
+  text          %{L278} ; "無理だよねー、ボクじゃ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #601
+  ldstr         "v24ei0052"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #602
+  text          %{L279} ; "アイン「キミたちが主役の劇だよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L280} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #604
+  ldstr         "v02co0224"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #605
+  text          %{L281} ; "ココ「えーっ！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L282} ; "エファ、ほんと？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L283} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #607
+  ldstr         "efa_a05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #609
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0092"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #610
+  text          %{L284} ; "エファ「――え？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L285} ; "そうとも言えるかも」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L286} ; " \nエファ、びっくりした顔で頷きます。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #613
+  text          %{L287} ; "なんだか、お話ちゃんと聴いてなかったみたい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #615
+  text          %{L288} ; "さっきから、あまり喋ってないし。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #617
+  ldstr         "v02co0225"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #618
+  text          %{L289} ; "ココ「どうしたの、エファ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L290} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #620
+  ldstr         "efa_a01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #622
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0093"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #623
+  text          %{L291} ; "エファ「なにが？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L292} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #625
+  ldstr         "v02co0226"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #626
+  text          %{L293} ; "ココ「なんだか、げんきないみたい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L294} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #628
+  ldstr         "efa_a04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #630
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0094"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #631
+  text          %{L295} ; "エファ「…………うん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L296} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #633
+  ldstr         "v02co0227"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #634
+  text          %{L297} ; "ココ「もしかして、ボクがずっとしゃべってるから？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L298} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #636
+  ldstr         "v22ef0095"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #637
+  text          %{L299} ; "エファ「いいえ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L300} ; "エファ、そわそわしてるね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #639
+  ldstr         "v24ei0053"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #640
+  text          %{L301} ; "アイン「――エファ。姫君のことが気になるのかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L302} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #642
+  ldstr         "efa_a05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #644
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0096"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #645
+  text          %{L303} ; "エファ「それもあります」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L304} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #647
+  text          %{L305} ; "それも……ってことは、他にも気になること、あるんだよね？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #649
+  ldstr         "v02co0228"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #650
+  text          %{L306} ; "ココ「エファ、おトイレいきたい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L307} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #652
+  ldstr         "efa_a01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #654
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0097"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #655
+  text          %{L308} ; "エファ「――違うわ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L309} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #657
+  ldstr         "v02co0229"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #658
+  text          %{L310} ; "ココ「じゃあ、わすれもの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L311} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #660
+  ldstr         "efa_a03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #662
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0098"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #663
+  text          %{L312} ; "エファ「――違うの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L313} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #665
+  ldstr         "v02co0230"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #666
+  text          %{L314} ; "ココ「じゃあねー、じゃあねー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L315} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #668
+  ldstr         "v02co0231"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #669
+  text          %{L316} ; "ココ「（――うーん）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L317} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #671
+  ldstr         "v02co0232"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #672
+  text          %{L318} ; "ココ「なんだろうね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L319} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #674
+  ldstr         "efa_a04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #676
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0099"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #677
+  text          %{L320} ; "エファ「――あのね、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L321} ; " \nエファが、小さくため息をついてアインを見ました。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #680
+  ldstr         "v22ef0100"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #681
+  text          %{L322} ; "エファ「私、この場に居づらいの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L323} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #683
+  ldstr         "v02co0233"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #684
+  text          %{L324} ; "ココ「どうしてー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L325} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #686
+  ldstr         "v22ef0101"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #687
+  text          %{L326} ; "エファ「――その、アインが……苦手だから」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L327} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #689
+  text          %{L328} ; "アインのことが？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #691
+  ldstr         "v02co0234"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #692
+  text          %{L329} ; "ココ「そうなの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L330} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #694
+  text          %{L331} ; "誰かに『苦手』って言われちゃったら、誰でも哀しいよね？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #696
+  text          %{L332} ; "やっぱり、アインも――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #698
+  ldstr         "v24ei0054"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #699
+  text          %{L333} ; "アイン「エファよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L334} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #701
+  ldstr         "v22ef0102"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #702
+  text          %{L335} ; "エファ「……はい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L336} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #704
+  ldstr         "v24ei0055"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #705
+  text          %{L337} ; "アイン「そろそろ、姫君のところへ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L338} ; " \nあれれ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L339} ; "アイン、哀しそうな顔してないんだ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #708
+  ldstr         "v22ef0103"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #709
+  text          %{L340} ; "エファ「――でも、私は姫様よりココのことを……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L341} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #711
+  ldstr         "v24ei0056"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #712
+  text          %{L342} ; "アイン「ココのことは、私に任せてほしい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L343} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #714
+  ldstr         "efa_a01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #716
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0104"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #717
+  text          %{L344} ; "エファ「――分かりました。\nそれでは、ココのことをお願いします」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L345} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #720
+  ldstr         "v02co0235"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #721
+  text          %{L346} ; "ココ「ボクのこと？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L347} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #723
+  ldstr         "efa_a02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #725
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0105"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #726
+  text          %{L348} ; "エファ「ごめんね、ココ。またあとで」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L349} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #728
+  ldstr         "v02co0236"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #729
+  text          %{L350} ; "ココ「うん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L351} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #731
+  text          %{L352} ; "エファは、ボクとアインに頭を下げて廊下の向こうへ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #733
+  ldstr         ""
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #735
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L353} ; "角を曲がって、白い羽根が見えなくなったところでアインが、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #737
+  ldc.i         1000
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #738
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0057"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #739
+  text          %{L354} ; "アイン「嫌われたかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L355} ; "って、言ったの。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #741
+  ldstr         "v02co0237"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #742
+  text          %{L356} ; "ココ「エファに、『ニガテ』っていわれちゃったね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L357} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #744
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #746
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0058"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #747
+  text          %{L358} ; "アイン「あぁ、ハッキリとな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L359} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #749
+  ldstr         "v02co0238"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #750
+  text          %{L360} ; "ココ「かなしくないの、アイン？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L361} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #752
+  ldstr         "ein_b07"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #754
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0059"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #755
+  text          %{L362} ; "アイン「別に哀しくはないが――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L363} ; " \nアインが、おじいさんみたいにアゴを撫でます。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #758
+  ldstr         "v02co0239"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #759
+  text          %{L364} ; "ココ「？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L365} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #761
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #763
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0060"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #764
+  text          %{L366} ; "アイン「――ところで、ココはどうなんだい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L367} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #766
+  ldstr         "v02co0240"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #767
+  text          %{L368} ; "ココ「なにが、ですかー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L369} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #769
+  ldstr         "v24ei0061"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #770
+  text          %{L370} ; "アイン「キミは、私が『平気』なのかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L371} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #772
+  text          %{L372} ; "アインのこと？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #774
+  text          %{L373} ; "エファは苦手だって言った。ボクは、どうなんだろう？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #776
+  ldstr         "v02co0241"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #777
+  text          %{L374} ; "ココ「（――ちょっとニガテ、かな？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L375} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #779
+  ldstr         "v02co0242"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #780
+  text          %{L376} ; "ココ「……うーん。わかりま、せん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L377} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #782
+  text          %{L378} ; "苦手なんだけど、『ニガテ』って言えないよね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #784
+  text          %{L379} ; "だって、言われたら誰だって哀しいと思うもん。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #786
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #788
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0062"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #789
+  text          %{L380} ; "アイン「――『わかりません』、か」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L381} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #791
+  ldstr         "v02co0243"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #792
+  text          %{L382} ; "ココ「あい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L383} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #794
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #796
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0063"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #797
+  text          %{L384} ; "アイン「優しいのだな、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L385} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #799
+  ldstr         "v02co0244"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #800
+  text          %{L386} ; "ココ「えーぇ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L387} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #802
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #804
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0064"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #805
+  text          %{L388} ; "アイン「お気遣い、ありがとう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L389} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #807
+  text          %{L390} ; "なんで、ボクの頭なでてくれるの？\nよくわかんないけど、嬉しいなー。えへへ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #810
+  ldstr         "v02co0245"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #811
+  text          %{L391} ; "ココ「あ、でもでもでも、ねー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L392} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #813
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #815
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co0246"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #816
+  text          %{L393} ; "ココ「エファは、アインのこと、キライじゃないんだよー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L394} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #818
+  ldstr         "v24ei0065"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #819
+  text          %{L395} ; "アイン「――どうして、そう思う？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L396} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #821
+  ldstr         "v02co0247"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #822
+  text          %{L397} ; "ココ「だって、『ニガテ』っていったからー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L398} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #824
+  ldstr         "ein_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #826
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0066"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #827
+  text          %{L399} ; "アイン「ん？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L400} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #829
+  ldstr         "v02co0248"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #830
+  text          %{L401} ; "ココ「キライじゃなくて、ニガテー。もうすこししたら、へいきになるのー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L402} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #832
+  ldstr         "v24ei0067"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #833
+  text          %{L403} ; "アイン「そうなのかい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L404} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #835
+  ldstr         "v02co0249"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #836
+  text          %{L405} ; "ココ「……たぶん。オトナになればー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L406} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #838
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #840
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0068"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #841
+  text          %{L407} ; "アイン「ふふふっ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L408} ; " \nあれれ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L409} ; "なんで笑うのー？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #844
+  ldstr         "v24ei0069"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #845
+  text          %{L410} ; "アイン「――大人になれば、か」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L411} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #847
+  ldstr         "v02co0250"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #848
+  text          %{L412} ; "ココ「うんうん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L413} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #850
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #852
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0070"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #853
+  text          %{L414} ; "アイン「それでもエファは、『キミのようには』なれないだろうな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L415} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #855
+  ldstr         "v02co0251"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #856
+  text          %{L416} ; "ココ「ボクー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L417} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #858
+  ldstr         "v24ei0071"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #859
+  text          %{L418} ; "アイン「エファはキミと違って、嘘がつけないのだよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L419} ; " \nエファが嘘をつけない。ボクと違うの？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #862
+  ldstr         "v02co0252"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #863
+  text          %{L420} ; "ココ「――そうする、とー。\nエファが『しょうじきさん』で、ボク、『うそつき』？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L421} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #866
+  ldstr         "v24ei0072"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #867
+  text          %{L422} ; "アイン「いやいや、そうではない。誤解させる言い方で悪かった」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L423} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #869
+  ldstr         "ein_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #871
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0073"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #872
+  text          %{L424} ; "アイン「嘘がつけない、というよりは――\n『何でも正直に言ってしまう』のだよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L425} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #875
+  ldstr         "v02co0253"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #876
+  text          %{L426} ; "ココ「なんでもー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L427} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #878
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #880
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0074"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #881
+  text          %{L428} ; "アイン「問われることには『正確な答えを返す』よう造られているのだからな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L429} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #883
+  ldstr         "v02co0254"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #884
+  text          %{L430} ; "ココ「ふーん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L431} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #886
+  ldstr         "v24ei0075"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #887
+  text          %{L432} ; "アイン「ココは、何でも正直に言うかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L433} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #889
+  ldstr         "v02co0255"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #890
+  text          %{L434} ; "ココ「うーん、うーん。むずかしい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L435} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #892
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #894
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0076"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #895
+  text          %{L436} ; "アイン「ある意味、それも『正直な回答』といえるよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L437} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #897
+  ldstr         "v02co0256"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #898
+  text          %{L438} ; "ココ「？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L439} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #900
+  ldstr         "v24ei0077"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #901
+  text          %{L440} ; "アイン「思ったことをストレートに言えない。\nだから『難しい』と答える。ひとつの答え方だ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L441} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #904
+  ldstr         "v02co0257"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #905
+  text          %{L442} ; "ココ「……？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L443} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #907
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #909
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0078"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #910
+  text          %{L444} ; "アイン「ココには少し難しかったかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L445} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #912
+  ldstr         "v02co0258"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #913
+  text          %{L446} ; "ココ「うーん、でもでも。\nホントは、『しょうじきさん』がいいんだよね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L447} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #916
+  ldstr         "v24ei0079"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #917
+  text          %{L448} ; "アイン「時と場合によりけり。\n誰だって、本心を秘密にしたいときがあると思わないか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L449} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #920
+  ldstr         "v02co0259"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #921
+  text          %{L450} ; "ココ「うーん、どうなのかなー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L451} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #923
+  text          %{L452} ; "よくわかんないけど――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #925
+  ldstr         "v02co0260"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #926
+  text          %{L453} ; "ココ「あるかもー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L454} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #928
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #930
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0080"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #931
+  text          %{L455} ; "アイン「そうかそうか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L456} ; " \nアインのおめめが、優しい感じになったね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #934
+  ldstr         "v24ei0081"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #935
+  text          %{L457} ; "アイン「では、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L458} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #937
+  ldstr         "v02co0261"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #938
+  text          %{L459} ; "ココ「あい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L460} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #940
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #942
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0082"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #943
+  text          %{L461} ; "アイン「――どんな秘密があるのかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L462} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #945
+  ldstr         "v02co0262"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #946
+  text          %{L463} ; "ココ「えーっ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L464} ; " \nアインが腰をかがめて、ボクをジーッと見つめる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #949
+  text          %{L465} ; "こ、今度は、ちょっと怖いよね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #951
+  ldstr         "v02co0263"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #952
+  text          %{L466} ; "ココ「いわないと、だめ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L467} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #954
+  ldstr         "v24ei0083"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #955
+  text          %{L468} ; "アイン「いってくれると嬉しいのだが――無理強いはしないよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L469} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #957
+  ldstr         "v02co0264"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #958
+  text          %{L470} ; "ココ「うーん、どうしようかなー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L471} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #960
+  text          %{L472} ; "言っちゃおうかな？\nアインになら、言ってもいいよね？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L473} ; "怒られないよね？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #963
+  ldstr         "v02co0265"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #964
+  text          %{L474} ; "ココ「あのね、あのね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L475} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #966
+  ldstr         "v02co0266"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #967
+  text          %{L476} ; "ココ「アインは、ピーマン、すきー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L477} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #969
+  ldstr         "ein_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #971
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0084"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #972
+  text          %{L478} ; "アイン「ピーマン？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L479} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #974
+  ldstr         "v02co0267"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #975
+  text          %{L480} ; "ココ「うん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L481} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #977
+  text          %{L482} ; "もしもアインがピーマン大好きだったら、秘密だよね。\nだって、『苦手です』って言ったら、好きな人は哀しい\n気持ちになっちゃうもん。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #981
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #983
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0085"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #984
+  text          %{L483} ; "アイン「ピーマンね……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L484} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #986
+  text          %{L485} ; "どうして笑ってるんだろう、アイン？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #988
+  text          %{L486} ; "好きなのかな？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L487} ; "嫌いなのかな？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #990
+  ldstr         "v02co0268"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #991
+  text          %{L488} ; "ココ「じゃあね、じゃあね。ニンジンは？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L489} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #993
+  ldc.i         3000
+  syscallp      $music_fadeout (1)
+  line          #995
+  ldstr         "SE03A"
+  syscallp      $sound (1)
+  line          #997
+  text          %{L490} ; "――コンコン。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #999
+  text          %{L491} ; "あれれ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L492} ; "なぁに、いまのコンコンって音？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1001
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1003
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0086"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1004
+  text          %{L493} ; "アイン「すまない、ココ。その答えは、少し待ってもらえないか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L494} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1006
+  ldstr         "v02co0269"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1007
+  text          %{L495} ; "ココ「？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L496} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1009
+  ldstr         "ein_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1011
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0087"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1012
+  text          %{L497} ; "アイン「……もうひとり、お客様がいらしたようだからな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L498} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1014
+  ldstr         ""
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1016
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co0270"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1017
+  text          %{L499} ; "ココ「（――おきゃくさまー？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L500} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1019
+  ldc.i         0
+  syscallp      $music_vol (1)
+  line          #1020
+  ldstr         "K_BGM01B"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #1021
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #1023
+  ldc.i         1000
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #1025
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0004"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1026
+  text          %{L501} ; "デュア「――自分は『お客様』ではありません」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L502} ; " \n急にボクの頭の上で女の人の声がした。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1029
+  ldstr         "v25du0005"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1030
+  text          %{L503} ; "デュア「それとも、『招かれざる客』という意味でしょうか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L504} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1032
+  text          %{L505} ; "女の人なんだけど、男の人みたいな格好してるよ？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1034
+  text          %{L506} ; "腰には剣も吊り下がってるし。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1036
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1038
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0006"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1039
+  text          %{L507} ; "デュア「お話し中のところ申し訳ない。――よろしいかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L508} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1041
+  text          %{L509} ; "どこかで聴いたことある声だよね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1043
+  text          %{L510} ; "うーん、誰だっけ？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1045
+  ldstr         "v24ei0088"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1046
+  text          %{L511} ; "アイン「私は構わんが――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L512} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1048
+  ldstr         "dua_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1050
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0007"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1051
+  text          %{L513} ; "デュア「ココも構わないか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L514} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1053
+  ldstr         "v02co0271"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1054
+  text          %{L515} ; "ココ「なにが、ですかー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L516} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1056
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1058
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0008"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1059
+  text          %{L517} ; "デュア「少し、アイン殿を貸してもらっても構わないか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L518} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1061
+  ldstr         "v24ei0089"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1062
+  text          %{L519} ; "アイン「貸りたら返さない気だぞ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L520} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1064
+  ldstr         "v02co0272"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1065
+  text          %{L521} ; "ココ「えーっ、そうなの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L522} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1067
+  ldstr         "dua_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1069
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0009"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1070
+  text          %{L523} ; "デュア「アイン殿！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L524} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1072
+  ldstr         "v24ei0090"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1073
+  text          %{L525} ; "アイン「冗談だよ、デュア」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L526} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1075
+  text          %{L527} ; "――デュア？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1077
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1079
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0010"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1080
+  text          %{L528} ; "デュア「自分はまじめな話をしにきたのです。それを――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L529} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1082
+  text          %{L530} ; "この人が、デュアなの？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1084
+  ldstr         "v24ei0091"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1085
+  text          %{L531} ; "アイン「こんなときでもないと、冗談も言いづらい相手だからな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L532} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1087
+  ldstr         "dua_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1089
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0011"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1090
+  text          %{L533} ; "デュア「…………くっ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L534} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1092
+  ldstr         "v24ei0092"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1093
+  text          %{L535} ; "アイン「まぁ、そうにらむな。ココが怯えるではないか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L536} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1095
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1097
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0012"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1098
+  text          %{L537} ; "デュア「にらんでなどおりません」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L538} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1100
+  text          %{L539} ; "なんだろう？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L540} ; "アインの喋り方、優しいような気がする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1102
+  ldstr         "v24ei0093"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1103
+  text          %{L541} ; "アイン「それで、用件は？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L542} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1105
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1107
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0013"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1108
+  text          %{L543} ; "デュア「はい。先週、自分が提出した近衛兵たちの待遇に関する\n意見をまとめた報告書の――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L544} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1111
+  ldstr         "v24ei0094"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1112
+  text          %{L545} ; "アイン「――あぁ、その件か」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L546} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1114
+  ldstr         "v25du0014"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1115
+  text          %{L547} ; "デュア「ご覧いただけたでしょうか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L548} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1117
+  ldstr         "v24ei0095"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1118
+  text          %{L549} ; "アイン「目は通した」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L550} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1120
+  ldstr         "dua_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1122
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0015"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1123
+  text          %{L551} ; "デュア「それでは、ご回答を」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L552} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1125
+  ldstr         "v24ei0096"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1126
+  text          %{L553} ; "アイン「現在、検討中だ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L554} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1128
+  ldstr         "dua_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1130
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0016"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1131
+  text          %{L555} ; "デュア「――あれから何日が経ったとお思いですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L556} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1133
+  ldstr         "v24ei0097"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1134
+  text          %{L557} ; "アイン「三日、四日……かれこれ五日ぐらいか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L558} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1136
+  ldstr         "dua_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1138
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0017"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1139
+  text          %{L559} ; "デュア「アイン殿！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L560} ; "少しはマジメに――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L561} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1141
+  text          %{L562} ; "あわわ、デュアが怒ってるよ。たいへん。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1143
+  ldstr         "v24ei0098"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1144
+  text          %{L563} ; "アイン「わかった、わかった。そう怒るな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L564} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1146
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1148
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0018"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1149
+  text          %{L565} ; "デュア「自分は怒ってなどいません！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L566} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1151
+  ldstr         "v24ei0099"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1152
+  text          %{L567} ; "アイン「どう思う、ココ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L568} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1154
+  ldstr         "v02co0273"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1155
+  text          %{L569} ; "ココ「えー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L570} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1157
+  ldstr         "v24ei0100"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1158
+  text          %{L571} ; "アイン「デュアは、怒っていないと思うか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L572} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1160
+  ldstr         "v02co0274"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1161
+  text          %{L573} ; "ココ「う、ううぅぅ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L574} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1163
+  text          %{L575} ; "怒ってる、怒ってるよね？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1165
+  ldstr         "v25du0019"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1166
+  text          %{L576} ; "デュア「自分が怒っているように見えるか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L577} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1168
+  ldstr         "v02co0275"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1169
+  text          %{L578} ; "ココ「うううぅぅぅ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L579} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1171
+  ldstr         "v24ei0101"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1172
+  text          %{L580} ; "アイン「あまりココをいじめるな、デュアよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L581} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1174
+  ldstr         "dua_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1176
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0020"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1177
+  text          %{L582} ; "デュア「な、なにを！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L583} ; "それでは、この自分が全て悪いような――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L584} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1179
+  ldstr         "v24ei0102"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1180
+  text          %{L585} ; "アイン「そうは言ってない。早く回答を出さない私が一番悪いのだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L586} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1182
+  ldstr         "dua_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1184
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0021"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1185
+  text          %{L587} ; "デュア「あ、いえ、何もそこまで――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L588} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1187
+  ldstr         "v24ei0103"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1188
+  text          %{L589} ; "アイン「……ということで、私は執務室に戻る」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L590} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1190
+  ldstr         "dua_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1192
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0022"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1193
+  text          %{L591} ; "デュア「なっ！？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L592} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1195
+  ldstr         "v24ei0104"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1196
+  text          %{L593} ; "アイン「検討のため、デュアの報告書にしっかり目を通さなければな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L594} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1198
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1200
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L595} ; "アインの言葉に、デュアなんだかすごく疲れた顔してるね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1202
+  ldstr         "v25du0023"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1203
+  text          %{L596} ; "デュア「……わかりました。では、自分も同行します」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L597} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1205
+  ldstr         "v24ei0105"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1206
+  text          %{L598} ; "アイン「いや、それには及ばない。それよりも」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L599} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1208
+  text          %{L600} ; "あれ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L601} ; "アインがボクを見てる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1210
+  ldstr         "v24ei0106"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1211
+  text          %{L602} ; "アイン「ココを部屋まで送り届けてほしい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L603} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1213
+  ldstr         "v25du0024"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1214
+  text          %{L604} ; "デュア「――それはご命令ですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L605} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1216
+  ldstr         "v24ei0107"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1217
+  text          %{L606} ; "アイン「命令でなければ断るのか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L607} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1219
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1221
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0025"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1222
+  text          %{L608} ; "デュア「――いえ。承りました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L609} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1224
+  ldstr         "v24ei0108"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1225
+  text          %{L610} ; "アイン「結構。それでは、またあとで。ココも、な」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L611} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1227
+  ldc.i         3000
+  syscallp      $music_fadeout (1)
+  line          #1229
+  ldstr         "v02co0276"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1230
+  text          %{L612} ; "ココ「あーい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L613} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1232
+  ldstr         "Black450"
+  callp         $$disp_back@PIC (1) ; $disp_back@PIC
+  line          #1236
+  ldstr         "Bg56A01"
+  callp         $$disp_back@PIC (1) ; $disp_back@PIC
+  line          #1238
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         0
+  syscallp      $music_vol (1)
+  line          #1239
+  ldstr         "K_BGM02"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #1240
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #1242
+  ldc.i         1000
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #1244
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0026"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1245
+  text          %{L614} ; "デュア「まったく、あのお方は――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L615} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1247
+  ldstr         "v02co0277"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1248
+  text          %{L616} ; "ココ「いっちゃったね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L617} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1250
+  ldstr         "v25du0027"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1251
+  text          %{L618} ; "デュア「いつもいつも、ああやって誤魔化してばかりだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L619} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1253
+  ldstr         "v02co0278"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1254
+  text          %{L620} ; "ココ「そうなの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L621} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1256
+  ldstr         "v25du0028"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1257
+  text          %{L622} ; "デュア「あぁ、毎回、毎回。これまで一度だって――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L623} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1259
+  ldstr         "v02co0279"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1260
+  text          %{L624} ; "ココ「？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L625} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1262
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1264
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0029"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1265
+  text          %{L626} ; "デュア「いや、最後にはしっかりと仕事をしてくれるから、\n文句も言いづらいのだが――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L627} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1268
+  ldstr         "v02co0280"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1269
+  text          %{L628} ; "ココ「たいへんだね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L629} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1271
+  ldstr         "v25du0030"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1272
+  text          %{L630} ; "デュア「ふーっ。まぁ、ほとんどの大役を任せきりにも近いからな。\n少々、我らの意見が後回しにされても、それは仕方がない」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L631} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1275
+  text          %{L632} ; "なんだかデュア、元気なさそう。\n可哀想だね。なでなでしたら、元気になるかな？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1278
+  ldstr         "v02co0281"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1279
+  text          %{L633} ; "ココ「なでなで、なでなで」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L634} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1281
+  ldstr         ""
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1283
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0031"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1284
+  text          %{L635} ; "デュア「……ひゃっ！？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L636} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1286
+  ldstr         "dua_b03"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1288
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0032"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1289
+  text          %{L637} ; "デュア「なっ、何をする！？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L638} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1291
+  ldstr         "v02co0282"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1292
+  text          %{L639} ; "ココ「あたま、とどかないから、おしりをなでなでー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L640} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1294
+  ldstr         "dua_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1296
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0033"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1297
+  text          %{L641} ; "デュア「――あ、ありがとう、というべきかな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L642} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1299
+  ldstr         "v02co0283"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1300
+  text          %{L643} ; "ココ「えへへ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L644} ; "ほめられちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1302
+  ldstr         "v25du0034"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1303
+  text          %{L645} ; "デュア「さぁ、部屋まで送ろう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L646} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1305
+  ldstr         "v02co0284"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1306
+  text          %{L647} ; "ココ「ありがとう、というべきか、なー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L648} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1308
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1310
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0035"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1311
+  text          %{L649} ; "デュア「……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L650} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1313
+  ldstr         "v02co0285"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1314
+  text          %{L651} ; "ココ「……あれれ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L652} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1316
+  ldstr         "v25du0036"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1317
+  text          %{L653} ; "デュア「いまのは、その……自分の真似か？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L654} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1319
+  ldstr         "v02co0286"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1320
+  text          %{L655} ; "ココ「うんうん！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L656} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1322
+  ldstr         "dua_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1324
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0037"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1325
+  text          %{L657} ; "デュア「そうか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L658} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1327
+  ldstr         "v02co0287"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1328
+  text          %{L659} ; "ココ「……にてなかった？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L660} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1330
+  ldstr         "v25du0038"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1331
+  text          %{L661} ; "デュア「いや、それ以前の問題で……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L662} ; " \nデュアは何か言おうとしてやめ、また何かを思いついて――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1334
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1336
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0039"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1337
+  text          %{L663} ; "デュア「まぁいい。気にしすぎなのだ、自分が」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L664} ; " \nひとりで頷いて解決しちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1340
+  ldstr         "v25du0040"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1341
+  text          %{L665} ; "デュア「では、気持ちを改めて。ココ、部屋まで送ろう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L666} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1343
+  ldstr         "v02co0288"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1344
+  text          %{L667} ; "ココ「ありがとう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L668} ; " \nボクは、デュアについていくよ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1347
+  ldstr         "black450"
+  callp         $$disp_back@PIC (1) ; $disp_back@PIC
+  line          #1349
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "SE09A1"
+  syscallp      $sound (1)
+  line          #1351
+  ldstr         "v25du0041"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1352
+  text          %{L669} ; "デュア「……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L670} ; "カツ、コツ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1354
+  ldstr         "SE02B2"
+  syscallp      $sound (1)
+  line          #1356
+  ldstr         "v02co0289"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1357
+  text          %{L671} ; "ココ「……えへへ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L672} ; "テクテク。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1359
+  ldstr         "v25du0042"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1360
+  text          %{L673} ; "デュア「…………」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L674} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1362
+  text          %{L675} ; "……デュアって、喋らないね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1364
+  ldstr         "Bg56A01"
+  callp         $$disp_back@PIC (1) ; $disp_back@PIC
+  line          #1366
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co0290"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1367
+  text          %{L676} ; "ココ「――ねぇねぇ、デュア」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L677} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1369
+  ldc.i         1000
+  ldstr         "dua_b02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #1371
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0043"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1372
+  text          %{L678} ; "デュア「なんだ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L679} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1374
+  ldstr         "v02co0291"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1375
+  text          %{L680} ; "ココ「デュアって、なにをするひと、ですかー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L681} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1377
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1379
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0044"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1380
+  text          %{L682} ; "デュア「自分か？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L683} ; "自分は、姫をお護りするのが仕事だ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L684} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1382
+  ldstr         "v02co0292"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1383
+  text          %{L685} ; "ココ「リュウとたたかうのー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L686} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1385
+  ldstr         "v25du0045"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1386
+  text          %{L687} ; "デュア「リュウ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L688} ; "それは、翼のある竜のことか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L689} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1388
+  text          %{L690} ; "うんうん！"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1390
+  ldstr         "v02co0293"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1391
+  text          %{L691} ; "ココ「あのね、キシがね、リュウとたたかうの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L692} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1393
+  ldstr         "dua_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1395
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0046"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1396
+  text          %{L693} ; "デュア「……まるで絵本の中の話だな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L694} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1398
+  ldstr         "v02co0294"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1399
+  text          %{L695} ; "ココ「えほんで、みたよー。デュア、たたかわないのー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L696} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1401
+  ldstr         "dua_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1403
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0047"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1404
+  text          %{L697} ; "デュア「――そうだな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L698} ; " \nあ、デュアが悩んでるみたい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1407
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1409
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0048"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1410
+  text          %{L699} ; "デュア「姫のためであれば、それもいとわない」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L700} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1412
+  ldstr         "v02co0295"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1413
+  text          %{L701} ; "ココ「すごいねー。おっきいのと、たたかうんだね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L702} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1415
+  ldstr         "dua_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1417
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0049"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1418
+  text          %{L703} ; "デュア「できれば、小さい方がいい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L704} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1420
+  ldstr         "v02co0296"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1421
+  text          %{L705} ; "ココ「おっきいと、こわい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L706} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1423
+  ldstr         "v25du0050"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1424
+  text          %{L707} ; "デュア「――そうだな。ココも相手が大きいと怖いだろう？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L708} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1426
+  ldstr         "v02co0297"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1427
+  text          %{L709} ; "ココ「うーん、うーん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L710} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1429
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1431
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0051"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1432
+  text          %{L711} ; "デュア「うん？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L712} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1434
+  ldstr         "v02co0298"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1435
+  text          %{L713} ; "ココ「みんな、ボクよりおっきいけど、こわくない、よー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L714} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1437
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1439
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0052"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1440
+  text          %{L715} ; "デュア「そうだな。ココがふたり分で、やっと自分ぐらいか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L716} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1442
+  text          %{L717} ; "ボクの頭の上に、ボク、もうひとり？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1444
+  ldstr         "v02co0299"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1445
+  text          %{L718} ; "ココ「せのびしたら、ボクがちょっとだけ、うえ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L719} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1447
+  ldstr         "dua_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1449
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0053"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1450
+  text          %{L720} ; "デュア「――あぁ、ココの勝ちだよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L721} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1452
+  text          %{L722} ; "えへへ、デュアに勝っちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1454
+  ldstr         "v02co0300"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1455
+  text          %{L723} ; "ココ「ねぇねぇ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L724} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1457
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1459
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0054"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1460
+  text          %{L725} ; "デュア「なんだ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L726} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1462
+  ldstr         "v02co0301"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1463
+  text          %{L727} ; "ココ「アイン、すきー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L728} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1465
+  ldstr         ""
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1467
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0055"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1468
+  text          %{L729} ; "デュア「なっ、なにを急に！？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L730} ; " \nあれ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L731} ; "デュアがすごくビックリして、そっぽ向いちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1471
+  ldstr         "v02co0302"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1472
+  text          %{L732} ; "ココ「キライー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L733} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1474
+  ldstr         "v25du0056"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1475
+  text          %{L734} ; "デュア「嫌いではないが――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L735} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1477
+  ldstr         "v02co0303"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1478
+  text          %{L736} ; "ココ「ニガテー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L737} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1480
+  ldstr         "v25du0057"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1481
+  text          %{L738} ; "デュア「苦手でもないが――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L739} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1483
+  ldstr         "v02co0304"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1484
+  text          %{L740} ; "ココ「じゃ、すきー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L741} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1486
+  ldc.i         1000
+  ldstr         "dua_b03"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #1488
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0058"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1489
+  text          %{L742} ; "デュア「――なんでそんなことを急に訊く？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L743} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1491
+  text          %{L744} ; "うーん、なんでだろう？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1493
+  ldstr         "v02co0305"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1494
+  text          %{L745} ; "ココ「ボク、アイン、ニガテー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L746} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1496
+  ldstr         "dua_b04"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1498
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0059"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1499
+  text          %{L747} ; "デュア「――そうなのか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L748} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1501
+  ldstr         "v02co0306"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1502
+  text          %{L749} ; "ココ「でもね、でもね。アイン、すきー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L750} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1504
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1506
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0060"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1507
+  text          %{L751} ; "デュア「……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L752} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1509
+  ldstr         "v02co0307"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1510
+  text          %{L753} ; "ココ「ヒメサマも、エファも、すきー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L754} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1512
+  ldstr         "dua_b05"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1514
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0061"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1515
+  text          %{L755} ; "デュア「そうか。自分も――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L756} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1517
+  ldstr         "v02co0308"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1518
+  text          %{L757} ; "ココ「デュアも、すきだよー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L758} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1520
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1522
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0062"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1523
+  text          %{L759} ; "デュア「……あ、ありがとう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L760} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1525
+  text          %{L761} ; "何だかデュア、困ったり笑ったり、たいへんだね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1527
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1529
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0063"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1530
+  text          %{L762} ; "デュア「――さぁ、部屋に着いたぞ。いま、ドアを開けるからな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L763} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1532
+  ldstr         "v02co0309"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1533
+  text          %{L764} ; "ココ「わー、ホントだー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L765} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1535
+  text          %{L766} ; "思い出した、思い出した。\nボク、この部屋から廊下に出たんだよねー。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1538
+  ldstr         "v02co0310"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1539
+  text          %{L767} ; "ココ「ありがとう、ございます」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L768} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1541
+  ldstr         "v25du0064"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1542
+  text          %{L769} ; "デュア「ほう、ちゃんとご挨拶もできるのだな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L770} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1544
+  ldstr         "v02co0311"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1545
+  text          %{L771} ; "ココ「れんしゅう、したのー。クルクルもできる、よー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L772} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1547
+  ldstr         "v25du0065"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1548
+  text          %{L773} ; "デュア「クルクル？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L774} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1550
+  ldstr         "SE02B1"
+  syscallp      $sound (1)
+  line          #1552
+  ldstr         "v02co0312"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1553
+  text          %{L775} ; "ココ「クルクルクルクルー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L776} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1555
+  text          %{L777} ; "両手を広げて、クルクルクルー。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1557
+  ldstr         "dua_b02"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1559
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0066"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1560
+  text          %{L778} ; "デュア「楽しそうだな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L779} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1562
+  ldstr         "v02co0313"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1563
+  text          %{L780} ; "ココ「うんうん！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L781} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1565
+  ldstr         "v25du0067"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1566
+  text          %{L782} ; "デュア「そうか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L783} ; " \nそう言ってデュアが、ボクの頭に手を伸ばしてきた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1569
+  text          %{L784} ; "あ、もしかして、なでなでしてくれるのかな？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1571
+  ldstr         "v25du0068"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1572
+  text          %{L785} ; "デュア「――今日は楽しかったよ、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L786} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1574
+  ldstr         "v02co0314"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1575
+  text          %{L787} ; "ココ「えへへ、ボクもボクもー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L788} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1577
+  ldstr         "v25du0069"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1578
+  text          %{L789} ; "デュア「…………ふふっ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L790} ; " \nあれれ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L791} ; "頭なでてくれないね。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1581
+  text          %{L792} ; "だけど代わりに――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1583
+  ldstr         "dua_b01"
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1585
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v25du0070"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1586
+  text          %{L793} ; "デュア「握手をしようか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L794} ; "差し出されたのは、デュアの右手。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1588
+  ldstr         "v02co0315"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1589
+  text          %{L795} ; "ココ「うん、いいよー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L796} ; "ボクはデュアと握手、握手。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1591
+  ldstr         "v25du0071"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1592
+  text          %{L797} ; "デュア「――では、またな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L798} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1594
+  ldstr         "v02co0316"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1595
+  text          %{L799} ; "ココ「うん、バイバーイ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L800} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1597
+  ldstr         ""
+  callp         $$disp_top@PIC (1) ; $disp_top@PIC
+  line          #1599
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L801} ; "デュアは何度か振り返りながら、向こうに行っちゃった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1601
+  text          %{L802} ; "ちょっと寂しい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1603
+  ldc.i         3000
+  syscallp      $music_fadeout (1)
+  line          #1605
+  ldstr         "v02co0317"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #1606
+  text          %{L803} ; "ココ「（――でもね、でもね）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L804} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1608
+  text          %{L805} ; "振り返るたびに、デュアが笑ってくれたから……"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1610
+  text          %{L806} ; "ちょっと、嬉しかったよ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #1612
+  ldc.i         1500
+  syscallp      $music_fadeout_wait (1)
+  line          #1613
+  ldc.i         0
+  syscallp      $music_vol (1)
+  line          #1618
+  ldstr         "kr03"
+  syscallp      $exec (1)
+  line          #1620
+  ldc.i         0
+  ret          
+}

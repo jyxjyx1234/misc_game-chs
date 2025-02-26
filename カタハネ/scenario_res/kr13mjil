@@ -1,0 +1,2350 @@
+readmark enable
+
+func $1d128f30() entrypoint { ; $main@GLOBAL
+ entry:
+  line          #11
+  argcheck      []
+  alloca        []
+  line          #13
+  ldstr         "kata_console_normal"
+  ldstr         "kata_console_push"
+  ldstr         "kata_console_on"
+  ldstr         "kata_console_off"
+  callp         $$console_renewal@CONSOLE (4) ; $console_renewal@CONSOLE
+  line          #25
+  ldc.i         1
+  st.i          savefile int $dc66855b 
+  pop          
+  line          #27
+  ldc.i         1500
+  syscallp      $music_fadeout_wait (1)
+  line          #28
+  ldc.i         0
+  syscallp      $music_vol (1)
+  line          #35
+  ldstr         "K_BGM15b"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #36
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #40
+  ldc.i         220
+  ldc.i         255
+  ldc.i         255
+  ldc.i         255
+  syscall       $rgb (3)
+  ldc.i         0
+  ldc.i         0
+  ldc.i         0
+  syscall       $rgb (3)
+  callp         $$pic_sepia@PIC (3) ; $pic_sepia@PIC
+  line          #41
+  ldc.i         1500
+  ldstr         "ev901a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #42
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L1} ; "ココがその目で見た風景も――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #43
+  ldc.i         1500
+  syscallp      $wait (1)
+  line          #45
+  ldc.i         1500
+  ldstr         "ev902a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #46
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L2} ; "知ることもなかった場面も――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #48
+  ldc.i         1500
+  ldstr         "ev903a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #49
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L3} ; "これらは全て、白の国が持つ記憶の断片。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #52
+  ldc.i         1500
+  ldstr         "ev904a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #53
+  ldc.i         3000
+  ldstr         "white450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #54
+  ldc.i         1500
+  ldstr         "ev905a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #56
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L4} ; "赤と青という大国に挟まれたヴァイスが、運命と言う名の\n悪夢に導かれる中で――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #59
+  ldc.i         1000
+  ldstr         "white450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #61
+  ldc.i         1500
+  ldstr         "ev906a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #62
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L5} ; "クリスティナとエファは、別れの辛さを知り――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #64
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #66
+  ldc.i         1500
+  ldstr         "ev907c"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #67
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #68
+  ldc.i         1500
+  ldstr         "ev908b"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #69
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #70
+  ldc.i         1500
+  ldstr         "ev909c"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #72
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L6} ; "忠実なる臣下たちの力によって、再会の刻を得て――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #74
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #77
+  ldc.i         1500
+  ldstr         "ev911f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #78
+  ldc.i         1000
+  ldstr         "white450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #79
+  ldc.i         1500
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #80
+  ldc.i         1000
+  ldstr         "white450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #81
+  ldc.i         1500
+  ldstr         "ev915d"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #84
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         1500
+  syscallp      $music_fadeout_wait (1)
+  line          #85
+  ldc.i         0
+  syscallp      $music_vol (1)
+  line          #87
+  text          %{L7} ; "ふたりだけの世界を築き上げるも――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #89
+  callp         $$pic_sepia_off@PIC (0) ; $pic_sepia_off@PIC
+  line          #94
+  ldstr         "K_BGM11a"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #95
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #98
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #103
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L8} ; "――それは、つかの間の淡い幸せに終わろうとしていた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  bsel.1        @block_0777
+
+ block_06f7:
+  bsel.2        @block_0779
+
+ block_06fd:
+  line          #109
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #110
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #112
+  ldc.i         3000
+  ldstr         "story12start"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #113
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #114
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+
+ block_0777:
+  bsel.clr     
+
+ block_0779:
+  bsel.clr     
+  line          #116
+  ldc.i         -1
+  ldstr         "story12start"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #117
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         2500
+  syscallp      $wait (1)
+  line          #123
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #124
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0851"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #125
+  text          %{L9} ; "アイン「……こ、これは！？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L10} ; "謁見の間に入り、私はがく然とした。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #127
+  ldc.i         1500
+  ldstr         "ev910b"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #129
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L11} ; "じゅうたんに座り込んだエファ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #131
+  text          %{L12} ; "そのひざに、もたれかかるように倒れている姫君。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #133
+  text          %{L13} ; "まさかの光景を前に、私はふたりの元へと走る。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #135
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #137
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0852"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #138
+  text          %{L14} ; "アイン「姫君！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L15} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #140
+  ldc.i         1500
+  ldstr         "ev910a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #142
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L16} ; "そのお身体に触れるのをためらっている場合ではない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #144
+  ldstr         "v24ei0853"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #145
+  text          %{L17} ; "アイン「姫君、このようなところで……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L18} ; " \n私はお叱りを覚悟で、姫君の肩にそっと触れ――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #148
+  ldstr         "v24ei0854"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #149
+  text          %{L19} ; "アイン「（――く、くっ！）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L20} ; " \n自分のかけた言葉が、永遠に主の耳には届かないことを\n知ってしまった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #153
+  ldstr         "v24ei0855"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #154
+  text          %{L21} ; "アイン「どうして、どうして……このようなはやまった真似を……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L22} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #156
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #158
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L23} ; "いや、違う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #160
+  text          %{L24} ; "あともう少し、あともう少し自分が姫君にお知らせするのが\n早ければ良かったのだ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #163
+  text          %{L25} ; "……まさか、姫君がエファと共に自害の道を選ぶとは。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #165
+  ldstr         "v22ef0752"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #166
+  text          %{L26} ; "エファ「――ア、アイン」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L27} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #168
+  ldstr         "v24ei0856"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #169
+  text          %{L28} ; "アイン「エファ！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L29} ; "生きていたのか！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L30} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #171
+  ldc.i         1500
+  ldstr         "bg53x01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #172
+  ldc.i         1500
+  ldstr         "efa_g07"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #174
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L31} ; "まったく気配がなかったエファが、静かにこちらに顔を向け、\n小さく頷いてみせる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #177
+  text          %{L32} ; "そして、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #179
+  ldstr         "v22ef0753"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #180
+  text          %{L33} ; "エファ「……私はまだ、死ぬわけにはいきません」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L34} ; "と呟いた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #182
+  ldstr         "v24ei0857"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #183
+  text          %{L35} ; "アイン「一体、何があった？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L36} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #185
+  ldstr         "v22ef0754"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #186
+  text          %{L37} ; "エファ「――私が、姫様を……姫様を手にかけたのです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L38} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #188
+  ldstr         "v24ei0858"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #189
+  text          %{L39} ; "アイン「…………エ、エファ！？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L40} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #191
+  text          %{L41} ; "一瞬その告白を真に受け、エファの首に手を伸ばしかける。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #193
+  text          %{L42} ; "……が、姫君の安らかなお顔を前に何とか思いとどまった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #195
+  ldstr         "v24ei0859"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #196
+  text          %{L43} ; "アイン「……それは本当なのか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L44} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #198
+  ldstr         "v22ef0755"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #199
+  text          %{L45} ; "エファ「はい。私が……姫様に……姫様を……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L46} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #201
+  ldstr         "v24ei0860"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #202
+  text          %{L47} ; "アイン「包み隠さず、正直に答えよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L48} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #204
+  ldstr         "v22ef0756"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #205
+  text          %{L49} ; "エファ「私に……姫様が短剣を握らせて……劇の再現を…………\n望まれました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L50} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #208
+  ldstr         "v22ef0757"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #209
+  text          %{L51} ; "エファ「姫様は、私の靴に隠された貴石の力を知りながら……自らの胸に\n短剣をあてがって――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L52} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #212
+  text          %{L53} ; "エファが語ったのは、自分に施されていた制御石について。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #214
+  text          %{L54} ; "記念式典のリハーサルの時点で、台本の中の台詞が合図と\nなって『姫君を手にかける仕組み』が施されていたこと。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #217
+  text          %{L55} ; "調律を通じてその仕組みを知った姫君は、それを利用して\nエファに自らの命を絶たせた、と。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #220
+  ldstr         "v22ef0758"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #221
+  text          %{L56} ; "エファ「――そして、姫様は……この私の記憶石の中に残るのみ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L57} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #223
+  ldc.i         1000
+  ldstr         "efa_g04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #225
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0759"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #226
+  text          %{L58} ; "エファ「私は、このようにしてまで……助けてもらいたくは……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L59} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #228
+  text          %{L60} ; "語られたコトの顛末は、あまりに哀しく……空しいモノ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #230
+  ldc.i         1000
+  ldstr         "efa_g06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #231
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L61} ; "だが、ここで自分までもが放心していては、何も始まらない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #233
+  ldstr         "v24ei0861"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #234
+  text          %{L62} ; "アイン「……失礼いたします」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L63} ; " \n私は姫君の首から『ドルンの記憶』をそっと外し、エファに握らせる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #237
+  ldc.i         1000
+  ldstr         "efa_g04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #239
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0760"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #240
+  text          %{L64} ; "エファ「これは姫様の……白の国の、大切な貴石ではないですか。\n……なぜ、私に？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L65} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #243
+  ldstr         "v24ei0862"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #244
+  text          %{L66} ; "アイン「それを持ち、私が用意した馬車に乗るのだ。そしてこの国を出て、\n"
+  line          #245
+  ldstr         "カーディナル"
+  callp         $3198fd01 (1)
+  text          %{L67} ; "赤の国へと向かってもらう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L68} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #247
+  ldstr         "v22ef0761"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #248
+  text          %{L69} ; "エファ「姫様が残された貴石を"
+  proc         
+  ldstr         "カーディナル"
+  callp         $3198fd01 (1)
+  text          %{L70} ; "赤の国に引き渡すと言うのですか！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L71} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #250
+  ldstr         "v24ei0863"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #251
+  text          %{L72} ; "アイン「違う。赤の国に私の『血縁の者』が居る。まずはそこへ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L73} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #253
+  ldstr         "v24ei0864"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #254
+  text          %{L74} ; "アイン「その者と合流して南へと下り、"
+  proc         
+  ldstr         "カーディナル"
+  callp         $3198fd01 (1)
+  text          %{L75} ; "赤の国から離れてもらう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L76} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #256
+  ldc.i         1000
+  ldstr         "efa_g04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #258
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0762"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #259
+  text          %{L77} ; "エファ「……それは……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L78} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #261
+  ldstr         "v24ei0865"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #262
+  text          %{L79} ; "アイン「姫君と共に、お前やココを赤や青の手の届かない――\nさらに『向こうの国』へと逃がすことも考えていた」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L80} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #265
+  text          %{L81} ; "我が国よりもずっと南東にして、赤の国の向こう側にある\n永世中立の国へ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #268
+  text          %{L82} ; "この危機的な状況下から姫君以下の人形を救うために……と、\n最終手段と思って書簡を出し、逃亡の手筈と段取りをつけた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #271
+  ldstr         "v24ei0866"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #272
+  text          %{L83} ; "アイン「うまく逃げ切れる保証はない。……が、それでも可能性が\nあるなら、賭けてみようと思っていたのだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L84} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #275
+  ldstr         "v24ei0867"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #276
+  text          %{L85} ; "アイン「――いま手渡した『ドルンの記憶』の意味、解るな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L86} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #278
+  ldc.i         1000
+  ldstr         "efa_g06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #280
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0763"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #281
+  text          %{L87} ; "エファ「……はい。姫様の記憶が、何たるかを教えてくれますので」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L88} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #283
+  ldstr         "v24ei0868"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #284
+  text          %{L89} ; "アイン「よろしい。それでは、馬車まで送ろう。ココを連れて――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L90} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #286
+  ldc.i         1000
+  ldstr         "efa_g04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #288
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0764"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #289
+  text          %{L91} ; "エファ「お待ちください、アイン」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L92} ; " \nエファがしっかりとこちらを見据える。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #292
+  ldstr         "v22ef0765"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #293
+  text          %{L93} ; "エファ「私が逃げれば、確実に"
+  proc         
+  ldstr         "カーディナル"
+  callp         $3198fd01 (1)
+  text          %{L94} ; "赤の国より追っ手が差し向けられます。\nそうは思われませんか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L95} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #296
+  ldstr         "v24ei0869"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #297
+  text          %{L96} ; "アイン「……もちろん、それは最初から承知の上。故に可能性は……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L97} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #299
+  ldstr         "v22ef0766"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #300
+  text          %{L98} ; "エファ「ならば、その可能性を少しでも成功する方へと傾けるのは\nいかがでしょう？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L99} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #303
+  ldstr         "v24ei0870"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #304
+  text          %{L100} ; "アイン「それは、どういうことだ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L101} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #306
+  ldc.i         1000
+  ldstr         "efa_g06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #308
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0767"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #309
+  text          %{L102} ; "エファ「……私は逃げず、ココにこの『ドルンの記憶』と\n『姫様の記憶』を託して、馬車に乗ってもらうのです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L103} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #312
+  ldstr         "v24ei0871"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #313
+  text          %{L104} ; "アイン「…………姫君の記憶は、すでにお前の中にある記憶石の\n一部であろう？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L105} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #316
+  ldstr         "v22ef0768"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #317
+  text          %{L106} ; "エファ「はい。だからこそ、私は『姫様の記憶』である記憶石として、\nココと共にまいります」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L107} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #320
+  ldstr         "v24ei0872"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #321
+  text          %{L108} ; "アイン「待て！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L109} ; "それではお前は、人形としての身体を……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L110} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #323
+  ldc.i         1000
+  ldstr         "efa_g04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #325
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0769"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #326
+  text          %{L111} ; "エファ「……私は、姫様と共に記憶石の中で眠れれば、それで」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L112} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #328
+  text          %{L113} ; "姫君が助けようとしたエファ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #330
+  text          %{L114} ; "だからこそ、五体満足で生き延びてもらいたいと願う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #332
+  text          %{L115} ; "しかし、エファの言うとおり、赤の追随を考えれば――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #334
+  ldstr         "v24ei0873"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #335
+  text          %{L116} ; "アイン「（――もう、時間との戦いか……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L117} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #337
+  ldstr         "v24ei0874"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #338
+  text          %{L118} ; "アイン「エファ。お前は自分の身体を残すことで、\n追っ手から時間を稼ぐつもりだな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L119} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #341
+  ldc.i         1000
+  ldstr         "efa_g06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #343
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0770"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #344
+  text          %{L120} ; "エファ「はい。私が姫様の記憶石を失っても、しばらくは平気です」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L121} ; " \nよどみのないその返事には、強い力が宿っている。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #347
+  text          %{L122} ; "エファはもう、こちらが何を言っても決意は変えないだろう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #349
+  ldstr         "v24ei0875"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #350
+  text          %{L123} ; "アイン「……ならば、私からも提案だ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L124} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #352
+  ldstr         "v22ef0771"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #353
+  text          %{L125} ; "エファ「なんでしょう？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L126} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #355
+  ldstr         "v24ei0876"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #356
+  text          %{L127} ; "アイン「芝居は得意だな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L128} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #358
+  ldstr         "v22ef0772"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #359
+  text          %{L129} ; "エファ「……はい。それがなにか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L130} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #361
+  ldstr         "v24ei0877"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #362
+  text          %{L131} ; "アイン「では、『姫君殺しはアイン・ロンベルク』……ということに\nしてもらおう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L132} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #365
+  ldc.i         1000
+  ldstr         "efa_g04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #366
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0773"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #367
+  text          %{L133} ; "エファ「……えっ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L134} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #369
+  ldstr         "v24ei0878"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #370
+  text          %{L135} ; "アイン「……馬車で逃げずにこの城に留まるなら、あとから来た者に\nそう告げて欲しい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L136} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #374
+  ldstr         "v22ef0774"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #375
+  text          %{L137} ; "エファ「それは嘘です。姫様を死に追いやったのは、この私です」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L138} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #377
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #379
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0879"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #380
+  text          %{L139} ; "アイン「……だから『芝居』なのだ。これから話す筋書きに沿って、\n最後まで演じきってもらいたい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L140} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #383
+  ldc.i         1500
+  syscallp      $music_fadeout_wait (1)
+  line          #384
+  ldc.i         0
+  syscallp      $music_vol (1)
+  line          #392
+  ldstr         "K_BGM15b"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #393
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #399
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #401
+  ldc.i         3000
+  ldstr         "view22_efaxxx"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #402
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         3000
+  syscallp      $wait (1)
+  line          #404
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #408
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0775"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #409
+  text          %{L141} ; "エファ「……姫様」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L142} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #411
+  ldc.i         1500
+  ldstr         "bg59a01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #412
+  ldc.i         1500
+  ldstr         "efa_g02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #414
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L143} ; "私はベッドに横たわる姫様に向かい、静かに話しかける。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #416
+  ldstr         "v22ef0776"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #417
+  text          %{L144} ; "エファ「これから姫様の記憶を守るため、私はお芝居をすることに\nなりました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L145} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #420
+  ldstr         "v22ef0777"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #421
+  text          %{L146} ; "エファ「アインは赤と青のよく知る高官に対し、ひとりずつ伝令兵を\n発たせるそうです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L147} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #424
+  ldstr         "v22ef0778"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #425
+  text          %{L148} ; "エファ「それぞれの伝令が持たされる書簡には、その国が裏で\n進めていたことが書かれており――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L149} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #428
+  ldstr         "v22ef0779"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #429
+  text          %{L150} ; "エファ「ひとつの条件を飲まねば、全て"
+  proc         
+  ldstr         "　おおやけ"
+  callp         $3198fd01 (1)
+  text          %{L151} ; "が公になる……と但し書きを\n付け加えたそうです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L152} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #432
+  text          %{L153} ; "白の国の民が、以後、赤にも青にも恨みを持つであろう、と。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #434
+  ldstr         "v22ef0780"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #435
+  text          %{L154} ; "エファ「……もちろん、その条件が受け入れられるかどうかは難しいところだ、\nとアインが言っていました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L155} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #438
+  ldstr         "v22ef0781"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #439
+  text          %{L156} ; "エファ「それでも、うまく行けば……被害は最小限で収まるそうです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L157} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #441
+  text          %{L158} ; "そして私はそのためにも、最期まで演じきらねばならない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #443
+  ldstr         "v02co1078b"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #444
+  text          %{L159} ; "ココ「エファー、どーこー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L160} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #447
+  ldstr         "v22ef0782"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #448
+  text          %{L161} ; "エファ「……ココ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L162} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #450
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #452
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1079"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #453
+  text          %{L163} ; "ココ「あ、いたー！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L164} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #455
+  ldc.i         1500
+  ldstr         "bg59a01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #456
+  ldc.i         1500
+  ldstr         "coc_c02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #458
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L165} ; "アインと共に、ココが部屋に入ってくる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #460
+  ldstr         "v24ei0880"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #461
+  text          %{L166} ; "アイン「……姫君はいま、お休みになっていらっしゃる。\n決して起こさないようにな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L167} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #464
+  ldc.i         1000
+  ldstr         "coc_c01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #466
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1080"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #467
+  text          %{L168} ; "ココ「あい。ちいさいこえ、だよねー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L169} ; " \n私は静かに立ち上がり、ココの前に立つ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #470
+  ldstr         "v02co1081"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #471
+  text          %{L170} ; "ココ「エファ。おわかれに、きまし、たー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L171} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #473
+  ldstr         "v22ef0783"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #474
+  text          %{L172} ; "エファ「……えぇ。アインから話は聴きました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L173} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #476
+  ldc.i         1000
+  ldstr         "coc_c02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #477
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1082"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #478
+  text          %{L174} ; "ココ「うんうん、でもね。エファも、あとからくるんだよ、ね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L175} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #480
+  text          %{L176} ; "ココの後ろでアインが頷くのを見て、私もそれに倣う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #482
+  ldc.i         1000
+  ldstr         "coc_j02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #484
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1083"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #485
+  text          %{L177} ; "ココ「それじゃ、また、あとでー。さきに、いきます」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L178} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #487
+  ldstr         "v22ef0784"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #488
+  text          %{L179} ; "エファ「いってらっしゃい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L180} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #490
+  text          %{L181} ; "――もう会うこともなくなるココ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #492
+  text          %{L182} ; "これが最後だから、もっといっぱい話したいことはあった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #494
+  text          %{L183} ; "でも、これ以上話したら、私は……"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #496
+  ldc.i         1000
+  ldstr         "coc_c01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #498
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1084"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #499
+  text          %{L184} ; "ココ「あ、そうだー。あのね、エファー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L185} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #501
+  ldstr         "v22ef0785"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #502
+  text          %{L186} ; "エファ「なぁに、ココ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L187} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #504
+  text          %{L188} ; "ココは私に駆け寄り、背伸びをしてこっそりと耳元で、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #506
+  ldc.i         500
+  ldstr         "coc_j02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #508
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1085"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #509
+  text          %{L189} ; "ココ「ボク、ニンジンとピーマン、へいきになったの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L190} ; "とささやく。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #511
+  ldstr         "v22ef0786"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #512
+  text          %{L191} ; "エファ「……！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L192} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #514
+  text          %{L193} ; "私が片羽根を失って以来、一緒に食事をする機会がなかった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #516
+  text          %{L194} ; "その間にココは、苦手だったニンジンとピーマンを――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #518
+  ldc.i         1000
+  ldstr         "coc_j01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #520
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1086"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #521
+  text          %{L195} ; "ココ「さいしょに、エファに、おしらせー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L196} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #523
+  ldstr         "v22ef0787"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #524
+  text          %{L197} ; "エファ「…………ありがとう、ココ。今度……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L198} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #526
+  text          %{L199} ; "嘘はつきたくない。でも、もし次に会うことがあるなら！"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #528
+  ldstr         "v22ef0788"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #529
+  text          %{L200} ; "エファ「――今度、食べてみせてね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L201} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #531
+  ldc.i         1000
+  ldstr         "coc_c11"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #533
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1087"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #534
+  text          %{L202} ; "ココ「あい！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L203} ; " \n……とても元気のいいお返事、ありがとう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #537
+  ldstr         "v24ei0881"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #538
+  text          %{L204} ; "アイン「……さぁ、時間だ。行こうか、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L205} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #540
+  ldc.i         1000
+  ldstr         "coc_j02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #542
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1088"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #543
+  text          %{L206} ; "ココ「いって、き、まーす」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L207} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #545
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #547
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L208} ; "元気に部屋を出て行くココの背中を……アインが優しく押す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #549
+  ldc.i         1500
+  ldstr         "bg59a01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #550
+  ldc.i         1500
+  ldstr         "ein_b01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #552
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0882"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #553
+  text          %{L209} ; "アイン「……では姫君を頼んだぞ、エファ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L210} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #555
+  ldstr         "v22ef0789"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #556
+  text          %{L211} ; "エファ「……はい。アインもお気をつけて」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L212} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #558
+  text          %{L213} ; "アインとも……これが最後。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #560
+  text          %{L214} ; "初めて会ったときは、怖い人だと思っていた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #562
+  text          %{L215} ; "だけど、いまは――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #564
+  ldc.i         1500
+  ldstr         "ein_b06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #566
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0883"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #567
+  text          %{L216} ; "アイン「……さらばだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L217} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #569
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #571
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "SE08A"
+  syscallp      $sound (1)
+  line          #573
+  text          %{L218} ; "ドアが閉まり、私と姫様だけが残される。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #575
+  text          %{L219} ; "いいえ、少し違う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #581
+  callp         $$trans_ahead@PIC (0) ; $trans_ahead@PIC
+  line          #582
+  ldc.i         3000
+  ldc.i         20
+  ldc.i         490
+  ldc.i         1000
+  ldc.i         2500
+  ldc.i         20
+  ldc.i         0
+  ldstr         "sv913b"
+  callp         $d75b460b (8)
+  line          #585
+  text          %{L220} ; "私と姫様の身体だけが、この部屋に残ったのだ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #587
+  text          %{L221} ; "すでに『姫様の記憶石』は、『ドルンの記憶』と共にココの\n手にある。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #591
+  text          %{L222} ; "私が元々持つ記憶石が、あとどれぐらい持つか解らないが、\nそう長くないのだけは体感している。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #594
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #596
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L223} ; "私はその力が尽きるまで、アインに頼まれた演劇をするのみ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #598
+  ldc.i         1000
+  ldstr         "sv913c"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #600
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0790"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #601
+  text          %{L224} ; "エファ「……私の台詞は、たったひとつ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L225} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #603
+  text          %{L226} ; "――姫様を殺した、アイン、宝を持って逃げた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #605
+  text          %{L227} ; "それが、アインの用意した筋書きの全て。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #607
+  text          %{L228} ; "――姫様を殺した、アイン、宝を持って逃げた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #609
+  text          %{L229} ; "聞きようによっては、全てがアインの仕業。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #611
+  text          %{L230} ; "この台詞を部屋に訪れた者に告げるのが、私が演じる……\n最期の役割。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #614
+  text          %{L231} ; "だけど、その上演に入る前に。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #616
+  ldstr         "v22ef0791"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #617
+  text          %{L232} ; "エファ「……私は知っています。あなたが優しい人だということを」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L233} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #619
+  text          %{L234} ; "送り出すとき、その背に語りかけたかった言葉を呟く。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #621
+  text          %{L235} ; "――アイン・ロンベルク。あとは、お任せしました。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #623
+  text          %{L236} ; "私は、静かに台詞の復唱に入るだけ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #625
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #627
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L237} ; "記憶の最後に残るのはアインに頼まれた、この――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #637
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #639
+  ldc.i         3000
+  ldstr         "view24_einxxx"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #640
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         3000
+  syscallp      $wait (1)
+  line          #642
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #645
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #647
+  ldc.i         1500
+  ldstr         "bg52c01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #649
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0884"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #650
+  text          %{L238} ; "アイン「……さぁ、ココ。忘れ物はないな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L239} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #652
+  ldc.i         1500
+  ldstr         "coc_c01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #654
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1089"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #655
+  text          %{L240} ; "ココ「あいあい。わたされたもの、みんな、あるよー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L241} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #657
+  ldc.i         1000
+  ldstr         "coc_j02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #659
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1090"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #660
+  text          %{L242} ; "ココ「ペンダントは、ポッケ。イシは、ふくろのなか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L243} ; " \n馬車に乗り込んだココは、ひとつずつ指差しで確認する。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #663
+  ldc.i         1000
+  ldstr         "coc_c11"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #665
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1091"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #666
+  text          %{L244} ; "ココ「……マカロンも、あるから、ねー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L245} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #668
+  ldstr         "v24ei0885"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #669
+  text          %{L246} ; "アイン「よし。では、そろそろ出発だな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L247} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #671
+  ldc.i         1000
+  ldstr         "coc_c04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #673
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1092"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #674
+  text          %{L248} ; "ココ「うんうん。アインも、あとでくるんだよ、ねー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L249} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #676
+  text          %{L250} ; "どう答えていいか迷いつつ、アゴをなでた私は――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #678
+  ldstr         "v24ei0886"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #679
+  text          %{L251} ; "アイン「……あぁ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L252} ; " \nココにフードを被せる準備をする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #682
+  ldc.i         1000
+  ldstr         "coc_j05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #684
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1093"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #685
+  text          %{L253} ; "ココ「ヒメサマも、エファも。だよ、ねー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L254} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #687
+  ldstr         "v24ei0887"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #688
+  text          %{L255} ; "アイン「……そうだな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L256} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #690
+  text          %{L257} ; "出立が遅れれば、それだけココが逃げおおせる可能性が\n低くなってしまう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #693
+  ldstr         "v24ei0888"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #694
+  text          %{L258} ; "アイン「では、ココ。私の代わりに、姫君たちを護ってくれよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L259} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #696
+  ldc.i         1000
+  ldstr         "coc_c05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #698
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1094"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #699
+  text          %{L260} ; "ココ「えーっ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L261} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #701
+  ldstr         "v24ei0889"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #702
+  text          %{L262} ; "アイン「……約束できるかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L263} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #704
+  ldc.i         1000
+  ldstr         "coc_c11"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #706
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1095"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #707
+  text          %{L264} ; "ココ「うん、いい、よー。でもねー。デュアにも、いわれたの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L265} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #709
+  ldstr         "v24ei0890"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #710
+  text          %{L266} ; "アイン「デュアに？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L267} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #712
+  ldstr         "v02co1096"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #713
+  text          %{L268} ; "ココ「デュアも、『ヒメサマまもって』って、いってました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L269} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #715
+  ldstr         "v24ei0891"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #716
+  text          %{L270} ; "アイン「……そうか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L271} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #718
+  ldc.i         1000
+  ldstr         "coc_j07"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #720
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1097"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #721
+  text          %{L272} ; "ココ「それで、それでね。デュア、チューしてくれました。きゃー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L273} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #723
+  text          %{L274} ; "――あのデュアが、キスをしたのか。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #725
+  ldc.i         1000
+  ldstr         "coc_c09"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #727
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1098"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #728
+  text          %{L275} ; "ココ「あー、アイン、わらったー？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L276} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #730
+  ldstr         "v24ei0892"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #731
+  text          %{L277} ; "アイン「すまない、ちょっと意外だったからな。それで……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L278} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #733
+  ldstr         "v24ei0893"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #734
+  text          %{L279} ; "アイン「デュアは、どこにキスをしたのかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L280} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #737
+  ldc.i         1000
+  ldstr         "coc_j01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #738
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1099"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #739
+  text          %{L281} ; "ココ「おでこー。ここにー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L282} ; " \nココは、両手でその箇所を指し示す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #742
+  text          %{L283} ; "そのときのデュアの気持ちが、何となく解った気がする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #744
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #746
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L284} ; "私はココにフードを被せながら、そっと額に顔を近づけ――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #748
+  ldc.i         2000
+  ldstr         "sv918a"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #750
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0894"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #751
+  text          %{L285} ; "アイン「……これが、姫君を護る報酬の先払いだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L286} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #753
+  ldc.i         1500
+  ldstr         "sv918b"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #755
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1100"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #756
+  text          %{L287} ; "ココ「…………きゃー。アインも、チューしてくれたの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L288} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #758
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #760
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L289} ; "かわいいココに、最初で最後のキスを送る。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #762
+  ldc.i         1500
+  ldstr         "sv918d"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #764
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0895"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #765
+  text          %{L290} ; "アイン「ふふふっ。デュアには、内緒だぞ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L291} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #767
+  ldc.i         1500
+  ldstr         "sv918c"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #768
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L292} ; "彼女からの不平は、直接……私自身が聞くことにしよう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #770
+  ldc.i         2000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #772
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v24ei0896"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #773
+  text          %{L293} ; "アイン「……さぁ、御者！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L294} ; "行ってくれ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L295} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #775
+  text          %{L296} ; "――さらばだ、ココ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #777
+  ldstr         "SE32b"
+  syscallp      $sound (1)
+  line          #779
+  ldstr         "v02co1101a"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #780
+  text          %{L297} ; "ココ「アーイーンー。ボクー、バイバイして、ない、よー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L298} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #782
+  text          %{L299} ; "走り去る馬車を見送り、私は襟元を正す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #784
+  text          %{L300} ; "あとは、ココの無事と……"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #788
+  callp         $$debug_stop@KOEKOE (0) ; $debug_stop@KOEKOE
+  line          #794
+  callp         $$trans_ahead@PIC (0) ; $trans_ahead@PIC
+  line          #795
+  ldc.i         3000
+  ldc.i         400
+  ldc.i         0
+  ldc.i         1000
+  ldc.i         2500
+  ldc.i         0
+  ldc.i         0
+  ldstr         "sv913a"
+  callp         $d75b460b (8)
+  line          #798
+  text          %{L301} ; "――エファの演技。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #800
+  ldc.i         2000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #802
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L302} ; "そして、赤と青の両軍陣営に走らせた伝令兵が無事に書簡を\n届けたことを祈るのみ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #807
+  ldc.i         0
+  ldc.i         450
+  ldc.i         0
+  ldc.i         0
+  ldc.i         2000
+  ldc.i         450
+  ldc.i         0
+  ldstr         "sv920a"
+  callp         $d75b460b (8)
+  line          #809
+  ldstr         "v24ei0897"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #810
+  text          %{L303} ; "アイン「約束の時間まで、あと一時間程度か」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L304} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #812
+  text          %{L305} ; "書簡の最後には、ちょうど両軍が兵を揃えてにらみ合いを\n始めた国境付近に『姫殺しの逆賊アインが出向く』と記し、\nそれをそろって討つように、と書き記した。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #816
+  text          %{L306} ; "こうすれば、赤も青も『逆賊討伐』のため軍隊を動かしたと\nいう大義名分が成り立ち、お互いが衝突しないでもよくなる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #819
+  text          %{L307} ; "考える時間さえ与えなければ、私の知る赤と青の高官は……\nそろって『手打ち』の方向にコトを運ぶはずだ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #822
+  ldstr         "v24ei0898"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #823
+  text          %{L308} ; "アイン「（――全てが思惑通りになるとは思えないが……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L309} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #825
+  text          %{L310} ; "それでも、これで無駄な血は流されないで済む道が生まれた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #827
+  text          %{L311} ; "ただひとつ、残念なのは――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #829
+  ldstr         "v24ei0899"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #830
+  text          %{L312} ; "アイン「……私には、"
+  proc         
+  ldstr         "　ヴァイス"
+  callp         $3198fd01 (1)
+  text          %{L313} ; "白の国の行く末を見るチャンスがないこと」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L314} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #833
+  text          %{L315} ; "姫君を救えなかった後見人には、贅沢が過ぎるというものか。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #835
+  ldstr         "v24ei0900"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #836
+  text          %{L316} ; "アイン「……さて、そろそろ私も準備をしよう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L317} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #838
+  text          %{L318} ; "デュアがエファを護ったように。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #840
+  text          %{L319} ; "私は"
+  proc         
+  ldstr         "　ヴァイス"
+  callp         $3198fd01 (1)
+  text          %{L320} ; "この国と――ココの未来を護ろう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #848
+  callp         $$trans_ahead@PIC (0) ; $trans_ahead@PIC
+  line          #849
+  ldc.i         3000
+  ldc.i         20
+  ldc.i         0
+  ldc.i         1000
+  ldc.i         0
+  ldc.i         450
+  ldc.i         0
+  ldstr         "sv920a"
+  callp         $d75b460b (8)
+  line          #852
+  text          %{L321} ; "それが、このアイン・ロンベルク……最期の役目だ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #854
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #855
+  ldc.i         3000
+  ldstr         "white450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #856
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #857
+  ldc.i         2000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #860
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         2
+  callp         $$console_mode@CONSOLE (1) ; $console_mode@CONSOLE
+  line          #862
+  ldc.i         2000
+  ctrl          "s"
+  ctrl          "n"
+  line          #863
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #865
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ctrl          "n"
+  line          #866
+  text          %{L322} ; "　　　　　　　　――　Ｅｉｎ　Ｒｏｍｂｅｒｇ　――\n\n　　　　　クリスティナ・ドルンを殺害したとされる短剣を\n　　　　　振りかざし、赤と青の軍が待つ場所へ現れた男は、\n　　　　　その場にて即刻、両軍の兵によって討ち取られた。\n\n　　　　　　そして、そのときの彼の最後の言葉は――\n　　　　　『全ての罪は、この私にある』だったと伝わる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #875
+  callp         $$console_off_paste@KOEKOE (0) ; $console_off_paste@KOEKOE
+  line          #877
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #879
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #880
+  ldc.i         2000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #882
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         0
+  callp         $$console_mode@CONSOLE (1) ; $console_mode@CONSOLE
+  line          #885
+  ldc.i         2000
+  syscallp      $music_fadeout (1)
+  line          #888
+  ld            savefile int $619989c0 
+  brfalse       @block_6a95
+
+ block_6a8d:
+  syscallp      $exit (0)
+
+ block_6a95:
+  line          #890
+  ldstr         "sr029"
+  syscallp      $exec (1)
+  line          #894
+  ldc.i         0
+  ret          
+}

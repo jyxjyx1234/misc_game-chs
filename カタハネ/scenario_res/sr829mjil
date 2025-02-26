@@ -1,0 +1,970 @@
+readmark enable
+
+func $1d128f30() entrypoint { ; $main@GLOBAL
+ entry:
+  line          #11
+  argcheck      []
+  alloca        []
+  line          #13
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #23
+  ldc.i         1500
+  ldstr         "bg20a01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #25
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "Srhn_BGM05"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #27
+  ldstr         "v00an1417"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #28
+  text          %{L1} ; "アンジ「あれ、なにかしら？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L2} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #30
+  ldc.i         500
+  ldstr         "st01_b05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #32
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1159"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #33
+  text          %{L3} ; "ベル「はい？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L4} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #35
+  text          %{L5} ; "あたしがベルと観客席で休憩をとっていると、何か前方から\n騒がしい声が聞こえてくる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #38
+  ldstr         "v00an1418"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #39
+  text          %{L6} ; "アンジ「あそこに居るのは、ワカバとセロかしら？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L7} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #41
+  ldc.i         500
+  ldstr         "st01_b00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #43
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1160"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #44
+  text          %{L8} ; "ベル「……そうみたいですね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L9} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #46
+  text          %{L10} ; "どうやら、ワカバがセロを連れて舞台に向かっているらしい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #48
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_b01"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #50
+  ldstr         "v03wa1289"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #51
+  text          %{L11} ; "ワカバ「ふふふふっ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L12} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #53
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face04_a06"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #55
+  ldstr         "v04ce1292"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #57
+  text          %{L13} ; "セロ「どうしたの、ワカバ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L14} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #59
+  text          %{L15} ; "ワカバのあやしい笑いに、セロは少し不安な声。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #61
+  text          %{L16} ; "それを好意的と受け取ったのか、ワカバが得意満面の笑顔で舞台裏に入り、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #63
+  ldstr         "v03wa1290"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #64
+  text          %{L17} ; "ワカバ「この前、セロとライトが作った青空は……こうなりました！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L18} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #66
+  text          %{L19} ; "そう叫ぶと……徐々に舞台の幕が上がり始める。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #68
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #70
+  ldc.i         1500
+  ldstr         "bg20c02"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #72
+  ldc.i         500
+  ldstr         "st01_b08"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #74
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1161"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #75
+  text          %{L20} ; "ベル「あ、あれって……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L21} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #77
+  ldstr         "v00an1419"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #78
+  text          %{L22} ; "アンジ「まさか……お、お城の"
+  proc         
+  ldstr         "かきわり"
+  callp         $3198fd01 (1)
+  text          %{L23} ; "書割……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L24} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #80
+  text          %{L25} ; "現れたのは、立派なお城の風景が描かれた舞台背景。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #82
+  text          %{L26} ; "あたしとベルが顔を見合わせる中、セロも唖然とした表情でそれを眺めている。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #84
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face04_a05"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #86
+  ldstr         "v04ce1293"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #87
+  text          %{L27} ; "セロ「……これ、ワカバが塗り直したの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L28} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #89
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face03_b00"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #91
+  ldstr         "v03wa1291"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #92
+  text          %{L29} ; "ワカバ「ちっがうわよ。……いい？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L30} ; "まず、あの青空を見せて、森とトレードしたの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L31} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #94
+  ldstr         "v00an1420"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #95
+  text          %{L32} ; "アンジ「……青空？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L33} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #97
+  ldc.i         500
+  ldstr         "st01_b05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #99
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1162"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #100
+  text          %{L34} ; "ベル「……森？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L35} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #102
+  text          %{L36} ; "あたしたちには、ワカバの言葉の意味がさっぱり判らない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #104
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face04_a00"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #106
+  ldstr         "v04ce1294"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #107
+  text          %{L37} ; "セロ「ふんふん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L38} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #109
+  ldstr         "v03wa1292"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #110
+  text          %{L39} ; "ワカバ「次に、今度はその森を別の人に見せて、海の底と交換してもらって……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L40} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #112
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face03_b01"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #114
+  ldstr         "v03wa1293"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #115
+  text          %{L41} ; "ワカバ「最後に、あのお城になったの！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L42} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #117
+  ldstr         "v03wa1294"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #118
+  text          %{L43} ; "ワカバ「どう、すごいでしょ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L44} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #120
+  ldc.i         -1
+  callp         $bb6f0396 (1)
+  line          #122
+  ldstr         "v00an1421"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #123
+  text          %{L45} ; "アンジ「……どう、すごいのかしら？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L46} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #125
+  text          %{L47} ; "ワカバの言葉をそのままに辿るなら、元に青空の舞台背景が\nあり、それをどうにかして……いまのお城に変化させた？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #128
+  ldstr         "v00an1422"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #129
+  text          %{L48} ; "アンジ「……ワカバが色々手を尽くして、お城を手に入れてきた？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L49} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #131
+  ldc.i         500
+  ldstr         "st01_b00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #133
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1163"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #134
+  text          %{L50} ; "ベル「……となると、すごいですね。ワカバの交渉手腕って」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L51} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #136
+  ldstr         "v00an1423"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #137
+  text          %{L52} ; "アンジ「……そうね。彼女、脚本家よりもそういう方面に進んだ方が成功したりして」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L53} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #139
+  text          %{L54} ; "頭に浮かんだのは、まだ出会ったばかりの頃のシルヴィアやトニーノのようなイメージで――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #141
+  ldc.i         500
+  ldstr         "st01_b04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #143
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1164"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #144
+  text          %{L55} ; "ベル「……アンジェリナさん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L56} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #146
+  text          %{L57} ; "ちょっと思考を読まれたような気がして、あたしは襟を正す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #148
+  ldstr         "v00an1424"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #149
+  text          %{L58} ; "アンジ「冗談よ。ワカバの実力をちゃんと認めた上での冗談」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L59} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #151
+  ldc.i         500
+  ldstr         "st01_b03"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #153
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1165"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #154
+  text          %{L60} ; "ベル「……本当、ですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L61} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #156
+  ldstr         "v00an1425"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #157
+  text          %{L62} ; "アンジ「えぇ、ウソはつかない。でも、本人を目の前にそんなことは\n言わないわよ。絶対、鼻が高くなってダメになるから」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L63} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #160
+  ldc.i         500
+  ldstr         "st01_b01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #162
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be1166"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #163
+  text          %{L64} ; "ベル「……うふふっ。ちゃんと、考えてあげてるんですね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L65} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #165
+  ldstr         "v00an1426"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #166
+  text          %{L66} ; "アンジ「そ、そんなことないわよ。ただ、威張られるのがイヤなだけ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L67} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #168
+  ldstr         "v00an1427"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #169
+  text          %{L68} ; "アンジ「――さぁ、せっかくお城もできたことだから、練習、練習！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L69} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #171
+  text          %{L70} ; "あたしは、この場を誤魔化すように立ち上がる。\n……ワカバになんか、負けていられないんだから。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #175
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #180
+  ldc.i         1500
+  ldstr         "bg20c02"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #182
+  ldc.i         1000
+  ldstr         "st05_b02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #184
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v05li0739"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #185
+  text          %{L71} ; "ライト「やー、待て待て！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L72} ; "許可無きモノは、一歩も通さないぞ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L73} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #187
+  text          %{L74} ; "シルヴィアの練習に付き合う傍ら、あたしは舞台の端から\n聞こえてくるライトの声に耳を傾ける。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #190
+  ldstr         "v00an1428"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #191
+  text          %{L75} ; "アンジ「（――城を訪れた"
+  proc         
+  ldstr         "シュエスタ"
+  callp         $3198fd01 (1)
+  text          %{L76} ; "天使に見とれてしまうシーンの練習ね）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L77} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #193
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_b02"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #195
+  ldstr         "v03wa1456"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #196
+  text          %{L78} ; "ワカバ「はい、そこでベルの姿を見てポーッとする！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L79} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #198
+  text          %{L80} ; "ライトに演技指導をしているのは、姉のワカバ。\nいつもと違い、ライトはおねえさんのいうことをマジメに聞いているようだ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #201
+  ldc.i         500
+  ldstr         "st05_b05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #203
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v05li0740"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #204
+  text          %{L81} ; "ライト「こ、これは失礼しましま！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L82} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #206
+  ldc.i         500
+  ldstr         "st05_b03"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #208
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v05li0741"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #209
+  text          %{L83} ; "ライト「……ごほん。これは、これは失礼しました！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L84} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #211
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_b00"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #213
+  ldstr         "v03wa1457"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #214
+  text          %{L85} ; "ワカバ「その、『ごほん』要らない。『これは』は一回ね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L86} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #216
+  ldc.i         500
+  ldstr         "st05_b02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #218
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v05li0742"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #219
+  text          %{L87} ; "ライト「分かってるってば！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L88} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #221
+  ldstr         "v03wa1458"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #222
+  text          %{L89} ; "ワカバ「でもまあ、それぐらいのリアクションの方が本物っぽいか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L90} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #224
+  ldstr         "v05li0743"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #225
+  text          %{L91} ; "ライト「なんだよ！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L92} ; "いまのアドリブじゃないぞぉ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L93} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #227
+  text          %{L94} ; "振り回し気味の脚本家に、ライトが怒りたくなる気持ちも\n分かるけど、ここはグッとこらえて練習を続けてほしい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #230
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #235
+  ldc.i         1500
+  ldstr         "bg20c02"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #237
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an1429"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #238
+  text          %{L95} ; "アンジ「……それに引き替え、こっちは……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L96} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #240
+  text          %{L97} ; "舞台端からズカズカと歩いてきたシルヴィアは、開口一番、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #242
+  ldc.i         1000
+  ldstr         "st06_b00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #244
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v06si0466"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #245
+  text          %{L98} ; "シルヴ「アンジェリナ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L99} ; "あたしの本名を呼んでくれたりする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #247
+  ldstr         "v00an1430"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #248
+  text          %{L100} ; "アンジ「騒々しいですね、デュア。それではまるで、シルヴィアです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L101} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #250
+  ldc.i         500
+  ldstr         "st06_b04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #252
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v06si0467"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #253
+  text          %{L102} ; "シルヴ「……ご、ごめん。いまは、クリスティナだったね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L103} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #255
+  text          %{L104} ; "こちらのため息に、さすがの彼女も気づいたらしく、謝って\nくれたまではいいが……まだあやしい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #258
+  ldstr         "v00an1431"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #259
+  text          %{L105} ; "アンジ「次は、まさか『クリスティナ』とか呼ばないでしょうね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L106} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #261
+  ldc.i         500
+  ldstr         "st06_b05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #263
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v06si0468"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #264
+  text          %{L107} ; "シルヴ「あ、そっか。台詞だと『姫』か。姫、姫、姫……。憶えた！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L108} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #266
+  text          %{L109} ; "……言わなかったら、本当にそうなるところだったらしい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #268
+  ldstr         "v00an1432"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #269
+  text          %{L110} ; "アンジ「それじゃ、もう一度……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L111} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #272
+  ldstr         ""
+  callp         $$disp_char@PIC (1) ; $disp_char@PIC
+  line          #274
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L112} ; "シルヴィアが舞台袖に戻ったのを確認し、改めて合図を送る。\n……と、彼女は多少控えめの足音であたしの前まで来て――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #277
+  ldc.i         1000
+  ldstr         "st06_b04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #279
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v06si0469"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #280
+  text          %{L113} ; "シルヴ「姫！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L114} ; "……ぶっ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L115} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #282
+  text          %{L116} ; "今度は、笑いのアドリブなんてものを入れてくれる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #284
+  ldstr         "v00an1433"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #285
+  text          %{L117} ; "アンジ「なにかおかしなことでもありましたか、デ・ュ・ア？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L118} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #287
+  ldstr         "v06si0470"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #288
+  text          %{L119} ; "シルヴ「ゴ、ゴメン！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L120} ; "ホント、ゴメンね！\nアンタを笑ったわけじゃないの。これだけはホント！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L121} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #291
+  ldstr         "v00an1434"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #292
+  text          %{L122} ; "アンジ「……だったら、何が真実なのか聞きたいわよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L123} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #294
+  ldc.i         500
+  ldstr         "st06_d08"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #296
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v06si0471"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #297
+  text          %{L124} ; "シルヴ「……いまのは、自分の台詞に吹いちゃっただけなのよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L125} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #299
+  ldstr         "v06si0472"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #300
+  text          %{L126} ; "シルヴ「慣れないことはするもんじゃないわね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L127} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #302
+  ldstr         "v00an1435"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #303
+  text          %{L128} ; "アンジ「……ねぇ。もう少し緊張を解いて、自然にいきましょ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L129} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #305
+  text          %{L130} ; "彼女の場合、何も考えずに地が出てしまうわけではなく、\n演技しようとする気持ちが強すぎて失敗している……と思う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #308
+  ldstr         "v00an1436"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #309
+  text          %{L131} ; "アンジ「あなたに無理をさせるつもりはないの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L132} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #311
+  text          %{L133} ; "多少本番で台詞を間違えたりしても、それはそれ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #313
+  text          %{L134} ; "しかし、登場シーンもそれなりになる役だけに、あまりに\n失敗が多くなれば、劇の流れが止まってしまう危険がある。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #316
+  ldstr         "v00an1437"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #317
+  text          %{L135} ; "アンジ「もし、台詞が辛いならいまのうちにワカバに言って、多少のアレンジを加えてもらうけど……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L136} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #319
+  ldc.i         500
+  ldstr         "st06_b00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #321
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v06si0473"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #322
+  text          %{L137} ; "シルヴ「平気よ。本番までには、何とかしてみせるわ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L138} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #324
+  ldc.i         500
+  ldstr         "st06_d06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #326
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v06si0474"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #327
+  text          %{L139} ; "シルヴ「……アタシを信じてよ、姫様」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L140} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #329
+  text          %{L141} ; "そう言って、グッと親指を立ててくれるシルヴィア。\n彼女らしいといえば彼女らしいが、デュアのイメージからは離れていく。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #332
+  ldstr         "v00an1438"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #333
+  text          %{L142} ; "アンジ「（――本当に、大丈夫なのかしら？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L143} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #335
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #337
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #342
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         0
+  ret          
+}

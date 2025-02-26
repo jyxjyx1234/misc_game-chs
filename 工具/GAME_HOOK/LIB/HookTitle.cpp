@@ -7,8 +7,8 @@ pCreateWindowExA TrueCreateWindowExA = CreateWindowExA;
 pCreateWindowExW TrueCreateWindowExW = CreateWindowExW;
 WindowHookConfig changeWindowCfg;
 
-std::string tag = "Deepseek-R1 机翻 by jyxjyx1234@ai2.moe";
-std::wstring tagW = L"Deepseek-R1 机翻 by jyxjyx1234@ai2.moe";
+std::string tag = "机翻 by jyxjyx1234@ai2.moe";
+std::wstring tagW = L"机翻 by jyxjyx1234@ai2.moe";
 
 std::string newWindowName;
 std::wstring newWindowNameW;

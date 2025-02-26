@@ -14,8 +14,8 @@ DWORD originalFuncAddr;
 
 
 DWORD searchHookAddr() {
-    byte pattern1[] = {// for 2.48
-        0x8B, 0x4D, 0xD0, 0x8B, 0x75, 0xFC, 0x8B, 0xD1, 0xC1, 0xE9, 0x02, 0x8B, 0xF8, 0x8B, 0x45, 0xFC, 0xF3, 0xA5, 0x8B, 0xCA, 0x83, 0xE1, 0x03, 0x50, 0xF3, 0xA4
+    byte pattern1[] = {// for 2.48 //0X00ÎªÍ¨Åä·û
+        0x8B, 0x4D, 0xD0, 0x8B, 0x75, 0x00, 0x8B, 0xD1, 0xC1, 0xE9, 0x02, 0x8B, 0xF8, 0x8B, 0x45, 0x00, 0xF3, 0xA5, 0x8B, 0xCA, 0x83, 0xE1, 0x03, 0x50, 0xF3, 0xA4
     };
     byte pattern2[] = {
         0x8B, 0xD1, 0xC1, 0xE9, 0x02, 0x8B, 0xF8, 0x8B, 0xF3, 0xF3, 0xA5, 0x8B, 0xCA, 0x83, 0xE1, 0x03, 0x53, 0xF3, 0xA4
@@ -25,7 +25,7 @@ DWORD searchHookAddr() {
     DWORD patternSize;
     if (type == 1) {
         pattern = pattern1;
-        offset = 13;
+        offset = 8;
         retAddAddr = 5;
         patternSize = sizeof(pattern1);
     }
@@ -50,10 +50,21 @@ DWORD searchHookAddr() {
             continue;
         }
         for (DWORD i = (DWORD)mbi.BaseAddress; i < (DWORD)mbi.BaseAddress + mbi.RegionSize - patternSize; i++) {
-            if (memcmp((void*)i, pattern, patternSize) == 0) {
-                printf("Found at %x\n", i + offset);
-                return i + offset;
+            //if (memcmp((void*)i, pattern, patternSize) == 0) {
+            //    printf("Found at %x\n", i + offset);
+            //    return i + offset;
+            //}
+            bool match = true;
+            for (DWORD j = 0; j < patternSize; j++) {
+                if (pattern[j] != 0x00 && pattern[j] != *((byte*)(i + j))) {
+                    match = false;
+                    break;
+                }
             }
+			if (match) {
+				printf("Found at %x\n", i + offset);
+				return i + offset;
+			}
         }
     }
     return 0;
@@ -135,6 +146,8 @@ void __declspec(naked) HookFunction_replaceScr1()
 {
     __asm
     {
+        shr ecx, 2
+        mov edi, eax
         pushad
         pushfd
 
@@ -151,9 +164,6 @@ void __declspec(naked) HookFunction_replaceScr1()
 
         popfd
         popad
-
-        mov eax, [ebp-4]
-        rep movsd
      
         jmp dword ptr[returnAddress]
     }

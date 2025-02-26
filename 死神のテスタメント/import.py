@@ -127,3 +127,6 @@ for f in filelist:
     ori_f=txtfile(ori_f)
     ori_f.trans(transdict,hanzireplacer)
     ori_f.save(out_text_path+f+'.txt')
+    
+    ori_f = open_file_b(out_text_path+f+'.txt')
+    save_file_b(out_text_path+f+'.txt', ori_f, enc = enc_key)

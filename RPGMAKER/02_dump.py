@@ -44,7 +44,7 @@ for f in os.listdir(oriPath):
 
     for data in oriData:
         if not data.get("ori", ""):
-            continue
+            out_401.append_dict()
         if data.get("code", "") in [102, 402, ""]:
             out.append_dict(quchong=True)
             out.add_text(data["ori"])

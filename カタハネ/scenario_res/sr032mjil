@@ -1,0 +1,2087 @@
+readmark enable
+
+func $1d128f30() entrypoint { ; $main@GLOBAL
+ entry:
+  line          #10
+  argcheck      []
+  alloca        []
+  line          #12
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #20
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #21
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "SE10A"
+  syscallp      $sound (1)
+  line          #22
+  ldc.i         3000
+  ldstr         "sr032_00angelina01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #23
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  callp         $16ab2970 (0)
+  line          #24
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #27
+  ldc.i         1500
+  ldstr         "bg14b01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #28
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "Srhn_BGM01"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #29
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #32
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0752_2"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #33
+  text          %{L1} ; "アンジ「あなた、昨日の夜はちゃんと寝たの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L2} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #35
+  ldc.i         1000
+  ldstr         "st01_a04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #36
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #37
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0584_2"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #38
+  text          %{L3} ; "ベル「は、はい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L4} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #40
+  text          %{L5} ; "あたしは横を歩くベルの眠そうな顔を見て、少しだけ笑って\nしまう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #43
+  text          %{L6} ; "昨夜、廊下でパレードを披露してしまったのは感心できない\nけど、彼女にそんなお友達が居たことが分かって嬉しかった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #46
+  text          %{L7} ; "ずっとひとりだとしたら、たとえ長い時間を生きる"
+  proc         
+  ldstr         "シュエスタ"
+  callp         $3198fd01 (1)
+  text          %{L8} ; "人形でもやっぱり寂しいと思う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #48
+  ldc.i         500
+  ldstr         "st01_a07"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #49
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #50
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0585"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #51
+  text          %{L9} ; "ベル「アンジェリナさん、ごめんなさい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L10} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #53
+  ldstr         "v00an0753"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #54
+  text          %{L11} ; "アンジ「……なにが？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L12} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #56
+  ldc.i         500
+  ldstr         "st01_a03"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #57
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #58
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0586"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #59
+  text          %{L13} ; "ベル「アンジェリナさんにはもっと早く、あの子たちのことを\n知らせておくべきでした」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L14} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #62
+  ldstr         "v00an0754"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #63
+  text          %{L15} ; "アンジ「あぁ、いいのよ。青の都まで一緒に来たセロたちだって、\n知らなかったんでしょ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L16} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #66
+  ldc.i         500
+  ldstr         "st01_a00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #67
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #68
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0587"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #69
+  text          %{L17} ; "ベル「……はい。父が、しばらくは黙っていなさいと言ったので」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L18} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #71
+  ldstr         "v00an0755"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #72
+  text          %{L19} ; "アンジ「そうね。あの子たちの存在が知れたら、すごく賑やかで……\n大変そうだからね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L20} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #75
+  text          %{L21} ; "特にココ辺りが心配の種だったのでは……と思う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #77
+  ldc.i         500
+  ldstr         "st01_a05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #78
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #79
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0588"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #80
+  text          %{L22} ; "ベル「……ところで、アンジェリナさん。このあとワタシたちは、\n白の都からどこへ向かうのですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L23} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #83
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #85
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0756"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #86
+  text          %{L24} ; "アンジ「ワカバの話だと、明日にはこの白の都を出発して、クロムへ\n向かうことになるの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L25} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #90
+  ldc.i         1500
+  ldstr         "bg14a01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #91
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #93
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L26} ; "ホテルの外へ出たところで、あたしはワカバから渡された\n小さな地図を取り出し、ベルに見せながら説明をする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #96
+  ldc.i         500
+  ldstr         "st01_a05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #97
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #98
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0589"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #99
+  text          %{L27} ; "ベル「……クロム？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L28} ; "鉱山の村ですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L29} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #101
+  ldstr         "v00an0757"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #102
+  text          %{L30} ; "アンジ「えぇ。"
+  proc         
+  ldstr         "　ドロップ"
+  callp         $3198fd01 (1)
+  text          %{L31} ; "人形石の産出地として有名な鉱山ね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L32} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #104
+  ldc.i         500
+  ldstr         "st01_a00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #105
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #107
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0758"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #108
+  text          %{L33} ; "アンジ「――そこからバーミリオンを経由して、赤の都へ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L34} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #110
+  ldstr         "v00an0759"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #111
+  text          %{L35} ; "アンジ「そして、この国で一番古くて大きいカーディナル図書館に\n立ち寄って、セロが調べ物をしてくれるそうなの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L36} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #114
+  text          %{L37} ; "セロとしては、ワカバの劇の完成度を高めるために、たとえ\nフィクションであっても裏付けをしておきたいらしい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #117
+  text          %{L38} ; "その意見には、あたしとしても賛成。\n少しでも当時のことが解れば、それだけ演技もしやすい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #120
+  ldstr         "v00an0760"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #121
+  text          %{L39} ; "アンジ「あとはシェンナを経て、そのままモスグルンまで。\nそこが最終目的地ってことね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L40} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #124
+  ldc.i         500
+  ldstr         "st01_a06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #125
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #126
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0590"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #127
+  text          %{L41} ; "ベル「……はい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L42} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #129
+  ldstr         "v00an0761"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #130
+  text          %{L43} ; "アンジ「そしてクロムに向かう前に、あたしたちは白の都で最後の\n観光をするの。さぁ、あのバスに乗るわよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L44} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #133
+  ldc.i         500
+  ldstr         "st01_a05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #134
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #135
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0591"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #136
+  text          %{L45} ; "ベル「一体、何を観に行くのですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L46} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #138
+  ldstr         "v00an0762"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #139
+  text          %{L47} ; "アンジ「さぁ。セロが誘ってくれたんだけど、詳しくは現地で説明を\nするって言ってたわ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L48} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #142
+  text          %{L49} ; "あたしも降りる場所の名前しか聴いてないので、少し不安。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #144
+  text          %{L50} ; "ただ、セロが先に現地に行って停留所で待っているとのこと\nだったので、何とかなるとは思う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #147
+  callp         $$debug_stop@KOEKOE (0) ; $debug_stop@KOEKOE
+  line          #149
+  ldstr         "v00an0763"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #150
+  text          %{L51} ; "アンジ「（――だけど、一体何を観るのかしら？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L52} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #152
+  ldc.i         2000
+  ldstr         "black"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #154
+  ldc.i         1000
+  ldstr         "bg14e01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #155
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #157
+  ldc.i         1000
+  ldstr         "st04_a01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #158
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #159
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1259"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #160
+  text          %{L53} ; "セロ「いゃあ、ふたりとも。時間通りだね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L54} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #162
+  text          %{L55} ; "あたしは言われた通りの場所でベルと下車し、セロと合流。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #164
+  text          %{L56} ; "セロは発見されやすいことを考えてか、停留所よりも少し\n手前に立っていてくれた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #167
+  ldstr         "v00an0764"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #168
+  text          %{L57} ; "アンジ「これでも１本早いバスに乗ったんだけどね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L58} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #170
+  text          %{L59} ; "遅れないように余裕を持ってホテルを出たが、なかなか\n思うようにはいかない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #173
+  ldc.i         500
+  ldstr         "st04_a04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #174
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #175
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1260"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #176
+  text          %{L60} ; "セロ「……あはは。途中で観光客の乗り降りが多いからね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L61} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #178
+  text          %{L62} ; "彼の言うとおり、何カ所かで乗客の入れ替えが激しく行われ、\nそのたびに時計とにらめっこをしたのを思い出す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #181
+  ldstr         "v00an0765"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #182
+  text          %{L63} ; "アンジ「それで、ガイドさん。あたしたちに何を見せたいの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L64} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #184
+  ldc.i         500
+  ldstr         "st04_a00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #185
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #186
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1261"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #187
+  text          %{L65} ; "セロ「……うん。こっちに来て」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L66} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #189
+  text          %{L67} ; "セロは、あたしの言葉に大きく頷いてから歩き出す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #191
+  text          %{L68} ; "しかし、前を行く観光客の一行から距離を取りたいらしく、\n歩幅はかなりゆっくりとしたもの。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #194
+  text          %{L69} ; "やがて前を行く人たちの声が聞こえなくなったところで、\n彼は静かに説明を始めた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #197
+  ldc.i         500
+  ldstr         "st04_a06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #198
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #199
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1262"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #200
+  text          %{L70} ; "セロ「――この場所は、昔でいう白の国と赤の国を結ぶ街道でね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L71} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #202
+  ldc.i         500
+  ldstr         "st04_a02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #203
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #204
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1263"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #205
+  text          %{L72} ; "セロ「当然いまも普通に利用されているけど、見ての通り\nあまり整備はされていない」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L73} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #208
+  text          %{L74} ; "のどかな自然が広がる光景は、都会に住んでいるあたしには\nとても新鮮。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #211
+  text          %{L75} ; "列車から見た自然とはまた違い、肌で直接感じられる空気が\n心地よい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #214
+  ldstr         "v00an0766"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #215
+  text          %{L76} ; "アンジ「でも、観光スポットならもう少し手を加えるべきじゃない？\n……舗装されてない道だったから、バスの揺れも結構なもの\nだったわ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L77} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #219
+  text          %{L78} ; "そんな愚痴を告げると彼は少し笑い、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #221
+  ldc.i         500
+  ldstr         "st04_a04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #222
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #223
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1264"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #224
+  text          %{L79} ; "セロ「……理由は色々あって、ひとつは昔ながらの風景を守ろうと\nいう環境維持」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L80} ; "といって立ち止まる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #227
+  text          %{L81} ; "そして、大きく背伸びをするジェスチャーで、右手に見える\n小高い丘を指差した。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #230
+  ldc.i         500
+  ldstr         "st04_a00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #231
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #232
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1265"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #233
+  text          %{L82} ; "セロ「車が多く行き交う道路や列車の線路は、ひとつ向こう側を\n走っていることになるね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L83} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #236
+  text          %{L84} ; "どうやらセロは、先にきてこの地帯を調べていたらしい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #238
+  text          %{L85} ; "その証拠にセロが手に持つ観光地図には、彼自身のモノと\n思われる書き込みが幾つもあった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #241
+  ldstr         "v00an0767"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #242
+  text          %{L86} ; "アンジ「そうすると、この地帯は……昔のままなの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L87} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #244
+  ldc.i         500
+  ldstr         "st04_a01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #245
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #246
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1266"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #247
+  text          %{L88} ; "セロ「ふたりが演じる劇の時代そのまま……とまでは行かないけど、\n城の外はこれぐらい自然だらけだったんだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L89} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #250
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face01_a05"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #251
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #252
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0592"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #253
+  text          %{L90} ; "ベル「ワタシ、こんな風景を見たことがあるような気がします」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L91} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #255
+  text          %{L92} ; "セロの説明に、それまで黙っていたベルが口を開く。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #257
+  text          %{L93} ; "その視線は、はるか遠くを見つめ――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #259
+  text          %{L94} ; "あたしは一瞬、ベルの足が地から離れ、そのまま空へ浮かび\n上がりそうな錯覚にとらわれてしまう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #262
+  ldc.i         500
+  ldstr         "st04_a08"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #263
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #264
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1267"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #265
+  text          %{L95} ; "セロ「ジルベルクほど高地じゃないけど、自然は豊かだから……\n似ているかもね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L96} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #268
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face01_a01"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #269
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #270
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0593"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #271
+  text          %{L97} ; "ベル「……それで、かもしれませんね。少し、懐かしさがあります」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L98} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #273
+  text          %{L99} ; "そう言ったベルは、にっこりと笑う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #275
+  text          %{L100} ; "故郷を離れて間もない彼女でも、やはりそんな気持ちに\nなるものだろうか？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #278
+  callp         $91280887 (0)
+  line          #279
+  ldc.i         500
+  ldstr         "st04_a00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #280
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #281
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1268"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #282
+  text          %{L101} ; "セロ「そして、観てもらいたかったのはこの風景だけじゃなくてね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L102} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #284
+  ldc.i         500
+  ldstr         "st04_a06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #285
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #286
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1269"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #287
+  text          %{L103} ; "セロ「――この道の先にある、お墓……なんだ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L104} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #289
+  text          %{L105} ; "セロが改めて指差すのは、道の先。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #291
+  text          %{L106} ; "前を歩いていた観光客が、ちょうど離れていく場所。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #293
+  text          %{L107} ; "しかし、そこにはお墓らしきモノは見えない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #295
+  ldstr         "v00an0768"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #296
+  text          %{L108} ; "アンジ「……お墓が、あるの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L109} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #298
+  ldc.i         500
+  ldstr         "st04_a02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #299
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #300
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1270"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #301
+  text          %{L110} ; "セロ「……あぁ。きっと、実物を見ておいた方がいいと思う」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L111} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #303
+  text          %{L112} ; "セロは小さく頷き、わたしたちを手招きする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #305
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #309
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #311
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "Srhn_BGM15"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #313
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #315
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0769"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #316
+  text          %{L113} ; "アンジ「……これ、は？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L114} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #318
+  text          %{L115} ; "わたしたちが進む道の中央にあったのは、石のプレート。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #320
+  text          %{L116} ; "そこには何か一文が刻まれていたが、判読できないぐらいに\n摩滅してしまっている。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #323
+  ldc.i         1000
+  ldstr         "st04_a06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #324
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #325
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1271"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #326
+  text          %{L117} ; "セロ「……これが、白の国クリスティナ姫の『後見人』だった、\nアインの墓だよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L118} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #329
+  ldc.i         1500
+  ldstr         "bg14e01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #331
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face01_a08"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #332
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #333
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0594"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #334
+  text          %{L119} ; "ベル「えっ？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L120} ; "待ってください。どうしてお墓が、道の真ん中に？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L121} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #336
+  ldc.i         500
+  ldstr         "st04_a07"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #337
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #338
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1272"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #339
+  text          %{L122} ; "セロ「ガイドラインの言葉を借りるなら、『逆賊の罪を踏みつけ、\n記憶を風化させることなく、永遠に罰を与え続ける』……と」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L123} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #342
+  text          %{L124} ; "セロが苦々しい顔で手元の資料を読み上げる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #344
+  text          %{L125} ; "あたしは静かにしゃがみ、プレートの土を払う。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #346
+  ldstr         "v00an0770"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #347
+  text          %{L126} ; "アンジ「……ひどいわ。いくら何でも、死者を弔わず、こんな……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L127} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #349
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face01_a03"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #350
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #351
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0595"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #353
+  text          %{L128} ; "ベル「――いつから、なんですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L129} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #355
+  ldc.i         500
+  ldstr         "st04_a06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #356
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #357
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1273"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #358
+  text          %{L130} ; "セロ「歴史上では、アインが亡くなってすぐ……だそうだよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L131} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #360
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face01_a07"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #361
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #362
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0596"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #363
+  text          %{L132} ; "ベル「……そ、そんな」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L133} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #365
+  text          %{L134} ; "ベルの顔に哀しみの色が浮かぶが、それは同情とは少し\n違うように見える。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #368
+  ldstr         "v04ce1274"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #369
+  text          %{L135} ; "セロ「……ごめんね。別にふたりを不快にさせたくて見せたわけ\nじゃないよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L136} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #372
+  ldc.i         500
+  ldstr         "st04_a02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #373
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #374
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1275"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #375
+  text          %{L137} ; "セロ「ただ、知っておいて欲しかったんだ。僕たちがやろうと\nしている劇の人物のアインが、どう思われているかを」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L138} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #378
+  ldc.i         500
+  ldstr         "st04_a07"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #379
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #380
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1276"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #381
+  text          %{L139} ; "セロ「――そして、どんな扱いを受けているかも」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L140} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #383
+  text          %{L141} ; "あたしたちは言葉を失い、ただアインのお墓を見つめるだけ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #385
+  text          %{L142} ; "ひとつ解ったのは、これから先も逆賊と言われたアインは、\nこのお墓の下で、道行く人に踏まれ続ける運命だということ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #388
+  text          %{L143} ; "それがどれほどの罰に当たるのかは、これまでと――\nこれからの歴史が語るのだろう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #391
+  ldstr         "v00an0771"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #392
+  text          %{L144} ; "アンジ「（――アイン。あなたは本当にクリスティナ姫を……\n白の国を裏切ったの？）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L145} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #395
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #397
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L146} ; "当然、そんな心の問いかけに死者が答えてくれるはずもなく。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #399
+  text          %{L147} ; "――ただ、風がほんの少しの砂埃を払うだけに終わる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #401
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #404
+  ldc.i         1500
+  ldstr         "bg14a02"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #405
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "Srhn_BGM03"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #406
+  text          %{L148} ; "あたしたちは、もう少し調べ物をするというセロを残して、\n先に都へ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #409
+  ldc.i         500
+  ldstr         "st01_a03"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #410
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #411
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0597"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #412
+  text          %{L149} ; "ベル「……アンジェリナさん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L150} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #414
+  ldstr         "v00an0772"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #415
+  text          %{L151} ; "アンジ「なぁに？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L152} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #417
+  ldstr         "v01be0598"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #418
+  text          %{L153} ; "ベル「アンジェリナさんは、アインを……どう思いますか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L154} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #420
+  ldstr         "v00an0773"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #421
+  text          %{L155} ; "アンジ「……漠然とした質問だけど、『かわいそう』とかいう答えは\n求められてないわよね？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L156} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #424
+  text          %{L157} ; "黙って頷くベルに、以前から思っていた意見を口にする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #426
+  ldstr         "v00an0774"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #427
+  text          %{L158} ; "アンジ「……あたしは、アインが悪人だったと思ってないの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L159} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #429
+  text          %{L160} ; "だからこそ、ワカバの『アインが逆賊ではなかった』という\n無謀な創作――フィクションにも惹かれた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #432
+  ldc.i         500
+  ldstr         "st01_a04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #433
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #434
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0599"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #435
+  text          %{L161} ; "ベル「ワタシも、うまく説明できないのですが……そう思います」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L162} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #437
+  text          %{L163} ; "ベルの同意を耳に、自分の気持ちをさらに引き締める。\n……アインが正義の人だったと信じ、舞台を演じよう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #440
+  text          %{L164} ; "そうすることで、どんな非難を受けようとも――\n舞台の上での真実をねじ曲げるような真似だけはしない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #443
+  ldstr         "v00an0775"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #444
+  text          %{L165} ; "アンジ「……舞台、がんばろうね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L166} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #446
+  ldc.i         500
+  ldstr         "st01_a06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #447
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #448
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0600"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #449
+  text          %{L167} ; "ベル「……はい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L168} ; " \nふたりは互いの手を握り、決意を新たにホテルへと戻った。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #452
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #458
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #459
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "SE10A"
+  syscallp      $sound (1)
+  line          #460
+  ldc.i         3000
+  ldstr         "sr032_04cero01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #461
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  callp         $16ab2970 (0)
+  line          #462
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #466
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #468
+  ldc.i         1500
+  ldstr         "bg14b01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #469
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "Srhn_BGM01"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #471
+  ldc.i         1000
+  ldstr         "st03_a01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #472
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #473
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1231"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #474
+  text          %{L169} ; "ワカバ「それじゃ、行くわよー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L170} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #476
+  text          %{L171} ; "チェックアウトを終え、僕たちはホテルをあとにする。\nすでに、クロム行きの寝台列車のチケットは入手済み。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #479
+  text          %{L172} ; "青の都で目的地を誤った経験を持つワカバは、朝から僕を\n連れ出し、購入の際に何度も確認を入れてきた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #482
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #484
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L173} ; "……おかげで、今度は無駄なお金を使わなくて済みそうだ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #487
+  ldc.i         1500
+  ldstr         "bg14a01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #488
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #490
+  ldc.i         1000
+  ldstr         "st00_a00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #491
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #492
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0776"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #493
+  text          %{L174} ; "アンジ「……ワカバ。あなた、昨日は部屋にこもっていたみたい\nだけど、脚本の方は進んだの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L175} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #496
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a04"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #497
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #498
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1232"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #499
+  text          %{L176} ; "ワカバ「えっへへー！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L177} ; "そりゃ、もちろん！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L178} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #501
+  ldc.i         500
+  ldstr         "st00_a01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #502
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #503
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0777a"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #504
+  text          %{L179} ; "アンジ「じゃあ、列車の中で台詞の練習しなきゃね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L180} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #506
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face01_a01"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #507
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #508
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0601"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #509
+  text          %{L181} ; "ベル「はい！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L182} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #511
+  text          %{L183} ; "昨日、アンジェリナとベルをアインの墓に連れて行ったとき、\nふたりが『かなり』ショックを受けていたので心配だった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #514
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a05"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #515
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #517
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L184} ; "……が、それは僕の取り越し苦労だったようで。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #519
+  text          %{L185} ; "目の前のやりとりを見る限り、問題は――\nワカバが、カバンに手を入れて首を傾げていることぐらい？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #522
+  ldstr         "v04ce1277"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #523
+  text          %{L186} ; "セロ「……どうしたの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L187} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #525
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a07"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #526
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #527
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1233"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #528
+  text          %{L188} ; "ワカバ「……う、うん。その原稿を……忘れちゃったみたいなの」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L189} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #530
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face01_a05"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #532
+  ldstr         "v04ce1278"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #533
+  text          %{L190} ; "セロ「忘れたって、ホテルに？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L191} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #535
+  text          %{L192} ; "ワカバが頷き、僕も手を貸してカバンの中を一緒に探す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #537
+  text          %{L193} ; "それを見たアンジェリナが、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #539
+  ldc.i         500
+  ldstr         "st00_a00"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #540
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #541
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0778"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #542
+  text          %{L194} ; "アンジ「カバンの底に入ってたりするんじゃないの？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L195} ; "と言えば、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #544
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a02"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #545
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #546
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1234"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #547
+  text          %{L196} ; "ワカバ「……だって、大きな封筒に入れたもん！\nそれがないってことは、忘れた以外考えられないわ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L197} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #550
+  text          %{L198} ; "ワカバが口を尖らせて、偉そうに断言する。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #552
+  ldc.i         500
+  ldstr         "st00_a07"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #553
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #554
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0779"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #555
+  text          %{L199} ; "アンジ「まったく、何やってるんだか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L200} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #557
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a08"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #558
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #559
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1235"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #560
+  text          %{L201} ; "ワカバ「忘れちゃったもんは仕方ないでしょー。気づかなかったら、\nもっと大変だったんだから！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L202} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #563
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face01_a04"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #564
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #565
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0602"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #566
+  text          %{L203} ; "ベル「そうですよね。そのまま列車に乗っていたことを考えれば」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L204} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #568
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a00"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #569
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #570
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1236"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #571
+  text          %{L205} ; "ワカバ「ありがとう、ベル！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L206} ; "それに比べて、アンって心狭いわ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L207} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #573
+  ldc.i         500
+  ldstr         "st00_a02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #574
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #575
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v00an0780"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #576
+  text          %{L208} ; "アンジ「……狭くて結構です。それより早く取ってきたら？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L209} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #578
+  text          %{L210} ; "そんなやりとりにヒヤヒヤさせられるが、タイミングよく、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #580
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face05_a08"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #581
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #582
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v05li0673"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #583
+  text          %{L211} ; "ライト「あー、いいよ。オレがとってくるから。ねーちゃんより、\nずっと早く戻れるぜ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L212} ; "の一言が入る。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #586
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a02"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #587
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #588
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1237"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #589
+  text          %{L213} ; "ワカバ「あら、言ってくれるじゃない。それじゃ、その足並み拝見よ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L214} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #591
+  ldstr         "v04ce1279"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #592
+  text          %{L215} ; "セロ「（――忘れた本人がそれを言ったら……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L216} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #594
+  text          %{L217} ; "争いの火種にしかならないが、いまはそんなときではないと\nライトも理解しているようで。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #597
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face05_a00"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #598
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #599
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v05li0674"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #600
+  text          %{L218} ; "ライト「よし、じゃ行ってくるよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L219} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #602
+  text          %{L220} ; "出番とばかりに荷物をワカバに預ける。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #604
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face03_a00"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #605
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #606
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v03wa1238"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #607
+  text          %{L221} ; "ワカバ「……じゃ、先に行ってるからね！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L222} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #609
+  text          %{L223} ; "そして、これで何とかなるだろうと思ったとき――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #611
+  ldc.i         250
+  ldc.i         50
+  ldstr         "face02_b07"
+  ldc.i         2
+  callp         $59449cd9 (4)
+  line          #612
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #613
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1673"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #614
+  text          %{L224} ; "ココ「ボ～ク、も、いくー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L225} ; " \n走りだそうとするライトを見て、ココが声をあげた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #617
+  text          %{L226} ; "……ココが、ライトについていく？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #623
+  ld            persistent int $30713b6d 
+  ldc.i         2
+  cge.i        
+  brfalse       @block_55cb
+
+ block_55b7:
+  line          #625
+  br            @block_5671
+
+ block_55c1:
+  line          #626
+  br            @block_55f1
+
+ block_55cb:
+  ld            savefile int $ba1c5fdf 
+  ldc.i         1
+  ceq.i        
+  brfalse       @block_55f1
+
+ block_55e3:
+  line          #628
+  br            @block_5ac2
+
+ block_55ed:
+  line          #629
+
+ block_55f1:
+  line          #632
+  ld            savefile int $633c4d73 
+  ldc.i         0
+  ceq.i        
+  brfalse       @block_5667
+
+ block_560d:
+  line          #633
+  ld            savefile int $5767723c 
+  ldc.i         4
+  cge.i        
+  brfalse       @block_5649
+
+ block_5629:
+  line          #634
+  ldc.i         2
+  st.i          savefile int $633c4d73 
+  pop          
+  line          #635
+  br            @block_5663
+
+ block_5649:
+  line          #636
+  ldc.i         1
+  st.i          savefile int $633c4d73 
+  pop          
+  line          #637
+
+ block_5663:
+  line          #638
+
+ block_5667:
+  line          #639
+  br            @block_580c
+
+ block_5671:
+  line          #651
+  ldc.i         0
+  ldc.i         3
+  ldc.i         0
+  callp         $4e914ad5 (3)
+  line          #652
+  ldstr         "「……等等，可可」"
+  ldstr         "「莱特！拜托钁照癆可可了」"
+  call          $$select@MENU (2) ; $select@MENU
+  br.case       @block_56e1
+
+ block_56e1:
+  line          #654
+  ldc.i         1
+  bne.case      @block_57ee
+
+ block_56f1:
+  line          #655
+  ld            savefile int $633c4d73 
+  ldc.i         0
+  ceq.i        
+  brfalse       @block_57de
+
+ block_570d:
+  line          #656
+  syscall       $is_testplay (0)
+  brfalse       @block_5784
+
+ block_571f:
+  line          #657
+  syscall       $is_testplay (0)
+  brfalse       @block_5780
+
+ block_5731:
+  line          #658
+  ldstr         "@flag_bが0だったのでおかしいですが、まぁ、ポイントを見ます"
+  syscallp      $dialog_error_ok (1)
+  line          #659
+
+ block_5780:
+  line          #660
+
+ block_5784:
+  line          #661
+  ld            savefile int $5767723c 
+  ldc.i         4
+  cge.i        
+  brfalse       @block_57c0
+
+ block_57a0:
+  line          #662
+  ldc.i         2
+  st.i          savefile int $633c4d73 
+  pop          
+  line          #663
+  br            @block_57da
+
+ block_57c0:
+  line          #664
+  ldc.i         1
+  st.i          savefile int $633c4d73 
+  pop          
+  line          #665
+
+ block_57da:
+  line          #666
+
+ block_57de:
+  line          #667
+  br            @block_580c
+
+ block_57e8:
+  br            @block_580c
+
+ block_57ee:
+  line          #668
+  ldc.i         2
+  bne.case      @block_580c
+
+ block_57fe:
+  line          #669
+  br            @block_5ac2
+
+ block_5808:
+  line          #670
+
+ block_580c:
+  line          #680
+  callp         $91280887 (0)
+  line          #681
+  ldstr         ""
+  callp         $$disp_char@PIC (1) ; $disp_char@PIC
+  line          #683
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1280"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #684
+  text          %{L227} ; "セロ「ライト！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L228} ; "ココを頼むよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L229} ; " \n僕は、変に足止めして時間をロスするよりは、そのまま\nライトに任せてしまった方がいいと考えた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #688
+  ldc.i         500
+  ldstr         "st05_a01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #689
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #690
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v05li0675"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #691
+  text          %{L230} ; "ライト「任せとけって！"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L231} ; "行こうぜ、ココ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L232} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #693
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face02_a10"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #694
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #695
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1674"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #696
+  text          %{L233} ; "ココ「あーい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L234} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #698
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #701
+  ldstr         "sr033"
+  syscallp      $exec (1)
+
+ block_5ac2:
+  line          #712
+  ldc.i         3
+  st.i          savefile int $633c4d73 
+  pop          
+  line          #715
+  callp         $91280887 (0)
+  line          #716
+  ldstr         ""
+  callp         $$disp_char@PIC (1) ; $disp_char@PIC
+  line          #718
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v04ce1281"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #719
+  text          %{L235} ; "セロ「……待って、ココ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L236} ; " \nココが心配というより、ふたりが揃うことが心配だった僕は、\n思わず呼び止めていた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #723
+  ldstr         "v04ce1282"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #724
+  text          %{L237} ; "セロ「ココは、残ってくれるかな？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L238} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #726
+  text          %{L239} ; "僕はさりげなくベルを見て、『お願いできるかな？』と口を動かす。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #728
+  text          %{L240} ; "さすがに賢い子だけあって、こちらの意図をすぐに察知し、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #730
+  ldc.i         500
+  ldstr         "st01_a04"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #731
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #732
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v01be0603"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #733
+  text          %{L241} ; "ベル「ワタシと一緒に居てくれる？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L242} ; "と言ってくれた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #735
+  ldc.i         70
+  ldc.i         50
+  ldstr         "face02_a02"
+  ldc.i         1
+  callp         $59449cd9 (4)
+  line          #736
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #737
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v02co1675"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #738
+  text          %{L243} ; "ココ「いい、よー」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L244} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #740
+  ldstr         "v04ce1283"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #741
+  text          %{L245} ; "セロ「……じゃ、決まりだ。行こうか、ライト」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L246} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #743
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #746
+  ldstr         "sr033"
+  syscallp      $exec (1)
+  line          #749
+  ldc.i         0
+  ret          
+}

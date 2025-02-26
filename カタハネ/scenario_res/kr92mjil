@@ -1,0 +1,1918 @@
+readmark enable
+
+func $1d128f30() entrypoint { ; $main@GLOBAL
+ entry:
+  line          #11
+  argcheck      []
+  alloca        []
+  line          #14
+  ldstr         "kata_console_normal"
+  ldstr         "kata_console_push"
+  ldstr         "kata_console_on"
+  ldstr         "kata_console_off"
+  callp         $$console_renewal@CONSOLE (4) ; $console_renewal@CONSOLE
+  line          #16
+  call          $$is_cgmode@CGMODE (0) ; $is_cgmode@CGMODE
+  brfalse       @block_008f
+
+ block_0089:
+  br            @block_28cd
+
+ block_008f:
+  line          #18
+  ldc.i         3000
+  ldc.i         1000
+  syscallp      $music_fade (2)
+  line          #20
+  ldstr         "k_bgm02"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #26
+  ldc.i         1000
+  ldstr         "bg59a01"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #28
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1203-2"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #29
+  text          %{L1} ; "クリス「……ん」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L2} ; " \nわたくしは、カーテンの隙間から差し込む光のまぶしさに\n目を覚ます。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #33
+  ldc.i         1000
+  ldstr         "chr_b01"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #35
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1204"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #36
+  text          %{L3} ; "クリス「ああ……もう、朝なのですね」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L4} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #38
+  text          %{L5} ; "横を見れば、エファが幸せそうに身体を丸めて寝ている。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #40
+  ldstr         "v21cr1205"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #41
+  text          %{L6} ; "クリス「……エファ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L7} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #43
+  text          %{L8} ; "寝顔に手を伸ばし、触れる寸前で自分に『待った』をかけた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #45
+  ldc.i         1000
+  ldstr         "chr_b06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #47
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1206"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #48
+  text          %{L9} ; "クリス「（――いま触れてしまったら、わたくしはまた……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L10} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #50
+  text          %{L11} ; "わたくしはまた、過ちをおかしてしまう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #52
+  text          %{L12} ; "これは調律、エファのため……と自身に言い聞かせながら、\nそれ以上に干渉をする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #55
+  ldstr         "カーディナル"
+  callp         $3198fd01 (1)
+  text          %{L13} ; "赤の国から預かった大切な人形。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #57
+  text          %{L14} ; "なのに、わたくしは自分の感情の赴くままに彼女を求めた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #59
+  text          %{L15} ; "そしてエファは、その調律を嫌がることもなく受け入れ……\n身を委ねてしまう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #62
+  text          %{L16} ; "いや、彼女のせいにするような考えはいけない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #64
+  text          %{L17} ; "これは、孤独なわたくしが立場を利用して犯した罪。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #66
+  ldc.i         1000
+  ldstr         "chr_b05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #68
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1207"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #69
+  text          %{L18} ; "クリス「（――調律師と人形の、間違った関係……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L19} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #71
+  text          %{L20} ; "わたくしはため息をこぼしつつ、エファの気持ち良さそうな\n寝息を見つめる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #74
+  text          %{L21} ; "素直で優しい無垢な彼女を『汚してしまった』とは思わない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #76
+  text          %{L22} ; "むしろ、わたくしの色に染められたことを誇りに――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #78
+  ldstr         "v21cr1208"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #79
+  text          %{L23} ; "クリス「（――わたくしは、何と傲慢なのでしょう……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L24} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #81
+  text          %{L25} ; "そんな考え方では罪悪感が増すばかり……と解っているはず\nなのに、心が勝手に逃げ道を探す。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #84
+  ldc.i         1000
+  ldstr         "chr_b06"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #86
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1209"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #87
+  text          %{L26} ; "クリス「……ゆるしてくださいね、エファ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L27} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #89
+  text          %{L28} ; "こんなにも心が締め付けられて苦しいのに、わたくしは\nまだ『何か』を求めようとしている。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #92
+  text          %{L29} ; "このもどかしさの、何と忌々しいこと。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #94
+  text          %{L30} ; "求めるモノの正体が解れば、諦めることも考えられるかも\nしれないのに。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #97
+  ldc.i         1000
+  ldstr         "chr_b02"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #99
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1210"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #100
+  text          %{L31} ; "クリス「……エファ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L32} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #102
+  text          %{L33} ; "優しく声をかけ、何度も頭を撫でる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #104
+  ldstr         "v21cr1211"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #105
+  text          %{L34} ; "クリス「あなたが初めから、この国で生まれた者であれば――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L35} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #107
+  text          %{L36} ; "誰に遠慮することなく、ずっと共に居られるのに……"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #109
+  ldstr         "v22ef0871-2"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #110
+  text          %{L37} ; "エファ「……う……ん。姫様……です、か？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L38} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #112
+  text          %{L39} ; "うっすらと目を開け、わたくしをまっすぐに見つめる無垢な瞳。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #114
+  ldc.i         1000
+  ldstr         "chr_b05"
+  callp         $$disp_top@PIC (2) ; $disp_top@PIC
+  line          #116
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1212"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #117
+  text          %{L40} ; "クリス「そうですよ。他に誰が居るというのです？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L41} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #119
+  text          %{L42} ; "思わず苦笑いをしたわたくし。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #121
+  text          %{L43} ; "そう。こんなことができるのは、わたくし以外には居ない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #123
+  text          %{L44} ; "髪を撫でるのも、その顔や首筋に触ることも。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #125
+  text          %{L45} ; "――それは、わたくしにだけ許された行為。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #127
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #129
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #137
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #139
+  ldc.i         3000
+  ldstr         "kr92_efa"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #140
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #141
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  callp         $16ab2970 (0)
+  line          #142
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #144
+  callp         $$trans@PIC (0) ; $trans@PIC
+  line          #152
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "k_bgm15a"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #154
+  ldstr         "v21cr1213"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #155
+  text          %{L46} ; "クリス「エファ、後ろをお願いできますか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L47} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #157
+  text          %{L48} ; "凛とした声で、姫様がこちらに背を向ける。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #159
+  text          %{L49} ; "……それは、信頼の証。\nそんな姫様のためならば、何でもできる気がする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #162
+  ldstr         "v22ef0872"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #163
+  text          %{L50} ; "エファ「はい、姫様」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L51} ; " \n私は静かに手を伸ばし、ドレスの交差したヒモに触れる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #166
+  text          %{L52} ; "そして、ゆっくりとその結び目をほどきながら、白い背中が\n現れるのをぼんやりと見つめていた。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #175
+  callp         $$trans_ahead@PIC (0) ; $trans_ahead@PIC
+  line          #176
+  ldc.i         3000
+  ldc.i         200
+  ldc.i         0
+  ldc.i         1000
+  ldc.i         2500
+  ldc.i         300
+  ldc.i         0
+  ldstr         "ev913a"
+  callp         $d75b460b (8)
+  line          #179
+  ldstr         "v22ef0873"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #180
+  text          %{L53} ; "エファ「（――綺麗なお背中……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L54} ; " \n姫様は背をピンと伸ばすだけで、そこに気品が感じられる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #183
+  text          %{L55} ; "……私と、どこが違うのか？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #185
+  text          %{L56} ; "人間と人形。それ以前の差？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #187
+  ldstr         "v22ef0874"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #188
+  text          %{L57} ; "エファ「（――ううん、ダメよ……）」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L58} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #190
+  text          %{L59} ; "自分と姫様を比べるなんて、許されないこと。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #192
+  text          %{L60} ; "たとえ口に出さなくとも、それは身分をわきまえない愚かな\n考えでしかなくて……"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #195
+  ldc.i         4000
+  ldc.i         -20
+  ldc.i         0
+  callp         $$pic_scroll_to@PIC (3) ; $pic_scroll_to@PIC
+  line          #197
+  ldstr         "v21cr1214"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #198
+  text          %{L61} ; "クリス「エファ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L62} ; " \n姫様が肩越しに、こちらへと顔を向ける。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #201
+  text          %{L63} ; "その視線を受けることもはばかられ、私は俯いてしまった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #203
+  ldstr         "v21cr1215"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #204
+  text          %{L64} ; "クリス「……どうかしましたか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L65} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #206
+  ldstr         "v22ef0875"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #207
+  text          %{L66} ; "エファ「……い、いえ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L67} ; " \nとっさに誤魔化してしまう自分。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #210
+  text          %{L68} ; "……でも、それでは姫様に嘘をつくことになる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #212
+  text          %{L69} ; "自らの罪を知りながら、それを告白しないのは……もっと罪。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #214
+  text          %{L70} ; "私は、叱られるのを覚悟で懺悔する。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #216
+  ldstr         "v22ef0876"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #217
+  text          %{L71} ; "エファ「申し訳ありません。私はいま、姫様と自分を――」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L72} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #219
+  ldstr         "v21cr1216"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #220
+  text          %{L73} ; "クリス「わたくしとあなたを？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L74} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #222
+  ldstr         "v22ef0877"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #223
+  text          %{L75} ; "エファ「……心の中で、比べてしまうような真似をしました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L76} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #225
+  text          %{L77} ; "口にしたらしたで、余計にみじめな思いになる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #227
+  text          %{L78} ; "……が、それでも。黙って隠すよりは、ずっといい。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #229
+  ldstr         "v21cr1217"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #230
+  text          %{L79} ; "クリス「比べてみて、どうでしたか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L80} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #232
+  ldstr         "v22ef0878"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #233
+  text          %{L81} ; "エファ「……自身を愚かだと思いました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L82} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #235
+  ldstr         "v21cr1218"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #236
+  text          %{L83} ; "クリス「なぜ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L84} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #238
+  ldstr         "v22ef0879"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #239
+  text          %{L85} ; "エファ「……姫様と私では、何から何まで違います」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L86} ; " \nできれば、追求しないでいただきたかった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #242
+  text          %{L87} ; "でも、姫様が望まれるのであれば……答えなければならない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #244
+  ldstr         "v21cr1219"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #245
+  text          %{L88} ; "クリス「人間と人形、だからですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L89} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #247
+  ldstr         "v22ef0880"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #248
+  text          %{L90} ; "エファ「……それもあります。が、それだけではありません」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L91} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #250
+  ldstr         "v22ef0881"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #251
+  text          %{L92} ; "エファ「埋められない身分の差が……あります」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L93} ; " \n哀しい告白に、私は自分が情けなくなる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #254
+  ldstr         "v21cr1220"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #255
+  text          %{L94} ; "クリス「……何を言うのですか、エファ。何も違いませんよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L95} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #257
+  ldstr         "v22ef0882"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #258
+  text          %{L96} ; "エファ「えっ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L97} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #260
+  ldstr         "v21cr1221"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #262
+  text          %{L98} ; "クリス「確かに、エファの言うとおり。生まれも育ちも何から何まで\n違うと言えば……そうでしょう」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L99} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #265
+  ldstr         "v21cr1222"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #266
+  text          %{L100} ; "クリス「――ですが、それは誰もが同じだと思いませんか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L101} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #268
+  ldstr         "v22ef0883"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #269
+  text          %{L102} ; "エファ「おな、じ……？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L103} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #271
+  ldstr         "v21cr1223"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #272
+  text          %{L104} ; "クリス「人間であろうと、人形であろうと。それぞれが……ひとりの\n存在です」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L105} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #275
+  ldstr         "v21cr1224"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #276
+  text          %{L106} ; "クリス「相手を理解しようとすれば、自分と何処が違うか考える。\n……そうは思いませんか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L107} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #279
+  ldstr         "v22ef0884"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #280
+  text          %{L108} ; "エファ「…………」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L109} ; " \n姫様は、私をかばうためにそのようなことを？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #283
+  ldstr         "v21cr1225"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #284
+  text          %{L110} ; "クリス「わたくしも、あなたを見て……羨ましいと思います」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L111} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #286
+  ldstr         "v22ef0885"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #287
+  text          %{L112} ; "エファ「私が、ですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L113} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #289
+  ldstr         "v21cr1226"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #290
+  text          %{L114} ; "クリス「えぇ。あなたのようになれるなら……と、何度思ったことか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L115} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #292
+  ldstr         "v22ef0886"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #293
+  text          %{L116} ; "エファ「そっ、それはなりません。私は人形です。姫様は……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L117} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #295
+  ldstr         "v21cr1227"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #296
+  text          %{L118} ; "クリス「だからこそ、です。なれないからこそ、憧れるのです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L119} ; " \nその言葉が、強く胸に刺さる。\n……なれないからこそ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #300
+  ldstr         "v22ef0887"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #301
+  text          %{L120} ; "エファ「私も、姫様が羨ましい……です」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L121} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #303
+  ldstr         "v21cr1228"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #304
+  text          %{L122} ; "クリス「わたくしが、ですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L123} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #306
+  ldstr         "v22ef0888"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #307
+  text          %{L124} ; "エファ「……はい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L125} ; "キュッと唇を噛みしめ、姫様を見上げる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #309
+  ldstr         "v22ef0889"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #310
+  text          %{L126} ; "エファ「姫様のようになりたい、と……何度も思いました」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L127} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #312
+  ldstr         "v21cr1229"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #313
+  text          %{L128} ; "クリス「そうでしたか。わたくしと同じではありませんか」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L129} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #315
+  ldstr         "v22ef0890"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #316
+  text          %{L130} ; "エファ「……ですが」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L131} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #318
+  ldstr         "v21cr1230"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #319
+  text          %{L132} ; "クリス「難しく考えすぎですよ、エファ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L133} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #321
+  ldc.i         1500
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #323
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L134} ; "ゆっくりと振り返った姫様は、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #325
+  ldstr         "v21cr1231"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #326
+  text          %{L135} ; "クリス「……ご覧なさい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L136} ; "とささやく。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #328
+  ldstr         "v22ef0891"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #329
+  text          %{L137} ; "エファ「……ひ、姫様……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L138} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #331
+  ldstr         "v21cr1232"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #332
+  text          %{L139} ; "クリス「さぁ、こちらへ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L140} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+
+ block_28cd:
+  bsel.4        @block_57c9
+
+ block_28d3:
+  line          #339
+  ldstr         "k_bgm15b"
+  callp         $$user_music@KOEKOE (1) ; $user_music@KOEKOE
+  line          #341
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #343
+  ldc.i         1500
+  ldstr         "ev914e"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #345
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L141} ; "言われるがまま、その御前に進み出てしまう私。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #347
+  text          %{L142} ; "姫様の手がそっとこちらに近づき、静かに私の寝具に触れる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #349
+  ldstr         "v21cr1233"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #350
+  text          %{L143} ; "クリス「……いまのわたくしと、あなたの違いは？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L144} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #352
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #354
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0892"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #355
+  text          %{L145} ; "エファ「……そ、それは」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L146} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #357
+  ldstr         "v21cr1234"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #358
+  text          %{L147} ; "クリス「思ったとおり、答えなさい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L148} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #360
+  ldstr         "v22ef0893"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #361
+  text          %{L149} ; "エファ「服を着ているか、着ていないか……でしょうか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L150} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #363
+  ldstr         "v21cr1235"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #364
+  text          %{L151} ; "クリス「そうです。……いまのふたりが違うとすれば、それぐらいのことです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L152} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #366
+  ldstr         "v21cr1236"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #367
+  text          %{L153} ; "クリス「あなたはわたくしを羨み、わたくしはあなたを羨む」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L154} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #369
+  ldstr         "v21cr1237"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #370
+  text          %{L155} ; "クリス「――もっと相手を知れば、きっと大差がないと解りますよ」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L156} ; " \nそう言って姫様は、私の腕をとって自らの下腹部へと運ぶ。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #373
+  ldstr         "v22ef0894"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #374
+  text          %{L157} ; "エファ「ひ、姫……様？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L158} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #376
+  ldstr         "v21cr1238"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #377
+  text          %{L159} ; "クリス「……教えて、エファ。あなたとわたくし、何か違いますか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L160} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #379
+  ldstr         "v22ef0895"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #380
+  text          %{L161} ; "エファ「そんな難しいことを言われても……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L162} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #382
+  ldstr         "v21cr1239"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #383
+  text          %{L163} ; "クリス「難しくなどありません。さぁ、触って……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L164} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #385
+  text          %{L165} ; "強要するわけでもない力でも、決して放してはくださらない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #387
+  text          %{L166} ; "それが解った以上、姫様の言葉に従うしかない。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #389
+  text          %{L167} ; "……が。本当に自分は、従順なのだろうか？"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #391
+  ldstr         "v22ef0896"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #392
+  text          %{L168} ; "エファ「し、失礼します」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L169} ; " \n私の指先が、姫様の熱く柔らかい部分に少しだけ食い込む。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #395
+  ldc.i         1000
+  ldstr         "ev914h"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #397
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1240"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #398
+  text          %{L170} ; "クリス「んっ、んんっ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L171} ; " \nその途端、甘いため息が私の耳元に。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #401
+  ldstr         "v22ef0897"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #402
+  text          %{L172} ; "エファ「ひ、姫様……す、すみません」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L173} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #404
+  ldstr         "v21cr1241"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #405
+  text          %{L174} ; "クリス「よ、よいのです。わたくしが望んでいること」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L175} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #407
+  text          %{L176} ; "さらに強く握られた手のひらが、姫様自身のリズムで上下に\n動かされる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #410
+  ldstr         "v21cr1242"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #411
+  text          %{L177} ; "クリス「くっ……あっ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L178} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #413
+  ldstr         "v22ef0898"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #414
+  text          %{L179} ; "エファ「あぁぁ、姫様。じ、充分です。もう、充分に解りましたから」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L180} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #416
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #418
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1243"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #419
+  text          %{L181} ; "クリス「何が……解ったと……いうの、ですか……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L182} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #421
+  ldc.i         1000
+  ldstr         "ev914e"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #423
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0899"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #424
+  text          %{L183} ; "エファ「私と姫様は……その……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L184} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #426
+  ldstr         "v21cr1244"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #427
+  text          %{L185} ; "クリス「同じ……ですか？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L186} ; "あなたも、同じ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L187} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #429
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #431
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0900"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #432
+  text          %{L188} ; "エファ「は、はい。……あまり見たことはありませんが、きっと\n同じです」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L189} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #435
+  text          %{L190} ; "自分の言葉に、一瞬だけ姫様が驚きの表情に。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #437
+  text          %{L191} ; "疑われたと思った私は、"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #439
+  ldstr         "v22ef0901"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #440
+  text          %{L192} ; "エファ「ご、ごらんになりますか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L193} ; "と口走ってしまう。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #442
+  ldstr         "v21cr1245"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #443
+  text          %{L194} ; "クリス「……うふふっ。それは見てみたいです。が……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L195} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #445
+  ldstr         "v21cr1246"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #446
+  text          %{L196} ; "クリス「いまは、このままで。わたくしは、あなたを想像するだけで\n我慢します」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L197} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #449
+  ldstr         "v22ef0902"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #450
+  text          %{L198} ; "エファ「な、なぜですか？"
+  proc         
+  ldstr         "　"
+  ctrl          "d"
+  text          %{L199} ; "私は、姫様と同じだと証明したくて……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L200} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #452
+  ldstr         "v21cr1247"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #453
+  text          %{L201} ; "クリス「……この次。この次に、見せてくれれば良いのです。\nその代わり、いまは……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L202} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #456
+  text          %{L203} ; "私の指先の温度が、じわじわとあがってくる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #458
+  ldstr         "v21cr1248"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #459
+  text          %{L204} ; "クリス「口で……わたくしと、あなたが同じであることを……\n説明なさい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L205} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #462
+  ldstr         "v22ef0903"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #463
+  text          %{L206} ; "エファ「……は、はい」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L207} ; " \n姫様の声が、耳の中でこだまする。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #466
+  ldstr         "v21cr1249"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #467
+  text          %{L208} ; "クリス「……エファ。あなたのここは、わたくしと同じ。どうです？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L209} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #469
+  ldstr         "v22ef0904"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #470
+  text          %{L210} ; "エファ「……はい。かわりません」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L211} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #472
+  ldc.i         1000
+  ldstr         "ev914h"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #474
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1250"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #475
+  text          %{L212} ; "クリス「では、こ、この……ように……触られると……んん……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L213} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #477
+  ldstr         "v22ef0905"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #478
+  text          %{L214} ; "エファ「わ、わかりません。触ったことがありませんので……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L215} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #480
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #482
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1251"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #483
+  text          %{L216} ; "クリス「……嘘をおっしゃい。一度や二度は、あるのでしょ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L217} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #485
+  ldc.i         1000
+  ldstr         "ev914e"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #487
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0906"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #488
+  text          %{L218} ; "エファ「……本当に……ないのです……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L219} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #490
+  text          %{L220} ; "姫様の火照りが、私にまで伝わってくる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #492
+  text          %{L221} ; "そして、それが徐々に身体の中へと吸い込まれていき――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #494
+  ldstr         "v22ef0907"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #495
+  text          %{L222} ; "エファ「……んんっ……ぁ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L223} ; " \n甘い痺れのようなものになり、両脚の震えへと変わる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #498
+  ldstr         "v21cr1252"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #499
+  text          %{L224} ; "クリス「ど……どうしたの、ですか、エファ？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L225} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #501
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #503
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0908"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #504
+  text          %{L226} ; "エファ「よ、よく……わからないのです、が……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L227} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #506
+  text          %{L228} ; "姫様に導かれて指を動かすうちに、それはまるで自分自身の\n身体に触れている気分に。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #509
+  text          %{L229} ; "これまで触れたりすることのなかった場所が、熱く、"
+  proc         
+  ldstr         "うず"
+  callp         $3198fd01 (1)
+  text          %{L230} ; "疼く。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #511
+  ldstr         "v21cr1253"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #512
+  text          %{L231} ; "クリス「教えて、エファ。もしや、あなたも感じているの、ですか？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L232} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #514
+  ldstr         "v22ef0909"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #515
+  text          %{L233} ; "エファ「は、はい。……なんと、なく……同じような……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L234} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #517
+  text          %{L235} ; "もぞり、もぞりと下からはい上がってくる感覚は、私が指を\n動かすリズムと一緒。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #520
+  ldc.i         1000
+  ldstr         "ev914h"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #522
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1254"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #523
+  text          %{L236} ; "クリス「あぁっ、エファ……も、もう少し……早く……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L237} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #525
+  ldstr         "v22ef0910"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #526
+  text          %{L238} ; "エファ「わ、わかりました……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L239} ; " \n求められたとおり、その動きを早める。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #529
+  text          %{L240} ; "同時に、私の中をかけめぐる気持ち良さも高まりだして――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #531
+  ldstr         "v22ef0911"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #532
+  text          %{L241} ; "エファ「ひ、姫様……す、すみません……わ、私……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L242} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #534
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #536
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1255"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #537
+  text          %{L243} ; "クリス「ど、どうしたの、ですか……？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L244} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #539
+  ldc.i         1000
+  ldstr         "ev914e"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #541
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0912"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #542
+  text          %{L245} ; "エファ「……その、し、下着を……ぬ、濡らしてしまい、そうで……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L246} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #544
+  ldstr         "v21cr1256"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #545
+  text          %{L247} ; "クリス「……まぁ、エファが……そんなことを」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L248} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #547
+  ldstr         "v22ef0913"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #548
+  text          %{L249} ; "エファ「も、もうしわけ……あぁぁ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L250} ; " \n我慢しようとすればするほど。\n……脚の付け根は熱くなり、震えもひどくなる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #552
+  ldstr         "v22ef0914"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #553
+  text          %{L251} ; "エファ「あぁぁ、ひ、姫様の前で……そ、そんな……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L252} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #555
+  ldstr         "v21cr1257"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #556
+  text          %{L253} ; "クリス「いいのです、いいのですよ……エファ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L254} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #558
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #560
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0915"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #561
+  text          %{L255} ; "エファ「おゆ、おゆるしを……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L256} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #563
+  ldstr         "v21cr1258"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #564
+  text          %{L257} ; "クリス「……構いません。さぁ……我慢など、せずに……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L258} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #566
+  ldc.i         1000
+  ldstr         "ev914e"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #568
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0916"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #569
+  text          %{L259} ; "エファ「……んんんぁああっ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L260} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #571
+  text          %{L261} ; "限界がきてしまった私は、お許しの言葉に全てを委ね――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #573
+  ldstr         "v22ef0917"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #574
+  text          %{L262} ; "エファ「……い、いゃぁぁ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L263} ; " \n下着が濡れるのも構わず、力を抜いて――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #577
+  ldstr         "v21cr1259"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #578
+  text          %{L264} ; "クリス「ぁあぁ……エファ。ドレスの裾から……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L265} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #580
+  text          %{L266} ; "内股を流れてゆく透明な液に、恥ずかしさで泣きそうになる。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #582
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #584
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0918"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #585
+  text          %{L267} ; "エファ「み、見ないでください……姫様……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L268} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #587
+  ldstr         "v21cr1260"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #588
+  text          %{L269} ; "クリス「いい、え……ダメ……です。わたくしと、同じであることを\n……しっかり確認、します」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L270} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #591
+  ldstr         "v22ef0919"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #592
+  text          %{L271} ; "エファ「ひ、め、さま……？」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L272} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #594
+  ldstr         "v21cr1261"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #595
+  text          %{L273} ; "クリス「……さぁ、エファ。わたくしを……導いて……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L274} ; " \n強く握られた手首と、哀願する姫様の顔。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #598
+  text          %{L275} ; "それは、いままで私が見たどんな姫様よりも愛おしくて。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #600
+  ldstr         "v22ef0920"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #601
+  text          %{L276} ; "エファ「ど、どうですか……姫様……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L277} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #603
+  ldc.i         1000
+  ldstr         "ev914h"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #605
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1262"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #606
+  text          %{L278} ; "クリス「んんっ、んぁぁ……いい、です……と、とても……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L279} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #608
+  ldstr         "v22ef0921"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #609
+  text          %{L280} ; "エファ「この……尖った箇所は……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L281} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #611
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #613
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1263"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #614
+  text          %{L282} ; "クリス「あぁぁ、ダメ……そこは……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L283} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #616
+  ldstr         "v22ef0922"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #617
+  text          %{L284} ; "エファ「では、その奥は……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L285} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #619
+  ldc.i         1000
+  ldstr         "ev914h"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #621
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1264"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #623
+  text          %{L286} ; "クリス「そっ、そこも……あぁ、いい……。ゆ、ゆるします……。\nエファの、エファの好きなよう……に……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L287} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #626
+  text          %{L288} ; "姫様に従い、姫様の求めるまま、姫様の感じる姿を見て――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #628
+  ldc.i         1000
+  ldstr         "ev914g"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #630
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0923"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #631
+  text          %{L289} ; "エファ「あ、ぁぁ……あの、姫様……わ、私……ま、また……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L290} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #633
+  ldc.i         1000
+  ldstr         "ev914e"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #635
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1265"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #636
+  text          %{L291} ; "クリス「こ、今度は……共に……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L292} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #638
+  ldc.i         1000
+  ldstr         "ev914f"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #640
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0924"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #641
+  text          %{L293} ; "エファ「は、はぃ……ひ、姫様が一緒で……したら……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L294} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #643
+  ldc.i         1000
+  ldstr         "ev914h"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #645
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v21cr1266"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #646
+  text          %{L295} ; "クリス「あぁぁ、わ、わたくしも……エファと同じ……んんっ……」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L296} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #648
+  text          %{L297} ; "お互いの身体は密着にも近くなり、振動はダイレクトに。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #650
+  text          %{L298} ; "そして、荒い吐息もシンクロしたとき――"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #652
+  ldc.i         1
+  ldstr         "white450"
+  callp         $$flush@KOEKOE (2) ; $flush@KOEKOE
+  line          #654
+  ldc.i         1000
+  ldstr         "ev914g"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #656
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  ldstr         "v22ef0925"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #657
+  text          %{L299} ; "エファ「あぁぁぁっーっ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L300} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #659
+  ldstr         "v21cr1267"
+  callp         $$user_voice@KOEKOE (1) ; $user_voice@KOEKOE
+  line          #660
+  text          %{L301} ; "クリス「んんんっぁぁっ！」"
+  proc         
+  callp         $0836ee67 (0)
+  text          %{L302} ; " "
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #662
+  ldc.i         1000
+  ldstr         "black450"
+  callp         $$disp_back@PIC (2) ; $disp_back@PIC
+  line          #664
+  callp         $$trans_autoexec@PIC (0) ; $trans_autoexec@PIC
+  text          %{L303} ; "ふたりの声は重なり、それぞれの身体を支えながら、静かに\n床へと崩れ落ちてしまった。"
+  proc         
+  ctrl          "p"
+  ctrl          "w"
+  line          #667
+  ldc.i         1000
+  syscallp      $music_fadeout (1)
+  line          #669
+  br            @block_57cf
+
+ block_57c9:
+  bsel.clr     
+  line          #670
+
+ block_57cf:
+  line          #672
+  call          $$is_cgmode@CGMODE (0) ; $is_cgmode@CGMODE
+  brfalse       @block_57ed
+
+ block_57e5:
+  ldc.i         0
+  ret          
+
+ block_57ed:
+  line          #674
+  ldstr         "kr12b"
+  syscallp      $exec (1)
+  line          #677
+  ldc.i         0
+  ret          
+}

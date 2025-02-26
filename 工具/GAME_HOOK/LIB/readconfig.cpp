@@ -118,7 +118,8 @@ namespace rr
 	bool RConfig::ReadConfig(const std::string& filename) {
 		char app[1024] = { 0 };
 		GetAppPath(app, sizeof(app));
-		std::string fpath = std::string(app) + "\\" + filename;
+		//std::string fpath = std::string(app) + "\\" + filename;
+		std::string fpath = filename;
 
 		std::ifstream infile(fpath);
 
