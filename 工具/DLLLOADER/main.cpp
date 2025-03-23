@@ -1,3 +1,5 @@
+#define fixpath
+
 #include <Windows.h>
 #include <iostream>
 #include <filesystem>
@@ -7,9 +9,13 @@
 #else
 #pragma comment(lib, "detours.lib")
 #endif
+
+#ifndef fixpath
 #include "readconfig.h"
+#endif
+
 #include "convert.h"
-#include "LE.h"
+//#include "LE.h"
 
 bool IsRunAsAdmin()
 {
@@ -58,7 +64,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     PSTR lpCmdLine, int nCmdShow)
 {
     //FreeConsole();
-
+    STARTUPINFO si = { sizeof(STARTUPINFOA) };
+    PROCESS_INFORMATION pi = { 0 };
+    si.cb = sizeof(si);
+    std::string current_pathA = std::filesystem::current_path().string();
+#ifndef fixpath
 	rr::RConfig config;
 	config.ReadConfig("hook.ini");
     if (config.ReadInt("LOADER", "ADMIN", 0) == 1) {
@@ -69,7 +79,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         }
     }
     std::wstring current_path = std::filesystem::current_path().wstring();
-    std::string current_pathA = std::filesystem::current_path().string();
     if (config.ReadInt("GLOBAL", "DEBUG", 1) == 1) {
         if (AllocConsole())
         {
@@ -79,13 +88,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             SetConsoleOutputCP(95003);
         }
     }
-    if (config.ReadInt("GLOBAL", "LE", 1) == 1) {
-        if (std::filesystem::exists(current_path + L"\\LocaleEmulator")) {
-            install_LE();
-        } else {
-            std::cout << "LocaleEmulator.dll not found, skipping install_LE.\n";
-        }
-    }
+    //if (config.ReadInt("GLOBAL", "LE", 1) == 1) {
+    //    if (std::filesystem::exists(current_path + L"\\LocaleEmulator")) {
+    //        install_LE();
+    //    } else {
+    //        std::cout << "LocaleEmulator.dll not found, skipping install_LE.\n";
+    //    }
+    //}
     std::vector<LPCSTR> dllpaths;
 
 	std::string target = config.ReadString("LOADER", "TARGET", "");
@@ -112,10 +121,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		printf("DLL Path: %s\n", dllArray[j]);
     }
     dllArray[dllpaths.size()] = nullptr; // 最后一个元素设置为 nullptr
-
-    STARTUPINFO si = { sizeof(STARTUPINFOA) };
-    PROCESS_INFORMATION pi = { 0 };
-    si.cb = sizeof(si);
     
     DetourCreateProcessWithDllsW(
         targetW.c_str(),           // 目标 EXE 路径
@@ -131,6 +136,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         dllpaths.size(),
         dllArray,            // DLL 路径
         NULL);             // 保留字段
+
+#else
+    DetourCreateProcessWithDllEx(
+        L"jii.exe",           // 目标 EXE 路径
+        NULL,                // 命令行参数（可为空）
+        NULL,                // 安全属性
+        NULL,                // 线程安全属性
+        TRUE,               // 是否继承句柄
+        CREATE_SUSPENDED, // 创建标志
+        NULL,                // 环境变量
+        NULL,                // 工作目录
+        &si,                 // STARTUPINFO
+        &pi,
+        (current_pathA + "\\jii_CHS.dll").c_str(),            // DLL 路径
+        NULL);             // 保留字段
+#endif
     ResumeThread(pi.hThread);
     return 0;
 }

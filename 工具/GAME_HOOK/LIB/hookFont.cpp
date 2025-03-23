@@ -7,6 +7,7 @@ pCreateFontIndirectW TrueCreateFontIndirectW = CreateFontIndirectW;
 
 
 std::wstring newFontName = L"NOTCHANGE";
+std::wstring newFontName_shu = L"NOTCHANGE";
 int HeightScaleFactor = 100;
 int WidthScaleFactor = 100;
 int newWeight = 0;
@@ -44,7 +45,12 @@ HFONT WINAPI HookedCreateFontW(
 	}
 #else
     if (newFontName != L"NOTCHANGE") {
-        pszFaceName = newFontName.c_str();
+        if (pszFaceName[0] == L'@') {
+            pszFaceName = newFontName_shu.c_str();
+		}
+        else {
+            pszFaceName = newFontName.c_str();
+        }
         printf("New Font Name: %ls\n", pszFaceName);
     }
 #endif
@@ -96,6 +102,7 @@ HFONT WINAPI HookedCreateFontIndirectA(CONST LOGFONTA* lplf) {
 }
 
 void installFontHook_main(BOOL A, BOOL W, BOOL IA, BOOL IW) {
+	newFontName_shu = L"@" + newFontName;
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 	if (A) DetourAttach(&(PVOID&)TrueCreateFontA, HookedCreateFontA);

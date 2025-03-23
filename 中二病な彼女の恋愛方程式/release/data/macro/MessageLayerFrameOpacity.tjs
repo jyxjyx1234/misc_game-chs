@@ -1,0 +1,43 @@
+// MessageLayerGraphicOpacity.tjs 
+//
+// MessageLayerクラスを改造して、[position frame=### opacity=###]で
+// フレーム画像の透明度を指定できるようにする拡張。
+// 
+// 2014/07/19	0.1	・最初の実装
+// 
+// このファイルは、Override.tjs から以下のようにして呼び出すこと。
+//
+// Scripts.execStorage("MessageLayerGraphicOpacity.tjs");
+//
+// Config.tjsで layerType = ltAlpa; に設定しておくこと。
+// layerType = ltAddAlpha; だと透明度が反映されないため。
+
+
+if (typeof(.MessageLayer.clearLayer_GraphicOpacity_org) == 'undefined') {
+	// clearLayer()をフック
+	.MessageLayer.clearLayer_GraphicOpacity_org = .MessageLayer.clearLayer;
+	.MessageLayer.clearLayer = function() {
+		if( imageModified && frameGraphic != "") {
+			// 画像があって、更新しなければならないとき
+			// 以下はオリジナルと同じ
+			loadImages(frameGraphic, frameKey);
+			setSizeToImageSize();
+
+			// ここがオリジナルと異なる
+			// 画像にframeOpacity不透明度を設定する
+			face = dfAlpha;
+			colorRect(0,0,imageWidth,imageHeight,255,
+				frameOpacity-255); // ここが -255～0 になる
+
+			// 以下はオリジナルと同じ
+			face = dfProvince;
+			colorRect(0, 0, imageWidth, imageHeight, 0);
+			face = dfAuto;
+
+			// オリジナルで画像を読み込ませないためにfalseに設定
+			imageModified = false;
+		}
+		// あとはオリジナルに任せる
+		clearLayer_GraphicOpacity_org(...);
+	};
+}

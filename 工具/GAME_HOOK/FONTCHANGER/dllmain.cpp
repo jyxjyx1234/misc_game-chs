@@ -7,10 +7,11 @@
 #include "readconfig.h"
 #include "convert.h"
 #include "timer.h"
+#include "LR\LRHook.h"
 #include <thread>
 
 #ifndef Release_for_others
-#include "resource.h"
+//#include "resource.h"
 #endif
 
 #if defined(_M_X64) || defined(__amd64__)
@@ -75,18 +76,18 @@ BOOL HaveCHSPath() {
 }
 
 #ifndef Release_for_others
-void loadfontmem(HMODULE hModule) {
-    HRSRC hRes = FindResource(hModule, MAKEINTRESOURCE(IDR_FONT1), RT_FONT);
-    if (hRes) {
-        HGLOBAL hResData = LoadResource(hModule, hRes);
-        if (hResData) {
-            void* pFontData = LockResource(hResData);
-            DWORD fontSize = SizeofResource(hModule, hRes);
-            DWORD numFonts = 0;
-            HANDLE hFont = AddFontMemResourceEx(pFontData, fontSize, NULL, &numFonts);
-        }
-	}
-}
+//void loadfontmem(HMODULE hModule) {
+//    HRSRC hRes = FindResource(hModule, MAKEINTRESOURCE(IDR_FONT1), RT_FONT);
+//    if (hRes) {
+//        HGLOBAL hResData = LoadResource(hModule, hRes);
+//        if (hResData) {
+//            void* pFontData = LockResource(hResData);
+//            DWORD fontSize = SizeofResource(hModule, hRes);
+//            DWORD numFonts = 0;
+//            HANDLE hFont = AddFontMemResourceEx(pFontData, fontSize, NULL, &numFonts);
+//        }
+//	}
+//}
 #endif
 
 rr::RConfig config1;
@@ -102,16 +103,17 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
         config1.ReadConfig("hook.ini");
+		if (config1.ReadInt("GLOBAL", "LR", 0) == 1) LR_MAIN(hModule);
         HOOK_main();
         if (config1.ReadInt("GLOBAL", "MED", 0) == 1) del_font_cache_MED();
         if (config1.ReadInt("GLOBAL", "MAJIRO", 0) == 1) del_font_cache_majiro();
 #ifndef Release_for_others
-		loadfontmem(hModule);
+		//loadfontmem(hModule);
 #endif
-        if (HaveCHSPath()) {
-            MessageBoxW(NULL, (L"检测到有中文路径，请修改后重新启动:" + std::filesystem::current_path().wstring()).c_str(), NULL, NULL);
-            exit(1);
-        }
+        //if (HaveCHSPath()) {
+        //    MessageBoxW(NULL, (L"检测到有中文路径，请修改后重新启动:" + std::filesystem::current_path().wstring()).c_str(), NULL, NULL);
+        //    exit(1);
+        //}
         if (config1.ReadInt("GLOBAL", "TIMER", 0) == 1) InitializeTimer();
         break;
     case DLL_THREAD_ATTACH:

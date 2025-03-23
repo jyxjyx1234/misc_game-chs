@@ -7,7 +7,7 @@ ULONG locale = 0;
 ULONG charset = 0;
 std::string timezone{};
 
-bool relaunch(ML_PROCESS_INFORMATION* pProcessInfo)
+bool relaunch(ML_PROCESS_INFORMATION* pProcessInfo, const HMODULE hLoader)
 {
 	printf(" Attempting to relaunch with codepage %d.\n", codepage);
 
@@ -48,10 +48,10 @@ bool relaunch(ML_PROCESS_INFORMATION* pProcessInfo)
 	STARTUPINFO startInfo{};
 	ML_PROCESS_INFORMATION processInfo{};
 
-	const HMODULE hLoader = LoadLibraryA("LoaderDll.dll");
+	//const HMODULE hLoader = LoadLibraryA("JYXJYX1234.dll");
 	if (hLoader == nullptr)
 	{
-		printf(" Failed to load LoaderDll.dll\n");
+		exit(0);
 		return false;
 	}
 
@@ -86,11 +86,17 @@ void install_LE() {
 	charset = SHIFTJIS_CHARSET;
 	timezone = "Tokyo Standard Time";
 
+	const HMODULE hLoader = LoadLibraryA("hook.dll");
+	if (hLoader == nullptr)
+	{
+		MessageBox(nullptr, L"请放入完整补丁文件!", L"Error", MB_ICONERROR);
+		exit(0);
+	}
 	if (GetACP() == 932)
 	{
 		return;
 	}
 	ML_PROCESS_INFORMATION processInfo;
-	relaunch(&processInfo);
+	relaunch(&processInfo, hLoader);
 	ExitProcess(0);
 }

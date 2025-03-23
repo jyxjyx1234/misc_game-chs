@@ -86,6 +86,17 @@ class YGAFile:
         bmp.read_from_bytes(self.data, self.width, self.height)
         return bmp
     
+    def to_png(self, data):
+        self.to_bmp(data)
+        data = IMGReader(self.data)
+        img = PIL.Image.new("RGBA", (self.width, self.height))
+        pixels = []
+        for i in range(self.width * self.height):
+            pixel = data.readPixel()
+            pixels.append((pixel.r, pixel.g, pixel.b, pixel.a))
+        img.putdata(pixels)
+        return img
+
     def from_bmp(self, data) -> bytes:
         bmp = BMPFile()
         bmp.read_from_BMPdata(data)

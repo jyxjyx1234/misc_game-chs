@@ -54,7 +54,7 @@ void HOOK_main() {
 
 	if (config.ReadInt("WINDOW", "ENABLE", 0) == 1) {
 		changeWindowCfg.oriWindowName = config.ReadString("WINDOW", "ORI", "");
-		changeWindowCfg.newWindowName = config.ReadString("WINDOW", "NEW", "");
+		changeWindowCfg.newWindowName = GBKStringToWString(config.ReadString("WINDOW", "NEW", ""));
 		changeWindowCfg.modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3.5-sonnet");
 		changeWindowCfg.isCheckOri = config.ReadInt("WINDOW", "CHECKORI", 1);
 		hookTitle_main();

@@ -15,6 +15,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        LoadLibrary(L"hook_cn.dll");
         install_LE();
         break;
     case DLL_THREAD_ATTACH:

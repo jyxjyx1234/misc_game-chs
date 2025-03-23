@@ -26,10 +26,11 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
 BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* lprc, LPCSTR lpString, UINT cbCount, const INT* lpDx);
 
 void install_hook_textreplace(int mode);
-
+void install_hook_textreplaceEx(int mode, std::string filepath, std::string key);
 std::wstring changeText(LPCSTR text);
 
 extern std::map<std::wstring, std::wstring> charReplaceMap;
+
 extern pGetGlyphOutlineA TrueGetGlyphOutlineA;
 extern pTextOutA TrueTextOutA;
 extern pExtTextOutA TrueExtTextOutA;

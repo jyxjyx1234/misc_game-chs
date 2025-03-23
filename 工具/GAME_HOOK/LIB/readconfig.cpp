@@ -8,24 +8,19 @@
 #include <map>
 #include "convert.h"
 
-char* GetAppPath(char* AppPath, int nSize)
+void GetAppPath(WCHAR* AppPath, int nSize)
 {
 	int i;
 	memset(AppPath, 0, nSize);
-#ifdef UNICODE
-	GetModuleFileNameA(NULL, AppPath, nSize);
-#else
 	GetModuleFileName(NULL, AppPath, nSize);
-#endif
-	for (i = strlen(AppPath) + 1; i >= 0; i--)
+	for (i = wcslen(AppPath) + 1; i >= 0; i--)
 	{
-		if (AppPath[i] == '\\')
+		if (AppPath[i] == L'\\')
 		{
 			break;
 		}
 	}
 	AppPath[i] = 0;
-	return AppPath;
 }
 
 
@@ -116,15 +111,15 @@ namespace rr
 	}
 
 	bool RConfig::ReadConfig(const std::string& filename) {
-		char app[1024] = { 0 };
+		WCHAR app[1024] = { 0 };
 		GetAppPath(app, sizeof(app));
 		//std::string fpath = std::string(app) + "\\" + filename;
-		std::string fpath = filename;
+		std::wstring fpath = std::wstring(app) + L"\\" + StringToWString(filename);
 
 		std::ifstream infile(fpath);
 
 		if (!infile) {
-			MessageBoxW(NULL, GBKStringToWString("Œ¥’“µΩ" + filename + "!").c_str(), NULL, NULL);
+			//MessageBoxW(NULL, GBKStringToWString("Œ¥’“µΩ" + filename + "!").c_str(), NULL, NULL);
 			return false;
 		}
 

@@ -27,18 +27,23 @@ BOOL WINAPI HookedSetWindowTextA(HWND hWnd, LPCSTR lpString)
 			return TruesetWindowTextA(hWnd, lpString);
 		}
 	}
-
-    if (changeWindowCfg.newWindowName != "") {
-        newWindowName = changeWindowCfg.newWindowName;
-        newWindowName = ANSIToANSI(oriname.c_str(), 936, GetACP());
+    if (changeWindowCfg.newWindowName != L"") {
+        newWindowNameW = changeWindowCfg.newWindowName;
     }
 	else {
-		newWindowName = oriname;
+		newWindowNameW = sjisLPCSTRToWideString(oriname.c_str());
 	}
 #ifndef Release_for_others
-    newWindowName = newWindowName + " " + changeWindowCfg.modeltype + ANSIToANSI(tag.c_str(), 936, GetACP());
+    if (newWindowNameW != L"") {
+        WCHAR nw[0x100] = { 0 };
+        wcscat_s(nw, newWindowNameW.c_str());
+        wcscat_s(nw, L" ");
+        wcscat_s(nw, GBKStringToWString(changeWindowCfg.modeltype).c_str());
+        wcscat_s(nw, tagW.c_str());
+        newWindowNameW = nw;
+    }
 #endif
-    return TruesetWindowTextA(hWnd, newWindowName.c_str());
+    return TruesetWindowTextW(hWnd, newWindowNameW.c_str());
 }
 
 
@@ -47,14 +52,14 @@ BOOL WINAPI HookedSetWindowTextW(HWND hWnd, LPCWSTR lpString)
     printf("HOOK setWindowTextw sucess!\n\n");
     std::wstring oriname(lpString);
     std::wstring oriWindowNameW = GBKStringToWString(changeWindowCfg.oriWindowName);
-    newWindowNameW = GBKStringToWString(changeWindowCfg.newWindowName);
+    newWindowNameW = changeWindowCfg.newWindowName;
     std::wstring modeltypeW = GBKStringToWString(changeWindowCfg.modeltype);
     if (changeWindowCfg.isCheckOri) {
         if (oriname != oriWindowNameW) {
             return TruesetWindowTextW(hWnd, lpString);
         }
     }
-    if (changeWindowCfg.newWindowName == "") {
+    if (changeWindowCfg.newWindowName == L"") {
 		newWindowNameW = oriname;
     }
 #ifndef Release_for_others
@@ -79,40 +84,10 @@ HWND WINAPI HookedCreateWindowExA(
     LPVOID    lpParam
 ) {
     printf("HOOK CreateWindowExA sucess!\n\n");
-    std::string oriname(lpWindowName);
-    if (changeWindowCfg.isCheckOri) {
-        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, GetACP())) {
-            return TrueCreateWindowExA(
-                dwExStyle,
-                lpClassName,
-                lpWindowName,
-                dwStyle,
-                X,
-                Y,
-                nWidth,
-                nHeight,
-                hWndParent,
-                hMenu,
-                hInstance,
-                lpParam
-            );
-        }
-    }
-    newWindowName = changeWindowCfg.newWindowName;
-    if (changeWindowCfg.newWindowName == "") {
-        newWindowName = oriname;
-	}
-    else {
-		newWindowName = ANSIToANSI(newWindowName.c_str(), 936, GetACP());
-    }
-#ifndef Release_for_others
-    if(newWindowName != "") newWindowName = newWindowName + " " + changeWindowCfg.modeltype + ANSIToANSI(tag.c_str(), 936, GetACP());
-#endif
-	//printf("%s\n", newWindowName.c_str());
-    HWND res = TrueCreateWindowExA(
+    auto res = TrueCreateWindowExA(
         dwExStyle,
         lpClassName,
-        newWindowName.c_str(),
+        lpWindowName,
         dwStyle,
         X,
         Y,
@@ -123,6 +98,30 @@ HWND WINAPI HookedCreateWindowExA(
         hInstance,
         lpParam
     );
+	if (lpWindowName == nullptr) {
+		return res;
+	}
+    std::string oriname(lpWindowName);
+    if (changeWindowCfg.isCheckOri) {
+        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, GetACP())) {
+            return res;
+        }
+    }
+    newWindowNameW = changeWindowCfg.newWindowName;
+    if (changeWindowCfg.newWindowName == L"") {
+		newWindowNameW = sjisLPCSTRToWideString(oriname.c_str());
+	}
+#ifndef Release_for_others
+    if (newWindowNameW != L"") {
+        WCHAR nw[0x100] = { 0 };
+		wcscat_s(nw, newWindowNameW.c_str());
+		wcscat_s(nw, L" ");
+		wcscat_s(nw, GBKStringToWString(changeWindowCfg.modeltype).c_str());
+		wcscat_s(nw, tagW.c_str());
+        newWindowNameW = nw;
+    }
+#endif
+	TruesetWindowTextW(res, newWindowNameW.c_str());
 	return res;
 }
 
@@ -191,40 +190,10 @@ HWND WINAPI HookedCreateWindowExW(
     HINSTANCE hInstance,
     LPVOID    lpParam
 ) {
-    printf("HOOK CreateWindowExW sucess!\n\n");
-    std::wstring oriname(lpWindowName);
-    std::wstring oriWindowNameW = GBKStringToWString(changeWindowCfg.oriWindowName);
-    newWindowNameW = GBKStringToWString(changeWindowCfg.newWindowName);
-    std::wstring modeltypeW = GBKStringToWString(changeWindowCfg.modeltype);
-    if (changeWindowCfg.isCheckOri) {
-        if (oriname != oriWindowNameW) {
-            return TrueCreateWindowExW(
-                dwExStyle,
-                lpClassName,
-                lpWindowName,
-                dwStyle,
-                X,
-                Y,
-                nWidth,
-                nHeight,
-                hWndParent,
-                hMenu,
-                hInstance,
-                lpParam
-            );
-        }
-    }
-	if (changeWindowCfg.newWindowName == "") {
-		newWindowNameW = oriname;
-	}
-#ifndef Release_for_others
-    if (newWindowNameW != L"") newWindowNameW = newWindowNameW + L" " + modeltypeW + tagW;
-#endif
-    printf("%ls\n", newWindowNameW.c_str());
-    return TrueCreateWindowExW(
+    auto res = TrueCreateWindowExW(
         dwExStyle,
         lpClassName,
-        newWindowNameW.c_str(),
+        lpWindowName,
         dwStyle,
         X,
         Y,
@@ -235,6 +204,32 @@ HWND WINAPI HookedCreateWindowExW(
         hInstance,
         lpParam
     );
+    printf("HOOK CreateWindowExW sucess!\n\n");
+    std::wstring oriname(lpWindowName);
+    std::wstring oriWindowNameW = GBKStringToWString(changeWindowCfg.oriWindowName);
+    newWindowNameW = changeWindowCfg.newWindowName;
+    std::wstring modeltypeW = GBKStringToWString(changeWindowCfg.modeltype);
+    if (changeWindowCfg.isCheckOri) {
+        if (oriname != oriWindowNameW) {
+            return res;
+        }
+    }
+	if (changeWindowCfg.newWindowName == L"") {
+		newWindowNameW = oriname;
+	}
+#ifndef Release_for_others
+    if (newWindowNameW != L"") {
+        WCHAR nw[0x100] = { 0 };
+        wcscat_s(nw, newWindowNameW.c_str());
+        wcscat_s(nw, L" ");
+        wcscat_s(nw, GBKStringToWString(changeWindowCfg.modeltype).c_str());
+        wcscat_s(nw, tagW.c_str());
+        newWindowNameW = nw;
+    }
+#endif
+    printf("%ls\n", newWindowNameW.c_str());
+	TruesetWindowTextW(res, newWindowNameW.c_str());
+    return res;
 }
 
 

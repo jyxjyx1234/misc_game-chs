@@ -19,7 +19,7 @@ class DatFile:
             entry = {}
             entry['filename'] = entryData[0:0x100].strip(b'\x00').decode('932')
             if entry['filename'].endswith('.yga'):
-                entry['filename'] = entry['filename'].replace('.yga', '_yga.bmp')
+                entry['filename'] = entry['filename'].replace('.yga', '_yga.png')
             entry['offset'] = from_bytes(entryData[0x100:0x104])
             entry['oriSize'] = from_bytes(entryData[0x104:0x108])
             entry['packedSize'] = from_bytes(entryData[0x108:0x10c])
@@ -33,7 +33,8 @@ class DatFile:
     
     def conv_yga(self, data):
         yga = YGAFile()
-        return yga.to_bmp(data)
+        # return yga.to_bmp(data)
+        return yga.to_png(data)
     
     def gen_yga(self, data):
         yga = YGAFile()
@@ -42,16 +43,18 @@ class DatFile:
     def unpack(self, output):
         os.makedirs(output, exist_ok=True)
         for entry in self.entries:
+            outpath = os.path.join(output, entry['filename'])
+            os.makedirs(os.path.dirname(outpath), exist_ok=True)
             data = self.data[entry['offset'] : entry['offset'] + entry['packedSize']]
             if entry['oriSize'] != entry['packedSize']:
                 data = self.decompress(data)
-            if entry['filename'].endswith('_yga.bmp'):
-                bmp = self.conv_yga(data)
-                data = bmp.get_bmp_bytes()
-            outpath = os.path.join(output, entry['filename'])
-            os.makedirs(os.path.dirname(outpath), exist_ok=True)
-            with open(outpath, 'wb') as f:
-                f.write(data)
+            if entry['filename'].endswith('_yga.png'):
+                img = self.conv_yga(data)
+                # data = img.get_bmp_bytes()
+                data = img.save(outpath)
+            else:
+                with open(outpath, 'wb') as f:
+                    f.write(data)
 
     def pack(self, input, output):
         try:
@@ -78,5 +81,5 @@ class DatFile:
 
 if __name__ == '__main__':
     dat = DatFile('data.dat')
-    dat.pack('data_unpack', 'release\\data.dat')
-    # dat.unpack('data_unpack')
+    # dat.pack('data_unpack', 'release\\data.dat')
+    dat.unpack('data_unpack1')

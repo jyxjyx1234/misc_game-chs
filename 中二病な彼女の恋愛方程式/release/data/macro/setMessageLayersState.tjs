@@ -1,0 +1,163 @@
+﻿// kag.setMessageLayersState() 関数を追加する寄生虫。
+// あわせて、kag.setMessageLayerHiddenState()をページごとに実行できるよう拡張
+// したkag.setMessageLayerHiddenStatePerPage()を追加。
+//
+// 2014/11/09	0.1	初期リリース
+//
+// 本ファイルは Override.tjs 中で以下のようにして呼び出すこと。
+// Scripts.execStorage("setMessageLayersState.tjs");
+//
+// ページごとにメッセージレイヤ群の表示・非表示を切り替えることができる。
+// メッセージレイヤをトランジションで消したり表示したりする際に使用。
+// [hidemessage]タグは表画面のメッセージレイヤのみを非表示にするが、
+// 本寄生虫は(直後のトランジションのための)「裏画面のみ非表示」が可能。
+// つまり、「トランジションでメッセージレイヤを消す」ことができるようになる。
+//
+
+// メッセージレイヤのsetHiddenStateByUser(b)で、
+// invisibleByUserの時はinvisible をスキップするようにする
+.MessageLayer.setHiddenStateByUser_pageext_org = .MessageLayer.setHiddenStateByUser;
+.MessageLayer.setHiddenStateByUser = function(b) {
+	if ((b && !invisibleByUser) || (!b && invisibleByUser))
+		setHiddenStateByUser_pageext_org(b);
+};
+// メッセージレイヤのassign時にメンバを二つ追加でコピーする
+.MessageLayer.internalAssign_pageext_org = .MessageLayer.internalAssign;
+.MessageLayer.internalAssign = function(src, copyvisiblestate) {
+	internalAssign_pageext_org(...);
+	if (copyvisiblestate) {
+		visibleBeforeUserInvisible = +src.visibleBeforeUserInvisible;
+		invisibleByUser = +src.invisibleByUser;
+	}
+};
+// メッセージレイヤのstore時にメンバを二つ追加でコピーする
+.MessageLayer.store_pageext_org = .MessageLayer.store;
+.MessageLayer.store = function() {
+	var dic = store_pageext_org();
+	dic.visibleBeforeUserInvisible = +visibleBeforeUserInvisible;
+	dic.invisibleByUser = +invisibleByUser;
+	return dic;
+};
+// メッセージレイヤのrestore時にメンバを二つ追加でコピーする
+.MessageLayer.restore_pageext_org = .MessageLayer.restore;
+.MessageLayer.restore = function(dic) {
+	visibleBeforeUserInvisible = +dic.visibleBeforeUserInvisible;
+	invisibleByUser = +dic.invisibleByUser;
+	restore_pageext_org(dic);
+};
+
+
+// キャラクタレイヤのsetHiddenStateByUser(b)で、
+// invisibleByUserの時はinvisible をスキップするようにする
+.CharacterLayer.setHiddenStateByUser_pageext_org = .CharacterLayer.setHiddenStateByUser;
+.CharacterLayer.setHiddenStateByUser = function(b) {
+	if ((b && !invisibleByUser) || (!b && invisibleByUser))
+		setHiddenStateByUser_pageext_org(b);
+};
+// キャラクタレイヤのassign時にvisibleBeforeUserInvisibleもコピーする
+.CharacterLayer.assign_pageext_org = CharacterLayer.assign;
+.CharacterLayer.assign = function(src, copyvisiblestate) {
+	assign_pageext_org(...);
+	visibleBeforeUserInvisible = +src.visibleBeforeUserInvisible;
+	invisibleByUser = +src.invisibleByUser;
+};
+// キャラクタレイヤのstore時にメンバを二つ追加でコピーする
+.CharacterLayer.store_pageext_org = .CharacterLayer.store;
+.CharacterLayer.store = function() {
+	var dic = store_pageext_org();
+	dic.visibleBeforeUserInvisible = +visibleBeforeUserInvisible;
+	dic.invisibleByUser = +invisibleByUser;
+	return dic;
+};
+// キャラクタレイヤのrestore時にメンバを二つ追加でコピーする
+.CharacterLayer.restore_pageext_org = .CharacterLayer.restore;
+.CharacterLayer.restore = function(dic) {
+	visibleBeforeUserInvisible = +dic.visibleBeforeUserInvisible;
+	invisibleByUser = +dic.invisibleByUser;
+	restore_pageext_org(dic);
+};
+
+// 以下はない方がいいのかな…
+// KAGWindowのstore時にmessageLayerHidingフラグをコピーする
+//.KAGWindow.internalStoreFlags_pageext_org = .KAGWindow.internalStoreFlags;
+//.KAGWindow.internalStoreFlags = function(f) {
+//	f.messageLayerHiding = +messageLayerHiding;
+//	internalStoreFlags_pageext_org(...);
+//};
+
+// KAGWindowのrestore時にmessageLayerHidingフラグをコピーする
+//.KAGWindow.internalRestoreFlags_pageext_org = .KAGWindow.internalRestoreFlags;
+//.KAGWindow.internalRestoreFlags = function(f, clear = true, elm = void) {
+//	messageLayerHiding = +f.messageLayerHiding;
+//	internalRestoreFlags_pageext_org(...);
+//};
+
+
+// setMessageLayerHiddenState()の拡張。ページごとにhidden状態を指定できるよう
+// にする。プラグインのonMessageHiddenStateChanged()関数の引数にもpageが
+// 付加できるよう拡張する
+.KAGWindow.setMessageLayerHiddenStatePerPage = function(b, page='fore', call=true) {
+	if (page == 'both') {
+		setMessageLayerHiddenStatePerPage(b, 'back', false);
+		setMessageLayerHiddenStatePerPage(b, 'fore', call);
+		return;			// callなのは一度だけ呼ぶため↑
+	}
+	var layers = this[page].messages;
+	for(var i = layers.count-1; i >= 0; i--)
+		layers[i].setHiddenStateByUser(b, page);
+	layers = this[page].layers;
+	for(var i = layers.count-1; i >= 0; i--)
+		layers[i].setHiddenStateByUser(b, page);
+
+	// ExtSystemButtonがあればそれも設定
+	if (typeof(.extsystembutton_obj) != 'undefined')
+		.extsystembutton_obj.setHiddenStateByUserPerPage(b, page);
+
+	// プラグインを呼ぶ
+	// 実は少し引数を拡張してあって、onMessageHiddenStateChangedを
+	// (hidden, page)で呼ぶ。普通は受け側でpageは捨てられちゃうけど
+	if (call) {
+		forEachEventHook('onMessageHiddenStateChanged',
+			function(handler, f) {
+				handler(f.hidden, f.page);
+			} incontextof this,
+			%[hidden:b, page:page]
+		);
+	}
+};
+
+
+// メッセージレイヤをまとめて状態変更するための関数。主にvisibleを。
+// hideMessageLayerByUser()あたりを書き直してもよかったが、動作が変わるのを
+// 嫌って別関数とした。
+// 引数は以下の通り。
+//	elm.page       = ['fore']|'back'|'both'
+//	elm.hidden     = [!elm.visible]|true|false
+//	elm.visible    = true|false
+//	elm.hidingflag = true|false
+//	elm.callplugin = true|[false] (hidden/visible=が指定された時のみ有効)
+//	elm.callrclick = true|[false]
+//	elm.setmenu    = true|[false]
+.KAGWindow.setMessageLayersState = function(elm=%[]) {
+	// デフォルト値設定
+	if (elm.hidden === void && elm.visible !== void)
+		elm.hidden = !+elm.visible;
+	elm.page = 'fore' if (elm.page === void);
+	// デフォルト値が無いものはここで設定しないこと
+
+	if (elm.hidden !== void)
+		setMessageLayerHiddenStatePerPage(+elm.hidden,
+						elm.page, +elm.callplugin);
+	if (elm.hidingflag !== void)
+		messageLayerHiding = +elm.hidingflag;
+	if (elm.callrclick) {
+		// 必要があれば右クリックルーチンを呼ぶ
+		if(typeof this.rightClickMenuItem !== "undefined")
+			rightClickMenuItem.checked = true;
+	}
+	if (elm.setmenu) {
+		// 必要があればウィンドウ上部のメニューを設定する
+		setMenuAccessibleAll();
+	}
+	return 0; // goto-next
+};

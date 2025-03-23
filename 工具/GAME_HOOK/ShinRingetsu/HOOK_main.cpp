@@ -41,13 +41,13 @@ void HOOK_main() {
 		HOOK_LL_main();
 	}
 
-	changeWindowCfg.isCheckOri = false;
-	changeWindowCfg.modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "");
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	printf("Title Hook Installed!\n");
-	DetourAttach(&(PVOID&)TruesetWindowTextA, HookedSetWindowTextA);
-	DetourTransactionCommit();
+	//changeWindowCfg.isCheckOri = false;
+	//changeWindowCfg.modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "");
+	//DetourTransactionBegin();
+	//DetourUpdateThread(GetCurrentThread());
+	//printf("Title Hook Installed!\n");
+	//DetourAttach(&(PVOID&)TruesetWindowTextA, HookedSetWindowTextA);
+	//DetourTransactionCommit();
 
 	if (config.ReadInt("GLOBAL", "LE", 0) == 1) {
 		install_LE();

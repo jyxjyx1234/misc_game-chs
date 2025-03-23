@@ -13,7 +13,7 @@ extern pRegisterClassA TrueRegisterClassA;
 struct WindowHookConfig
 {
     std::string oriWindowName = "";// 936±àÂë
-    std::string newWindowName = "";// 936±àÂë
+    std::wstring newWindowName = L"";
     std::string modeltype = "";// 936±àÂë
     BOOL isCheckOri = true;
 	BOOL isCheckStart = false;

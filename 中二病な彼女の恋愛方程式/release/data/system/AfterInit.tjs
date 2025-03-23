@@ -1,0 +1,62 @@
+﻿
+// 未読もスキップするか否かのフラグ（システム変数）
+if (sf.allskip === void)
+  sf.allskip = false;  // 初回起動時にはfalseを代入しておく
+
+// ［システム‐未読もスキップ］メニューハンドラの定義
+kag.onAllSkipClick = function(sender)
+{
+  sf.allskip = !sf.allskip;
+  allSkipMenuItem.checked = sf.allskip;
+if (sf.allskip)
+	skipToNextStopMenuItem.caption = "跳到下一个选项(&F)";
+  else
+	skipToNextStopMenuItem.caption = autoRecordPageShowing ? "跳到下一个选项/未读部分(&F)" : "跳到下一个选项(&F)";
+	
+   //系统菜单展开时更改按钮图像
+	if( kag.RunConfigModeFlg == 1 ){
+		modeA_SystemSkipMode(0);
+	}
+	
+	
+} incontextof kag;
+
+// 创建［跳过未读］菜单项
+kag.allSkipMenuItem = new KAGMenuItem(kag, "跳过未读部分(&L)", 0, kag.onAllSkipClick, false);
+kag.allSkipMenuItem.checked = sf.allskip;
+
+// ［システム］メニューに［未読もスキップ］メニューアイテムを登録
+kag.systemMenu.insert(kag.allSkipMenuItem, 3);
+
+
+// kag.getCurrentRead()メソッドを差し換える
+kag.getCurrentRead_org = kag.getCurrentRead;
+kag.getCurrentRead = function()
+{
+	Debug.message("NEW kag.getCurrentRead");
+  if (sf.allskip)                 // 未読もスキップするなら全て既読
+    return true;
+  else
+    return getCurrentRead_org();  // そうでなければ旧kag.getCurrentRead()メソッドの戻り値を使う
+} incontextof kag;
+
+
+
+kag.onHelpAboutMenuItemClick = function (sender)
+{
+	// 「このソフトについて」ウィンドウを表示
+	//追加部分↓
+	tf.exitAsktemp=sf.exitAsk;
+	sf.exitAsk=0;
+	//追加部分↑
+	var win = new global.KAGWindow(false, aboutWidth, aboutHeight);
+	win.setPos(left + ((width - win.width)>>1), top + ((height - win.height)>>1));
+	win.process('about.ks' ,,, true); // about.ks を immediate で表示
+	win.showModal(); // モード付きで表示
+	invalidate win;
+	//追加部分↓
+	sf.exitAsk=tf.exitAsktemp;
+	//追加部分↑
+} incontextof kag;
+
+

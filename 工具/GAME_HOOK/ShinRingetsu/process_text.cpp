@@ -5,7 +5,8 @@ DWORD ReturnAddress;
 std::string appPath = getPath();
 const int maxbuffersize = 0x100000;
 int stridx = 0;
-std::string enc = "ShinRingetsu";
+//std::string enc = "ShinRingetsu";
+std::string enc = "selen";
 WCHAR* strBuffer[maxbuffersize] = {};
 
 

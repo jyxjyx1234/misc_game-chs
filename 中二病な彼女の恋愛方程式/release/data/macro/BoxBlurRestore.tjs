@@ -1,0 +1,31 @@
+//
+// このファイルは、Override.tjs から以下のようにして呼び出すこと。
+// KAGLoadScript()でもいいけどさ。
+//
+// Scripts.execStorage("BoxBlurRestore.tjs");
+//
+// AnimationLayerのdoBoxBlur()をちょっとだけ改造して、
+// load/saveに対応させる。blurした画像をsave/loadすると
+// ちゃんとblurし直してくれる
+
+if (typeof(.AnimationLayer.doBoxBlur_boxblur_org) == 'undefined') {
+	// doBoxBlur()をフック
+	.AnimationLayer.doBoxBlur_boxblur_org = .AnimationLayer.doBoxBlur;
+	.AnimationLayer.doBoxBlur = function (xblur=1, yblur=1) {
+		doBoxBlur_boxblur_org(...);
+		if (typeof(Anim_loadParams) == 'undefined' ||
+		    Anim_loadParams === void)
+			Anim_loadParams = %[];
+		Anim_loadParams.boxblur = %[xblur:xblur, yblur:yblur];
+	};
+	// restore 処理を変更。
+	.AnimationLayer.restore_boxblur_org = .AnimationLayer.restore;
+	.AnimationLayer.restore = function (dic) {
+		restore_boxblur_org(...);
+		if (dic.loadParams !== void &&
+		    dic.loadParams.boxblur !== void) {
+			var arg = dic.loadParams.boxblur;
+			doBoxBlur_boxblur_org(arg.xblur, arg.yblur);
+		}
+	};
+}

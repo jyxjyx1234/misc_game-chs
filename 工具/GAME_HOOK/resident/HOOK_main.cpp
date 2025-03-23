@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include "HOOK_main.h"
-#include "hook_createfontindrectA.h"
 #include "text_process.h"
 #include "hook_LoadLib.h"
 #include "readconfig.h"

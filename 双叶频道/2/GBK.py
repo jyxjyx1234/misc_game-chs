@@ -1,7 +1,7 @@
 from Lib import *
 import os
 
-ori_exe_name="ayakashi_oiran.exe"#原exe名称
+ori_exe_name="我が姫君に栄冠をtext.exe"#原exe名称
 
 ori_exe = open_file_b(ori_exe_name)
 
@@ -49,7 +49,7 @@ new_exe = ori_exe.replace(sjis_list,gbk_list)
 new_exe_name = ori_exe_name.replace(".exe","_chs.exe")
 save_file_b(new_exe_name, new_exe)
 
-os.makedirs("Release\\",exist_ok=True)
-os.system("setdll /d:yuris.dll "+new_exe_name)
-os.system(f"copy {new_exe_name} Release\\")
-os.system(f"copy yuris.dll Release\\")
+# os.makedirs("Release\\",exist_ok=True)
+# os.system("setdll /d:yuris.dll "+new_exe_name)
+# os.system(f"copy {new_exe_name} Release\\")
+# os.system(f"copy yuris.dll Release\\")

@@ -20,7 +20,7 @@ VOID __declspec(dllexport) stratmessage()
     //std::wstring t1(L"本补丁由Steins;Gate，julixian，coroz，SUAD，ALyCE，是幼微鸭mua，冥语，魔神海谢拉 等共同出资，使用官方渠道claude-3.5-sonnet进行翻译，免费发布，首发2dfan及github，禁止任何形式的收费转载。\n如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从网赚盘（如飞猫云）or 付费下载到本补丁，请顺手点个举报。");
     //msg = L"适度游戏益脑，沉迷游戏伤身\n 仅供学习交流，请于24小时删除 ^ ^";
 #ifndef Release_for_others
-    MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
+    //MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
 #endif
 }
 

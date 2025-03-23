@@ -27,10 +27,13 @@ class HanziReplacer(object):
     def _GetInvalidChars(self,text):#返回输入文本中不受支持的单字
         for char in text:
             try:
-                char.encode(encoding='932')
+                char.encode(encoding='sjis')
             except UnicodeEncodeError:
                 if char not in self.tempdict:
                     self.tempdict[char]=len(self.tempdict)
+                u16 = char.encode('utf-16-le')
+                if len(u16) != 2:
+                    raise RuntimeError(f'输入文本中有不支持的字符{char}，请检查你的文本')
             if char in self.charlist:
                 self.charlist = self.charlist.replace(char,'')
     
@@ -137,7 +140,7 @@ class HanziReplacer(object):
             except:
                 errorchars += f'字体中不存在:{value}, unicode: {j}\n'
         if not errorchars:
-            subprocess.run(['otfccbuild.exe', '-O3', '-o', outpath,"--keep-average-char-width"], input=json.dumps(obj), encoding='utf-8')
+            subprocess.run(['otfccbuild.exe', '-O3', '-s', '-o', outpath,"--keep-average-char-width"], input=json.dumps(obj), encoding='utf-8')
         else:
             raise RuntimeError('字体替换失败, 请从译文中手动删除不支持的字符:\n'+errorchars)
 

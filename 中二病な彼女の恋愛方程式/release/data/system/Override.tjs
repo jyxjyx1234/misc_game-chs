@@ -1,0 +1,11 @@
+﻿
+//Plugins.link("windowEx.dll");
+// layerExImage.dll を読む。Layer.light()などの拡張をTimeEffect中で使うため
+Plugins.link("layerExImage.dll");
+
+// 「夕方」とか「夜」とかの環境により画面の明るさや色合いを変える寄生虫
+KAGLoadScript( "TimeEffect.tjs" );
+
+KAGLoadScript("APimage.tjs");
+
+Scripts.execStorage("MessageLayerFrameOpacity.tjs");

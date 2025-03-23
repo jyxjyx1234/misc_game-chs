@@ -8,6 +8,17 @@ VOID __declspec(dllexport) _()
 {
 }
 
+//void CreateConsole()
+//{
+//	if (AllocConsole())
+//	{
+//		FILE* fp;
+//		freopen_s(&fp, "CONOUT$", "w", stdout);
+//		setlocale(LC_CTYPE, "zh-ch");
+//		SetConsoleOutputCP(95003);
+//	}
+//}
+
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
@@ -16,8 +27,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
 	case DLL_PROCESS_ATTACH:
-		newFontName = L"Simsun";
-		installFontHook_main(TRUE, 0, TRUE, 0);
+		//CreateConsole();
+		newFontName = L"Microsoft YaHei UI";
+		newWeight = 600;
+		installFontHook_main(TRUE, TRUE, TRUE, TRUE);
 		break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:

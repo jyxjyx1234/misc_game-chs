@@ -39,6 +39,9 @@
     <ClCompile Include="..\LIB\hookFont.cpp" />
     <ClCompile Include="..\LIB\HookTitle.cpp" />
     <ClCompile Include="..\LIB\LE.cpp" />
+    <ClCompile Include="..\LIB\LR\LRCommonLibrary.cpp" />
+    <ClCompile Include="..\LIB\LR\LRHook.cpp" />
+    <ClCompile Include="..\LIB\LR\LRHookFunc.cpp" />
     <ClCompile Include="..\LIB\readconfig.cpp" />
     <ClCompile Include="..\LIB\textReplacer.cpp" />
     <ClCompile Include="..\LIB\timer.cpp" />
@@ -51,6 +54,11 @@
     <ClInclude Include="..\LIB\hookFont.h" />
     <ClInclude Include="..\LIB\HookTitle.h" />
     <ClInclude Include="..\LIB\LE.h" />
+    <ClInclude Include="..\LIB\LR\KernelbaseHook.h" />
+    <ClInclude Include="..\LIB\LR\LRCommonLibrary.h" />
+    <ClInclude Include="..\LIB\LR\LRHook.h" />
+    <ClInclude Include="..\LIB\LR\LRHookFunc.h" />
+    <ClInclude Include="..\LIB\LR\LROriginalFunc.h" />
     <ClInclude Include="..\LIB\readconfig.h" />
     <ClInclude Include="..\LIB\textReplacer.h" />
     <ClInclude Include="..\LIB\timer.h" />
@@ -163,7 +171,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -181,7 +189,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)LIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -268,6 +276,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)LIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/D "Release_for_others" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -276,6 +285,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='proxy_wumsadp|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

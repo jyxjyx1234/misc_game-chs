@@ -24,7 +24,7 @@ std::map<std::wstring, std::wstring> readReplaceMap(const std::string& filename,
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
 		MessageBoxA(NULL, (std::string("Unable to open file ") + filename).c_str(), "Error", MB_OK);
-		exit(1);
+		//exit(1);
         return result;
     }
     int i = 0;
@@ -42,13 +42,16 @@ std::map<std::wstring, std::wstring> readReplaceMap(const std::string& filename,
     std::wstring u32line = MultiByteToWide(data, CP_UTF8);
     std::wstring key, value;
 
-    for (char32_t ch : u32line) {
+	//std::ofstream out("log.txt", std::ios::out);
+
+    for (WCHAR ch : u32line) {
         if (i % 2 == 0) {
             key = ch;
         }
         else {
             value = ch;
             result[key] = value;
+			//out << WideToMultiByte(key, CP_UTF8) << " = " << WideToMultiByte(value, CP_UTF8) << std::endl;
         }
         i++;
     }
@@ -68,6 +71,105 @@ std::wstring changeText(LPCSTR text) {
     }
     return new_wstr;
 }
+
+#include <windows.h>
+#include <stdio.h>
+
+void PrintHDCInfo(HDC hdc) {
+    // 获取当前点
+    POINT ptCurrent;
+    if (GetCurrentPositionEx(hdc, &ptCurrent)) {
+        printf("Current Position: (%ld, %ld)\n", ptCurrent.x, ptCurrent.y);
+    }
+    else {
+        printf("Failed to get current position.\n");
+    }
+
+    // 获取视口原点
+    POINT ptViewportOrg;
+    if (GetViewportOrgEx(hdc, &ptViewportOrg)) {
+        printf("Viewport Origin: (%ld, %ld)\n", ptViewportOrg.x, ptViewportOrg.y);
+    }
+    else {
+        printf("Failed to get viewport origin.\n");
+    }
+
+    // 获取窗口原点
+    POINT ptWindowOrg;
+    if (GetWindowOrgEx(hdc, &ptWindowOrg)) {
+        printf("Window Origin: (%ld, %ld)\n", ptWindowOrg.x, ptWindowOrg.y);
+    }
+    else {
+        printf("Failed to get window origin.\n");
+    }
+
+    // 获取视口范围和窗口范围
+    SIZE szViewportExt, szWindowExt;
+    if (GetViewportExtEx(hdc, &szViewportExt)) {
+        printf("Viewport Extent: (%ld, %ld)\n", szViewportExt.cx, szViewportExt.cy);
+    }
+    else {
+        printf("Failed to get viewport extent.\n");
+    }
+    if (GetWindowExtEx(hdc, &szWindowExt)) {
+        printf("Window Extent: (%ld, %ld)\n", szWindowExt.cx, szWindowExt.cy);
+    }
+    else {
+        printf("Failed to get window extent.\n");
+    }
+
+    // 获取世界变换矩阵
+    XFORM xform;
+    if (GetWorldTransform(hdc, &xform)) {
+        printf("World Transform Matrix:\n");
+        printf("  eM11: %f, eM12: %f\n", xform.eM11, xform.eM12);
+        printf("  eM21: %f, eM22: %f\n", xform.eM21, xform.eM22);
+        printf("  eDx:  %f, eDy:  %f\n", xform.eDx, xform.eDy);
+    }
+    else {
+        printf("No world transform applied.\n");
+    }
+
+    // 获取裁剪区域
+    HRGN hClipRgn = CreateRectRgn(0, 0, 0, 0);
+    if (GetClipRgn(hdc, hClipRgn) == 1) {
+        RECT rcClip;
+        if (GetRgnBox(hClipRgn, &rcClip)) {
+            printf("Clipping Region: (%ld, %ld) to (%ld, %ld)\n",
+                rcClip.left, rcClip.top, rcClip.right, rcClip.bottom);
+        }
+        else {
+            printf("Failed to get clipping region bounds.\n");
+        }
+    }
+    else {
+        printf("No clipping region applied.\n");
+    }
+    DeleteObject(hClipRgn);
+
+    // 获取背景模式和文本颜色
+    int bgMode = GetBkMode(hdc);
+    COLORREF bgColor = GetBkColor(hdc);
+    COLORREF textColor = GetTextColor(hdc);
+    printf("Background Mode: %s\n", bgMode == OPAQUE ? "OPAQUE" : "TRANSPARENT");
+    printf("Background Color: RGB(%d, %d, %d)\n",
+        GetRValue(bgColor), GetGValue(bgColor), GetBValue(bgColor));
+    printf("Text Color: RGB(%d, %d, %d)\n",
+        GetRValue(textColor), GetGValue(textColor), GetBValue(textColor));
+
+    // 获取字体信息（可选）
+    TEXTMETRIC tm;
+    if (GetTextMetrics(hdc, &tm)) {
+        printf("Font Information:\n");
+        printf("  Height: %ld, Ascent: %ld, Descent: %ld\n",
+            tm.tmHeight, tm.tmAscent, tm.tmDescent);
+        printf("  Average Char Width: %ld\n", tm.tmAveCharWidth);
+    }
+    else {
+        printf("Failed to get text metrics.\n");
+    }
+}
+
 
 BOOL WINAPI HOOK_TextOutA(
     HDC hdc,
@@ -99,6 +201,9 @@ BOOL WINAPI HOOK_TextOutA(
 }
 
 BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* lprc, LPCSTR lpString, UINT cbCount, const INT* lpDx) {
+	if (lpString == NULL) {
+		return TrueExtTextOutA(hdc, X, Y, fuOptions, lprc, lpString, cbCount, lpDx);
+	}
 	std::wstring new_wstr = changeText(lpString);
 	return ExtTextOutW(hdc, X, Y, fuOptions, lprc, new_wstr.c_str(), wcslen(new_wstr.c_str()), lpDx);
 }
@@ -121,21 +226,9 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
         wstr = charReplaceMap[wstr];
         uChar = static_cast<UINT>(wstr.c_str()[0]);
         DWORD res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        //if (res == -1) {
-        //    printf("GetGlyphOutlineW FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        //}
-        //else {
-        //    printf("GetGlyphOutlineW SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        //}
         return res;
     }
     DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-  //  if (res == -1) {
-  //      printf("GetGlyphOutlineA FAIL    parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-  //  }
-  //  else {
-		//printf("GetGlyphOutlineA SUCCESS parameters: hdc=%p, uChar=%ls, uFormat=%u, lpgm=%p, cbBuffer=%lu, lpvBuffer=%p, lpmat2=%p\n", hdc, wstr.c_str(), uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-  //  }
     return res;
 }
 
@@ -157,4 +250,20 @@ void install_hook_textreplace(int mode) {
 		DetourAttach(&(PVOID&)TrueExtTextOutA, HOOK_ExtTextOutA);
 	}
 	DetourTransactionCommit();
+}
+
+void install_hook_textreplaceEx(int mode, std::string filepath, std::string key) {
+    charReplaceMap = readReplaceMap(filepath, key);
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    if (mode == 1) {
+        DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA);
+    }
+    else if (mode == 2) {
+        DetourAttach(&(PVOID&)TrueGetGlyphOutlineA, HOOK_GetGlyphOutlineA);
+    }
+    else if (mode == 3) {
+        DetourAttach(&(PVOID&)TrueExtTextOutA, HOOK_ExtTextOutA);
+    }
+    DetourTransactionCommit();
 }

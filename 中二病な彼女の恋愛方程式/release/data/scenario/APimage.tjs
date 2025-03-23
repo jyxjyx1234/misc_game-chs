@@ -1,0 +1,690 @@
+﻿/*
+ * APimage.tjs は、部分アニメーションを実現するための AnimationLayer 拡張実装
+ *
+ *2014/07/19	0.62	・typo修正(restart()中のconducttor→conductor)
+ *2014/07/09	0.61	・startProcessのimmediate引数をdef=trueに変更
+ *			　→ @ap_image直後の@backlayでのアニメ停止を防ぐため
+ *			・.asd中の@homeで@sと同じようにトリガを送るように修正
+ *2014/07/03	0.6	・フラグsf.ap_image_restart_as_defaultを追加。これが
+ *			　1なら、ロード時、前回指定したラベルから再開される
+ *			・canWaitAnimStop()削除
+ *2014/06/30	0.5	・栞ロード時にコンダクタが一度.asdを最初から実行して
+ *			　しまう問題を修正
+ *			・[loop][noloop]を無視するように修正
+ *			・栞ロード時、recopy(lastcopyelm)するよう修正
+ *			・.asd中の[home]が使えるようになった
+ *			・[wa_stop]にimmediate=t/fを追加
+ *			・AnimPimageLayer中のapimageの親を this に変更
+ *2014/06/25	0.4	栞ロード時にレイヤサイズを画像サイズにあわせてしまう
+ *			のを修正
+ *2013/12/05	0.3	.AnimationLayer.setImagePos()を、setImagePos_org()を
+ *			使うように変更
+ *2013/07/07	0.2	[ap_image]にmode=追加。効能は[image]と同じ。
+ *2012/06/04	0.1	Macro_APimage.ks 0.2 をベースに再作成
+ *
+ */
+
+/*
+コード方針：
+・AnimationLayerをフックし、override.tjsで追加するものにする
+・元に戻すことは考えない
+・部分アニメーション用AnimPimageLayerを新規定義
+・AnimationLayerに apimages[] という配列を追加し、これでAnimPimageLayerを保持
+・アニメーション定義ファイルは asdとする
+・AnimPimageLayer.apimage にアニメーションセルの元画像を保存する
+*/
+
+
+// AnimationConductorにはstore/restoreが無いので、追加したコンダクタを作る
+class AnimPimageConductor extends AnimationConductor
+{
+//	実際に使うメンバはこれだけ。
+//	var owner;
+//	var running  = false;	// 実行中か
+//	var stopping = false;	// [ap_stop immediate=false]により
+//				// [home]または[s]でストップ待ちか
+//	var startLabel;
+
+	// コンストラクタ
+	function AnimPimageConductor(owner)
+	{
+		super.AnimationConductor(owner);
+	}
+
+	// デストラクタ
+	function finalize()
+	{
+		super.finalize(...);
+	}
+
+	// ラベル通過時
+	function onLabel(label, page)
+	{
+		owner.onConductorLabel(...);
+	}
+
+	// シナリオ処理開始
+	function startProcess(storage, target, int_ed, clearcallstack=true, immediate=true)
+	{
+		stop();
+		stopping    = false;
+		running     = true;
+		clearCallStack() if (clearcallstack);
+		loadScenario(storage);
+		goToLabel(target);
+		interrupted = int_ed;
+		super.startProcess(immediate);
+		startLabel  = target;
+	}
+
+	// 再開時
+	function restart(int_ed, immediate=true)
+	{
+		stop();
+		running     = true;
+		interrupted = int_ed;
+		super.startProcess(immediate);
+	}
+
+	// 停止時(runningフラグも一緒に扱う)
+	function stop()
+	{
+		super.stop();
+		running = false;
+	}
+
+	// セーブ時
+	function store()
+	{
+		var dic = super.store();
+		dic.stopping   = stopping;
+		dic.running    = running;
+		dic.startLabel = startLabel;
+		return dic;
+	}
+
+	// ロード時
+	function restore(dic)
+	{
+		super.restore(dic);
+		stopping   = dic.stopping;
+		running    = dic.running;
+		startLabel = dic.startLabel;
+	}
+}
+
+
+// apimageレイヤ、AnimationLayer上に貼る部分アニメーションレイヤ
+class AnimPimageLayer extends KAGLayer
+{
+	var lastcopyelm = %[];	// 最後に copy タグを実行した時の引数
+	var storage     = "";	// アニメーション画像名
+	var apimage;		// アニメーション画像(colorcorrectionしない)
+	var conductor;		// アニメーションコンダクタ
+	var savedic;		// コンダクタがラベルを通過した時のセーブデータ
+				// 後でKAGからstore()が呼ばれたらこれを返す
+
+	// コンストラクタ
+	function AnimPimageLayer(win, par, i_name = '')
+	{
+		super.KAGLayer(win, par);
+		name         = i_name;
+		apimage      = new .Layer(win, this);
+		conductor    = new AnimPimageConductor(this);
+
+		hitThreshold = 256;	// マウスイベントは透過させる
+		visible      = true;
+		opacity      = 255;
+		absolute     = 255;
+		store_internal();	// 初期状態でセーブ
+	}
+
+	// デストラクタ
+	function finalize()
+	{
+		clearImage();
+		invalidate apimage;
+		invalidate conductor;
+		super.finalize(...);
+	}
+
+	// コピー
+	function assign(src)
+	{
+		(Dictionary.assign incontextof lastcopyelm)(src.lastcopyelm);
+		name    = src.name;
+		storage = src.storage;
+		super.assignImages(src, true);
+		apimage.assignImages(src.apimage);
+		conductor.assign(src.conductor);
+		(Dictionary.assignStruct incontextof savedic)(src.savedic);
+	}
+
+	// セーブ(conductorでのラベル通過時に)
+	function onConductorLabel(label, page)
+	{
+		return store_internal();
+	}
+
+	// 今の状態をsavedicに覚えておく
+	function store_internal()
+	{
+		savedic             = super.store();
+		savedic.name        = name;
+		savedic.lastcopyelm = %[];
+		(Dictionary.assign incontextof savedic.lastcopyelm)(lastcopyelm);
+		savedic.storage     = storage;
+		savedic.conductor   = conductor.store();
+		// storageがあれば復旧できるので、apimageはセーブしなくてよい
+	}
+
+	// セーブ(mainConductorのラベル通過時に)
+	function store()
+	{
+		return savedic;
+	}
+
+	// ロード
+	function restore(dic)
+	{
+		stopAnim();
+		if (dic === void)
+			return;
+		super.restore(dic);	// この時点でtypeは設定されたはず
+		name = dic.name;
+		storage = dic.storage;
+		var typesave = type;	// mode(=type)を保存しておいて、
+		loadImages(%[storage:storage,
+			     dx:left, dy:top, width:width, height:height],
+			   false); // アニメーションを開始しない
+		type = typesave;	// loadImages()でクリアされたので戻す
+		(Dictionary.assign incontextof lastcopyelm)(dic.lastcopyelm);
+		// [s]などで止まってた時のために、最後のコピーを再実行
+		recopy(lastcopyelm);
+		conductor.restore(dic.conductor);
+		// 必要ならアニメーションを再開
+		if (conductor.running)
+			if (sf.ap_image_restart_as_default)
+				startAnim(, conductor.startLabel);
+			else
+				restartAnim();
+		return dic;
+	}
+
+	// 画像をクリアする
+	function clearImage(process)
+	{
+		stopAnim();
+		setSize(32, 32);
+		setImageSize(32, 32);
+		face         = dfAuto;
+		type         = ltAlpha;
+		fillRect(0, 0, 32, 32, 0);
+		visible      = true;	// default visible なので true
+		opacity      = 255;
+		absolute     = 255;
+	}
+
+	// オリジナルのloadimagesとほとんど同じloadImages。
+	function loadImages(elm, startanim=true)
+	{
+		lastcopyelm = %[];
+		clearImage();
+		if (elm === void || elm.storage == "")
+			return;
+
+		storage = elm.storage;
+		// 画像を読み込む (super.でなくapimage.であることに注意)
+		var taginfo = apimage.loadImages(elm.storage, elm.key);
+		if (taginfo) {
+			(Dictionary.assign incontextof taginfo)(elm, false);
+			elm = taginfo;
+		}
+		// 画像のタグ情報をデフォルト値として採用
+		if(taginfo)
+		{
+			(Dictionary.assign incontextof taginfo)(elm, false);
+			elm = taginfo;
+		}
+  		// 一度読んでからwidth/heightを設定(def=画像と同じサイズ)
+		elm.width  = apimage.imageWidth  if (elm.width  === void); 
+		elm.height = apimage.imageHeight if (elm.height === void); 
+		setPos(+elm.dx, +elm.dy, +elm.width, +elm.height);
+		setImageSize(+elm.width, +elm.height);
+
+		// フリップ
+		var ud, lr;
+		if (elm.flipud !== void && +elm.flipud) {
+			// 上下反転
+			flipUD();
+			ud = true;
+		} else {
+			ud = false;
+		}
+
+		if (elm.fliplr !== void && +elm.fliplr) {
+			// 左右反転
+			flipLR();
+			lr = true;
+		} else {
+			lr = false;
+		}
+
+		// レイヤモード
+		{
+			var mode = ltAlpha;
+			if (elm.mode !== void &&
+			    imageTagLayerType[elm.mode] !== void)
+				mode = imageTagLayerType[elm.mode].type;
+			type = mode;
+		}
+
+		visible  = +elm.visible if (elm.visible !== void);
+		opacity  = +elm.opacity if (elm.opacity !== void);
+		absolute = +elm.index   if (elm.index   !== void);
+
+		// 必要なら、アニメーション情報を読み込み、開始
+		startAnim(storage, elm.target) if (startanim);
+	}
+
+	// アニメーションファイルロード
+	function startAnim(storage=this.storage, target='', immediate=true)
+	{
+		stopAnim();
+		// アニメーション情報を読み込む
+		storage = this.storage if (storage == '');
+		if ((storage = findASDStorage(storage)) === void) {
+			throw new Exception('アニメーション(.asd)ファイル'+storage+' が見つかりません');
+			return;
+		}
+		conductor.startProcess(storage+'.asd', target, parent.Anim_interrupted, ,immediate);
+		store_internal();	// ここでセーブしておく
+	}
+
+	// アニメーションを再開する(ロード時に呼ばれる)
+	function restartAnim()
+	{
+		stopAnim();
+		conductor.restart(parent.Anim_interrupted);
+	}
+
+	// アニメーションを停止する
+	function stopAnim()
+	{
+		conductor.stop();
+	}
+
+	// このレイヤの色合いを親レイヤに合わせる。
+	// ただし、apimageは常に元画像を保持するのでcolorcorrection不要。
+	function applyColorCorrection()
+	{
+		if (parent.Anim_loadParams !== void)
+			parent.applyColorCorrection(this, parent.Anim_loadParams);
+	}
+
+	// recopy ポップアップ時にそなえ、今の表示画像を再コピー
+	function recopy()
+	{
+		var ary = [];
+		ary.assign(lastcopyelm);
+		if (ary.count <= 0) {
+			clear(); // lastcopyelmが空なら透明色にクリア
+		} else {
+			var elm = %[];
+			(Dictionary.assign incontextof elm)(lastcopyelm);
+			// ↑copy()中でまたassign()するとき、同じハッシュに
+			// コピーすると全要素を忘れるのでこうしている。
+			copy(elm);
+		}
+	}
+
+	// ここからタグハンドラ **********************************************
+
+	// 文字列をevalして数値に変換
+	function evalstr(str, def=0)
+	{
+		if (str === void || str == '')
+			return +def;
+		return +Scripts.eval(str);
+	}
+
+	// タグハンドラ loadcell() は何もしない
+	function loadcell()
+	{
+		// .asd ファイルに存在した時にエラーにしないためのダミー
+		return 0;
+	}
+
+	// 追加タグハンドラ pos(x, y)
+	function pos(elm)
+	{
+		var pileft = parent.imageLeft, pitop = parent.imageTop;
+		// pileft/pitopを加算するのは親との位置調整のため
+		left    =  evalstr(elm.x,  left-pileft) + pileft;
+		top     =  evalstr(elm.y,   top- pitop) + pitop;
+		left    += evalstr(elm.ix,           0);
+		top     += evalstr(elm.iy,           0);
+		opacity =  evalstr(elm.opa,    opacity);
+		opacity += evalstr(elm.iopa,         0);
+		return 0;
+	}
+
+	// 追加タグハンドラ size(w, h)
+	function size(elm)
+	{
+		width  = imageWidth  = evalstr(elm.w) if (elm.w !== void);
+		height = imageHeight = evalstr(elm.h) if (elm.h !== void);
+		return 0;
+	}
+
+	// copyタグ上書きハンドラ
+	function copy(elm)
+	{
+		// 上下左右反転は未実装
+		elm.sx = evalstr(elm.six)*width  if (elm.six !== void);
+		elm.sy = evalstr(elm.siy)*height if (elm.siy !== void);
+		elm.dx = evalstr(elm.dx);
+		elm.dy = evalstr(elm.dy);
+		elm.sx = evalstr(elm.sx);
+		elm.sy = evalstr(elm.sy);
+		elm.sw = evalstr(elm.sw, width);
+		elm.sh = evalstr(elm.sh, height);
+		face = dfAuto;
+		if (elm.affine === void) {
+			copyRect(+elm.dx, +elm.dy, apimage, +elm.sx, +elm.sy, +elm.sw, +elm.sh);
+		} else {
+			var ary = elm.affine.split(/[\t ]*,[\t ]*/);
+			ary[0] = evalstr(ary[0], true);
+			ary[1] = evalstr(ary[1], 1);
+			ary[2] = evalstr(ary[2], 0);
+			ary[3] = evalstr(ary[3], 0);
+			ary[4] = evalstr(ary[4], 1);
+			ary[5] = evalstr(ary[5], elm.dx);
+			ary[6] = evalstr(ary[6], elm.dy);
+			ary[7] = evalstr(ary[7], stNearest);
+			ary[8] = evalstr(ary[8], false);
+			// cellLayerからaffineCopy
+			affineCopy(apimage,elm.sx,elm.sy,elm.sw,elm.sh,
+				ary[0],
+				ary[1],ary[2],ary[3],ary[4],ary[5],ary[6],
+				ary[7],ary[8]);
+		}
+		// 最後に色合いを調整
+		applyColorCorrection();
+		(Dictionary.assign incontextof lastcopyelm)(elm);
+		return 0;
+	}
+
+
+	// タグハンドラ追加、noloop：loopの反対。
+	function noloop(elm)
+	{
+		// ループを使わないことを宣言する
+		// セグメントによってはループしたりしなかったりするため。
+// なにもしない	elm.context.looping = false;
+		return 0;
+	}
+
+	// タグハンドラ追加、@clear、表示領域の透明色でのクリア
+	function clear()
+	{
+		var face_org = face, type_org = type;
+		face = dfAuto ,type = ltAlpha;
+		fillRect(0, 0, width, height, 0);
+		face = face_org, type = type_org;
+		lastcopyelm = %[];
+		return 0;
+	}
+
+	/*タグハンドラ*/function s(elm)
+	{
+		// 停止
+		elm.context.running = false;
+		window.conductor.trigger('apimage:'+name);
+		return -1; // 停止
+	}
+
+	/*タグハンドラ*/function loop(elm)
+	{
+		// ループを行うことを宣言する
+//なにもしない	elm.context.looping = true;
+		return 0;
+	}
+
+	/*タグハンドラ*/function home(elm)
+	{
+		// ホームポジション
+		// stopping中なら、@s と同じ動作をして停止
+		if (!elm.context.stopping)
+			return 0;
+		elm.context.running = false;
+		window.conductor.trigger('apimage:'+name);
+		return -1; // 停止
+	}
+
+	/*タグハンドラ*/function clip(elm)
+	{	// これは使うべきじゃないんじゃないかな…
+		// cliprect の変更
+		setImagePos(-elm.left, -elm.top);
+		return 0;
+	}
+
+	/*タグハンドラ*/function wait(elm)
+	{
+		return elm.time; // 指定時間だけ停止
+	}
+
+	/*タグハンドラ*/function eval(elm)
+	{
+		Scripts.eval(elm.exp); // elm.exp を式として実行
+		return 0;
+	}
+
+	/*タグハンドラ*/function trigger(elm)
+	{
+		window.conductor.trigger(elm.name);
+		return 0;
+	}
+}
+
+
+
+// 以下、AnimationLayerに AnimPimageLayer の配列を追加するアツい実装
+
+.AnimationLayer.apimages = [];	// メンバ変数にapimage配列を追加(初期化なし)
+
+// コンストラクタ書き換え
+.AnimationLayer.AnimationLayer_apimage_org = .AnimationLayer.AnimationLayer;
+.AnimationLayer.AnimationLayer = function() {
+	AnimationLayer_apimage_org(...);
+	apimages = [];		// コンストラクタ中で。配列初期化
+};
+
+// デストラクタ書き換え
+.AnimationLayer.finalize_apimage_org = .AnimationLayer.finalize;
+.AnimationLayer.finalize = function() {
+	delAPimages();		// デストラクタ中。配列削除
+	finalize_apimage_org(...);
+};
+
+// apimage 追加  elm.name を ID として使用する
+.AnimationLayer.addAPimage = function(elm) {
+	if (elm.name === void) {
+		var storagename = Storages.extractStorageName(elm.storage);
+		elm.name = Storages.chopStorageExt(storagename);
+	}
+	var apimage = new AnimPimageLayer(window, this, elm.name); 
+	apimages.add(apimage);
+	apimage.loadImages(elm);
+};
+
+// apimage 削除
+.AnimationLayer.delAPimages = function(elm = %[]) {
+	for (var i = apimages.count-1; i >= 0; i--)
+		if (elm.name === void || elm.name == apimages[i].name) {
+			invalidate apimages[i];
+			apimages.erase(i);
+		}
+};
+
+// loadImages をフックして、load前に全ての apimage を削除する
+.AnimationLayer.loadImages_apimage_org = .AnimationLayer.loadImages;
+.AnimationLayer.loadImages = function (elm) {
+	if (elm === void || elm.animclear === void || elm.animclear)
+		delAPimages();
+	loadImages_apimage_org(elm);
+};
+
+// clearAnim をフックしてapimageを削除する
+.AnimationLayer.clearAnim_apimage_org = .AnimationLayer.clearAnim;
+.AnimationLayer.clearAnim = function() {
+	clearAnim_apimage_org(...);
+	delAPimages();
+};
+
+// setImagePos() をフックして、imageLeft/Topが変更された時の apimages の表示
+// 位置を調整する(imageLeft/Topを直接変更された時は対応できないのでお手上げ)
+.AnimationLayer.setImagePos_apimage_org = .AnimationLayer.setImagePos;
+.AnimationLayer.setImagePos = function (x, y) {
+	var xorg = imageLeft, yorg = imageTop;
+	// ↓こうしないとなぜかMessageLayerがsetImagePos_apimage_org()呼ぶ…
+	.AnimationLayer.setImagePos_apimage_org(...);
+	if (typeof(this.apimages) != 'undefined') {
+		// このifがないとなぜかmessageレイヤにも適用されちゃうので
+		var dx = +x-xorg, dy = +y-yorg;
+		for (var i = apimages.count-1; i >= 0; i--) {
+			apimages[i].left += dx;
+			apimages[i].top  += dy;
+		}
+	}
+};
+
+// assign() をフックして、apimages の assign() を呼ぶ
+.AnimationLayer.assign_apimage_org = .AnimationLayer.assign;
+.AnimationLayer.assign = function (src) {
+	delAPimages();
+	assign_apimage_org(...);
+	for (var i = 0; i < src.apimages.count; i++) {
+		apimages[i] = new AnimPimageLayer(window, this);
+		apimages[i].assign(src.apimages[i]);
+	}
+};
+
+// store() をフックして、apimages の store() を呼ぶ
+.AnimationLayer.store_apimage_org = .AnimationLayer.store;
+.AnimationLayer.store = function () {
+	var dic = store_apimage_org(...);
+	dic.apimages = [];
+	for (var i = 0; i < apimages.count; i++)
+		dic.apimages[i] = apimages[i].store();
+	return dic;
+};
+
+// restore() をフックして、apimages の restore() を呼ぶ
+.AnimationLayer.restore_apimage_org = .AnimationLayer.restore;
+.AnimationLayer.restore = function (dic) {
+	delAPimages();
+	restore_apimage_org(...);
+	for (var i = 0; i < dic.apimages.count; i++) {
+		apimages[i] = new AnimPimageLayer(window, this);
+		apimages[i].restore(dic.apimages[i]);
+	}
+};
+
+// name に合致する APimage を探して配列を返す
+.AnimationLayer.getAPimages = function(elm = %[])
+{
+	if (elm.name === void || elm.name == '')
+		return apimages;
+	var ary = [];
+	for (var i = 0; i < apimages.count; i++)
+		if (apimages[i].name == elm.name)
+			return [ apimages[i] ];
+	return ary;
+};
+
+// APimageのアニメーションを開始する
+.AnimationLayer.startAPimage = function(elm = %[]) {
+	var ary = getAPimages(elm);
+	for (var i = ary.count-1; i >= 0; i--)
+		ary[i].startAnim(elm.storage, elm.target);
+};
+
+// APimageのアニメーションを停止する
+.AnimationLayer.stopAPimage = function(elm = %[]) {
+	var ary = getAPimages(elm);
+	for (var i = ary.count-1; i >= 0; i--)
+		if (elm.immediate)
+			ary[i].stopAnim();
+		else
+			ary[i].conductor.stopping = true;
+};
+
+// APimageにparent.Anim_loadParamsのcolorCorrectionを加える
+.AnimationLayer.recopyAPimages = function(elm) {
+	var ary = getAPimages(elm);
+	for (var i = ary.count-1; i >= 0; i--)
+		ary[i].recopy();
+};
+
+
+
+// ここまで AnimationLayer の拡張 ----------------------------------------
+// ここから グローバル関数定義 -- ----------------------------------------
+
+
+// elm.layerのelm.pageのelm.nameを持つAPimageの配列を返す。
+// 全て指定した場合は一意になる。
+// 無指定を許し、その場合は該当する全ての配列を返す。
+function getAPimages(elm)
+{
+	var layers = getLayersFromElm(elm);
+	var ret = [];
+	for (var i = layers.count-1; i >= 0; i--)
+		add_ary(ret, layers[i].getAPimages(elm));
+	return ret;
+}
+
+//あるレイヤに属する APimageの名前配列を返す
+function getAPimageNames(elm)
+{
+	var ret = [];
+	var apimages = getAPimages(elm);
+	for (var i = apimages.count-1; i >= 0; i--)
+		ret.add(apimages[i].name);
+	return ret;
+}
+
+// あるレイヤの APimage に ColorCorrection を加える
+function recopyAPimages(elm)
+{
+	var layers = getLayersFromElm(elm);
+	for (var i = layers.count-1; i >= 0; i--)
+		layers[i].recopyAPimages(elm);
+}
+
+
+// アニメーションファイルを探す。あれば拡張子を除いた文字列、なければ
+// voidを返す charnameは通常voidだが、Macro_CharLayersと合わせて使う時
+// 用のキャラクタ名
+function findASDStorage(storage, charname)
+{
+	if (storage === void || storage == '')
+		return void;
+	if (Storages.extractStorageExt(storage) != '.asd')
+		storage += '.asd';
+	if (charname !== void) {
+		// cnameが設定されていれば、charname_storageを優先検索
+		var ret = charname + '_' + storage;
+		if (Storages.isExistentStorage(ret))
+			return Storages.chopStorageExt(ret);
+	}
+	if (!Storages.isExistentStorage(storage))
+		return void;
+	return Storages.chopStorageExt(storage);
+}
+
+
+
+// ToDo;
+// ・AnimationLayer.interrupted に値を書いた時、apimages も interruptedにする
