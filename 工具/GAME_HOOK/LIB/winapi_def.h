@@ -110,3 +110,11 @@ typedef BOOL(WINAPI* pExtTextOutA)(
 	);
 
 typedef ATOM(WINAPI* pRegisterClassA)(const WNDCLASSA*);
+
+typedef BOOL(WINAPI* pTextOutW)(
+    HDC hdc,
+    int nXStart,
+    int nYStart,
+    LPCWSTR lpString,
+    int cbString
+    );

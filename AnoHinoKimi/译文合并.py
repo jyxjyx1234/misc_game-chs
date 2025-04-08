@@ -35,16 +35,16 @@ namelist=open('namedict.json','r',encoding='utf8')
 namelist=json.load(namelist)
     
 h = HanziReplacer()
-h.ReadTransAndGetHanzidict([allText, namelist])
-h.hanzidict["优"] = "優"
-h.ChangeFont("WenQuanYi.ttf.json", "release/AnoHinoKimi_CHS.ttf", "AnoHinoKimi_CHS")
+h.ReadTransAndGetHanzidictFromFolder()
+h.gen_replace("data2.bin", enc = b"ALyCE")
+# h.ChangeFont("WenQuanYi.ttf.json", "release/AnoHinoKimi_CHS.ttf", "AnoHinoKimi_CHS")
 
-os.makedirs('dec_trans',exist_ok=True)
+os.makedirs('dump_trans',exist_ok=True)
 for filename in ori_filenames:
-    file=open('dec\\'+filename,'r',encoding='utf8').readlines()
-    outfile=open('dec_trans\\'+filename,'w',encoding='utf8')
+    file=open('dump\\'+filename,'r',encoding='utf8').readlines()
+    outfile=open('dump_trans\\'+filename,'w',encoding='utf8')
     yiwen = open_json("gt_output\\" + filename + ".json")
-    orifile = open_file_b("ori\\" + filename.replace(".txt", ""))
+    orifile = open_file_b("scr\\" + filename.replace(".txt", ""))
     texts = b""
     _, firstoffset, _, _ = readlineinfo(file[0])
 

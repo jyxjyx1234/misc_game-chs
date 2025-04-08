@@ -33,6 +33,7 @@ VOID __declspec(dllexport) stratmessage()
     //msg = L"适度游戏益脑，沉迷游戏伤身\n 仅供学习交流，请于24小时删除 ^ ^";
 #ifndef Release_for_others
     MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
+    //MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
     //if (GetACP() != 936) {
     //    MessageBoxW(NULL, L"请在简体中文 (CP936) 环境下运行！", L"错误", MB_ICONERROR);
     //    exit(0);

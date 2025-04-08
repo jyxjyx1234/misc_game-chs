@@ -1,4 +1,4 @@
-#define fixpath
+//#define fixpath
 
 #include <Windows.h>
 #include <iostream>

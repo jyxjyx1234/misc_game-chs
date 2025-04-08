@@ -35,8 +35,8 @@ def replace_symbol_for_gbk(text):
 
 def replace_halfwidth_with_fullwidth(string):
     # 将半角符号替换为全角符号
-    halfwidth_chars = ",?!~0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM _:()-―+%"
-    fullwidth_chars = "，？！～０１２３４５６７８９ｑｗｅｒｔｙｕｉｏｐａｓｄｆｇｈｊｋｌｚｘｃｖｂｎｍＱＷＥＲＴＹＵＩＯＰＡＳＤＦＧＨＪＫＬＺＸＣＶＢＮＭ\u3000＿：（）——＋％"
+    halfwidth_chars = "=,?!~0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM _:()-―+%/"
+    fullwidth_chars = "＝，？！～０１２３４５６７８９ｑｗｅｒｔｙｕｉｏｐａｓｄｆｇｈｊｋｌｚｘｃｖｂｎｍＱＷＥＲＴＹＵＩＯＰＡＳＤＦＧＨＪＫＬＺＸＣＶＢＮＭ\u3000＿：（）——＋％／"
     mapping = str.maketrans(halfwidth_chars, fullwidth_chars)
     return string.translate(mapping)
 

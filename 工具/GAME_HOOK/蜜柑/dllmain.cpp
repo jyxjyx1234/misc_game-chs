@@ -6,7 +6,7 @@
 #include "readconfig.h"
 #include "LE.h"
 #include "convert.h"
-#include <filesystem>
+//#include <filesystem>
 
 VOID __declspec(dllexport) startmessage()
 {
@@ -20,12 +20,12 @@ VOID __declspec(dllexport) startmessage()
     MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
 }
 
-BOOL HaveCHSPath() {
-    std::wstring currentPathW = std::filesystem::current_path().wstring();
-    BOOL res;
-    int bufferSize = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS, currentPathW.c_str(), -1, nullptr, 0, nullptr, &res);
-    return res;
-}
+//BOOL HaveCHSPath() {
+//    std::wstring currentPathW = std::filesystem::current_path().wstring();
+//    BOOL res;
+//    int bufferSize = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS, currentPathW.c_str(), -1, nullptr, 0, nullptr, &res);
+//    return res;
+//}
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -35,10 +35,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        if (HaveCHSPath()) {
-            MessageBoxW(NULL, (L"检测到有中文路径，请修改后重新启动:" + std::filesystem::current_path().wstring()).c_str(), NULL, NULL);
-            exit(1);
-        }
+        //if (HaveCHSPath()) {
+        //    MessageBoxW(NULL, (L"检测到有中文路径，请修改后重新启动:" + std::filesystem::current_path().wstring()).c_str(), NULL, NULL);
+        //    exit(1);
+        //}
 		install_LE();
 		startmessage();
         HOOK_main();

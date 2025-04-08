@@ -33,5 +33,6 @@ extern std::map<std::wstring, std::wstring> charReplaceMap;
 
 extern pGetGlyphOutlineA TrueGetGlyphOutlineA;
 extern pTextOutA TrueTextOutA;
+extern pTextOutW TrueTextOutW;
 extern pExtTextOutA TrueExtTextOutA;
 #endif

@@ -10,8 +10,10 @@ os.makedirs(outPath, exist_ok=True)
 files = os.listdir(transJsonPath)
 
 def checkHalfWidth(text):
-    if len(text) * 2 != len(text.encode("932")):
-        return True
+    for char in text:
+        if len(char.encode("utf8")) == 1 and char != "\n":
+            return True
+    return False
     
 def remove_nested_brackets(text, ifPrint = False):
     oriText = text
@@ -29,20 +31,25 @@ def remove_nested_brackets(text, ifPrint = False):
     return text
 
 def preProcess(text):
-    text = text.replace("\n", "_r")
     text = remove_nested_brackets(text)
-    text = text.replace("<", "").replace(">", "")
-    text = text.replace("(", "").replace(")", "")
-    text = text.replace("#", "").replace("*", "")
+    text = text.replace("\\n", "\n")
+    text = text.replace("......", "……").replace("....", "……").replace("...", "…").replace("..", "…").replace(".", "。")
+    text = text.replace("<", "").replace(">", "").replace("'", "").replace("\\", "")
+    text = text.replace("(", "").replace(")", "").replace("{", "").replace("}", "").replace("[", "").replace("]", "")
+    text = text.replace("#", "").replace("*", "").replace("@", "").replace("$", "")
     text = replace_halfwidth_with_fullwidth(text)
+    text = processQuote(text)
+    text = h.hanzitihuan(text)
     if checkHalfWidth(text):
-        raise RuntimeError(f"Halfwidth character detected: {text}")
+        print(f"Halfwidth character detected: {text}")
+    text = text.replace("\n", "_r")
     return text
 
 namedict = open_json("namedict_trans.json")
 
 allText = []
 for fileName in files:
+    # print(fileName)
     transJson = open_json(transJsonPath + fileName)
     for d in transJson:
         allText.append(d["message"])
@@ -54,6 +61,7 @@ for n in namedict:
     namedict[n] = h.hanzitihuan(namedict[n])
 
 for f in files:
+    # print(f)
     lines = open(oriTXTPath + f.replace(".json", ".txt"), "r", encoding="utf8")
     transJson = open_json(transJsonPath + f)
     out = []
@@ -73,7 +81,8 @@ for f in files:
                         try:
                             name = namedict[name]
                         except:
-                            print(name)
+                            # print(name)
+                            pass
                     return f"【{name}】/【{m.group(2)}】{trans}"
                 paras[2] = "str(" + re.sub("【(.*?)】/【(.*?)】(.*)", _, texts) + ")"
                 newl = "||".join(paras)

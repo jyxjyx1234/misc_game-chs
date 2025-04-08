@@ -20,4 +20,6 @@ std::string replaceSubString(const std::string& ori, const std::string& a, const
 std::wstring sjisStringToWString(const std::string& str);
 std::wstring GBKStringToWString(const std::string& str);
 std::wstring ACPStringToWString(const std::string& str);
+std::wstring CPStringToWString(const std::string& str, int cp);
+LPCSTR WideStringToCPLPCSTR(std::wstring str, int cp);
 #endif

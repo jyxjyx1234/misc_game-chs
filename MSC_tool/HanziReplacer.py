@@ -55,6 +55,7 @@ class HanziReplacer(object):
             else:
                 for i in d:
                     self._GetInvalidChars(i)
+        self._GetInvalidChars("，？！～０１２３４５６７８９ｑｗｅｒｔｙｕｉｏｐａｓｄｆｇｈｊｋｌｚｘｃｖｂｎｍＱＷＥＲＴＹＵＩＯＰＡＳＤＦＧＨＪＫＬＺＸＣＶＢＮＭ\u3000＿：（）——＋％")
         self._Createhanzidict()
 
     def ReadTransAndGetHanzidictFromFolder(self, folderpath, otherfiles = []):

@@ -112,6 +112,14 @@ std::wstring ACPStringToWString(const std::string& str)
 	return wstrTo;
 }
 
+std::wstring CPStringToWString(const std::string& str, int cp)
+{
+	int size_needed = MultiByteToWideChar(cp, 0, &str[0], (int)str.size(), NULL, 0);
+	std::wstring wstrTo(size_needed, 0);
+	MultiByteToWideChar(cp, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+	return wstrTo;
+}
+
 
 std::wstring sjisLPCSTRToWideString(LPCSTR str)
 {
@@ -123,52 +131,31 @@ std::wstring sjisLPCSTRToWideString(LPCSTR str)
 	return wstrTo;
 }
 
-LPCSTR WideStringToGBKLPCSTR(std::wstring str)
+LPCSTR WideStringToCPLPCSTR(std::wstring str, int cp)
 {
-	int nLen = WideCharToMultiByte(936, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
-
+	int nLen = WideCharToMultiByte(cp, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
 	if (nLen == 0)
 	{
 		return nullptr;
 	}
-
-	// 分配多字节字符数组
 	char* pGbkString = new char[nLen];
-
-	// 执行实际的转换
-	int nResult = WideCharToMultiByte(936, 0, str.c_str(), -1, pGbkString, nLen, NULL, NULL);
-
+	int nResult = WideCharToMultiByte(cp, 0, str.c_str(), -1, pGbkString, nLen, NULL, NULL);
 	if (nResult == 0)
 	{
 		delete[] pGbkString;
 		return nullptr;
 	}
-
 	return pGbkString;
+}
+
+LPCSTR WideStringToGBKLPCSTR(std::wstring str)
+{
+	return WideStringToCPLPCSTR(str, 936);
 }
 
 LPCSTR WideStringToSJISLPCSTR(std::wstring str)
 {
-	int nLen = WideCharToMultiByte(932, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
-
-	if (nLen == 0)
-	{
-		return nullptr;
-	}
-
-	// 分配多字节字符数组
-	char* pSjisString = new char[nLen];
-
-	// 执行实际的转换
-	int nResult = WideCharToMultiByte(932, 0, str.c_str(), -1, pSjisString, nLen, NULL, NULL);
-
-	if (nResult == 0)
-	{
-		delete[] pSjisString;
-		return nullptr;
-	}
-
-	return pSjisString;
+	return WideStringToCPLPCSTR(str, 932);
 }
 
 LPCSTR SubString(LPCSTR originalStr, int n) {

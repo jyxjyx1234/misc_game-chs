@@ -86,12 +86,12 @@ void install_LE() {
 	charset = SHIFTJIS_CHARSET;
 	timezone = "Tokyo Standard Time";
 
-	const HMODULE hLoader = LoadLibraryA("hook.dll");
-	if (hLoader == nullptr)
-	{
-		MessageBox(nullptr, L"请放入完整补丁文件!", L"Error", MB_ICONERROR);
-		exit(0);
-	}
+	const HMODULE hLoader = LoadLibraryA("LoaderDll.dll");
+	//if (hLoader == nullptr)
+	//{
+	//	MessageBox(nullptr, L"请放入完整补丁文件!", L"Error", MB_ICONERROR);
+	//	exit(0);
+	//}
 	if (GetACP() == 932)
 	{
 		return;

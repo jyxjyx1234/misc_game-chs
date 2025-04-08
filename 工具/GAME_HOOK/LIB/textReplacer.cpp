@@ -3,6 +3,7 @@
 std::map<std::wstring, std::wstring> charReplaceMap;
 pGetGlyphOutlineA TrueGetGlyphOutlineA = GetGlyphOutlineA;
 pTextOutA TrueTextOutA = TextOutA;
+pTextOutW TrueTextOutW = TextOutW;
 pExtTextOutA TrueExtTextOutA = ExtTextOutA;
 
 std::wstring MultiByteToWide(const std::string& str, int cp) {
@@ -58,8 +59,9 @@ std::map<std::wstring, std::wstring> readReplaceMap(const std::string& filename,
     return result;
 }
 
-std::wstring changeText(LPCSTR text) {
-    std::wstring wstr = sjisStringToWString(text);
+
+std::wstring changeTextW(LPCWSTR text) {
+    std::wstring wstr = text;
     std::wstring new_wstr = L"";
     for (int i = 0; i < wstr.size(); i++) {
         if (charReplaceMap.find(wstr.substr(i, 1)) != charReplaceMap.end()) {
@@ -72,102 +74,32 @@ std::wstring changeText(LPCSTR text) {
     return new_wstr;
 }
 
-#include <windows.h>
-#include <stdio.h>
+std::wstring changeText(LPCSTR text) {
+    std::wstring wstr = sjisStringToWString(text);
+    //std::wstring new_wstr = L"";
+    //for (int i = 0; i < wstr.size(); i++) {
+    //    if (charReplaceMap.find(wstr.substr(i, 1)) != charReplaceMap.end()) {
+    //        new_wstr += charReplaceMap[wstr.substr(i, 1)];
+    //    }
+    //    else {
+    //        new_wstr += wstr.substr(i, 1);
+    //    }
+    //}
+    return changeTextW(wstr.c_str());
+}
 
-void PrintHDCInfo(HDC hdc) {
-    // 获取当前点
-    POINT ptCurrent;
-    if (GetCurrentPositionEx(hdc, &ptCurrent)) {
-        printf("Current Position: (%ld, %ld)\n", ptCurrent.x, ptCurrent.y);
-    }
-    else {
-        printf("Failed to get current position.\n");
-    }
-
-    // 获取视口原点
-    POINT ptViewportOrg;
-    if (GetViewportOrgEx(hdc, &ptViewportOrg)) {
-        printf("Viewport Origin: (%ld, %ld)\n", ptViewportOrg.x, ptViewportOrg.y);
-    }
-    else {
-        printf("Failed to get viewport origin.\n");
-    }
-
-    // 获取窗口原点
-    POINT ptWindowOrg;
-    if (GetWindowOrgEx(hdc, &ptWindowOrg)) {
-        printf("Window Origin: (%ld, %ld)\n", ptWindowOrg.x, ptWindowOrg.y);
-    }
-    else {
-        printf("Failed to get window origin.\n");
-    }
-
-    // 获取视口范围和窗口范围
-    SIZE szViewportExt, szWindowExt;
-    if (GetViewportExtEx(hdc, &szViewportExt)) {
-        printf("Viewport Extent: (%ld, %ld)\n", szViewportExt.cx, szViewportExt.cy);
-    }
-    else {
-        printf("Failed to get viewport extent.\n");
-    }
-    if (GetWindowExtEx(hdc, &szWindowExt)) {
-        printf("Window Extent: (%ld, %ld)\n", szWindowExt.cx, szWindowExt.cy);
-    }
-    else {
-        printf("Failed to get window extent.\n");
-    }
-
-    // 获取世界变换矩阵
-    XFORM xform;
-    if (GetWorldTransform(hdc, &xform)) {
-        printf("World Transform Matrix:\n");
-        printf("  eM11: %f, eM12: %f\n", xform.eM11, xform.eM12);
-        printf("  eM21: %f, eM22: %f\n", xform.eM21, xform.eM22);
-        printf("  eDx:  %f, eDy:  %f\n", xform.eDx, xform.eDy);
-    }
-    else {
-        printf("No world transform applied.\n");
-    }
-
-    // 获取裁剪区域
-    HRGN hClipRgn = CreateRectRgn(0, 0, 0, 0);
-    if (GetClipRgn(hdc, hClipRgn) == 1) {
-        RECT rcClip;
-        if (GetRgnBox(hClipRgn, &rcClip)) {
-            printf("Clipping Region: (%ld, %ld) to (%ld, %ld)\n",
-                rcClip.left, rcClip.top, rcClip.right, rcClip.bottom);
+std::string changeTextU8(LPCSTR text) {
+    std::wstring wstr = CPStringToWString(text, CP_UTF8);
+    std::wstring new_wstr = L"";
+    for (int i = 0; i < wstr.size(); i++) {
+        if (charReplaceMap.find(wstr.substr(i, 1)) != charReplaceMap.end()) {
+            new_wstr += charReplaceMap[wstr.substr(i, 1)];
         }
         else {
-            printf("Failed to get clipping region bounds.\n");
+            new_wstr += wstr.substr(i, 1);
         }
     }
-    else {
-        printf("No clipping region applied.\n");
-    }
-    DeleteObject(hClipRgn);
-
-    // 获取背景模式和文本颜色
-    int bgMode = GetBkMode(hdc);
-    COLORREF bgColor = GetBkColor(hdc);
-    COLORREF textColor = GetTextColor(hdc);
-    printf("Background Mode: %s\n", bgMode == OPAQUE ? "OPAQUE" : "TRANSPARENT");
-    printf("Background Color: RGB(%d, %d, %d)\n",
-        GetRValue(bgColor), GetGValue(bgColor), GetBValue(bgColor));
-    printf("Text Color: RGB(%d, %d, %d)\n",
-        GetRValue(textColor), GetGValue(textColor), GetBValue(textColor));
-
-    // 获取字体信息（可选）
-    TEXTMETRIC tm;
-    if (GetTextMetrics(hdc, &tm)) {
-        printf("Font Information:\n");
-        printf("  Height: %ld, Ascent: %ld, Descent: %ld\n",
-            tm.tmHeight, tm.tmAscent, tm.tmDescent);
-        printf("  Average Char Width: %ld\n", tm.tmAveCharWidth);
-    }
-    else {
-        printf("Failed to get text metrics.\n");
-    }
+    return std::string(WideStringToCPLPCSTR(new_wstr, CP_UTF8));
 }
 
 
@@ -179,17 +111,17 @@ BOOL WINAPI HOOK_TextOutA(
     int cbString
 ) {
     // 获取当前字体
+    nYStart += 10;
 	printf("Hooked TextOutA\n");
     HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
     LOGFONTA logFont;
     GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
-
+    std::wstring new_wstr = changeText(lpString);
     // 修改当前字体的字符集为936
     logFont.lfCharSet = 134;
     HFONT hNewFont = CreateFontIndirectA(&logFont);
     HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
 
-    std::wstring new_wstr = changeText(lpString);
 	LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
     BOOL result = TrueTextOutA(hdc, nXStart, nYStart, new_str, cbString);
 
@@ -200,12 +132,47 @@ BOOL WINAPI HOOK_TextOutA(
     return result;
 }
 
+BOOL WINAPI HOOK_TextOutA_U8(
+    HDC hdc,
+    int nXStart,
+    int nYStart,
+    LPCSTR lpString,
+    int cbString
+) {
+    printf("Hooked TextOutA_U8\n");;
+    std::string new_str = changeTextU8(lpString);
+	cbString = new_str.size();
+    return TrueTextOutA(hdc, nXStart, nYStart, new_str.c_str(), cbString);
+}
+
+BOOL WINAPI HOOK_TextOutW(
+	HDC hdc,
+	int nXStart,
+	int nYStart,
+	LPCWSTR lpString,
+	int cbString
+) {
+	printf("Hooked TextOutW\n");
+	std::wstring new_wstr = changeTextW(lpString);
+	return TrueTextOutW(hdc, nXStart, nYStart, new_wstr.c_str(), cbString);
+}
+
 BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* lprc, LPCSTR lpString, UINT cbCount, const INT* lpDx) {
 	if (lpString == NULL) {
 		return TrueExtTextOutA(hdc, X, Y, fuOptions, lprc, lpString, cbCount, lpDx);
 	}
 	std::wstring new_wstr = changeText(lpString);
-	return ExtTextOutW(hdc, X, Y, fuOptions, lprc, new_wstr.c_str(), wcslen(new_wstr.c_str()), lpDx);
+    LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
+    HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+    LOGFONTA logFont;
+    GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+    logFont.lfCharSet = 134;
+    HFONT hNewFont = CreateFontIndirectA(&logFont);
+    HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
+	auto res = TrueExtTextOutA(hdc, X, Y, fuOptions, lprc, new_str, strlen(new_str), lpDx);
+    SelectObject(hdc, hOldFont);
+    DeleteObject(hNewFont);
+	return res;
 }
 
 DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMETRICS lpgm, DWORD cbBuffer, LPVOID lpvBuffer, const MAT2* lpmat2)
@@ -249,6 +216,12 @@ void install_hook_textreplace(int mode) {
 	else if (mode == 3) {
 		DetourAttach(&(PVOID&)TrueExtTextOutA, HOOK_ExtTextOutA);
 	}
+    else if (mode == 4) {
+        DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA_U8);
+    }
+    else if (mode == 5) {
+        DetourAttach(&(PVOID&)TrueTextOutW, HOOK_TextOutW);
+    }
 	DetourTransactionCommit();
 }
 
@@ -264,6 +237,12 @@ void install_hook_textreplaceEx(int mode, std::string filepath, std::string key)
     }
     else if (mode == 3) {
         DetourAttach(&(PVOID&)TrueExtTextOutA, HOOK_ExtTextOutA);
+    }
+    else if (mode == 4) {
+        DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA_U8);
+    }
+    else if (mode == 5) {
+        DetourAttach(&(PVOID&)TrueTextOutW, HOOK_TextOutW);
     }
     DetourTransactionCommit();
 }

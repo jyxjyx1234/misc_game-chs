@@ -40,7 +40,7 @@ HFONT WINAPI HookedCreateFontW(
 		//printf("New Font Name: %ls\n", pszFaceName);
   //  }
 #ifdef CHECK_ORI_FONT
-	if (std::wstring(pszFaceName) == L"£Í£Ó £Ð¥´¥·¥Ã¥¯" || std::wstring(pszFaceName) == L"£Í£Ó ¥´¥·¥Ã¥¯") {
+	if (std::wstring(pszFaceName) == L"£Í£Ó £Ð¥´¥·¥Ã¥¯" || std::wstring(pszFaceName) == L"£Í£Ó ¥´¥·¥Ã¥¯" || std::wstring(pszFaceName) == L"MS Gothic" || std::wstring(pszFaceName) == L"MS PGothic") {
 		pszFaceName = newFontName.c_str();
 	}
 #else
