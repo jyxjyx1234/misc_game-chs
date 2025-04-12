@@ -118,3 +118,19 @@ typedef BOOL(WINAPI* pTextOutW)(
     LPCWSTR lpString,
     int cbString
     );
+
+typedef int(WINAPI* pEnumFontFamiliesExA)(
+	HDC hdc,
+	LPLOGFONTA lpLogfontA,
+	FONTENUMPROCA lpEnumFontFamExProc,
+	LPARAM lParam,
+	DWORD dwFlags
+	);
+
+typedef int(WINAPI* pEnumFontFamiliesExW)(
+	HDC hdc,
+	LPLOGFONTW lpLogfontW,
+	FONTENUMPROCW lpEnumFontFamExProc,
+	LPARAM lParam,
+	DWORD dwFlags
+	);

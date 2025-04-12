@@ -4,7 +4,22 @@ pCreateFontA TrueCreateFontA = CreateFontA;
 pCreateFontW TrueCreateFontW = CreateFontW;
 pCreateFontIndirectA TrueCreateFontIndirectA = CreateFontIndirectA;
 pCreateFontIndirectW TrueCreateFontIndirectW = CreateFontIndirectW;
+pEnumFontFamiliesExA TrueEnumFontFamiliesExA = EnumFontFamiliesExA;
+pEnumFontFamiliesExW TrueEnumFontFamiliesExW = EnumFontFamiliesExW;
 
+
+typedef struct _XFONT_CALLBACKW
+{
+    PVOID         Param;
+    FONTENUMPROCW CallBack;
+} XFONT_CALLBACKW, * PXFONT_CALLBACKW;
+
+
+typedef struct _XFONT_CALLBACKA
+{
+    PVOID         Param;
+    FONTENUMPROCA CallBack;
+} XFONT_CALLBACKA, * PXFONT_CALLBACKA;
 
 std::wstring newFontName = L"NOTCHANGE";
 std::wstring newFontName_shu = L"NOTCHANGE";
@@ -101,6 +116,52 @@ HFONT WINAPI HookedCreateFontIndirectA(CONST LOGFONTA* lplf) {
 	return HookedCreateFontA(lplf->lfHeight, lplf->lfWidth, lplf->lfEscapement, lplf->lfOrientation, lplf->lfWeight, lplf->lfItalic, lplf->lfUnderline, lplf->lfStrikeOut, lplf->lfCharSet, lplf->lfOutPrecision, lplf->lfClipPrecision, lplf->lfQuality, lplf->lfPitchAndFamily, lplf->lfFaceName);
 }
 
+
+int NTAPI GenerateFontCallbackW(LOGFONTW* lpLogFont, CONST TEXTMETRICW* lpMetric, DWORD dwFlags, LPARAM lParam)
+{
+    PXFONT_CALLBACKW Param;
+
+    Param = (PXFONT_CALLBACKW)lParam;
+    lpLogFont->lfCharSet = SHIFTJIS_CHARSET;
+
+    return Param->CallBack(lpLogFont, lpMetric, dwFlags, (LPARAM)Param->Param);
+}
+
+int NTAPI GenerateFontCallbackA(LOGFONTA* lpLogFont, CONST TEXTMETRICA* lpMetric, DWORD dwFlags, LPARAM lParam)
+{
+    PXFONT_CALLBACKA Param;
+
+    Param = (PXFONT_CALLBACKA)lParam;
+    lpLogFont->lfCharSet = SHIFTJIS_CHARSET;
+
+    return Param->CallBack(lpLogFont, lpMetric, dwFlags, (LPARAM)Param->Param);
+}
+
+int WINAPI HookedEnumFontFamiliesExW(
+	HDC hdc,
+    LPLOGFONTW lpLogfont,
+    FONTENUMPROCW lpProc, 
+    LPARAM        lParam, 
+    DWORD         dwFlags) {
+    XFONT_CALLBACKW Param;
+    Param.CallBack = lpProc;
+    Param.Param = (PVOID)lParam;
+	return TrueEnumFontFamiliesExW(hdc, lpLogfont, (FONTENUMPROCW)GenerateFontCallbackW, (LPARAM)&Param, dwFlags);
+}
+
+int WINAPI HookedEnumFontFamiliesExA(
+	HDC hdc,
+	LPLOGFONTA lpLogfont,
+	FONTENUMPROCA lpProc,
+	LPARAM        lParam,
+	DWORD         dwFlags) {
+	XFONT_CALLBACKA Param;
+	Param.CallBack = lpProc;
+	Param.Param = (PVOID)lParam;
+	return TrueEnumFontFamiliesExA(hdc, lpLogfont, (FONTENUMPROCA)GenerateFontCallbackA, (LPARAM)&Param, dwFlags);
+}
+
+
 void installFontHook_main(BOOL A, BOOL W, BOOL IA, BOOL IW) {
 	newFontName_shu = L"@" + newFontName;
     DetourTransactionBegin();
@@ -109,5 +170,13 @@ void installFontHook_main(BOOL A, BOOL W, BOOL IA, BOOL IW) {
 	if (W) DetourAttach(&(PVOID&)TrueCreateFontW, HookedCreateFontW);
 	if (IA) DetourAttach(&(PVOID&)TrueCreateFontIndirectA, HookedCreateFontIndirectA);
 	if (IW) DetourAttach(&(PVOID&)TrueCreateFontIndirectW, HookedCreateFontIndirectW);
+    DetourTransactionCommit();
+}
+
+void installEnumFontHook_main() {
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    DetourAttach(&(PVOID&)TrueEnumFontFamiliesExA, HookedEnumFontFamiliesExA);
+    DetourAttach(&(PVOID&)TrueEnumFontFamiliesExW, HookedEnumFontFamiliesExW);
     DetourTransactionCommit();
 }

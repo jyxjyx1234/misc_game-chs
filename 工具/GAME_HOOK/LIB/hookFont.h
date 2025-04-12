@@ -53,3 +53,4 @@ HFONT WINAPI HookedCreateFontA(
 HFONT WINAPI HookedCreateFontIndirectA(CONST LOGFONTA* lplf);
 
 void installFontHook_main(BOOL A, BOOL W, BOOL IA, BOOL IW);
+void installEnumFontHook_main();

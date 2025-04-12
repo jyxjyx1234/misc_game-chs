@@ -51,6 +51,7 @@ void HOOK_main() {
 	newCharset = config.ReadInt("FONT", "CHARSET", 1);
 	loadfont();
 	installFontHook_main(config.ReadInt("FONT","A", 0), config.ReadInt("FONT", "W", 0), config.ReadInt("FONT", "IA", 0), config.ReadInt("FONT", "IW", 0));
+	//installEnumFontHook_main();
 
 	if (config.ReadInt("WINDOW", "ENABLE", 0) == 1) {
 		changeWindowCfg.oriWindowName = config.ReadString("WINDOW", "ORI", "");

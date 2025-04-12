@@ -24,7 +24,7 @@ VOID __declspec(dllexport) stratmessage()
 {
     rr::RConfig config;
     config.ReadConfig("hook.ini");
-    std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3-haiku");
+    std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3.7-sonnet");
     LPCWSTR modeltypew = string2LPCWSTR(modeltype);
     std::wstring msg = L"本补丁由jyxjyx1234制作，使用"
         + std::wstring(modeltypew) 
