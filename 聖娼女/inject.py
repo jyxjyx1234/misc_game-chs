@@ -43,7 +43,7 @@ def split_text(line, linecount):
     if len(res) > linecount:
         raise ValueError(f"Line count exceeds the limit: {oriline} {linecount} {res}")
     
-    for char in ["。", "、", "，"]:
+    for char in ["。", "！", "？", "、", "，"]:
         while True:
             temp = []
             flag = False
@@ -84,6 +84,16 @@ for file in os.listdir(oriPath):
             trans = trans.replace("......", "……").replace(".....", "……").replace("....", "……").replace("...", "…").replace("..", "…").replace(".", "。").replace(",", "，")
             if "#N" in ori:
                 trans = trans.replace("\\n", "#N").replace("\n", "#N")
+                if "#N" not in trans:
+                    linecount = ori.count("#N") + 1
+                    width = len(trans) // linecount
+                    new_trans = ""
+                    for _ in range(linecount):
+                        new_trans += trans[_ * width:(_ + 1) * width] + "#N"
+                    new_trans += trans[linecount * width:]
+                    if new_trans.endswith("#N"):
+                        new_trans = new_trans[:-2]
+                    trans = new_trans
             else:
                 trans = trans.replace("\\n", "").replace("\n", "")
             trans = re.sub(r"#A0.", lambda x: replace_halfwidth_with_fullwidth(x.group()), trans)

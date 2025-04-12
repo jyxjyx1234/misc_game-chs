@@ -33,7 +33,7 @@ dat = {
     "urls": [
         {
             "name": f"{gamename} {modelname}.rar",
-            "url": f""
+            "url": f"https://github.com/jyxjyx1234/misc_game-chs/blob/re_upload/%E8%81%96%E5%A8%BC%E5%A5%B3/release/Sei%20Shoujo%20~Seido%20Ikusei%20Gakuen~.rar"
         }
     ],
     "comment": "",
@@ -41,9 +41,9 @@ dat = {
     "times": time.strftime("%Y-%#m-%#d %H:%M:%S", time.localtime())
 }
 
-for f in os.listdir("release"):
-    if f.endswith(".rar"):
-        os.rename(os.path.join("release", f), os.path.join("release", f"{gamename} {modelname}.rar"))
+# for f in os.listdir("release"):
+    # if f.endswith(".rar"):
+        # os.rename(os.path.join("release", f), os.path.join("release", f"{gamename} {modelname}.rar"))
         # shutil.copy(os.path.join("release", f"{gamename} {modelname}.rar"), os.path.join(res_path, f"{gamename} {modelname}.rar"))
 
 save_json(os.path.join(path, filename), dat)

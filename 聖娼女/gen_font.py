@@ -28,12 +28,12 @@ def get_pos(idx):
 def draw_text(img: Image.Image, draw: ImageDraw, text, pos, font, r, g, b, a):
     if text in ["\u3000"]:
         return
-    if text in ["【", "】", "「", "」", "『", "』", "（", "）", "…"]:
+    if text in ["【", "】", "「", "」", "『", "』", "（", "）", "…", "—", "-", "－", "\u2015", "\u2013"]:
         rotated_img = Image.new('RGBA', (48, 48), (0, 0, 0, 0))
         rotated_draw = ImageDraw.Draw(rotated_img)
         rotated_draw.text((0, 0), text, fill=(r, g, b, a), font=font, stroke_width=3, stroke_fill=(255, 255, 255, 255))
         rotated_img = rotated_img.rotate(-90, expand=False)
-        if text in ["…"]:
+        if text in ["…", "—", "-", "－", "\u2015", "\u2013"]:
             new_img = Image.new('RGBA', (48, 48), (0, 0, 0, 0))
             new_img.paste(rotated_img, (-14, 0), rotated_img)
             rotated_img = new_img
@@ -78,6 +78,7 @@ if __name__ == '__main__':
     white_img.save("white.png")
     draw_font("_moji_AN48_", "g00_redraw_bmp", "simsun.ttc")
     # draw_font("_moji_SE48_", "g00_redraw_bmp", "simsun.ttc")
-    print(get_char(134, 21 * 9 - 1))
-    print(get_idx("。"))
+    # print(get_char(134, 21 * 9 - 1))
+    # print(get_idx("。"))
     print(get_idx("…"))
+    print(get_idx("—"))
