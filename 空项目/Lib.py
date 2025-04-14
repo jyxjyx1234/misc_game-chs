@@ -162,6 +162,17 @@ class OriJsonOutput():
                 namedict[i['name']] = i['name']
         return namedict
     
+    def get_last_msg(self):
+        msg = self.outlist[-1]["message"]
+        return msg
+    
+    def recover_append(self):
+        if self.dic != {}:
+            raise ValueError("dic is not empty")
+        self.dic = self.outlist[-1]
+        self.outlist.pop()
+        self.textcount -= len(self.dic['message'])
+
 class BytesReader(io.BytesIO):
     def __init__(self, data):
         super().__init__(data)

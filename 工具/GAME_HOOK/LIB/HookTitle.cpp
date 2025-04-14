@@ -205,6 +205,9 @@ HWND WINAPI HookedCreateWindowExW(
         lpParam
     );
     printf("HOOK CreateWindowExW sucess!\n\n");
+	if (lpWindowName == nullptr) {
+		return res;
+	}
     std::wstring oriname(lpWindowName);
     std::wstring oriWindowNameW = GBKStringToWString(changeWindowCfg.oriWindowName);
     newWindowNameW = changeWindowCfg.newWindowName;
@@ -240,6 +243,6 @@ void hookTitle_main() {
     DetourAttach(&(PVOID&)TruesetWindowTextA, HookedSetWindowTextA);
     DetourAttach(&(PVOID&)TruesetWindowTextW, HookedSetWindowTextW);
     DetourAttach(&(PVOID&)TrueCreateWindowExA, HookedCreateWindowExA);
-    //DetourAttach(&(PVOID&)TrueCreateWindowExW, HookedCreateWindowExW);
+    DetourAttach(&(PVOID&)TrueCreateWindowExW, HookedCreateWindowExW);
     DetourTransactionCommit();
 }

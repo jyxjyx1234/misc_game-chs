@@ -4,8 +4,8 @@ pCreateFontA TrueCreateFontA = CreateFontA;
 pCreateFontW TrueCreateFontW = CreateFontW;
 pCreateFontIndirectA TrueCreateFontIndirectA = CreateFontIndirectA;
 pCreateFontIndirectW TrueCreateFontIndirectW = CreateFontIndirectW;
-pEnumFontFamiliesExA TrueEnumFontFamiliesExA = EnumFontFamiliesExA;
-pEnumFontFamiliesExW TrueEnumFontFamiliesExW = EnumFontFamiliesExW;
+//pEnumFontFamiliesExA TrueEnumFontFamiliesExA = EnumFontFamiliesExA;
+//pEnumFontFamiliesExW TrueEnumFontFamiliesExW = EnumFontFamiliesExW;
 
 
 typedef struct _XFONT_CALLBACKW
@@ -137,29 +137,29 @@ int NTAPI GenerateFontCallbackA(LOGFONTA* lpLogFont, CONST TEXTMETRICA* lpMetric
     return Param->CallBack(lpLogFont, lpMetric, dwFlags, (LPARAM)Param->Param);
 }
 
-int WINAPI HookedEnumFontFamiliesExW(
-	HDC hdc,
-    LPLOGFONTW lpLogfont,
-    FONTENUMPROCW lpProc, 
-    LPARAM        lParam, 
-    DWORD         dwFlags) {
-    XFONT_CALLBACKW Param;
-    Param.CallBack = lpProc;
-    Param.Param = (PVOID)lParam;
-	return TrueEnumFontFamiliesExW(hdc, lpLogfont, (FONTENUMPROCW)GenerateFontCallbackW, (LPARAM)&Param, dwFlags);
-}
-
-int WINAPI HookedEnumFontFamiliesExA(
-	HDC hdc,
-	LPLOGFONTA lpLogfont,
-	FONTENUMPROCA lpProc,
-	LPARAM        lParam,
-	DWORD         dwFlags) {
-	XFONT_CALLBACKA Param;
-	Param.CallBack = lpProc;
-	Param.Param = (PVOID)lParam;
-	return TrueEnumFontFamiliesExA(hdc, lpLogfont, (FONTENUMPROCA)GenerateFontCallbackA, (LPARAM)&Param, dwFlags);
-}
+//int WINAPI HookedEnumFontFamiliesExW(
+//	HDC hdc,
+//    LPLOGFONTW lpLogfont,
+//    FONTENUMPROCW lpProc, 
+//    LPARAM        lParam, 
+//    DWORD         dwFlags) {
+//    XFONT_CALLBACKW Param;
+//    Param.CallBack = lpProc;
+//    Param.Param = (PVOID)lParam;
+//	return TrueEnumFontFamiliesExW(hdc, lpLogfont, (FONTENUMPROCW)GenerateFontCallbackW, (LPARAM)&Param, dwFlags);
+//}
+//
+//int WINAPI HookedEnumFontFamiliesExA(
+//	HDC hdc,
+//	LPLOGFONTA lpLogfont,
+//	FONTENUMPROCA lpProc,
+//	LPARAM        lParam,
+//	DWORD         dwFlags) {
+//	XFONT_CALLBACKA Param;
+//	Param.CallBack = lpProc;
+//	Param.Param = (PVOID)lParam;
+//	return TrueEnumFontFamiliesExA(hdc, lpLogfont, (FONTENUMPROCA)GenerateFontCallbackA, (LPARAM)&Param, dwFlags);
+//}
 
 
 void installFontHook_main(BOOL A, BOOL W, BOOL IA, BOOL IW) {
@@ -176,7 +176,7 @@ void installFontHook_main(BOOL A, BOOL W, BOOL IA, BOOL IW) {
 void installEnumFontHook_main() {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    DetourAttach(&(PVOID&)TrueEnumFontFamiliesExA, HookedEnumFontFamiliesExA);
-    DetourAttach(&(PVOID&)TrueEnumFontFamiliesExW, HookedEnumFontFamiliesExW);
+    //DetourAttach(&(PVOID&)TrueEnumFontFamiliesExA, HookedEnumFontFamiliesExA);
+    //DetourAttach(&(PVOID&)TrueEnumFontFamiliesExW, HookedEnumFontFamiliesExW);
     DetourTransactionCommit();
 }

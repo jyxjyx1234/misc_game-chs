@@ -12,7 +12,7 @@ id=1#计数
 #选项：\x78\x66\x00\x00\x00\x79\x01\x7a\x00+一个字节（推测为长度）+选项内容+\x42\x7b
 #文本：\x1B\x12\x00\x01\x06\x00\x20\x4c\x00\x00\x00\xff\x02\x06\x00\x70\x3b\xa2\x00\x00\xFF\xFF +文本内容+\x1B\x03\x00\x01\x06\x00\x70\xBE\xA6\x00\x00\xFF\xFF
 #不同游戏会有细微不同，需要修改
-name_and_message=re.compile(b'(\x78\x4b\x00\x00\x00\x79\x01\x7a\x00)([\x00-\xff])([\x00-\xff]*?)(\x42\x7b)|(\x1B\x12\x00\x01\x06\x00\x20\x4c\x00\x00\x00\xff\x02\x06\x00\x70\x3b\xa2\x00\x00\xFF\xFF)([\x00-\xff]*?)(\x1B\x03\x00\x01\x06\x00\x70\xBE\xA6\x00\x00\xFF\xFF)|(\x78\x66\x00\x00\x00\x79\x01\x7a\x00[\x00-\xff])([\x00-\xff]*?)(\x42\x7b)')
+name_and_message=re.compile(b'(\x78\x4b\x00\x00\x00\x79\x01\x7a\x00)([\x00-\xff])([\x00-\xff]*?)(\x42\x7b)|(\xff\x02\x06\x00\x70\x3b\xa2\x00\x00\xFF\xFF)([\x00-\xff]*?)(\x1B\x03\x00\x01\x06\x00\x70\xBE\xA6\x00\x00\xFF\xFF)|(\x78\x66\x00\x00\x00\x79\x01\x7a\x00[\x00-\xff])([\x00-\xff]*?)(\x42\x7b)')
 
 def get_plane_text(text:bytes)->bytes:
     '''
@@ -22,6 +22,7 @@ def get_plane_text(text:bytes)->bytes:
     text=text.replace(b'\x1B\x03\x00\x01\x06\x00\x19\x32\xC7\x01\x00\xFF\xFF',b'')
     text=re.sub(b'\x1B\xF9\x01\x01[\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]',b'',text)
     text=re.sub(b'\xFF\x02[\x00-\xff]*?\xFF\xFF',b'',text)
+    text=re.sub(b'\x1B\xF8\x01\xFF',b'',text)
     return text
 
 #进行匹配
@@ -36,19 +37,27 @@ for i in name_and_message_matches:
         dic['name']=i[2].decode(encoding='sjis')
     elif i[5]!=b'':
         out=get_plane_text(i[5])
-        dic['message']=out.decode(encoding='sjis')
+        try:
+            dic['message']=out.decode(encoding='sjis')
+        except:
+            print(i[5].hex())
+            exit()
+        dic['ori']=dic['message']
         dic["id"]=id
+        dic["type"]="msg"
         id+=1
         outjson.append(dic)
         dic={}
     elif i[8]!=b'':
         dic['message']=i[8].decode(encoding='sjis')
+        dic['ori']=dic['message']
         dic["id"]=id
+        dic["type"]="opt"
         id+=1
         outjson.append(dic)
         dic={}
 
 #输出提取的文本
-outf=open('CODE1.json','w',encoding='utf8')
+outf=open('gt_input\\CODE1.json','w',encoding='utf8')
 json.dump(outjson,outf,indent=4,ensure_ascii=False)
 print(len(outjson))

@@ -10,8 +10,8 @@ class GSD_GLOBAL_DAT:
     
     def readname(self):
         data = BytesReader(self.data)
-        #self.not_care = data.read(0x7112)
-        self.not_care = data.read(0xa115)
+        self.not_care = data.read(0x7112)
+        # self.not_care = data.read(0xa115)
         self.namecount = data.readU32()
         self.names = []
         for i in range(self.namecount):
@@ -40,5 +40,5 @@ class GSD_GLOBAL_DAT:
         save_json("namedict.json", namedict)
 
 if __name__ == "__main__":
-    gsd = GSD_GLOBAL_DAT("gsp_d\GLOBAL.DAT")
+    gsd = GSD_GLOBAL_DAT("gsp_d\\GLOBAL.DAT")
     gsd.gen_namedict()

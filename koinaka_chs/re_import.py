@@ -1,6 +1,5 @@
 import re
 import json
-from HanziReplacer import *
 
 #通过正则导入翻译后的文本
 
@@ -8,25 +7,18 @@ with open('CODE', 'rb') as f:
     data = f.read()
 
 #这里导入galtransl生成的译文。
-trans_file=json.load(open("译文.json","r",encoding='utf8'))
-ori_file=json.load(open("CODE1.json","r",encoding='utf8'))
+trans_file=json.load(open("gt_output\\CODE1.json","r",encoding='utf8'))
 replacement_dict={}
 for dic in trans_file:
-    oriDict = ori_file.pop(0)
-    if oriDict["id"] != dic["id"]:
-        print(oriDict["id"])
-        raise RuntimeError
-    replacement_dict[oriDict["message"]]=dic["message"]
-if len(ori_file)!=0:
-    print(len(ori_file))
-    raise RuntimeError
+    ori = dic["ori"]
+    ori = ori.replace("〜", "\uff5e")
+    if dic["type"]=="msg":
+        replacement_dict[dic["ori"]]=dic["ori"]
+    elif dic["type"]=="opt":
+        msg = dic["message"]
+        msg = msg.replace("・", "·")
+        replacement_dict[dic["ori"]] = "opt_" + dic["message"]
 
-for i in replacement_dict:#生成sjis编码不支持的汉字的替换规则
-    tempdict,charlist=GetInvalidChars(replacement_dict[i],tempdict,charlist)
-hanzidict,target_chars,source_chars=Createhanzidict(tempdict,charlist)
-
-#修改UFIConfig文件，这个文件以及winmm.dll要放入补丁。
-ChangeUFIConfig('patch/release/uif_config.json',source_chars,target_chars)
 
 def get_plane_text(text:bytes)->bytes:
     '''
@@ -37,40 +29,41 @@ def get_plane_text(text:bytes)->bytes:
     text=text.replace(b'\x1B\x03\x00\x01\x06\x00\x19\x32\xC7\x01\x00\xFF\xFF',b'')
     text=re.sub(b'\x1B\xF9\x01\x01[\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]',b'',text)
     text=re.sub(b'\xFF\x02[\x00-\xff]*?\xFF\xFF',b'',text)
+    text=re.sub(b'\x1B\xF8\x01\xFF',b'',text)
     return text
 
 def dengchang(trans:bytes,ori_length:int)->bytes:
     '''
     用于维持文本长度不变。暴力提取时文本长度改变后会闪退。
     '''
-    ori_text=trans.decode(encoding='sjis')
-    if len(trans)>ori_length:#第一步处理：去除末尾标点
-        text=trans.decode(encoding='sjis')
-        if text[-1]=='。' or text[-1]=='？' or text[-1]=='！':
-            text=text[:-1]
-        if text[-1]=='。' or text[-1]=='？' or text[-1]=='！':
-            text=text[:-1]
-        trans=text.encode(encoding='sjis')
+    # if len(trans)>ori_length:#第一步处理：去除末尾标点
+    #     text=trans.decode(encoding='sjis')
+    #     if text[-1]=='。' or text[-1]=='？' or text[-1]=='！':
+    #         text=text[:-1]
+    #     if text[-1]=='。' or text[-1]=='？' or text[-1]=='！':
+    #         text=text[:-1]
+    #     trans=text.encode(encoding='sjis')
     
-    if len(trans)>ori_length:#第二步处理：去除一些无意义重复
-        text=trans.decode(encoding='sjis')
-        text=text.replace(hanzitihuan('啊啊啊',hanzidict),hanzitihuan('啊啊',hanzidict)).replace('……','…').replace(hanzitihuan('——',hanzidict),hanzitihuan('—',hanzidict))
-        text=text.replace(hanzitihuan('啊啊啊',hanzidict),hanzitihuan('啊啊',hanzidict)).replace('……','…').replace(hanzitihuan('——',hanzidict),hanzitihuan('—',hanzidict)).replace('　','')
-        trans=text.encode(encoding='sjis')
+    # if len(trans)>ori_length:#第二步处理：去除一些无意义重复
+    #     text=trans.decode(encoding='sjis')
+    #     text=text.replace(hanzitihuan('啊啊啊',hanzidict),hanzitihuan('啊啊',hanzidict)).replace('……','…').replace(hanzitihuan('——',hanzidict),hanzitihuan('—',hanzidict))
+    #     text=text.replace(hanzitihuan('啊啊啊',hanzidict),hanzitihuan('啊啊',hanzidict)).replace('……','…').replace(hanzitihuan('——',hanzidict),hanzitihuan('—',hanzidict)).replace('　','')
+    #     trans=text.encode(encoding='sjis')
 
-    if len(trans)>ori_length:#第三步处理：去除标点符号
-        text=trans.decode(encoding='sjis')
-        text=text.replace('，','').replace('…','').replace('。','').replace('、','').replace('～','').replace('」','').replace('「','')
-        trans=text.encode(encoding='sjis')
+    # if len(trans)>ori_length:#第三步处理：去除标点符号
+    #     text=trans.decode(encoding='sjis')
+    #     text=text.replace('，','').replace('…','').replace('。','').replace('、','').replace('～','').replace('」','').replace('「','')
+    #     trans=text.encode(encoding='sjis')
 
     if len(trans)>ori_length:#第四步处理：等待手动修正
-        text=trans.decode(encoding='sjis')
+        text=trans.decode(encoding='gbk')
+        print(text)
         while len(trans)>ori_length:
             text=text[0:-1]
-            trans=text.encode(encoding='sjis')
+            trans=text.encode(encoding='gbk')
     
     while len(trans)<ori_length:
-        trans+=b'\x00'
+        trans+=b'\x20'
     
     return trans
 
@@ -89,8 +82,14 @@ def trans(ori_text:bytes,replacement_dict:dict)->bytes:
     ori_l=len(ori_text)
     ori_text=get_plane_text(ori_text)
     ori_text=ori_text.decode(encoding='sjis')
-    trans_text=hanzitihuan(replacement_dict.get(ori_text,ori_text),hanzidict)
-    trans_bytes=trans_text.encode(encoding='sjis')
+    # trans_text=replacement_dict[ori_text]
+    # if trans_text.startswith("opt_"):
+    #     trans_text = trans_text[4:]
+    #     trans_bytes=trans_text.encode(encoding='gbk')
+    # else:
+    #     trans_bytes=trans_text.encode(encoding='sjis')
+    trans_text = ori_text
+    trans_bytes = trans_text.encode(encoding='sjis')
     trans_bytes=dengchang(trans_bytes,ori_l)
     return trans_bytes
 

@@ -50,7 +50,7 @@ class SPT_FILE:
     
     def find_text(self):
         data = BytesReader(self.data)
-        texts = re.finditer(rb"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00(?P<idx>[\x00-\xff]{4})\x00{12}(?P<nameid1>[\x00-\xff]{4})(?P<nameid2>[\x00-\xff]{4})(?P<ukn1>[\x00-\xff]{4})(?P<ukn2>[\x00-\xff]{4})(?P<len>[\x00-\xff]{4})\x00{8}|\x76\x53\x65\x6C\x65\x63\x74\x2E\x73\x70\x74\x00\x01\x00\x00\x00\xFF\xFF\xFF\xFF(?P<opts>[\x00-\xff]*?)\x23\x00\x00\x00\xFF\xFF\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x00", self.data)
+        texts = re.finditer(rb"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xFF\xFF\xFF\x00\x00\x00\x00(?P<idx>[\x00-\xff]{4})\x00{12}(?P<nameid1>[\x00-\xff]{4})(?P<nameid2>[\x00-\xff]{4})(?P<ukn1>[\x00-\xff]{4})(?P<ukn2>[\x00-\xff]{4})(?P<len>[\x00-\xff]{4})\x00{8}|\x76\x53\x65\x6C\x65\x63\x74\x2E\x73\x70\x74\x00\x01\x00\x00\x00\xFF\xFF\xFF\xFF(?P<opts>[\x00-\xff]*?)\x23\x00\x00\x00\xFF\xFF\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x00", self.data)
         self.texts = []
         for t in texts:
             print(t)
@@ -105,8 +105,9 @@ class SPT_FILE:
         for msg in self.texts:
             start = msg.start
             end = msg.end
-            trans = transdict[msg.content]
-            msg.content = trans
+            if msg.content:
+                trans = transdict[msg.content]
+                msg.content = trans
             datalist[start:end] = [msg.to_bytes()] + [b""] * (end - start - 1)
         newdata = b"".join(datalist)
         save_file_b(outpath, newdata)

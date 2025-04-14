@@ -123,14 +123,43 @@ typedef int(WINAPI* pEnumFontFamiliesExA)(
 	HDC hdc,
 	LPLOGFONTA lpLogfontA,
 	FONTENUMPROCA lpEnumFontFamExProc,
-	LPARAM lParam,
-	DWORD dwFlags
+	LPARAM lParam
 	);
 
 typedef int(WINAPI* pEnumFontFamiliesExW)(
 	HDC hdc,
 	LPLOGFONTW lpLogfontW,
 	FONTENUMPROCW lpEnumFontFamExProc,
-	LPARAM lParam,
-	DWORD dwFlags
+	LPARAM lParam
 	);
+
+struct hook_stack {
+    DWORD pfd;
+    DWORD pedi;
+    DWORD pesi;
+    DWORD pebp;
+    DWORD pesp;
+    DWORD pebx;
+    DWORD pedx;
+    DWORD pecx;
+    DWORD peax;
+    DWORD oesp;
+    DWORD oesp_4;
+    DWORD oesp_8;
+    DWORD oesp_c;
+    DWORD oesp_10;
+    DWORD oesp_14;
+    DWORD oesp_18;
+    DWORD oesp_1c;
+    DWORD oesp_20;
+    DWORD oesp_24;
+    DWORD oesp_28;
+    DWORD oesp_2c;
+    DWORD oesp_30;
+    DWORD oesp_34;
+    DWORD oesp_38;
+    DWORD oesp_3c;
+    DWORD oesp_40;
+    DWORD oesp_44;
+    DWORD oesp_48;
+};

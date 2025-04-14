@@ -10,7 +10,10 @@ os.makedirs(outPath, exist_ok=True)
 def split_by_char(text, char):
     if char in text[:-1]:
         parts = text.split(char, 1)
-        return [parts[0] + char, parts[1]]
+        if parts[1] != "」" and parts[1] != "』" and parts[1] != "）":
+            return [parts[0] + char, parts[1]]
+        else:
+            return [text]
     else:
         return [text]
 

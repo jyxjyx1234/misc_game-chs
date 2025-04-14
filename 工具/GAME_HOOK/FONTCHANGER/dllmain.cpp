@@ -9,6 +9,7 @@
 #include "timer.h"
 #include "LR\LRHook.h"
 #include <thread>
+#include <locale.h>
 
 #ifndef Release_for_others
 //#include "resource.h"

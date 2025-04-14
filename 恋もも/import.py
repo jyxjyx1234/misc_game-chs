@@ -1,9 +1,9 @@
 from SPT_FILE import *
 from HanziReplacer import *
 
-transpath = "gt_output_sakura/"
+transpath = "gt_output/"
 oripath = "gsp_d/"
-outpath = "release_sakura/gsp_trans/"
+outpath = "release_claude37/gsp_trans/"
 
 os.makedirs(outpath, exist_ok=True)
 
@@ -11,7 +11,7 @@ files = os.listdir(transpath)
 
 h = HanziReplacer()
 h.ReadTransAndGetHanzidictFromFolder(transpath)
-h.ChangeFont("wenquanyi.ttf", "release_sakura/run/remomo.ttf", "remomo")
+h.ChangeFont("wenquanyi.ttf", "release_claude37/run/remomo.ttf", "remomo")
 
 for file in files:
     transdata = json.load(open(transpath + file, "r", encoding="utf-8"))
@@ -38,12 +38,12 @@ namedict = open_json("namedict.json")
 for n in namedict:
     namedict[n] = h.hanzitihuan(namedict[n])
 g.change_names(namedict)
-g.save("release_sakura/gsp_trans/global.dat")
+g.save("release_claude37/gsp_trans/global.dat")
 
-os.system("python SPTCryptor.py release_sakura/gsp_trans -e")
+os.system("python SPTCryptor.py release_claude37/gsp_trans -e")
 from GSP_pack import *
 gsp = GSP_file("data.gsp")
-gsp.pack('release_sakura\gsp_trans_e\\', "release_sakura\\run\\data.gsp")
+gsp.pack('release_claude37\\gsp_trans_e\\', "release_claude37\\run\\data.gsp")
 
 #os.system("python SPTCryptor.py gsp_d -e")
 #gsp.pack("gsp_d_e/", "release/data.gsp")

@@ -1,7 +1,7 @@
 from SPT_FILE import *
 
-oripath = "gsp_test"
-outpath = "gt_input_test"
+oripath = "gsp_d"
+outpath = "gt_input"
 os.makedirs(outpath, exist_ok=True)
 for root, dirs, files in os.walk(oripath):
     for file in files:
