@@ -1,0 +1,168 @@
+
+// レイヤでのモーション再生
+class MotionController extends GenericFlip, Motion.Player
+{
+	var FLIP  = global.GenericFlip;
+	var PLAYER = global.Motion.Player;
+	
+	var targetLayer; //< 動画表示用 
+	var storage;     //< 処理対象モーション
+	var motionwidth; //< モーション横幅
+	var motionheight;//< モーション縦幅
+	var motionzoom;  //< モーション拡大率指定
+	var	lastTick;    //< 前回処理時tick値
+
+	var _resourceManager;
+	property resourceManager {
+		getter {
+			return _resourceManager;
+		}
+	}
+
+	// コンストラクタ
+	function MotionController(window) {
+		_resourceManager = window.motion_manager;
+		FLIP.GenericFlip(window);
+		PLAYER.Player(_resourceManager.resourceManager);
+		var pri = window.primaryLayer;
+		motionwidth  = pri.width;
+		motionheight = pri.height;
+		targetLayer = new Layer(window, pri);
+		initTarget();
+	}
+
+	function initTarget() {
+		with (targetLayer) {
+			.setImageSize(motionwidth, motionheight);
+			.setSizeToImageSize();
+			.fillRect(0,0,.width,.height,0);
+			setCoord(motionwidth/2, motionheight/2);
+		}
+	}
+
+	// ファイナライザ
+	function finalize() {
+		if (this.storage !== void) {
+			resourceManager.unload(this.storage);
+		}
+		FLIP.finalize();
+		PLAYER.finalize();
+		invalidate targetLayer;
+	}
+
+	// パラメータ更新処理
+	function updateParam(elm) {
+		if (elm !== void) with (elm) {
+			if (.gfxm_stealthchara  !== void) stealthChara  = .gfxm_stealthchara;
+			else if   (.gfxm_chara  !== void) chara         = .gfxm_chara;
+			if (.gfxm_stealthmotion !== void) stealthMotion = .gfxm_stealthmotion;
+			else if   (.gfxm_motion !== void) play(.gfxm_motion, .flags !== void ? +.gfxm_flags : 0);
+
+			tickCount = +.gfxm_tickcount if (.gfxm_tickcount !== void);
+			speed     = +.gfxm_speed     if (.gfxm_speed     !== void);
+
+			var upd = false;
+			if (.gfxm_width  !== void) motionwidth  = +.gfxm_width,  upd = true;
+			if (.gfxm_height !== void) motiohheight = +.gfxm_height, upd = true;
+			if (upd) initTarget();
+
+			if (.gfxm_zoom !== void) {
+				motionzoom = +.gfxm_zoom;
+				setZoom(motionzoom, motionzoom);
+			}
+		}
+	}
+
+	/**
+	 * 再生開始
+	 * @param storage シード画像ファイル名
+	 * @param elm 追加パラメータ
+	 */
+	function start(storage, elm) {
+		// ストレージ差し替え
+		if (this.storage != storage) {
+			if (this.storage !== void) {
+				resourceManager.unload(this.storage);
+			}
+			resourceManager.load(storage);
+			this.storage = storage;
+		}
+		updateParam(elm);
+		lastTick = System.getTickCount();
+	}
+
+	// ----------------------------------------------------
+	
+	function flipStop() {
+		stop();
+		FLIP.flipStop();
+	}
+
+	// パラメータ更新
+	function flipSetOptions(elm) {
+		updateParam(elm);
+	}
+	
+	// 更新処理用
+	function flipUpdate(tick) {
+		var	interval = tick - lastTick;
+		if (playing) {
+			try {
+				clear(targetLayer, targetLayer.neutralColor);
+				progress(interval);
+				draw(targetLayer);
+				flipAssign(targetLayer);
+			} catch(e) {
+				dm(e.message);
+				flipStop();
+			}
+		} else {
+			flipStop();
+		}
+		lastTick = tick;
+	}
+
+	function flipStore(dic) {
+		dic.storage      = storage;
+		dic.chara        = chara;
+		dic.motion       = motion;
+		dic.tickcount    = tickCount;
+		dic.speed        = speed;
+		dic.motionwidth  = motionwidth;
+		dic.motionheight = motionheight;
+		dic.motionzoom   = motionzoom if motionzoom !== void;
+	}
+
+	function flipRestore(dic) {
+		start(dic.storage, dic);
+	}
+
+	function flipStart(storage, elm) {
+		start(storage, elm);
+	}
+}
+
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "gfxm_file",      // 登録タグ
+		"class"    => MotionController, // コントローラクラス
+		"trigger"  => "gfxm_stop",      // 停止時に投げるトリガー名
+		"ext"      => "psb",            // 判定処理（拡張子文字列or配列）
+		//"checker"  => void,           // 判定処理（関数）
+		"options"  =>                   // 使用するオプション値（KAGEnvLayer用）
+		[
+			"gfxm_chara",
+			"gfxm_motion",
+			"gfxm_stealthchara",
+			"gfxm_stealthmotion",
+			"gfxm_flags",
+			"gfxm_tickcount",
+			"gfxm_speed",
+
+			"gfxm_zoom",
+			"gfxm_width",
+			"gfxm_height" ],
+		"autoflag" => "motion",         // 自動フラグタグ名（KAGEnvLayer用）
+		]);
+

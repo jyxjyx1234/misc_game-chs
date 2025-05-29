@@ -1,0 +1,47 @@
+with (SystemActionBase) {
+	.vboost  = function (*) { return do_(_vboost, "voiceBoostMenuItem", *); } incontextof null;
+	._vboost = function { updateVoiceBoost("tgl"); } incontextof null;
+	.updateVoiceBoost = function (mode, chg = 1) {
+		var scf = kag.scflags;
+		var en  = (int)+scf.voiceBoostEnabled, upd;
+		switch (mode) {
+		case "tgl": en ^=  chg; upd = true; break;
+		case "on":  en |=  chg; upd = true; break;
+		case "off": en &= ~chg; upd = true; break;
+		}
+		if (upd) scf.voiceBoostEnabled = en;
+		var val = 1.0;
+		if (en) {
+			val = scf.voiceBoostSpeed;
+			if (val <= 0) val = 2.0;
+		}
+		if (kag.voicespeed != val) {
+			kag.voicespeed = val;
+			kag.setMenuAccessibleAll();
+			kag.callHook("onVoiceBoostChanged", en, val);
+		}
+	} incontextof null;
+}
+addKagHookCallback("onKAGSetupMenu", function(kag) {
+	createMenuFromList(kag, kag.systemControlMenu, [
+		%[  name:"voiceBoostMenuItem", caption:"音声ブースト(&B)",  exp:"SystemAction._vboost()" ]
+		]);
+}, false);
+addKagHookCallback("onModeChangeHookEx", function(prop) {
+	var en = scflags.voiceBoostEnabled;
+	if (prop.checkToggleChanged("vboost", "voiceBoost", en)) {
+		voiceBoostMenuItem.checked = en;
+	}
+}, true);
+
+updateCaptionMenusMap.vboost = "voiceBoostMenuItem";
+
+
+@if (VOICEBOOST_SHIFTSUPPORT)
+addKagHookCallback("keyDown", function(key, shift) {
+	try { SystemAction.updateVoiceBoost("on" ) if (key == VK_SHIFT); } catch {}
+}, false);
+addKagHookCallback("keyUp", function(key, shift) {
+	try { SystemAction.updateVoiceBoost("off") if (key == VK_SHIFT); } catch {}
+}, false);
+@endif

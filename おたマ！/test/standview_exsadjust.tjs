@@ -1,0 +1,574 @@
+class AdjustExStandDialog extends WIN32GenericDialogEX {
+	var itemTexts =
+		%[  IDCANCEL => "閉じる",
+		CharSel:  "キャラ",
+		PoseSel:  "ポーズ",
+		DressSel: "服装　",
+		LevelSel: "レベル",
+		TempHide: "キャラ一時消去(&V)",
+		ResetCam: "リセット",
+		ClearIMG: "クリア",
+		LoadIMG:  "画像/PSD読み込み",
+		Layers:   "レイヤ",
+		Save:     "charinit/level.csv更新",
+			];
+	var owner, chars, poses, dresses, levels;
+	var currentChar;
+	var currentPose;
+	var currentDress;
+	var currentLevel;
+	var currentHide;
+	var background;
+	function AdjustExStandDialog(owner) {
+		this.owner = owner;
+		super.WIN32GenericDialogEX(%[ title:"位置調整",
+									  /**/width:320, fontSize:9, fontFace:"ＭＳ ゴシック", 
+									  /**/itemtexts:itemTexts ]);
+		chars = [ "-" ], levels = [];
+		for (var i = 0, list = owner.env.getPoseCharacterNames(); i < list.count; i++) chars.add (list[i].name);
+		for (var i = 0, list = owner._levelsInfoList;             i < list.count; i++) levels.add(list[i].name);
+
+		beginFrame(makeSpan(0,2, 3)); {
+
+			beginGroup("キャラ位置"); {
+				addDropSelect("CharSel", 100, makeDiv(0, 2), 0, chars);
+				addDropSelect("PoseSel", 100, makeDiv(1, 2));
+				nextLine();
+				addDropSelect("LevelSel",100, makeDiv(0, 3), 0, levels);
+				addDropSelect("DressSel",100, makeDiv(1, 2));
+				nextLine();
+
+				beginFrame(makeDiv(0, 2)); {
+					addNumInputXYgroup("init", "charinit");
+				} setFrame(makeDiv(1, 2)); {
+					addNumInputXYgroup("level", "charlevel", true);
+				} endFrame();
+				nextLine();
+				beginFrame(makeDiv(0, 2)); {
+					addNumInputXYgroup("offset", "xoff/yoff", true);
+				} setFrame(makeDiv(1, 2)); {
+					nextLine();
+					addLText("※カーソルボタンは\n　Shiftキー押下で\n　10単位で移動します");
+					getLastItem().cy += 20;
+					nextLine(30);
+					addToggle("TempHide");
+				} endFrame();
+				nextLine();
+			} endGroup();
+			nextLine();
+
+			beginGroup("環境"); {
+				beginFrame(makeDiv(0, 2)); {
+					addNumInputXYgroup("shift");
+				} setFrame(makeDiv(1, 2)); {
+					addNumInputXYgroup("camera");
+				} endFrame();
+				nextLine();
+				addButton("ResetCam");
+				nextLine();
+			} endGroup();
+
+		} setFrame(makeDiv(2, 3)); {
+			beginGroup("位置あわせ画像"); {
+				addButton("ClearIMG");
+				nextLine();
+				addButton("LoadIMG");
+				nextLine();
+				addListSelect("Layers", 250);
+				getLastItem().style |= LBS_MULTIPLESEL | WS_VSCROLL;
+			} endGroup();
+		} endFrame();
+
+		nextLine();
+		addButton("Save",   makeStepLeft(0, 100), 8);
+		addButton(IDCANCEL, makeStepRight(0, 60), 8);
+	}
+	function addNumInputXYgroup(tag, grp = tag, vrev) {
+		beginGroup(grp); {
+			var up = "ymvd_", down = "ymvu_";
+			if (vrev) up <-> down;
+			nextLine();
+			addButton(%[ id:up      +tag, text:"↑"  ], makeDiv(1,3));
+			nextLine();
+			addButton(%[ id:"xmvd_" +tag, text:"←"  ], makeDiv(0,3));
+			addButton(%[ id:down    +tag, text:"↓"  ], makeDiv(1,3));
+			addButton(%[ id:"xmvu_" +tag, text:"→"  ], makeDiv(2,3));
+			nextLine();
+			addLineInput(%[ id:"xinp_"+tag, text:"横" ], makeDiv(0,2));
+			addLineInput(%[ id:"yinp_"+tag, text:"縦" ], makeDiv(1,2));
+			nextLine();
+		} endGroup();
+	}
+	var _ignoreCommand, _lastModelessDialogVisible;
+	function onInit() {
+		var r = super.onInit(...);
+		updateCurrentSetting();
+		return r;
+	}
+	function open() {
+		with (owner) {
+			currentLevel = owner.env.defaultLevel;
+			currentPose = void;
+			currentDress = void;
+			currentChar = .currentCh !== void ? .currentCh.name : void;
+			var ch = getCurrentChar();
+			if (ch !== void) {
+				getCurrentPoseIndex(ch);
+				getCurrentDressIndex(ch);
+				currentLevel = ch.level;
+			}
+			_lastModelessDialogVisible = (.modelessDialog !== void && .modelessDialog.visible);
+			.toggleModelessDialog() if (_lastModelessDialogVisible);
+			.clearAll();
+			.env.stage.drawLayer = this.drawBackGround;
+			.env.stage.disp = KAGEnvImage.SHOW;
+		}
+		return super.open(...);
+	}
+	function close() {
+		var r = super.close(...);
+		with (owner) {
+			.env.stage.drawLayer = KAGEnvStage.drawLayer;
+			.toggleModelessDialog() if (_lastModelessDialogVisible);
+			.clearAll();
+		}
+		return r;
+	}
+	function drawBackGround(lay) {
+		with (lay) {
+			if (background === void) {
+				var w = owner.scWidth, h = owner.scHeight;
+				.setSize(w, h);
+				.fillRect(0, 0, w, h, 0xFF00FF00);
+				.fillRect(w\2, 0, 1, h, 0xFFFFFFFF);
+			} else {
+				background.updateImage() if (background instanceof "PSDLayer");
+				.assignImages(background);
+				.setSizeToImageSize();
+				.calcAffine();
+			}
+		}
+	}
+	function loadBackGround(file) {
+		if (background !== void) invalidate background;
+		/**/background =   void;
+		if (file != "" && Storages.isExistentStorage(file)) try {
+			var cls = (Storages.extractStorageExt(file).toLowerCase() == ".psd") ? PSDLayer : Layer;
+			background = new cls(owner, owner.primaryLayer);
+			background.loadImages(file);
+		} catch {
+			if (background !== void) invalidate background;
+			/**/background =   void;
+		}
+		updateBackGround(true);
+	}
+	var layerVisibleList = [];
+	function updateBackGround(reset) {
+		if (reset) {
+			sendItemMessage("Layers", LB_RESETCONTENT, 0, 0);
+			layerVisibleList.clear();
+		}
+		if (background !== void && background instanceof "PSDLayer") with (background) {
+			if (reset) {
+				var list = [];
+				for (var i = 0; i < .layers.count; i++) {
+					var name = .getFullname(.layers[i]);
+					list.add(name != "" ? name : " ");
+					layerVisibleList.add(false);
+				}
+				setListBoxTexts("Layers", list);
+			}
+			var idx = sendItemMessage("Layers", LB_GETTOPINDEX, 0, 0);
+			for (var i = 0; i < .layers.count; i++) {
+				var vis = layerVisibleList[i] = !!.isShowLayer(.layers[i]);
+				sendItemMessage("Layers", LB_SETSEL, vis, i);
+			}
+			sendItemMessage("Layers", LB_SETTOPINDEX, idx, 0);
+		}
+		sync(true);
+	}
+
+	function updateCurrentSetting() {
+		_ignoreCommand = true;
+		var sel = chars.find(currentChar);
+		selectComboBox("CharSel", sel < 0 ? 0 : sel);
+
+		sel = -1;
+		var ch = getCurrentChar(), chklv = currentLevel;
+		if (ch !== void) chklv = ch.level;
+		for (var i = 0, list = owner._levelsInfoList; i < list.count; i++) {
+			if (list[i].value == chklv) { sel = i; break; }
+		}
+		selectComboBox("LevelSel", sel) if (sel >= 0);
+
+		setCheckBox("TempHide", !!currentHide);
+		updateCurrentChara();
+		updateCamera();
+		_ignoreCommand = false;
+	}
+
+	function enableNumInputXY(tag, en) {
+		setItemEnabled("xinp_"+tag, en);
+		setItemEnabled("yinp_"+tag, en);
+		setItemEnabled("xmvd_"+tag, en);
+		setItemEnabled("ymvd_"+tag, en);
+		setItemEnabled("xmvu_"+tag, en);
+		setItemEnabled("ymvu_"+tag, en);
+		if (!en) {
+			setItemText("xinp_"+tag, "");
+			setItemText("yinp_"+tag, "");
+		}
+	}
+	function setNumInputXY(tag, x, y) {
+		_ignoreCommand = true;
+		setItemText("xinp_"+tag, "%d".sprintf(x));
+		setItemText("yinp_"+tag, "%d".sprintf(y));
+		_ignoreCommand = false;
+	}
+	var numInputXYmap = %[
+		"init"   => this.setCharInit,
+		"level"  => this.setCharLevel,
+		"offset" => this.setCharOffset,
+		"shift"  => this.setEnvShift,
+		"camera" => this.setEnvCamera,
+		];
+	function onNumInputXYchanged(tag, text, isX) {
+		if (text != "") text = text.trim();
+		if (text == "") return;
+		var num = (int)text;
+		var func = numInputXYmap[tag];
+		if (func !== void) func(num, isX);
+	}
+	function onNumInputXYmoved(tag, dir, isX) {
+		var id = (isX ? "xinp_" : "yinp_") +tag;
+		var num = (int)getResult(id);
+		num += dir * (System.getKeyState(VK_SHIFT) ? 10 : 1);
+		setItemText(id, "%d".sprintf(num));
+	}
+	function setCharInit(pos, isX) {
+		var info = allStandInfoMap[currentChar];
+		if (info.map[currentPose] !== void) with (info.map[currentPose]) {
+			if (isX) .xoffset = pos;
+			else     .yoffset = pos;
+		}
+		redrawCurrentChar();
+	}
+	function setCharLevel(pos, isX) {
+		var info = allStandLevelMap[currentChar], lv;
+		if (info === void) info = allStandLevelMap[currentChar] = %[];
+		if((lv = info[currentPose]) === void) 
+			lv = info[currentPose] = [];
+		if (lv[currentLevel] === void)
+			lv[currentLevel] = %[];
+		with (lv[currentLevel]) {
+			if (isX) .x = pos;
+			else     .y = pos;
+		}
+		redrawCurrentChar();
+	}
+	function setCharOffset(pos, isX) {
+		var ch = getCurrentChar();
+		if (ch !== void) ch[isX ? "xpos" : "ypos"] = pos;
+		redrawCurrentChar();
+	}
+
+	function sync(force = false) {
+		if (force || currentChar !== void) {
+			owner.env.setRedraw();
+			owner.env.update();
+		}
+	}
+	function getCurrentChar() { return (currentChar !== void) ? owner.getCharacter(currentChar) : void; }
+	function setCurrentCharProps(prop) {
+		var ch = getCurrentChar();
+		if (ch !== void && typeof prop == "Object") {
+			if (prop instanceof "Function") prop(ch);
+			else {
+				var list = [];
+				list.assign(prop);
+				for (var i = 0; i < list.count; i+=2) {
+					ch[list[i]] = list[i+1] if (list[i] != "");
+				}
+			}
+		}
+		return ch;
+	}
+	function redrawCurrentChar() {
+		setCurrentCharProps(%[ redraw:true ]);
+		sync();
+	}
+	function updateCharInfo() {
+		sync(true);
+		var en = !(currentChar == "" || currentPose == "");
+		enableNumInputXY("init",   en);
+		enableNumInputXY("level",  en);
+		enableNumInputXY("offset", en);
+		if (!en) return;
+		var info = allStandInfoMap[currentChar], lv;
+		if (info !== void && info.map[currentPose] !== void)
+			with (info.map[currentPose]) setNumInputXY("init", .xoffset, .yoffset);
+
+		info = allStandLevelMap[currentChar];
+		if (info !== void && (lv = info[currentPose]) !== void && lv[currentLevel] !== void)
+			with (lv[currentLevel]) setNumInputXY("level", .x, .y);
+
+		var ch = getCurrentChar();
+		if (ch !== void) with (ch) setNumInputXY("offset", .xpos, .ypos);
+	}
+	function onCharChanged(idx) {
+		currentChar = idx > 0 ? chars[idx] : void;
+		updateCurrentChara();
+	}
+	var _inUpdateChara;
+	function updateCurrentChara() {
+		sendItemMessage("PoseSel",  CB_RESETCONTENT, 0, 0);
+		sendItemMessage("DressSel", CB_RESETCONTENT, 0, 0);
+		if (currentChar !== void) {
+			owner.env.onClear();
+			owner.env.stage.disp = KAGEnvImage.SHOW;
+			var disp = currentHide ? KAGEnvImage.CLEAR : KAGEnvImage.SHOW;
+			var ch = setCurrentCharProps(%[ disp:disp, level:currentLevel ]);
+			if (ch) with (ch) {
+				_inUpdateChara = true;
+				var sel = getCurrentDressIndex(ch);
+				setComboBoxTexts("DressSel", dresses);
+				selectComboBox(  "DressSel", sel) if (sel >= 0);
+				/**/sel = getCurrentPoseIndex(ch);
+				setComboBoxTexts("PoseSel", poses);
+				selectComboBox(  "PoseSel", sel) if (sel >= 0);
+				_inUpdateChara = false;
+			}
+		}
+		updateCharInfo();
+	}
+	function getCurrentPoseIndex(ch) {
+		ch = getCurrentChar() if (ch === void);
+		if (ch !== void) with (ch) {
+			poses = .getPoseNames(true);
+			return poses.find(currentPose = .pose);
+		}
+		return -1;
+	}
+	function getCurrentDressIndex(ch) {
+		ch = getCurrentChar() if (ch === void);
+		if (ch !== void) with (ch) {
+			dresses = .getDressNames(true);
+			return dresses.find(currentDress = .dress);
+		}
+		return -1;
+	}
+
+	function onPoseChanged(idx) {
+		if (_inUpdateChara) return;
+		try { currentPose = poses[idx]; } catch {}
+		var ch = setCurrentCharProps(function (ch) { ch.setPose(currentPose, %[]); } incontextof this);
+		updateCharInfo() if (ch !== void);
+	}
+	function onDressChanged(idx) {
+		if (_inUpdateChara) return;
+		try { currentDress = dresses[idx]; } catch {}
+		var ch = setCurrentCharProps(function (ch) { ch.setDress(currentDress, %[]); } incontextof this);
+		updateCurrentChara() if (ch !== void);
+	}
+	function onLevelChanged(idx) {
+		try { currentLevel = owner._levelsInfoList[idx].value; } catch {}
+		var ch = setCurrentCharProps(%[ level:currentLevel ]);
+		updateCharInfo() if (ch !== void);
+	}
+	var _loadImagelastPath = System.exePath;
+	function onLoadImageClicked() {
+		var elm = %[
+		title:"画像ファイル選択", initialDir:_loadImagelastPath,
+		filter: [ "画像ファイル(*.psd;*.png;*.jpg)|*.psd;*.png;*.jpg", "すべてのファイル(*.*)|*.*" ],
+		filterIndex: 0,
+			];
+		if (Storages.selectFile(elm)) {
+			var target = elm.name;
+			_loadImagelastPath = Storages.extractStoragePath(target);
+			loadBackGround(target);
+		}
+	}
+	function onTempHideChanged(tgl) {
+		var disp = ((currentHide = !!tgl) == 0) ? KAGEnvImage.SHOW : KAGEnvImage.CLEAR;
+		setCurrentCharProps(%[ disp:disp ]);
+		sync();
+	}
+	function onResetCamera() {
+		owner.resetCamera();
+		updateCamera();
+	}
+	function updateCamera() {
+		with (owner.env) {
+			setNumInputXY("shift",  .shiftx,  .shifty);
+			setNumInputXY("camera", .camerax, .cameray);
+		}
+	}
+	function setEnvShift (num, isX) { setEnvPos(isX ? "_shiftx" : "_shifty",   num); }
+	function setEnvCamera(num, isX) { setEnvPos(isX ? "_camerax" : "_cameray", num); }
+	function setEnvPos(tag, num) {
+		with (owner) {
+			.env[tag] = num;
+			.env.updateCamera();
+		}
+	}
+
+	function onPSDLayerVisibleChanged() {
+		var changed = false;
+		if (background !== void && background instanceof "PSDLayer") with (background) {
+			for (var i = 0; i < .layers.count; i++) {
+				var old = layerVisibleList[i];
+				var cur = !!sendItemMessage("Layers", LB_GETSEL, i, 0);
+				if (old != cur) {
+					showPSDLayer(background, .layers[i], cur);
+					layerVisibleList[i] = cur;
+					changed = true;
+				}
+			}
+		}
+		updateBackGround() if (changed);
+	}
+	function showPSDLayer(psd, info, vis) {
+		psd.setVisibleInfo(info, vis);
+		showPSDLayer(psd, info.group, vis) if (vis && info.group !== void);
+	}
+
+	function getPlacedOrDefaultPath(base, file) {
+		var exist = Storages.getPlacedPath(file);
+		return (exist != "") ? exist : base + file;
+	}
+	function onSaveCSVClicked() {
+		if (typeof global.Array.save2 == "undefined") {
+			Plugins.link("savestruct.dll");
+		}
+		var init = [], level = [];
+		var base = System.exePath + "data/fgimage/";
+		var levfn = getPlacedOrDefaultPath(base, "charlevel.csv");
+		var inifn = getPlacedOrDefaultPath(base, "charinit.csv");
+		var anifn = getPlacedOrDefaultPath(base, "charanim.csv");
+
+		if (!Storages.isExistentStorage(anifn)) {
+			var tmp = [ "# アニメ定義", "# キャラ名,定義名,表示コマンド/wait/loop,時間orループ位置（省略すると先頭)" ];
+			tmp.save2(anifn);
+		}
+		if (!Storages.isExistentStorage(inifn)) {
+			init.add("# キャラ定義ファイル");
+			init.add("# キャラ名,ポーズ名,立ち絵ポーズの基本ファイル名,xoffet,yoffset,facezoom,facexoff,faceyoff,emorev");
+		} else {
+			init.load(inifn);
+		}
+		if (!Storages.isExistentStorage(levfn)) {
+			level.add("# キャラ位置調整ファイル");
+			level.add("# キャラ名,ポーズ名,level0x,level0y,level1x,level1y,level2x,level2y,level3x,level3y, ...");
+		} else {
+			level.load(levfn);
+		}
+		updateCSVdata(init,  updateInitCSV );
+		updateCSVdata(level, updateLevelCSV);
+		init .save2(inifn);
+		level.save2(levfn);
+	}
+	function updateInitCSV(name, pose, cols) {
+		if (name == "" || pose == "") return;
+		var info = allStandInfoMap[name];
+		if (info.map[pose] !== void) with (info.map[pose]) {
+			cols[3] = (string).xoffset;
+			cols[4] = (string).yoffset;
+		}
+	}
+	function updateLevelCSV(name, pose, cols) {
+		if (name == "" || pose == "") return;
+		var info = allStandLevelMap[name], lv;
+		if (info !== void) lv = info[pose];
+		var cnt = (lv !== void) ? lv.count : 0, max = 0;
+		try {
+			var levels = owner.env.levels;
+			max = levels.count;
+			for (var i = max-1; i >= 0; i--, max--) {
+				if (levels[i] !== void) break;
+			}
+		} catch {}
+		for (var i = 0; i < max; i++) {
+			var sel = (i < cnt) ? lv[i] : void;
+			if (sel === void) sel = %[];
+			cols[i*2 + 2] = (string)(+sel.x);
+			cols[i*2 + 3] = (string)(+sel.y);
+		}
+	}
+	function updateCSVdata(list, callback) {
+		var all = allStandInfoMap;
+		var tmp = [], names = [], map = %[];
+		tmp.assign(all);
+		for (var i = 0; i < tmp.count; i+=2) {
+			var name = tmp[i];
+			if (name == "") continue;
+			names.add(name);
+			var poses = map[name] = [];
+			var chinfo = all[name].list;
+			for (var j = 0; j < chinfo.count; j++) poses.add(chinfo[j].pose);
+			poses.sort();
+		}
+		names.sort();
+
+		for (var i = 0; i < list.count; i++) {
+			if (list[i] == "") continue;
+			var cols = list[i].split(",");
+			if (cols.count > 0 && cols[0] != "" && cols[0].charAt(0) == "#") continue;
+			try {
+				var name = cols[0].trim();
+				var pose = cols[1].trim();
+				var idx;
+				if (names.find(name) >= 0 &&
+					(idx = map[name].find(pose)) >= 0) {
+					map[name][idx] = void;
+				}
+				callback(name, pose, cols);
+				list[i] = cols.join(",");
+			} catch {}
+		}
+
+		for (var i = 0; i < names.count; i++) {
+			var name  = names[i];
+			var poses = map[name];
+			for (var j = 0; j < poses.count; j++) {
+				if (poses[j] != "") {
+					var pose = poses[j];
+					var cols = [ name, pose ];
+					callback(name, pose, cols);
+					list.add(cols.join(","));
+				}
+			}
+		}
+	}
+
+	function onCommand(msg, wp, lp) {
+		super.onCommand(...);
+		if (!_ignoreCommand) try {
+			var id = getNamedId(wp & 0xFFFF), notify = (wp>>16);
+			switch (id) {
+			case "CharSel":  if (notify == CBN_SELCHANGE) onCharChanged(getResult(id)); break;
+			case "PoseSel":  if (notify == CBN_SELCHANGE) onPoseChanged(getResult(id)); break;
+			case "DressSel": if (notify == CBN_SELCHANGE) onDressChanged(getResult(id)); break;
+			case "LevelSel": if (notify == CBN_SELCHANGE) onLevelChanged(getResult(id)); break;
+			case "ResetCam": if (notify == BN_CLICKED)    onResetCamera();  break;
+			case "ClearIMG": if (notify == BN_CLICKED)    loadBackGround(); break;
+			case "LoadIMG":  if (notify == BN_CLICKED)    onLoadImageClicked(); break;	
+			case "TempHide": if (notify == BN_CLICKED)    onTempHideChanged(getResult(id)); break;
+			case "Save":     if (notify == BN_CLICKED)    onSaveCSVClicked(); break;
+			case "Layers":   if (notify == LBN_SELCHANGE) onPSDLayerVisibleChanged(); break;
+			default:
+				if (typeof id == "String" && id != "") {
+					var first = id.charAt(0);
+					var tag   = id.substr(5);
+					switch (id.substr(1, 4)) {
+					case "mvd_": onNumInputXYmoved(tag, -1, first == "x") if (notify == BN_CLICKED); break;
+					case "mvu_": onNumInputXYmoved(tag,  1, first == "x") if (notify == BN_CLICKED); break;
+					case "inp_": onNumInputXYchanged(tag, getResult(id), first == "x") if (notify == EN_CHANGE); break;
+					}
+				}
+				break;
+			}
+		} catch(e) {
+			dm(e.message);
+		}
+	}
+}

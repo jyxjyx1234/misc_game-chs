@@ -1,0 +1,35 @@
+// モトヤフォント組み込み処理
+
+// custom.tjs にて SystemConfig.DisableDefaultEmbeddedFont = true とするか
+// Config.tjs にて @set(DISABLE_DEFAULT_EMBFONT=1) とすることで組み込みをオフにできる
+
+// Override.tjsよりロード："MTLc3m.ttf"または"MTLmr3m.ttf"が存在する場合に常にライセンス表示
+with (Storages) {
+	var fonts = [ "MTLc3m.ttf", "MTLmr3m.ttf" ], exist = [];
+	for (var i = fonts.count-1; i >= 0; i--) 
+		if (.isExistentStorage(fonts[i])) exist.unshift(fonts[i]);
+	if (exist.count > 0) {
+		var license = [];
+		license.load("MTL_NOTICE.txt");
+		license.unshift("", "=".repeat(80), "Embedded TTF font license about "+exist.join(", ")+" :");
+		license.push   ("=".repeat(80));
+		Debug.notice(license.join("\n"));
+	} else {
+		SystemConfig.DisableDefaultEmbeddedFont = true;
+	}
+}
+@if (! DISABLE_DEFAULT_EMBFONT)
+if (!SystemConfig.DisableDefaultEmbeddedFont) {
+	KAGLoadScript("PreRenderFontEx.tjs") if (typeof global.PreRenderFontEx == "undefined");
+	Plugins.link("addFont.dll") if (typeof System.addFont != "Object");
+	with (PreRenderFontEx) {
+		var opt = %[
+		comment:"このフォントのライセンスは詳細情報ボタンで確認してください",
+		detail:[].load("MTL_NOTICE.txt") ];
+		opt.caption =              "「モトヤLシーダ3」のライセンス";
+		.AddTrueTypeFont("シーダ",   "モトヤLシータ゛3等幅", "MTLc3m.ttf" ,, opt);
+		opt.caption =              "「モトヤLマルベリ3」のライセンス";
+		.AddTrueTypeFont("マルベリ", "モトヤLマルベリ3等幅", "MTLmr3m.ttf",, opt);
+	}
+}
+@endif

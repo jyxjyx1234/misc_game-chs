@@ -1,0 +1,1735 @@
+// ---------------------------------------------------------
+// 各種終了処理の登録・実行
+
+class DelayedInvoker {
+	var _list = [];
+	function DelayedInvoker() {}
+	function finalize() {}
+	// 登録リストをクリアする
+	function clear()      { _list.clear();            }
+	// 登録リストに追加する
+	function add(func)    { _list.add(func);          }
+	// 登録リストから削除する
+	function remove(func) { _list.remove(func, true); }
+	// 登録リストを実行する
+	function invoke()     {
+		var temp = [];
+		temp.assign(_list);
+		for (var i = temp.count-1; i >= 0; i--) temp[i]();
+		this.clear();
+	}
+}
+// インスタンス
+var terminator = new DelayedInvoker();
+
+// ---------------------------------------------------------
+// 遅延実行
+
+class DelayedTimer extends Timer {
+	function finalize() { super.finalize(...); }
+	var _owner, _action;
+	function DelayedTimer(owner, action, time) {
+		_owner = owner, _action = _action;
+		super.Timer(this, "onAction");
+		with (this) .capacity = 1, .interval = time, .enabled  = false;
+	}
+	function cancel()   { this.enabled = false; }
+	function trigger()  { this.enabled = true;  }
+	function onAction() {
+		cancel();
+		if (_action == "") _owner();
+		else _owner[_action]();
+	}
+}
+class DelayedTrigger extends AsyncTrigger {
+	function finalize() { super.finalize(...); }
+	function DelayedTrigger(owner, action, mode) {
+		super.AsyncTrigger(owner, action);
+		with (this) .cached = true, .mode = mode;
+	}
+}
+DelayedTrigger.instances = %[];
+function setDelayedTrigger(tag, callback, time, priority = atmAtIdle) {
+	if (time < 0 || tag == "" || callback == "") return;
+	// 文字列の場合は関数に変更
+	if (typeof callback == "String")
+		callback = Scripts.eval(@"function() { Scripts.eval('${callback}'); }");
+	var inst;
+	if (time == 0) inst = new DelayedTrigger(callback, "", priority);
+	else           inst = new DelayedTimer(  callback, "", time);
+
+	DelayedTrigger.instances[tag] = inst;
+}
+function invokeDelayedTrigger(tag) {
+	var inst = (tag != "") ? DelayedTrigger.instances[tag] : void;
+	if (inst !== void) {
+		inst.cancel();
+		inst.trigger();
+	}
+}
+
+class OnceDelayedTrigger extends DelayedTrigger {
+	var _func;
+	function finalize() {
+		delete global.DelayedTrigger.instances[this];
+		super.finalize(...);
+	}
+	function OnceDelayedTrigger(func, mode) {
+		global.DelayedTrigger.instances[this] = this;
+		super.DelayedTrigger(this, "onTrigger", mode);
+		_func = func;
+	}
+	function onTrigger() {
+		if (!(isvalid this)) return;
+		_func();
+		invalidate this;
+	}
+}
+function runOnceDelayedTrigger(callback, imm = true, pri = atmAtIdle) {
+	if (typeof callback == "String")
+		callback = Scripts.eval(@"function() { Scripts.eval('${callback}'); }");
+	var trig = new OnceDelayedTrigger(callback, pri);
+	if (imm) trig.trigger();
+	return trig;
+}
+
+
+// ---------------------------------------------------------
+// セーブロード・おまけモード用のシングルトンダイアログ管理
+
+class DialogModeManager {
+	var _entries = %[];
+	var _now = "";
+	var _object = void;
+
+	function get(elm) {
+		var name = (typeof elm === "String") ? elm : (elm !== void) ? elm.name : void;
+		if (name == "") throw new Exception("DialogModeManager: 名前がありません");
+
+		_now = name.toLowerCase();
+		var ent = _entries[_now];
+		return ent;
+	}
+	// 適当に解釈して実行
+	function run(target, *) {
+		switch (typeof target) {
+		case "void": return;
+		case "String": return run(Scripts.eval(target), *);
+		case "Object":
+			if (     target instanceof "Function") return target(*);
+			else if (target instanceof "Class")    return new target(*);
+			break;
+		default:
+			throw new Exception("DialogModeManager: start値が不明な形式です: "+ _now);
+		}
+	}
+
+	// 開始
+	function start(elm) {
+		done();
+		var ent = get(elm);
+		if (ent === void) {
+			System.inform(@"${_now.toUpperCase()} 画面は実装されていません");
+			return kag.goToStart();
+		}
+		try {
+			_object = run(ent.start, elm);
+		} catch (e) {
+			throw new Exception("DialogModeManager: 初期化に失敗しました("+e.message+"): "+ _now);
+		}
+		terminator.add(this.done); // タイトルなどに強制的に移動した場合の終了処理を登録
+	}
+
+	// 終了
+	function done() {
+		if (_now != "") {
+			var ent = get(_now);
+			run(ent.done) if (ent !== void);
+		}
+		invalidate _object if valid;
+		_object = void;
+		_now = "";
+		terminator.remove(this.done);
+	}
+
+	// 登録
+	function add(name, start, done, layer, storage) {
+		var ent = %[], tag;
+		switch (typeof name) {
+		case "String":
+			tag = name;
+			with (ent) {
+				.start   = start;
+				.done    = done;
+				.layer   = layer;
+				.storage = storage;
+			}
+			break;
+		case "Object":
+			tag = name.name;
+			(global.Dictionary.assign incontextof ent)(name, true);
+			delete ent.name if (ent.name !== void);
+			break;
+		default:
+			throw new Exception("DialogModeManager: 追加パラメータが不正です");
+		}
+		if (typeof tag !== "String" || tag == "")
+			throw new Exception("DialogModeManager: 追加名が不明です");
+
+		_entries[tag.toLowerCase()] = ent;
+	}
+	// クラス登録(obsolete)
+	function addClass() { add(...); }
+
+	property dummyProp { getter() {} setter(v) {} }
+	function dummyFunc {}
+
+	function hasDefined(name) { return valid && typeof _object[name] != "undefined"; }
+	// kagスクリプトからの呼び出し用(obsolete: ほとんどcmdで代用できる)
+	function propget(name)   { return hasDefined(name) ? _object[name]    : void; }
+	function prop(name)      { return hasDefined(name) ?&_object[name]    : &dummyProp; }
+	function func(name)      { return hasDefined(name) ? _object[name]    :  dummyFunc; }
+	function action(name, *) { return hasDefined(name) ? _object[name](*) : void; }
+	function select(*)       { return action("select", *); }
+	function enter(*)        { return action("enter", *); }
+	function leave(*)        { return action("leave", *); }
+	property page    {
+		getter()  { return valid ? _object.page : 0; }
+		setter(v) { _object.page = v if (valid); }
+	}
+
+	// funcのeval式から呼び出す用（引数の順番を変える必要があるため）
+	// eval,*,call,Current.uiEval,method, ... -> method(target,dic, ...);
+	function uiEval(t,r,m,*) { return action(m,t,r,*); }
+	// eval,names,call,Current.uiSort,name1,name2,... -> names;
+	function uiSort(names,dic,list*) {
+		for (var i = list.count-1; i >= 0; i--) {
+			var tag = list[i];
+			if (tag == "" || dic[tag] === void) continue;
+			names.remove(tag, true);
+			names.insert(0, tag);
+		}
+	}
+
+	// 文字列を解釈して function / property 設定等を呼び出す
+	// .funcで","が使えない場合の回避方法として使う
+	// "fnc/foo/bar" : fnc("foo", "bar");
+	// "prop=value"  : prop = value // value が数値っぽい文字列の場合は数値に変換
+	// "prop++", "prop+=value", "prop--", "prop-=value" // 数値増減
+	function cmd(str) {
+		if (!valid) return void;
+		var i;
+		if (     (i = str.indexOf("/")) >= 0) return cmd_func(str, i);
+		else if ((i = str.indexOf("+")) >= 0) return cmd_up(  str, i);
+		else if ((i = str.indexOf("-")) >= 0) return cmd_down(str, i);
+		else if ((i = str.indexOf("=")) >= 0) return cmd_prop(str, i);
+		else return _object[str]();
+	}
+	function cmd_func(str) {
+		var args = str.split("/");
+		var method = args[0];
+		args.erase(0);
+		return _object[method](args*);
+	}
+	function cmd_up(str, i) {
+		switch (str.charAt(i+1)) {
+			case "+": return _object[str.substr(0,i)]++;
+			case "=": return _object[str.substr(0,i)] += +(str.substr(i+2));
+		}
+	}
+	function cmd_down(str, i) {
+		switch (str.charAt(i+1)) {
+			case "-": return _object[str.substr(0,i)]--;
+			case "=": return _object[str.substr(0,i)] += +(str.substr(i+2));
+		}
+	}
+	function cmd_prop(str, i) {
+		var prop = str.substr(0,i);
+		var val  = str.substr(i+1);
+//		dm("cmd_prop", prop, val);
+		_object[prop] = (val == "0" || val.toLowerCase() == "false" || +val != 0) ? +val : val;
+	}
+
+	property valid   { getter() { return (_object !== void && isvalid _object);  } }
+	property nowent  { getter() { return _now != "" ? _entries[_now] : void;  } }
+
+	// パラメータを補完して uiload を呼び出す
+	// _object の onUiload /onUiloaded コールバックも呼び出す
+	function uiload(elmorig) {
+		var elm = %[];
+		(global.Dictionary.assign incontextof elm)(elmorig, true);
+		if (elm.storage == "") {
+			elm.storage = storage;
+			if (elm.storage == "")
+				return new Exception("uiload の storage が指定されていません");
+		}
+		_callDialogFunction("onUiload", "uiload", elm);
+		var ui = global.uiload(kag.getMessageLayerObjectFromElm(elm), elm);
+		kag.tagHandlers.current(%[page:elm.page, layer:elm.layer]);
+		_callDialogFunction("onUiloaded", "uiloaded", elm, ui);
+	}
+
+	// _object → entry → default の優先順位でプロパティを取得する
+	function _getDialogPropertyString(objName, entryName, defaultName) {
+		if (hasDefined(objName) && _object[objName] != "") return _object[objName];
+		var ent = nowent;
+		if (ent !== void && ent[entryName] != "") return ent[entryName];
+		return defaultName;
+	}
+	// _object → entry の優先順位で function を呼ぶ
+	function _callDialogFunction(objName, entryName, *) {
+		if (hasDefined(objName)) return (_object[objName])(*);
+		var ent = nowent;
+		if (ent !== void && ent[entryName] != "") return (ent[entryName])(*);
+	}
+
+	var defaultLayerName = "message1";
+	property layerName { getter() { return _getDialogPropertyString("layerName", "layer",   defaultLayerName); } }
+	property storage   { getter() { return _getDialogPropertyString("storage",   "storage", ""); } }
+}
+
+// インスタンス
+var Dialog = new DialogModeManager();
+var Current = Dialog;
+
+// タグを登録
+addKagHandler("dialog", function(elm) {
+	if (elm.current !== void && elm.current != Current._now) return 0;
+	if (     elm.done)             Current.done();
+	else if (elm.command !== void) Current.cmd(elm.command);
+	else if (elm.action  !== void) Current.action(elm.action, elm);
+	else if (elm.name    !== void) Current.start(elm);
+	return 0;
+}, false);
+
+// ---------------------------------------------------------
+// 汎用レジストリ機構
+// ---------------------------------------------------------
+
+// レジストリ機構のベースクラス
+//  スクリプトマップ: SystemScriptMap
+//  フック管理: SystemManager
+//  効果音管理: SystemSeManager
+// へ派生
+class SystemRegistory {
+	var _map = %[], _cached = %[];
+
+	function SystemRegistory() {}
+//	function finalize() {}
+
+	// エイリアス参照用
+	class _AliasItem_ {
+		function _AliasItem_(val) { alias = val; }
+		var alias;
+	}
+
+	// [virtual] タグの正規化
+	function tagNormalize(tag) {
+		if (typeof tag === "String") {
+			tag = tag.toLowerCase().trim();
+			if (tag.length > 0) return tag;
+		}
+		return (string)null;
+	}
+
+	// エイリアスを反映した先のタグを取得
+	function tagApply(tag) {
+		tag = tagNormalize(tag);
+		while (_map[tag] instanceof "_AliasItem_") tag = _map[tag].alias;
+		return tag;
+	}
+	// 値を設定
+	function set(tag, value) {
+		_map[tagNormalize(tag)] = value;
+	}
+	// エイリアスを張る
+	function alias(tag, to) {
+		_map[tagNormalize(tag)] = new _AliasItem_(tagNormalize(to));
+	}
+	// 値取得
+	function get(tag)       { return        _map[tagApply(tag)]; }
+
+	// 定義済みかどうか調べる
+	function isDefined(tag) { return typeof _map[tagApply(tag)] !== "undefined"; }
+
+	// "."で区切った親階層を含めて "*" デフォルト値で検索する(キャッシュ機能つき)
+	// 基本的に最初に全部定義して，その後は読み取りのみの動作を
+	// 想定しているので動的に検索・値設定をするような時は set/alias したらclearCacheすること
+	function search(tag, method = _searchParent) {
+		if (typeof tag !== "String" || tag.length === 0) return;
+		if (typeof _cached[tag] !== "undefined") return _cached[tag];
+		var checks = method(tag);
+		for (var i = 0; i < checks.count; i++) {
+			var target = tagApply(checks[i]);
+			// 発見できたらキャッシュに保存して返す
+			if (typeof _map[target] !== "undefined")
+				return setCache(tag, _map[target]);
+		}
+		return setCache(tag, void); // 結果無しでキャッシュに記録
+	}
+	// 親検索
+	function _searchParent(tag) {
+		var ret = [ tag ];
+		var tmp = tag.split(".");
+		while (tmp.count > 1) {
+			tmp.erase(tmp.count-1);
+			ret.add(tmp.join(".") + ".*");
+		}
+		ret.add("*");
+		return ret;
+	}
+
+	// キャッシュ設定して返す
+	function setCache(tag, value) {
+		_cached[tag] = value;
+		return value;
+	}
+	// サーチ用キャッシュをクリア
+	function clearCache(tag) {
+		if (tag == "") (global.Dictionary.clear incontextof _cached)();
+		else delete _cached[tag];
+	}
+	// 全データをクリア
+	function clear() {
+		clearCache();
+		(global.Dictionary.clear incontextof _map)();
+	}
+
+	// [virtual] load用のテキスト⇒値変換メソッド
+	function getValue(val)  { return val; }
+	// [virtual] エイリアスの場合はエイリアス先の文字列を返す
+	function getAlias(val)  {}
+
+	// テキストファイルから読み込み。「#」はコメント 「foo.bar = hoge」形式
+	function load(file) {
+		if (!Storages.isExistentStorage(file)) return;
+
+		var list = [];
+		list.load(file);
+
+		for (var i = 0; i < list.count; i++) {
+			var line = list[i].trim();
+			if (line[0] === "#" || line.length === 0) continue;
+			var sp = line.split("=");
+			var c  = sp.count;
+			if (c === 1 || c === 2) {
+				var tag = sp[0];
+				var val = getValue(sp[1]);
+				var ren = getAlias(val);
+				if (ren === void) set(tag, val);
+				else            alias(tag, ren);
+			} else {
+				dm(file + ": エントリが不正です(" + line + ")");
+			}
+		}
+	}
+}
+
+// ---------------------------------------------------------
+// システムスクリプトストレージ
+// ---------------------------------------------------------
+
+// sysjump 時のとび先スクリプトを登録するレジストリ
+// ・"storage * target" で，"*"区切りによるstorageとtargetを同時に記述できる
+// ・storage は ".ks"を省略できる
+// ・下位階層でstorageが省略された場合は上位階層のstorageを使用して補完する
+//   ex:
+//      foo = "foo.ks"
+//      foo.from.bar = "*start_from_bar"
+//      で登録されていた場合， get("foo.from.bar") すると
+//      %[ storage:"foo.ks", target:"*start_from_bar" ] を返す
+class SystemScriptMap extends SystemRegistory {
+	function SystemScriptMap() { super.SystemRegistory(...); }
+//	function finalize()        { super.finalize(...);        }
+
+	function getValue(val)     {
+		if (val === void) return %[];
+		val = val.trim();
+		if (val.length === 0) return %[];
+		if (val.indexOf("*") >= 0) {
+			var div = val.split("*");
+			var storage = div[0].trim();
+			if (storage.length == 0) storage = void;
+			else if (storage.indexOf(".ks") < 0) storage += ".ks";
+			return %[ storage:storage, target: "*"+div[1].trim() ];
+		}
+		return %[ storage: val.indexOf(".ks") < 0 ? (val + ".ks") : val ];
+	}
+
+	function get(tag) {
+		var ret = %[];
+		if (typeof tag !== "String") return ret;
+		var s = search(tag);
+		if (s !== void) (global.Dictionary.assign incontextof ret)(s, true);
+		if (ret.storage === void && tag.indexOf(".") >= 0)
+			ret.storage = get(tag.split(".")[0]).storage;
+		return ret;
+	}
+	function add(tag, st) { set(tag, getValue(st)); }
+	function script(name) { add(name, name);}
+
+	function kagAddScript(elm) {
+		with (elm) add(.name, .storage + .target);
+		return 0;
+	}
+}
+// インスタンス
+var SystemScript = new SystemScriptMap();
+
+// ---------------------------------------------------------
+// システムスクリプトフック
+// ---------------------------------------------------------
+
+// フック(syshook)やジャンプ(sysjump)を提供する
+// 色々と設計がごちゃごちゃしてるので書き直したい所存
+
+class SystemManager extends SystemRegistory {
+	function SystemManager() { super.SystemRegistory(...); }
+//	function finalize()      { super.finalize(...);        }
+
+	var sorted = %[];
+	function add(tag, f, priority = 0) {
+		set(tag, []) if (!isDefined(tag));
+		var fncs = get(tag);
+		fncs.add([ priority, f]);
+	}
+	function erase(tag) {
+		if (!isDefined(tag)) return;
+		var fncs = get(tag);
+		fncs.clear();
+	}
+	function getArgs(args*) {
+		var ret = [];
+		ret.assign(args);
+		return ret;
+	}
+	function store(tag, elm) {
+		if (_pending === void) return kag.tagHandlers[tag](elm);
+		elm.tagname = tag;
+		_pending.add(elm);
+	}
+	var _pending = void;
+	function pending(name, *) {
+		_pending = [];
+		this[name](*);
+		for (var i = _pending.count-1; i >= 0; i--) {
+			var elm = _pending[i];
+			var tag = elm.tagname;
+			delete elm.tagname;
+			kag.insertTag(tag, elm);
+		}
+		_pending = void;
+	}
+	function execDelay(elm) {
+		with (elm) .target(.args*);
+		return 0;
+	}
+	function _exec(tag, *) {
+		if (!isDefined(tag)) return void;
+		var fncs = get(tag);
+		var ntag = tagNormalize(tag);
+		if (!sorted[ntag]) {
+			fncs.sort(function(a,b) { return a[0] < b[0]; }, true);
+			sorted[ntag] = true;
+		}
+		for (var i = fncs.count-1; i >= 0; i--) {
+			var f = fncs[i][1];
+			switch (typeof f) {
+			case "String":
+				_exec(f, *);
+				break;
+			case "Object":
+				if (f instanceof "Function") store("sysexec", %[ name:tag, target:f, args:getArgs(*)]);
+				break;
+			}
+		}
+	}
+
+	function exec() { _pending = void; _exec(...); }
+	function jump() { _pending = void; _jump(...); }
+
+	// [XXX]
+	function _jump(from, to, back) {
+		var storage, target, valid = false;
+		if (to != "") {
+			// 移動先スクリプトを取得
+			var bind = SystemScript.get(to + (from != "" ? (".from." + from) : ""));
+			if (bind !== void) with (bind) {
+				storage = .storage;
+				target  = .target;
+				valid   = (storage != "" || target != "");
+			}
+		}
+		dm("sysjump", from, to, back, storage, target) if (kag.debugLevel >= tkdlSimple);
+
+		// 先にprocessを呼ばないとinsertTagが正常に機能しない
+		kag.process(storage, target) if (valid);
+
+		// 各種フック
+		_exec(from + ".leave", to) if (from != "");
+
+		_exec("back",    from, to) if (back);
+		_exec("change",  from, to);
+		_exec("change."+from+"."+to) if (from != "" && to != "");
+
+		if (to != "") {
+			store("syscurrent", %[ name:to ]);
+			_exec(to   + ".enter", from);
+		}
+
+		if (!valid) {
+			System.inform(@'sysjump: "${from}" から "${to}" への登録がありません');
+			_jump(void, "title");
+//			store("s");
+		}
+
+	}
+
+	var cobjs = [];
+	class _JumpOrCall {
+		var storage, target, iscall;
+		function _JumpOrCall(elm, defcall) {
+			iscall = defcall;
+			iscall =  +elm.call if (elm.call !== void);
+			iscall = !+elm.jump if (elm.jump !== void);
+			storage = elm.storage;
+			if (typeof storage == "String" &&
+				storage.length > 0 &&
+				storage.indexOf(".ks") < 0)
+				storage += ".ks";
+			target  = elm.target;
+		}
+		function invoke() {
+			with (kag.conductor) {
+				.callLabel("") if (iscall);
+				.loadScenario(storage) if (storage !== void);
+				.goToLabel(target);
+			}
+		}
+	}
+	function getJumpOrCall(elm) {
+		var co = new _JumpOrCall(elm);
+		cobjs.add(co);
+		return co.invoke;
+	}
+
+	function addJumpOrCall(tag, storage, target, iscall, priority) {
+		add(tag, getJumpOrCall(%[storage:storage, target:target, call:iscall]), priority);
+	}
+	function addJump(tag, stor, tar, pri) { addJumpOrCall(tag, stor, tar, false, pri); }
+	function addCall(tag, stor, tar, pri) { addJumpOrCall(tag, stor, tar, true,  pri); }
+
+	function kagAdd(elm)  {
+		add(elm.name, getJumpOrCall(elm, true), elm.priority);
+		return 0;
+	}
+	function kagExec(elm) {
+		pending("_exec", elm.name, elm);
+		return 0;
+	}
+
+	var currentState, lastState;
+	function kagCurrent(elm) {
+		lastState    = currentState;
+		currentState = tagNormalize(elm.name);
+		return 0;
+	}
+	function kagJump(elm) {
+		pending("_jump", elm.from, elm.to, elm.back);
+		return 0;
+	}
+	// [XXX]
+	function disableClickable() {
+		global.unsetFocusedLayer(kag);
+		with (kag.tagHandlers) {
+			.locklink();
+			.rclick(%[ enabled:false ]);
+		}
+	}
+}
+var SystemHook = new SystemManager();
+with (SystemHook) {
+	global.systemJump = .jump;
+
+	addKagHandler("addsyshook", .kagAdd);
+	addKagHandler("syshook",    .kagExec);
+	addKagHandler("sysexec",    .execDelay);
+	addKagHandler("syscurrent", .kagCurrent);
+	addKagHandler("sysjump",    .kagJump);
+
+	.add("change", .disableClickable);
+}
+
+// フォーカスを外す
+function unsetFocusedLayer(win) {
+	win.focusedLayer = null;
+}
+
+// 上書き
+function inTitleMenu(kag) {
+	return SystemHook.currentState == "title";
+}
+
+// ゲーム中かどうか
+function inGameState(kag) {
+	return SystemHook.currentState == "game";
+}
+
+
+
+/*
+ * サブ画面の呼び出し
+ */
+function startSubSystem(isExtra, tag)
+{
+	with (kag) {
+		var scr = SystemScript.get(tag);
+		.hideHistory() if (.historyShowing);
+
+//		dm("subsys", isExtra, tag, scr.storage, scr.target);
+		if (!isExtra) .process(  scr.storage, scr.target,, true);
+		else .callExtraConductor(scr.storage, scr.target);
+	}
+}
+
+
+// ---------------------------------------------------------
+// システム定義ファイル管理用
+// ---------------------------------------------------------
+
+class SystemDefFileManBase extends SystemRegistory {
+//	function finalize() { super.finalize(...); }
+	function SystemDefFileManBase(file) {
+		super.SystemRegistory();
+		load(file);
+	}
+
+	function getAlias(val)     { return (typeof val === "String") ? val : void; }
+	function getValue(val)     {
+		if (val === void) return %[];
+		val = val.trim();
+		if (val[0] === "@") return val.substr(1);
+		if (val.length === 0) return %[];
+		return makeValue(val.split(":"));
+	}
+
+	// stub
+	function makeValue(list) {} /* virtual */
+
+	// 自由度の高い検索(hoge.fuga.ugo は *.ugo や *.fuga.* にマッチ)
+	function _searchList(tag) {
+		var ret = [ tag ], pos = [ 0 ];
+		var tmp = tag.split(".");
+		for (var p = 0, i = 0; i < tmp.count; i++, pos[i] = p++) p += tmp[i].length;
+		for (var i = 1; i < tmp.count; i++)
+			for (var j = tmp.count - i; j >= 0; j--)
+				ret.add(tag.substr(0, pos[j]) + ((j>0)?".*":"*") + tag.substr(pos[j+i]));
+		ret.add("*");
+		return ret;
+	}
+
+	function get(tag) {
+		var ret;
+		if (typeof tag === "String") ret = super.search(tag, _searchList);
+		return ret !== void ? ret : %[];
+	}
+	
+}
+
+// ---------------------------------------------------------
+// システムトランジション管理
+// ---------------------------------------------------------
+
+class SystemTransManager extends SystemDefFileManBase {
+//	function finalize() { super.finalize(...); }
+	var defaulttrans = "crossfade";
+	function SystemTransManager(file) { super.SystemDefFileManBase(...); }
+
+	// split array value to dic
+	function makeValue(list) {
+		var ret = %[ method:(list[1] != "") ? (list[1].trim()) : defaulttrans ];
+		var time = list[0];
+		time = time.trim() if (time != "");
+		ret.time = +time   if (time != "");
+		if (list[2] != "") {
+			ret.layer = list[2].trim();
+			ret.wait = true;
+		}
+		return ret;
+	}
+	function trans(elm, handlers) {
+		var name = elm.name, isenv = elm.env;
+		delete elm.name;
+		delete elm.env;
+		var val = get(name);
+		if (typeof val == "Object") {
+			// envinit の method を上書き
+			if (val.method != "" && typeof global.world_object == "Object") try {
+				var trans = global.world_object.env.getTransObject(val.method);
+				if (trans !== void) {
+					var time = val.time;
+					delete val.method;
+					(Dictionary.assign incontextof val)(trans, false);
+					val.time = time;
+				}
+			} catch {}
+			(Dictionary.assign incontextof elm)(val, false);
+		}
+		if (elm.layer != "") {
+			// [XXX]
+			var fore = kag.getLayerPageFromElm(elm, false);
+			var back = kag.getLayerPageFromElm(elm, true);
+			if (!fore.visible) with (fore) {
+				with (back) fore.setPos(.left, .top);
+				if (fore instanceof "MessageLayer") {
+					.setPosition(%[ frame:"", color:0, opacity:0, width:back.width, height:back.height, visible:true ]);
+				} else {
+					dm("*** systrans unsupported non-message layer");
+					.setSize(.width, .height);
+					.fillRect(0, 0, .width, .height, .neutralColor);
+					.visible = true;
+				}
+			} else if (!back.visible) with (back) {
+				with (fore) back.setPos(.left, .top);
+				if (back instanceof "MessageLayer") {
+					.setPosition(%[ frame:"", color:0, opacity:0, width:fore.width, height:fore.height, visible:true ]);
+					kag.insertTag("position", %[ layer:elm.layer, page:"fore", visible:false ]);
+				} else {
+					dm("*** systrans unsupported non-message layer");
+					.setSize(.width, .height);
+					.fillRect(0, 0, .width, .height, .neutralColor);
+					.visible = true;
+				}
+			} else if (fore.left   != back.left   ||
+					   fore.top    != back.top    ||
+					   fore.width  != back.width  ||
+					   fore.height != back.height) {
+				dm("*** systrans unmached layersize");
+				delete elm.layer;
+			}
+		}
+		SystemHook.exec("systrans." + name); // 直実行なので .ks のフックは実行できないことに注意
+		//dm("systrans", elm.method, elm.time);
+		if (isenv && typeof world_object.env.endTrans == "Object") {
+			elm[elm.method] = true;
+			delete elm.method;
+			return world_object.env.endTrans(elm);
+		}
+		return handlers.trans(elm);
+	}
+}
+
+SystemTransManager.instance = new SystemTransManager("systrans.ini");
+
+// systrans
+addKagHandler("systrans", function(elm) {
+	SystemHook.pending("_exec", elm.name, elm);
+	return SystemTransManager.instance.trans(elm, kag.tagHandlers);
+}, false);
+
+// ---------------------------------------------------------
+// システム効果音管理
+// ---------------------------------------------------------
+
+class SystemSeManager extends SystemDefFileManBase {
+//	function finalize() { super.finalize(...); }
+	var defaultbuf;
+	function SystemSeManager(file, db = 9) {
+		defaultbuf = db;
+		super.SystemDefFileManBase(file);
+	}
+
+	// split array value to dic
+	function makeValue(se) {
+		return %[ storage: se[0].trim(), buf: (se[1] != "") ? +(se[1].trim()) : defaultbuf];
+	}
+/*
+	function get(tag) {
+		var ret = super.get(...);
+		dm("getSysSE", tag, ret.storage, ret.buf) if (ret !== void && ret.storage != "");
+		return ret;
+	}
+ */
+	function play(elm) {
+		elm = get(elm) if (typeof elm == "String");
+		with (elm) {
+			if (.storage == "") return;
+			var se = kag.se[ +.buf ];
+			if (se === void) return;
+			se.setOptions(%[ gvolume: .volume ]) if (.volume !== void);
+			se.play(     %[ storage: .storage ]);
+		}
+	}
+	function state(elm) {
+		elm = get(elm) if (typeof elm == "String");
+		return (elm.storage !== void) ? kag.se[ +elm.buf ].status : "";
+	}
+	function add(tag, storage, channel) {
+		var val = storage;
+		val += ":" + channel if (channel !== void);
+		set(tag, getValue(val));
+	}
+	function setTargetSE(target, base, action) {
+		var tag = @"&base;.&action;";
+		var se = get(tag);
+		if (se === void || se.storage == "" || target[action + "se"] !== void) return;
+		target[action + "se"   ] = se.storage;
+		target[action + "sebuf"] = se.buf;
+	}
+	// uiload時にボタンに効果音を割り当てる
+	function setUiloadSE(names, dict, place) {
+		for (var i = 0; i < names.count; i++) {
+			var name = names[i], target = dict[name];
+			if (target === void) continue;
+			with (target) {
+				name = .name   if (.name   != "");
+				name = dict[.copy].sename if (.copy != "" && dict[.copy] !== void && dict[.copy].sename != "");
+				name = .sename if (.sename != "");
+			}
+			switch (target.class) {
+			case "part": case "base": case "layer": continue;
+			}
+			var base = place + "." + name;
+			setTargetSE(target, base, "click");
+			setTargetSE(target, base, "enter");
+			setTargetSE(target, base, "leave");
+		}
+	}
+	// 選択肢に効果音を割り当てる
+	function setElementSE(elm, defname, list) {
+		if (elm === void || list === void) return;
+		var base = (elm.sename != "") ? elm.sename : defname;
+		for (var i = 0; i < list.count; i++)
+			setTargetSE(elm, base, list[i]) if (list[i] != "");
+	}
+}
+SystemSeManager.instance = new SystemSeManager("sysse.ini");
+with (SystemSeManager.instance) {
+	global.getSysSE    = .get;
+	global.playSysSE   = .play;
+	global.stateSysSE  = .state;
+	global.uiloadSysSE = .setUiloadSE;
+	global.elementSysSE= .setElementSE;
+	global.addSysSeStorage = .add;
+}
+
+// システムSEを鳴らす (name = 効果音タグ)
+addKagHandler("sysse", function(elm) {
+	playSysSE(elm.name);
+	return 0;
+}, false);
+
+addKagHandler("selopt", function(elm) {
+	elementSysSE(elm, "select", [ "open", "click", "enter","leave" ]);
+	setSelectOptions(elm);
+	return 0;
+}, true);
+
+SystemHook.add("back", function(from, to) {
+	var se;
+	se = getSysSE(from + ".back");
+	se = getSysSE(from + ".back." + to) if (se.storage == "");
+	playSysSE(se);
+} incontextof global);
+
+
+// ---------------------------------------------------------
+
+addKagHandler("sysupdate", function() { return -4; }, false);
+
+addKagHandler("sysinit", function(elm) {
+	with (tagHandlers) {
+		var e = %[];
+		.linemode(e);
+		.locklink(e);
+		.disablestore(e);
+		.cancelskip(e);
+		.cancelautomode();
+		.cancelnowaitmode();
+		.rclick(%[  enabled:false]);
+		.history(%[ enabled:false, output:true ]);
+		.clearhistory(e);
+		.stoprecollection(e);
+	}
+	return 0;
+}, true);
+
+var sysRClickOption = %[  enabled:true, jump:false ];
+addKagHandler("sysrclick", function(elm) {
+	return tagHandlers.rclick(sysRClickOption);
+}, true);
+addKagHandler("sysrclickopt", function(elm) {
+	(Dictionary.assign incontextof sysRClickOption)(elm, true);
+	return 0;
+}, false);
+
+addKagHandler("sysrestore", function(elm) {
+	with (tagHandlers) {
+		var mes = (typeof global.SystemConfig == "Object"
+				   && SystemConfig.defaultMessageLayer != "") ?
+			/**/      SystemConfig.defaultMessageLayer : "message0";
+		.current(%[ layer:mes ]);
+		.sysrclick();
+		.history(%[ enabled:true ]);
+		.unlocklink(%[]);
+	}
+	return 0;
+}, true);
+
+
+// UILoad用
+addKagHandler("syspage", function(elmorig) {
+	var elm = %[];
+	(Dictionary.assign incontextof elm)(elmorig, true);
+	elm.layer = Current.layerName if (elm.layer === void);
+	var th = kag.tagHandlers;
+	if (elm.uiload) {
+		delete elm.uiload;
+		th.current(elm);
+		Current.uiload(elm);
+		Current.action("update");
+	} else if (elm.position) {
+		delete elm.position;
+		return th.position(elm);
+	} else if (elm.current) {
+		delete elm.current;
+		elm.withback = false;
+		return th.current(elm);
+	} else if (elm.clear) {
+		var mes = kag.getMessageLayerObjectFromElm(elm);
+		mes.clear(+elm.all) if (mes !== void);
+	} else if (elm.free) {
+		delete elm.free;
+		elm.width = elm.height = 1;
+		elm.visible = false;
+		return th.position(elm);
+	}
+	return 0;
+}, false);
+
+// クリックを奪ってプライマリ(window)に素通しさせるレイヤを作る
+addKagHandler("syscover", function (elm) {
+	var cov;
+	if (typeof this._sysCoverLayer != "undefined") cov = this._sysCoverLayer;
+	else {
+		cov =  this._sysCoverLayer = new Layer(this, this.primaryLayer);
+		with (cov) {
+			.name = "SysCoverLayer";
+			.hasImage = false;
+			.hitType = htMask;
+			.hitThreshold = 0;
+			.setPos(0, 0);
+			.setSize(exWidth, exHeight);
+			.onKeyDown = onKeyDown;
+			.rightClickEnabled = false;
+			.onMouseUp = function (x, y, btn, sft) {
+				switch (btn) {
+				case mbLeft: window.onPrimaryClick(); break;
+				case mbRight: if (rightClickEnabled) window.onPrimaryRightClick(); break;
+				}
+			} incontextof cov;
+		}
+	}
+	stopAction(cov);
+	with (cov) {
+		var vis = !!elm.visible, time = +elm.time, col = +elm.color;
+		if (   (!vis && !time) || elm.clear) .hasImage = false;
+		else if (vis && elm.color !== void) {
+			.hasImage = true;
+			.fillRect(0, 0, exWidth, exHeight, (elm.opacity !== void ? (+elm.opacity<<24) : 0xFF000000) | (col & 0xFFFFFF));
+			.absolute = currentDialogAbsolute-1 if (elm.absolute === void);
+		}
+		if (elm.absolute !== void) .absolute = elm.absolute;
+		else if (!.hasImage)       .absolute = 9999999;
+		.rightClickEnabled = (elm.rclick !== void) ? +elm.rclick : false;
+		if (time > 0) {
+			.visible = true;
+			.focus() if (vis);
+			beginAction(cov, %[ opacity:%[ handler:MoveAction, start:(.opacity=vis?0:255), value:vis?255:0, time:time ] ]);
+			insertTag("syscover", %[ visible:false ]) if (!vis);
+			return waitSingleAction(cov, elm.canskip);
+		} else {
+			.opacity = 255 if (.hasImage);
+			.visible = vis;
+			.focus() if (vis);
+		}
+	}
+	return 0;
+}, true);
+
+// 右クリックが離されるまで待つ
+addKagHandler("waitrclickup", function (elm) {
+	if (!getKeyState(VK_RBUTTON) && !(elm.withleft && getKeyState(VK_LBUTTON))) return 0;
+	var cb = function (e) { insertTag("next", e) if (e !== void && (e.storage != "" || e.target != "")); } incontextof this;
+	conductor.wait(%[
+		"mouseup" + mbLeft   => cb,
+		"mouseup" + mbMiddle => cb,
+		"mouseup" + mbRight  => cb,
+		"mouseup" + mbLeft   + "_arg" => elm,
+		"mouseup" + mbMiddle + "_arg" => elm,
+		"mouseup" + mbRight  + "_arg" => elm,
+		]);
+	return -2;
+}, true);
+
+
+
+// 全画面ムービー再生
+addKagHandler("sysmovie", function (elm) {
+	if (elm.state == "") with (elm) {
+//		if (skipNoDisp || skipMode >= SKIP_CANCEL) return  0;
+		insertTag("sysmovie", %[ state:"term", color:.color, endcolor:.endcolor ]);
+		insertTag("sysmovie", %[ state:"wait", canskip:.canskip, disablerclick:.disablerclick ]);
+		insertTag("wait",     %[ canskip:false, time:elm.forcewait ]) if (elm.forcewait !== void);
+		insertTag("sysmovie", %[ state:"play", storage:.storage, file:.file, mode:.mode, laystretch:.laystretch,
+								 /**/aspectzoom:.aspectzoom, noaudio:.noaudio, bgmflag:.bgmflag, flag:.flag, nohidemscur:.nohidemscur ]);
+		insertTag("sysmovie", %[ state:"init", color:.color, begincolor:.begincolor ]);
+		return 0;
+	}
+	var e = %[], col = elm.color;
+	var mvs;
+	if (typeof    global.sysmovie_stop == "undefined") {
+		/**/mvs = global.sysmovie_stop = function () {
+			tagHandlers.stopvideo(%[]);
+		} incontextof this;
+	} else  mvs = global.sysmovie_stop;
+	with (tagHandlers) {
+		switch (elm.state) {
+		case "init":
+			.stoptrans(e);
+			if (!elm.noclear) {
+				.sysmovie(%[ state:"clear", color:(elm.begincolor != "" ? elm.begincolor : col) ]);
+			}
+			tflags.sysmovie_storage = elm.storage;
+			with (Debug.console) {
+				tflags.sysmovie_lastconsole = .visible;
+				.visible = false;
+			}
+//			resetScreen();
+			return -4; //.wait(%[ time:1 ]);
+		case "clear":
+			for (var list = [ fore.base, back.base ]; list.count > 0;) {
+				var lay = list.pop();
+				(global.Layer.setImageSize       incontextof lay)(exWidth, exHeight);
+				(global.Layer.setSizeToImageSize incontextof lay)();
+			}
+			.clearlayers(%[ page:"fore" ]);
+			if (col != "") with (fore.base) {
+				.fillRect(0, 0, exWidth, exHeight, (+col)|0xFF000000);
+				.visible = true;
+			}
+			.backlay(e);
+			try { if (typeof world_object.onSync == "Object") world_object.onSync(); } catch {} // [XXX]
+			return 0;
+		case "play":
+			var mode = (elm.mode != "") ? elm.mode : System.getArgument("-vomstyle");
+			var laystretch = (elm.laystretch === void) ? false : +elm.laystretch;
+			switch (mode) {
+			case "overlay": case "mixer": case "layer": break;
+			default:
+				mode = checkWindowsVersion("2000") ? "mixer" : "overlay";
+				break;
+			}
+			// セカンダリモニタではlayer固定
+//			mode = "layer" if (!CheckPrimaryMonitor(kag));
+
+			.video(%[ visible:false, left:0, top:0, width:scWidth, height:scHeight, mode:mode, aspectzoom:elm.aspectzoom, volume:elm.noaudio?void:"", laystretch:laystretch ]);
+			var layered = (movies[0].mode == vomLayer);
+			if (layered) {
+				.videolayer(%[ page:"fore", layer:"base", channel:1 ]);
+				.syscover(%[ visible: true, absolute:1000000, rclick:true, clear:true ]);
+			}
+			var storage = elm.storage;
+			/**/storage = elm.file if (storage == "");
+			/**/storage = tflags.sysmovie_storage if (storage == "");
+			if (storage == "") throw new Exception("sysmovie: storageの指定がありません");
+			if (!Storages.isExistentStorage(storage)) {
+				var ext;
+				if (     Storages.isExistentStorage(storage + (ext = ".mpg"))) storage += ext;
+				else if (Storages.isExistentStorage(storage + (ext = ".wmv"))) storage += ext;
+			}
+			.openvideo(%[ storage:storage ]);
+			var flagname = elm.flag;
+			if (flagname == "") with (Storages) flagname = "movie_" + .chopStorageExt(.extractStorageName(storage)).toLowerCase();
+			tflags.sysmovie_skip = sflags[flagname] || skipNoDisp || skipMode >= SKIP_CANCEL;
+			sflags[flagname] = true;
+			var ps = !elm.noplay;
+			//dm("sysmovie:flag", flagname, tflags.sysmovie_skip);
+			sflags["bgm_" + (elm.bgmflag.toUpperCase())] = true if (elm.bgmflag != "");
+			if (layered) {
+				.preparevideo(e);
+				insertTag("sysmovie", %[ state:"play_start",  noaudio:elm.noaudio, nohidemscur:elm.nohidemscur ]) if (ps);
+				return .wp(%[ "for" => "prepare" ]);
+			}
+			if (!ps) return 0;
+			/* not break */
+		case "play_start":
+			hideMouseCursor() if (!elm.nohidemscur);
+			.video(%[ visible:true, left:0, top:0, width:scWidth, height:scHeight, volume:elm.noaudio?void:"" ]);
+			var r = .playvideo(e);
+			if (tflags.sysmovie_lastconsole) with (Debug.console) {
+				.visible = true;
+				if (typeof this.bringTo == "Object") bringTo("top", true);
+				else if (typeof .bringAfter == "Object") .bringAfter(this);
+				else bringToFront();
+			}
+			delete tflags.sysmovie_lastconsole if (typeof tflags.sysmovie_lastconsole == "undefined");
+			return r;
+		case "wait":
+			rightClickHook.remove(mvs, true);
+			rightClickHook.add(mvs) if (!elm.disablerclick);
+			elm.canskip = +tflags.sysmovie_skip if (elm.canskip === void);
+			return .wv(elm);
+		case "term":
+			.clearvideolayer(%[ channel:1 ]) if (movies[0].mode == vomLayer);
+			.sysmovie(%[ state:"clear", color:(elm.endcolor != "" ? elm.endcolor : col) ]);
+			// not break
+		case "end":
+			rightClickHook.remove(mvs, true);
+			.syscover(%[ visible: false ]);
+			.clearvideolayer(%[ channel:1 ]);
+			.video(%[ visible:false ]);
+			return -4; //.wait(%[ time:1 ]);
+		}
+	}
+	return 0;
+}, true);
+
+// mixer再生チェッカ
+function checkVideoMixerFailed(window, storage) {
+	var vov, ret = false;
+	// 強制固定なら何もしない
+	if (System.getArgument("-vomstyle") != "") return ret;
+	if (!Storages.isExistentStorage(storage)) {
+		var ext;
+		if (     Storages.isExistentStorage(storage + (ext = ".mpg"))) storage += ext;
+		else if (Storages.isExistentStorage(storage + (ext = ".wmv"))) storage += ext;
+	}
+	if (!Storages.isExistentStorage(storage))
+		throw new Exception(@"${storage}が見つかりません");
+
+	try {
+		vov = new VideoOverlay(this);
+		with (vov) {
+			.mode = vomMixer;
+			.visible = false;
+			.open(storage);
+			.play();
+			.stop();
+			.close();
+		}
+	} catch {
+		vov.close() if (vov !== void);
+		ret = true;
+	}
+	invalidate vov if (vov !== void);
+	return ret;
+}
+
+with (SystemScript) {
+
+	.script("title");
+	.add("title.from.option",    "title*loop");
+	.add("title.from.load",      "title*loop");
+
+	.script("option");
+	.add("option.sysfrom.title", "*sysfrom_title");
+	.add("option.sysfrom.game",  "*sysfrom_game");
+	.add("option.from.title",    "*start_title");
+	.add("option.from.game",     "*start_game");
+	.add("game.from.option",     "option*return");
+
+	.script("load");
+	.add("load.from.title",    "*start_title");
+	.add("load.from.save",     "*start_save");
+	.add("load.from.game",     "*start_save");
+	.add("load.sysfrom.title", "*sysfrom_title");
+	.add("load.sysfrom.game",  "*sysfrom_game");
+	.add("game.from.load",     "load*return");
+
+	.script("save");
+	.add("save.from.title",    "*start_title");
+	.add("save.from.load",     "*start_load");
+	.add("save.from.game",     "*start_load");
+	.add("save.sysfrom.game",  "*sysfrom_game");
+	.add("game.from.save",     "save*return");
+
+	.script("cgmode");
+	.script("scenemode");
+	.add("scenemode.from.game",         "*restore");
+	.add("scenemode.from.recollection", "title*start");
+	.script("soundmode");
+
+	addKagHandler("addsysscript", .kagAddScript);
+}
+
+with (SystemHook) {
+
+	// ダイアログ終了処理
+	var dd = "dialog.done";
+	.add(dd, Dialog.done);
+	.add("title.leave",     dd);
+	.add("option.leave",    dd);
+	.add("load.leave",      dd);
+	.add("save.leave",      dd);
+	.add("cgmode.leave",    dd);
+	.add("scenemode.leave", dd);
+	.add("soundmode.leave", dd);
+
+	// タイトル⇒ゲーム開始
+	.add("change.title.game", function() {
+		with (kag) {
+			.clearVariables();
+			.clearPlayTime();
+		}
+	} incontextof global);
+
+	.add("first.init", function() {
+		// 初回起動時は初期化する
+		if (!sf.first_initialized) {
+			initialEnvironment(true);
+			sf.first_initialized = true;
+		}
+	} incontextof global);
+
+	.add("save.enter", function() {
+		// セーブ前の処理
+		SystemAction._preSave();
+	} incontextof global);
+}
+
+class SystemActionBase {
+	// "_" で始まる関数は（動作可能かどうかのチェックをせずに）実際の動作を記述
+	// それ以外の関数は，動作可能かどうかのチェックをして対応するメニューアイテムか "_" つき関数を呼び出す
+
+	var _kag;
+	property kag { getter { return _kag; } } // read only
+
+	function SystemActionBase(win) {
+		_kag = win;
+		// 旧互換用
+		with (global) {
+			.automodeAction      = auto;
+			.skipmodeAction      = skip;
+			.hidewindowAction    = hide;
+			.startSave           = save;
+			.startLoad           = load;
+			.startOption         = option;
+			.startTitle          = title;
+			.moveToNextSelection = next;
+			.moveToPrevSelection = prev;
+			.canQuickLoad        = function { return this.canQuickLoad; } incontextof this;
+		}
+		updateQuickSaveDataExists();
+		SystemHook.add("change", updateQuickSaveDataExists);
+	}
+	function finalize() {}
+
+	function checkByKey_(sender) { return (typeof sender == "Object") ? void : sender; }
+	function do_(func, menu, sender,*) {
+		var bykey = checkByKey_(sender);
+		if (bykey) kag.releaseCapture();
+		if (menu != "") clickMenuItem(menu, func, bykey);
+		else func(bykey,*);
+		return true;
+	}
+	function _tglSubMode(state, opt, func, menu, *) {
+		if (!kag.inStable) return;
+		if (_chkReturn(state, opt)) func = function{}, menu = "";
+		return do_(func, menu, *);
+	}
+	function _chkReturn(state, opt) {
+		var ret = (kag.inStable && SystemConfig[opt] && SystemHook.currentState == state);
+		kag.onPrimaryRightClick() if (ret);
+		return ret;
+	}
+	function _chkEnable(tag) {
+		with (kag) {
+			var modal = .historyShowing || .currentDialog || .panelModal; // || .messageLayerHiding;
+			var selShow = .selectShowing ||  .mapSelectShowing ||  .transShowing ||  .panelShowing;
+			switch (tag) {
+			case "hide": return (inGameState(kag) && !inSystemMenu(kag) && !modal);
+			case "auto": return !modal && !selShow && !.inSleep && !.skipMode;
+			case "skip":
+				var r = !modal && !selShow && !.inSleep;
+				.showMessageLayerByUser() if (r && .messageLayerHiding); // メッセージレイヤが消されていたら表示
+				return r;
+			}
+		}
+		return true;
+	}
+
+	/// 画面モード切り替え
+	function  screen(*) {
+		if (SystemConfig.disableDisplayMenuInMoviePlaying && kag.isMoviePlaying()) return true;
+		return do_(_screen, "toggleScreenMenuItem", *);
+	}
+	/// ウィンドウモード
+	function _window() {
+		kag.winResMenu.enabled = true if (typeof kag.winResMenu != "undefined");
+		kag.onWindowedMenuItemClick();
+	}
+	/// フルスクリーンモード
+	function _fullscreen() {
+		kag.winResMenu.enabled = false if (typeof kag.winResMenu != "undefined");
+		kag.onFullScreenMenuItemClick();
+	}
+	function _screen() { if (kag.fullScreened) _window(); else _fullscreen(); }
+
+	/// バージョン情報
+	function  about(*)  { return do_(_about, "helpAboutMenuItem", *); }
+	function _about()   { kag.onHelpAboutMenuItemClick(); }
+
+	/// 終了
+	function  exit(*)   { return do_(_exit, "exitMenuItem", *); }
+	function _exit()    { kag.onExitMenuItemClick(); }
+	// quit = exit alias
+	function  quit()    { return  exit(...); }
+	function _quit()    { return _exit(...); }
+
+	/// タイトルへ戻る
+	function  title(*)  { return do_(_title, "goToStartMenuItem", *); }
+	function _title()   { kag.onGoToStartMenuItemClick(); }
+
+	/// クリック動作
+	function  click(*)  { return do_(_click,, *); }
+	function _click(bykey) {
+		if (bykey) kag.onPrimaryClickByKey();
+		else       kag.onPrimaryClick();
+	}
+
+	/// 右クリック動作
+	function  rclick(*) { return do_(_rclick, "rightClickMenuItem", *); }
+	function _rclick()  { kag.onRightClickMenuItemClick(); }
+
+	/// メッセージ窓消去
+	function  hide(*)   { return do_(_hide,, *); }
+	function _hide(bykey) {
+		if (!_chkEnable("hide")) return;
+		if (kag.inStable) _hide_(...);
+		else              _click(...);
+	}
+	function _hide_() {
+		kag.switchMessageLayerHiddenByUser();
+	}
+
+	/// オプション画面呼び出し
+	function  option(*) { return _tglSubMode("option", "toggleOption", _option,"configMenuItem", *); }
+	function _option()  {
+		var isTitle = inTitleMenu(kag);
+		startSubSystem(!isTitle, "option.sysfrom." + (isTitle ?  "title" : "game"));
+	}
+
+	/// セーブ・ロード画面呼び出し
+	function  save(*) { return _tglSubMode("save", "toggleSave", _save, "storeMenu",   *); }
+	function  load(*) { return _tglSubMode("load", "toggleLoad", _load, "restoreMenu", *); }
+	function _save()  { startSubSystem(true, "save.sysfrom.game"); }
+	function _load()  {
+		var isTitle = inTitleMenu(kag);
+		startSubSystem(!isTitle, "load.sysfrom." + (isTitle ? "title" : "game"));
+	}
+
+	/// セーブ前処理
+	function _preSave() {
+		// 最後のテキストを保存
+		var hist = kag.historyLayer;
+		kag.addBookMarkInfo("lastText", hist.currentText) if (typeof hist.currentText != "undefined");
+		_changeSaveThumbnail();
+	}
+	/// サムネ差し替え処理
+	function _changeSaveThumbnail() {
+		try {
+			kag.lockSnapshot() if (kag.snapshotLayer === void);
+			var storage, objs = [];
+			with (global.world_object.env) {
+				var ext = [];
+				if (.event.isShow()) objs.add(.event);
+				ext.assign(.layers);
+				for (var i=1; i<ext.count; i+=2) {
+					var lay = ext[i];
+					if (lay !== void && lay.isShow() && lay.opacity > 0) objs.add(lay);
+				}
+				objs.sort(function (a, b) { return a.absolute > b.absolute; });
+			}
+			for (var i = 0; i < objs.count; i++) {
+				var img = objs[i].imageFile;
+				if (typeof img == "Object" && img) img = img.storage;
+				storage = _checkSaveThumbnail(img);
+				if (storage != "") break;
+			}
+			kag.snapshotLayer.loadImages(storage) if (storage != "");
+		} catch(e) {
+			dm(e.message);
+		}
+	}
+	// サムネ差し替え用stub
+	function _checkSaveThumbnail(img) { return void; }
+
+	// クイックセーブのデータ番号
+	property qsaveBookmarkNumber { getter { return kag.numBookMarks - 1; } }
+	// クイックセーブデータがあるかどうか
+	property canQuickLoad { getter { 
+		var num = qsaveBookmarkNumber;
+		return kag.getBookMarkDate(num) != "" && _qsvExists;
+	} }
+	var _qsvExists;
+	function updateQuickSaveDataExists() {
+		_qsvExists = Storages.isExistentStorage(kag.getBookMarkFileNameAtNum(qsaveBookmarkNumber));
+	}
+
+	/// クイックセーブ・ロード
+	function  qsave(*) { return do_(_qsave_, "quickStoreMenu",   *); }
+	function  qload(*) {        do_(_qload_, "quickRestoreMenu", *) if (canQuickLoad); return true; }
+	function _qsave()  { _qsvld(_qsave_, "クイックセーブしますか？", "askQSave"); }
+	function _qload()  { _qsvld(_qload_, "クイックロードしますか？", "askQLoad"); }
+	function _qsvld(func, msg, tag) {
+		if (kag.historyShowing) kag.hideHistory();
+		if (SystemConfig[tag]) askYesNo(msg, "確認", func);
+		else func();
+	}
+	function _qsave_() { _preSave();
+		/**/             if (qsaveFunction(qsaveBookmarkNumber) && SystemConfig.notifyQSave) askYesNo("クイックセーブしました", "通知"); updateQuickSaveDataExists(); }
+	function _qload_() { if (qloadFunction(qsaveBookmarkNumber) && SystemConfig.notifyQLoad) askYesNo("クイックロードしました", "通知"); }
+
+	/// スキップモード切替
+	function  skip(*)  { return do_(_skip,, *); } // bykey
+	function _skip(bykey) {
+		if (!_chkEnable("skip")) return;
+		if (bykey) kag.skipToNextStopByKey();
+		else       kag.onSkipToNextStopMenuItemClick();
+	}
+
+	/// オートモード切替
+	function  auto(*)  { return do_(_auto,, *); } // bykey
+	function _auto(bykey) {
+		if (!_chkEnable("auto")) return;
+		if (bykey) kag.switchAutoModeByKey(); 
+		else       kag.onAutoModeMenuItemClick();
+	}
+
+	/// バックログ
+	function  backlog(*) { return do_(_backlog,, *); } // bykey
+	function _backlog(bykey) {
+		with (kag) {
+			if (.historyShowing) {
+				if (.historyLayer.enabled) .hideHistory();
+				else .stopAction(.historyLayer);
+			} else if (bykey) {
+				.historyLayer.startByKey = true;
+				.showHistoryByKey();
+			} else .onShowHistoryMenuItemClick();
+		}
+	}
+	// log = backlog alias
+	function  log() { return  backlog(...); }
+	function _log() { return _backlog(...); }
+
+	/// 前の・次の選択肢へ
+	function  next(*) { return do_(_next, "goNextMenuItem", *); }
+	function  prev(*) { return do_(_prev, "goBackMenuItem", *); }
+	function _next() {
+		if (SystemConfig.askNext) askYesNo("次の選択肢に進みますか", "確認", _next_);
+		else _next_();
+	}
+	function _prev() {
+		if (!kag.isHistoryOfStoreAlive()) return;
+		if (SystemConfig.askPrev) askYesNo("前の選択肢に戻りますか", "確認", _prev_);
+		else _prev_();
+	}
+	function _next_() { kag.skipToStop(true); }
+	function _prev_() {
+		if (typeof world_object == "Object" && world_object.playerWorking) {
+			kag.goBackHistory(false);
+		} else {
+			loadFunction("prev");
+		}
+	}
+
+	/// 音声リプレイ
+	function  vreplay(*) {return do_(_vreplay, "voiceReplayMenuItem", *); }
+	function _vreplay()  {
+		if (!inGameState(kag)) return;
+		var script = kag.currentVoiceScript;
+		Scripts.eval(script) if (script != "");
+	}
+}
+
+var SystemAction;
+var SystemActionClass = SystemActionBase;
+
+// システム動作に関するフラグ等
+var SystemConfig = %[
+
+askQLoad    : false, // クイックロード確認
+askQSave    : false, // クイックセーブ確認
+notifyQLoad : false, // クイックロード完了報告
+notifyQSave : true,  // クイックセーブ完了報告
+askNext     : true,  // 次の選択肢確認
+askPrev     : true,  // 前の選択肢確認
+//以下 MyYesNoDialog.forceYesMapで参照
+askOverwrite: true,  // 上書き確認
+askInit     : true,  // 初期化確認
+askTitle    : true,  // タイトルへ戻る確認
+askExit     : true,  // ゲーム終了確認
+
+recollectionFadeInStart: true, // 回想開始時にロードと同じフェード処理を入れるかどうか
+
+ignore_world : false, // world拡張を読み込まない
+disableDisplayMenuInMoviePlaying : false, // ムービー再生中に画面モードの切り替えを不可にするか
+disableTroubleShootMenuFlatten   : false, // 不具合回避の子メニューを上に展開しない
+
+	];
+
+addAfterInitCallback(function() {
+	with (kag) {
+		// setMenuAccessible の AsyncTrigger化
+		.menuAccessibleTrigger = new AsyncTrigger(kag, "setMenuAccessibleAllTriggerAction");
+		.menuAccessibleTrigger.cached = true;
+		.menuAccessibleTrigger.mode   = atmExclusive; // トリガ優先順位。どうするか？
+
+		.origSetMenuAccessibleAll = kag.setMenuAccessibleAll;
+		.setMenuAccessibleAll = function() {
+			menuAccessibleTrigger.trigger();
+			//dm("accessible: trigger");
+		} incontextof kag;
+
+		.setMenuAccessibleAllTriggerAction = function() {
+			//	dm("accessible: action\n------------------------");
+			origSetMenuAccessibleAll();
+		} incontextof kag;
+
+		// デフォルトメッセージ番号が指定されている場合
+		var dml = SystemConfig.defaultMessageLayer;
+		if (dml != "" && dml.indexOf("message") == 0) {
+			._clearMessageLayerNumOnSkipNoDispChanged = +dml.substr(7);
+		}
+	}
+
+} incontextof global);
+
+// ---------------------------------------------------------
+// デバッグユーティリティ
+
+property hasDebugUtil { getter {
+	var ret = false, script = "debugutil.tjs";
+	try {
+		if (Storages.isExistentStorage(script)) {
+			KAGLoadScript(script);
+			ret = true;
+		}
+	} catch {}
+//	dm("hasDebugUtil");
+	return (&hasDebugUtil = ret);
+} }
+
+property     skipToScenarioLine { getter {
+	return (&skipToScenarioLine = hasDebugUtil ? global.DebugSkipToScenarioLine : function {});
+} }
+property     editCurrentLineScenario { getter {
+	return (&editCurrentLineScenario = hasDebugUtil ? global.DebugEditCurrentLineScenario : function {});
+} }
+property     startFlagEdit { getter {
+	return (&startFlagEdit = hasDebugUtil ? global.FlagEditBase.menuItemClick : function {});
+} }
+property     selectAutoLabelStore { getter {
+	return (&selectAutoLabelStore = hasDebugUtil ? global.DebugAutoStoreBackDialog.menuItemClick : function {});
+} }
+property     editCurrentVoiceLabel { getter {
+	return (&editCurrentVoiceLabel = hasDebugUtil ? global.DebugEditCurrentVoiceLabel : function {});
+} }
+property                         copyCurrentVoiceToClipBoard { getter {
+	return hasDebugUtil ? global.copyCurrentVoiceToClipBoard   : function { global.Clipboard.asText = "！読み込みに失敗しました！"; } incontextof global;
+} }
+property                         copyCurrentEnvInfoToClipBoard { getter {
+	return hasDebugUtil ? global.copyCurrentEnvInfoToClipBoard : function { global.Clipboard.asText = "！読み込みに失敗しました！"; } incontextof global;
+} }
+property     captureCurrentScreen { getter {
+	return (&captureCurrentScreen = hasDebugUtil ? global.DebugCaptureCurrentScreen : function {});
+} }
+property     editBugReport { getter {
+	return (&editBugReport = hasDebugUtil ? global.editBugReport : function {});
+} }
+property     myExecStorage { getter {
+	return (&myExecStorage = hasDebugUtil ? global.myExecStorage : function {});
+} }
+
+
+// execDialog上書き
+property execDialog { getter {
+//	dm("execDialog");
+	var ret, noarc = Storages.isExistentStorage(System.exePath+"data/startup.tjs");
+	if (hasDebugUtil && noarc) ret = global.myExecDialog;
+	else { KAGLoadScript("ExecDialog.tjs"); ret =global.execDialog; }
+	return (&execDialog = ret);
+} }
+property     execPopup { getter {
+	return (&execPopup = hasDebugUtil ? global.myExecPopup : function {});
+} }
+property     debugMessageReceived { getter {
+	return (&debugMessageReceived  = hasDebugUtil ? global.DebugMessageReceived : function {});
+} }
+
+// ディレクトリユーティリティ
+//KAGLoadScript("dirutil.tjs");
+property dirFilesSearch  { getter { Scripts.execStorage("dirutil.tjs"); return global.dirFilesSearch;  } }
+property dirFilesForeach { getter { Scripts.execStorage("dirutil.tjs"); return global.dirFilesForeach; } }
+
+// 拡大割合指定
+function loadExMenuInterface() {
+	if (typeof global.WIN32DialogEX == "undefined") {
+		try { KAGLoadScript("win32dialog.tjs"); } catch(e) { return false; }
+	}
+	if (typeof global.MiddleZoomValueDialog == "undefined") {
+		// 拡張メニュー遅延読み
+		try { KAGLoadScript("exmenuintf.tjs"); } catch(e) { return false; }
+	}
+	return true;
+}
+function inputMiddleZoomPercent() {
+	if (!loadExMenuInterface()) return;
+	var update, tag = "mzpercent";
+	if (typeof global.MiddleZoomValueDialog == "undefined" || System.getKeyState(VK_SHIFT)) {
+		var now = System.getArgument("-"+tag);
+		now = 50 if (now == "");
+		update = System.inputString("拡大割合指定","0(内接)～100(外接)を入力", now);
+		if (update === void) return;
+		System.setArgument("-"+tag, (string)update);
+		changeUserConf(        tag, (string)update);
+		kag.onResize();
+//		reFullScreen();
+	} else {
+		var dlg = new MiddleZoomValueDialog();
+		dlg.open(kag);
+		invalidate dlg;
+	}
+}
+function bindGamePadButton() {
+	if (!loadExMenuInterface()) return;
+	var dlg = new GamePadBindDialog();
+	dlg.open(kag);
+	invalidate dlg;
+}
+
+// フォント選択差し替え
+with(KAGWindow) {
+	._selectFontDoUserSelect = .selectFontDoUserSelect;
+	.selectFontDoUserSelect = function(*) {
+		if (global.loadExMenuInterface()) try {
+			var dlg = new MyFontSelectDialog(kag.fore.base, chDefaultFace, *);
+			var r = dlg.open(kag);
+			invalidate dlg;
+			return r;
+		} catch {}
+		return _selectFontDoUserSelect(...);
+	};
+}
+
+
+var ErrorLogWithTimeStamp;
+function entryErrorLogWithTimeStamp(msg, file, line) {
+	ErrorLogWithTimeStamp = [] if (ErrorLogWithTimeStamp === void);
+	with (ErrorLogWithTimeStamp) {
+		.unshift(%[ time:System.getTickCount(), msg:msg, file:file, line:line ]);
+		.pop()if (.count > 1000); // 上限で切る
+	}
+}

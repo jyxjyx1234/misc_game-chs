@@ -1,0 +1,27 @@
+func,brand,
+func,logo,
+#
+func,continue,	storage,custom.ks,	target,*continue,	halftone,true
+func,continue,	onenter,Current.cmd("contPopup/1"),	onleave,Current.cmd("contPopup/0")
+func,start,	storage,title.ks,	target,*game
+func,load,	storage,title.ks,	target,*load
+func,extra,	storage,custom.ks,	target,*title_change_extra,	halftone,true
+func,option,	storage,title.ks,	target,*option
+func,exit,	exp,kag.close()
+cref,allmenu,continue,start,load,extra,option,exit,
+#
+eval,-lock,exp,this.visible=!.IsStandModeOpened()
+func,cgmode,	storage,title.ks,	target,*cgmode
+func,scenemode,	storage,title.ks,	target,*scenemode
+func,standmode,	storage,custom.ks,	target,*standmode,	halftone,true
+eval,-standmode,exp,this.visible=.IsStandModeOpened()
+func,soundmode,	storage,title.ks,	target,*soundmode
+func,back,	storage,custom.ks,	target,*title_change_normal
+cref,allextra,cgmode,scenemode,standmode,soundmode,back
+#
+func,base,
+part,common,	cont_popup,trial
+part,rm_extra,	common,continue,start,load,extra,option,exit
+part,rm_normal,	common,cgmode,scenemode,standmode,soundmode,back,lock
+#
+eval,names,call,uiloadSysSE,title

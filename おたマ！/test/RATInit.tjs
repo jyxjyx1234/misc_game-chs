@@ -1,0 +1,110 @@
+/**
+ * RATInit.tjs: RAT 初期化
+ *
+ * Copyright 2008 SAKAMOTO Takahiro, gato-tigre
+ * Copyright 2008 WATANABE Go, wamsoft
+ */
+
+/**
+ * DEBUG: RAT 再読込
+ */
+function ratReExec(num)
+{
+    if ( kag.mainConductor.curStorage !== void ) {
+        var ratplayer = kag.mainConductor.m_rat;
+        try {
+            var page = ratplayer.m_CurPage;
+            page += num;
+            if ( page < 0 )
+                page = 0;
+            else if ( page > ratplayer.m_rat.getPageCount() - 10 )
+                page = ratplayer.m_rat.getPageCount() - 10;
+            SystemHook.kagCurrent(%[name:"game"]);
+            SystemHook.exec("execdialog.start");
+            kag.setConductorToMain();
+            //kag.conductor.clear();
+            kag.process(ratplayer.curStorage);
+            ratplayer.m_CurPage = page;
+            kag.addTag("er");
+        } catch(e) {
+            dm(e.message + ":" + e.trace);
+            System.inform(name + ":" + e.message);
+        }
+    }
+}
+
+function ratDebugLoadFiles()
+{
+    // ファイル選択ダイアログ
+    var filename;
+    if ( !Storages.isExistentStorage(System.exePath + "data.xp3") ) {
+        var fileDialog =%[
+        filter : [ "スクリプトリスト(*.txt)|*.txt" ],
+        title  :   "スクリプトリストの読み込み",
+        initialDir : System.exePath + "data/scenario"
+            ];
+        if ( !Storages.selectFile(fileDialog) ) return; // キャンセルで抜ける
+        with (Storages) filename = .extractStorageName(fileDialog.name);
+    } else {
+        filename = System.inputString("スクリプトリストの読み込み",
+                                      'スクリプトリストを入力してください', "");
+        if ( filename == "" ) return;
+    }
+
+    // スクリプトリストの読み込み
+    kag.mainConductor.m_debug_files = void;
+    try {
+        var files = []; files.load(filename);
+        if ( files.count > 0 ) {
+            SystemHook.kagCurrent(%[name:"game"]);
+            SystemHook.exec("execdialog.start");
+            kag.setConductorToMain();
+            kag.conductor.clear();
+            kag.process(files[0], ""); files.erase(0);
+            kag.addTag("clearlayers");
+        }
+        kag.debugClearFileListRatMenuItem.checked = true;
+        kag.mainConductor.m_debug_files = files;
+    } catch(e) {
+        dm(e.message + ":" + e.trace);
+        System.inform(filename + ":" + e.message);
+    }
+}
+
+function ratDebugClearFiles()
+{
+    if ( kag.debugClearFileListRatMenuItem !== void ) {
+        kag.mainConductor.m_debug_files = void;
+        kag.debugClearFileListRatMenuItem.checked = false;
+    }
+}
+
+function ratDebugNoJump()
+{
+    if ( kag.debugNoJumpRatMenuItem !== void ) {
+        var b = !kag.mainConductor.m_debug_nojump;
+        kag.mainConductor.m_debug_nojump = b;
+        kag.debugNoJumpRatMenuItem.checked = b;
+    }
+}
+
+/**
+ * スタートアップ
+ */
+if ( typeof kag.mainConductor.m_rat != "undefined" && kag.mainConductor.m_rat === void ) {
+    // KAGPlugin に登録
+    kag.addPlugin(kag.mainConductor.m_rat = new RATPlayer(kag.mainConductor));
+
+    // デバッグメニューに登録（未完成デバッグ機能なのでデフォルトオフ）
+    if ( false && kag.debugMenu !== void && kag.debugMenu.visible ) {
+        createMenuFromList(kag, kag.debugMenu, [
+            %[  caption:"-", prop:%[ index:2 ] ],
+            %[  name:"reloadRatMenuItemM50",          caption:"RAT移動－50",            exp:"ratReExec(-50)",       prop:%[ index:3 ] ],
+            %[  name:"reloadRatMenuItemP50",          caption:"RAT移動＋50",            exp:"ratReExec( 50)",       prop:%[ index:4 ] ],
+            %[  name:"debugLoadFileListRatMenuItem",  caption:"スクリプトリスト読込",   exp:"ratDebugLoadFiles()",  prop:%[ index:5 ] ],
+            %[  name:"debugClearFileListRatMenuItem", caption:"スクリプトリストクリア", exp:"ratDebugClearFiles()", prop:%[ index:6 ] ],
+            %[  name:"debugNoJumpRatMenuItem",        caption:"分岐無視モード",         exp:"ratDebugNoJump()",     prop:%[ index:7 ] ],
+            %[  caption:"-", prop:%[ index:8 ] ],
+            ]);
+    }
+}

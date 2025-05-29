@@ -1,0 +1,2291 @@
+//--------------------------------------------------------------
+// ヘルプウィンドウ
+
+var DebugHelpPads = %[];
+function HideDebugHelp(tag) {
+	var pad = DebugHelpPads[tag];
+	if (!pad || !isvalid pad) return;
+	delete DebugHelpPads[tag];
+	pad.visible = false;
+	invalidate pad;
+}
+function ShowDebugHelp(caption, text, tag, w = 800, h = 400) {
+	tag = null if (tag == "");
+	var pad = DebugHelpPads[tag];
+	if (!pad || !isvalid pad) {
+		pad = DebugHelpPads[tag] = new Pad();
+		with (pad) {
+//			.borderStyle = bsSizeToolWin;
+			.color     = 0x002000; //clWindow;
+			.fontColor = 0xFFFFFF; //clWindowText;
+			.fontFace = "ＭＳ ゴシック"; //chDefaultFace;
+			.fontHeight = 12;
+			.readOnly = true;
+			.wordWrap = true;
+			.showScrollBars = ssVertical;
+			if (typeof .registerExEvent == "Object") {
+				.onClose = (@"function {runOnceDelayedTrigger(function { HideDebugHelp('${(string)tag}'); }); }")!;
+				.registerExEvent();
+			}
+			.width  = w;
+			.height = h;
+		}
+	}
+	with (pad) {
+		.title = @"デバッグ機能ヘルプ(${caption})";
+		.visible = true;
+		.tag = tag;
+		.text = text;
+		.statusText = caption;
+	}
+	return pad;
+}
+
+//--------------------------------------------------------------
+// ローカル変数編集Pad
+
+class FlagEditBase {
+	var owner, tmpl, varexp, oldtext, crlf, head = "";
+	function FlagEditBase(elm, owner, crlf = "\n") {
+		this.owner = owner;
+		this.crlf  = crlf;
+		elm = %[] if (elm === void);
+		with (owner) {
+			.width       = (elm.width    !== void) ? +elm.width    : 320;
+			.height      = (elm.height   !== void) ? +elm.height   : 480;
+			.title       = (elm.title    !=    "") ?  elm.title    : "フラグ変数情報";
+			.statusText  = (elm.status   !=    "") ?  elm.status   : "[変数名=変数値] を記述";
+			.color       = (elm.color    !== void) ? +elm.color    : 0x002000;
+			.fontFace    = (elm.fontface !=    "") ?  elm.fontface : "ＭＳ ゴシック";
+			.fontHeight  = (elm.fontsize !== void) ? +elm.fontsize : 12;
+
+			if (this != owner) {
+				.read  = this.read;
+				.write = this.write;
+				.modified = &this.modified;
+			}
+		}
+		tmpl   = (elm.template !=    "") ?  elm.template : "flagedit.ini";
+		varexp = new RegExp("\\[([^\\]]*)\\]", "g");
+		if (!Storages.isExistentStorage(tmpl))
+			throw new Exception(@"${tmpl} が見つかりません");
+	}
+	function finalize() {
+		invalidate varexp if (varexp !== void);
+	}
+	function injection(m) {
+		var ret = m[1], val;
+		try { val = ret!; }
+		catch {
+			System.inform(@"フラグ編集ダイアログ: 「${ret}」を評価できません");
+			return @"{${ret}}";
+		}
+		switch (typeof val) {
+		case "Real": 
+		case "Integer": ret += @"=${val}"; break;
+		case "String":  ret += @"='${val.escape()}'"; break;
+		case "void":    ret += "=void"; break;
+		}
+		return @"[${ret}]";
+	}
+	function read()  {
+		var list = [];
+		try { list.load(tmpl); } catch { return System.inform(@"${tmpl} が見つかりません"); }
+		text = head + varexp.replace(list.join(crlf)+crlf, injection incontextof global);
+		oldtext = text;
+	}
+	function write() {
+		var m, text = this.text;
+		try { for (varexp.start = 0; (m = varexp.exec(text)).count > 0; Scripts.eval(m[1])); }
+		catch(e) { System.inform(@"${e.message} : ${m[1]}"); return false; }
+		return modified;
+	}
+	property text { getter { return owner.text; } setter(v) { owner.text = v; } }
+	property modified { getter { return text != oldtext; } }
+}
+
+class FlagEditPad extends Pad {
+	var work;
+	function FlagEditPad(elm) {
+		super.Pad();
+		borderStyle = bsSizeToolWin;
+		work = new FlagEditBase(elm, this);
+		work.head = (
+			"編集したらゲーム画面を\n" +
+			"・左クリックでフラグ更新\n" +
+			"・右クリックでキャンセル\n\n" );
+	}
+	function finalize() {
+		invalidate work if (work !== void);
+		super.finalize(...);
+	}
+	class WaitDialog extends DialogLayer {
+		var owner;
+		function finalize() { super.finalize(...); }
+		function WaitDialog(win, pad) {
+			win = Window.mainWindow if (win === void);
+			super.DialogLayer(win, win.primaryLayer, "FlagEditPadWait");
+			owner = pad;
+			var w = width, h = height;
+			setOption(%[ left:0, top:0, width:w, height:h, color:pad.color ]);
+			owner.resetPos(win);
+		}
+		function onMouseUp(x, y, btn, sft) {
+			if (btn == mbLeft) {
+				System.inform("更新・保存しました") if (owner.write());
+			}
+			close();
+		}
+		function close() {
+			owner.onEditClose();
+			return super.close(...);
+		}
+	}
+	function resetPos(win) {
+		var rect = (typeof win.getClientRect != "undefined") ? win.getClientRect() : void;
+		if (rect !== void) with (rect) {
+			// use windowEx plugins
+			left   = .x;
+			top    = .y;
+			width  = .w\2;
+			height = .h;
+		} else with (win) {
+			left   = .left;
+			top    = .top;
+			width  = .width\2;
+			height = .height;
+		}
+	}
+	var dlg;
+	function edit(parent = global.kag) {
+		read();
+		visible = true;
+		if (parent !== void) with (parent) {
+			if (.fullScreen) {
+				if (parent == global.kag) SystemAction._screen();
+				else .fullScreen = false;
+			}
+		}
+		dlg = new WaitDialog(parent, this);
+		dlg.open();
+	}
+	function onEditClose() {
+		dlg = void;
+		invalidate this;
+	}
+}
+class DebugWIN32Dialog {}
+if (typeof global.WIN32DialogEX == "undefined") {
+	try { KAGLoadScript("win32dialog.tjs"); } catch(e) { System.inform(e.message); }
+}
+if (typeof global.WIN32DialogEX == "Object") global.DebugWIN32Dialog = WIN32DialogEX;
+
+class FlagEditDialog extends DebugWIN32Dialog {
+	var work, text;
+	var editID="edit";
+	var templ, statusText, color;
+	function FlagEditDialog(elm) {
+		super.WIN32DialogEX(elm);
+		templ = %[
+		style:DS_MODALFRAME|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU|DS_SETFONT,
+		x:0, y:0, cx:0, cy:0,
+		title:"",
+		pointSize:9,
+		typeFace:"ＭＳ ゴシック",
+		weight:FW_NORMAL,
+		items: []
+			];
+		work = new FlagEditBase(elm, this, "\r\n");
+	}
+	function finalize() {
+		invalidate work if (work !== void);
+		super.finalize(...);
+	}
+	function edit(parent = global.kag) {
+		var x = templ.cx, y = templ.cy, mul = templ.pointSize/12;
+		var add = templ.items.add;
+		var cx = (templ.cx = (int)(x*mul));
+		var cy = (templ.cy = (int)(y*mul));
+		add(EditText(editID, 0, 0, cx, cy-16,
+					 ES_LEFT|ES_MULTILINE|ES_WANTRETURN|
+					 ES_AUTOVSCROLL|ES_AUTOHSCROLL|
+					 WS_VSCROLL|WS_HSCROLL|
+					 WS_BORDER|WS_TABSTOP));
+		add(LText(     statusText, -1,       1, cy-15, cx\2-4, 14));
+		add(PushButton("OK",       IDOK,     cx\2-2,   cy-15, cx\4, 14));
+		add(PushButton("CANCEL",   IDCANCEL, cx*3\4-1, cy-15, cx\4, 14));
+
+		store(templ);
+		read();
+		with (open(parent)) {
+			if (.result == IDOK) {
+				text = .items[editID];
+				System.inform("更新・保存しました") if (write());
+			}
+		}
+	}
+	// [XXX] 良くないコード
+	property width      { setter(v) { templ.cx = v; } getter { return super.width;  } }
+	property height     { setter(v) { templ.cy = v; } getter { return super.height; } }
+	property title      { setter(v) { templ.title = v; } }
+	property fontFace   { setter(v) { templ.typeFace = v; } }
+	property fontHeight { setter(v) { templ.pointSize = (int)(v*9/12); } }
+
+	function onInit() {
+		super.onInit(...);
+		setCenterPosition();
+		setItemText(editID, text);
+		setItemFocus(editID);
+	}
+}
+FlagEditBase.once = function(elm) {
+	try { kag.movies[0].stop() if (kag.movies[0].mode != vomLayer); } catch {}
+	var cls = (typeof global.WIN32DialogEX != "undefined") ? FlagEditDialog : FlagEditPad;
+	try {
+		var inst = new cls(elm);
+		inst.edit();
+		invalidate inst;
+	} catch(e) { dm(e.message); }
+};
+FlagEditBase.menuItemClick = function(sender) { runOnceDelayedTrigger(FlagEditBase.once); } incontextof global;
+
+// ---------------------------------------------------------
+// 行を指定して戻る
+
+class DebugAutoStoreBackDialog extends DebugWIN32Dialog {
+	var templ, listID = "list";
+	function DebugAutoStoreBackDialog(elm) {
+		var ps = (elm.pointsize !== void) ? (int)elm.pointsize : 9;
+		var w  = (elm.width     !== void) ? (int)elm.width  : 480;
+		var h  = (elm.height    !== void) ? (int)elm.height : 320;
+		var cx = (int)(w * ps / 12);
+		var cy = (int)(h * ps / 12);
+		super.WIN32DialogEX(elm);
+		store(%[
+		style:DS_MODALFRAME|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU|DS_SETFONT,
+		x:0, y:0, cx:cx, cy:cy,
+		title:"直前の場所選択",
+		pointSize:ps,
+		typeFace:"ＭＳ Ｐゴシック",
+		weight:FW_NORMAL,
+		items: [
+			ListBox(listID, 0, 0, cx, cy-16, WS_VSCROLL|WS_BORDER|WS_TABSTOP),
+			PushButton("OK",       IDOK,     cx\2-2,   cy-15, cx\4, 14),
+			PushButton("CANCEL",   IDCANCEL, cx*3\4-1, cy-15, cx\4, 14),
+			] ]);
+	}
+	function finalize() {
+		super.finalize(...);
+	}
+	function select(parent = global.kag) {
+		var list = [], as = parent.autoLabelStore;
+		for (var i = as.count-1; i >= 0; i--) {
+			var text = (string)as[i].text;
+			if (text == "") text = " ";
+			list.add(text);
+		}
+		if (list.count <= 0) return false;
+		setInitParams(%[ listID => %[  setListBoxTexts: list,
+									   selectListBox:list.count-1 ] ]);
+		with (open(parent)) {
+			if (.result == IDOK) {
+				var sel = as.count - (int).items[listID];
+				for (var i = 1; i < sel; i++) as.shift();
+				parent.goBackAutoLabelStore();
+			}
+		}
+		return true;
+	}
+	function onInit() {
+		super.onInit(...);
+		setCenterPosition();
+		setItemFocus(listID);
+	}
+}
+DebugAutoStoreBackDialog.once = function(elm) {
+	elm = %[] if (elm === void);
+	try {
+		var inst = new DebugAutoStoreBackDialog(elm);
+		if (!inst.select()) playSysSE("cancel");
+		invalidate inst;
+	} catch(e) { dm(e.message);  playSysSE("cancel"); }
+} incontextof global;
+DebugAutoStoreBackDialog.menuItemClick = function(sender) {
+	runOnceDelayedTrigger(DebugAutoStoreBackDialog.once);
+} incontextof global;
+
+// ---------------------------------------------------------
+// シナリオを指定して実行上書き処理
+
+
+function myExecDialog() {
+	// 初期パスの決定
+	var path  = kag.currentStorage;
+	if (path == "") path = kag.conductor.curStorage;
+	if (path != "") {
+		// 現在プレイ中のシナリオが data/scenario または scenario フォルダにあればそれを選択
+		path = (string)Storages.getPlacedPath(path);
+		if (path.indexOf(System.exePath+"data/scenario") < 0 &&
+			path.indexOf(System.exePath+"scenario")      < 0) path = "";
+	}
+	if (path == "") {
+		// 最後に選んだファイル
+		var last = (string)(kag.scflags.execDialogLastSelected);
+		if (last != "") {
+			// 存在すればそれを選択
+			if (Storages.isExistentStorage(last)) path = last;
+			else {
+				// フォルダがあればそこを選択
+				last = Storages.getFullPath(Storages.extractStoragePath(last)+"/");
+				if (typeof Storages.isExistentDirectory == "Object" &&
+					/**/   Storages.isExistentDirectory(last)) path = last + "start.ks";
+			}
+		}
+	}
+	// どれにもマッチしなかった場合
+	if (path == "") path = System.exePath + "data/scenario/start.ks";
+
+	// ダイアログ表示
+	var fileDialog =%[
+	filter : [ "シナリオファイル(*.ks;*.txt)|*.ks;*.txt", "シナリオスクリプト(*.ks)|*.ks", "TJS2スクリプト(*.tjs)|*.tjs", "テキストファイル(*.txt)|*.txt", "すべてのファイル(*.*)|*.*" ],
+	filterIndex: +kag.scflags.execDialogFilterIndex,
+	title  :   "シナリオの読込み",
+	name   :  path
+		];
+	if (!Storages.selectFile(fileDialog)) return; // キャンセルで抜ける
+	kag.scflags.execDialogLastSelected = fileDialog.name;
+	kag.scflags.execDialogFilterIndex  = fileDialog.filterIndex;
+	return myExecStorage(fileDialog.name);
+}
+function myExecStorage(name, target) {
+	try {
+		var   ignore;
+		@if (PACKED)
+		// [XXX] パックされた場合追加処理
+		try { ignore = world_object.playerExecMode; } catch {}
+		@endif
+
+		if (! ignore) with (Storages) {
+			var path = .extractStoragePath(name).toLowerCase();
+			name = .getPlacedPath(.extractStorageName(name));
+			if (name == "") {
+				System.inform("このシナリオのフォルダは登録されていません。Storages.tjsの定義を確認してください。");
+				return;
+			}
+			if (path != "" && path != .extractStoragePath(name).toLowerCase())
+				System.inform("別のフォルダのシナリオファイルと名前が重複しています！\n※以下のファイルが読み込まれます:\n"+.getLocalName(name));
+		}
+		terminator.invoke();
+		SystemHook.exec("execdialog.start"); // 直実行なので .ks のフックは実行できないことに注意
+		
+		// プラグイン経由呼び出し確認
+		if (kag.forEachFunctionHook("onScenarioExec", "envplay.ks", name, target)) {
+			return true;
+		}
+
+		with (kag) {
+			.setConductorToMain(); // extraconductor使用中ならmainに戻す
+			.conductor.clear(); // キャッシュ等をクリア
+			.process(name, target);
+			.conductor.callLabel("");
+			.conductor.loadScenario("loadinit.ks");
+			.conductor.goToLabel("*exec");
+		}
+		return true;
+	} catch(e) {
+		//Debug.notice("シナリオを実行できませんでした : " + e.message);
+		kag.errorCmd("シナリオを実行できませんでした : " + e.message);
+	}
+}
+function myExecPopup(file) {
+	var noarc = Storages.getPlacedPath("startup.tjs").indexOf(">") < 0;
+	var popup = [ %[ caption:(noarc?"手動選択(&S)":"直接入力(&S)"), exp:"execDialog()" ], %[ caption:"-" ] ];
+
+	var x, y, h, cy = System.getSystemMetrics("CYMENU");
+	with (kag.getClientRect()) x=.x, y=.y, h=.h;
+	var max = (cy > 0) ? h\cy : 0;
+	if (max < 16) max = 16;
+
+	var list = [], stack = [ popup ];
+	list.load(file);
+	for (var i = 0; i < list.count; i++) {
+		if (list[i] == "") continue;
+		var lv = -1, div = list[i].split("\t",, false);
+		for (var j = 0; j < div.count; j++) {
+			if (div[j] != "") { lv = j; break; }
+		}
+		if (lv < 0 || div[lv].charAt(0) == "#") continue;
+		if (stack[lv] === void) throw new Exception("不正なメニューの深さです");
+		var storage = div[lv], target = div[lv+1], caption;
+		var pos = storage.indexOf(":");
+		var elm = %[ caption: (pos >= 0) ? storage.substr(0, pos) : (div[lv+2] != "") ? div[lv+2] : storage+target ];
+		if (pos >= 0) elm.children = (stack[lv+1] = []);
+		else elm.exp = @"myExecStorage('${storage}','${target}')";
+		var cnt = stack[lv].count;
+		if (cnt > 0 && !(cnt % max)) elm["break"] = true;
+		stack[lv].add(elm);
+	}
+	var r = MenuItem.popupEx(tpmNoAnimation|tpmLeftAlign|tpmTopAlign, x, y, kag,, popup);
+	if (r !== void && r.exp != "") Scripts.eval(r.exp);
+//	else return tagHandlers.waitrclickup(%[ withleft:true ]);
+}
+function DebugMessageReceived(args) {
+	switch (args[0]) {
+	case "run":
+		var file = Storages.extractStorageName(args[1]), line = args[2];
+		if (Storages.isExistentStorage(file)) {
+			terminator.invoke();
+			SystemHook.kagCurrent(%[name:"game"]);
+			SystemHook.exec("execdialog.start"); // 直実行なので .ks のフックは実行できないことに注意
+
+			// プラグイン経由呼び出し確認
+			if (!kag.forEachFunctionHook("onScenarioExec", "envplay.ks", file, line)) {
+				kag.setConductorToMain(); // extraconductor使用中ならmainに戻す
+				kag.conductor.clear(); // キャッシュ等をクリア
+				kag.process(file, "");
+				kag.addTag("clearlayers");
+				DebugSkipToScenarioLine(line) if (line != "" && +line > 0);
+			}
+		} else {
+			System.inform(@"シナリオファイル「${file}」が見つかりません");
+		}
+		break;
+	}
+}
+
+function SetDebugSkipToLineMode() {
+	if (typeof kag.skipToLineHack != "undefined") return;
+	with (kag) {
+		.skipToLineHack = %[
+		cancelSkip: .cancelSkip,
+		onCloseYes: .onCloseYes,
+		select:     .tagHandlers.select,
+		seldone:    .tagHandlers.seldone,
+		mselect:    .tagHandlers.mselect,
+		next:       .tagHandlers.next,
+		exit:       .tagHandlers.exit,
+		cancelskip: .tagHandlers.cancelskip,
+		onStop:     .mainConductor.onStop,
+		dummy:      function { return 0; },
+		macropop:  (typeof .conductor.popMacroArgs == "Object" ?
+					function {
+						// popMacroArgsがあればそちらを使用する
+						conductor.popMacroArgs() if (conductor == mainConductor);
+						return 0;
+					} incontextof kag :
+					function {
+						// popMacroArgsが無い場合は泥臭いコードで対応
+						if (conductor == mainConductor) {
+							var dic = (global.KAGParser.store incontextof conductor)();
+							if (dic.macroArgStackDepth > 0) {
+								var ctx = %[ context:conductor, arg:%[
+									/**/macroArgs:dic.macroArgs,
+									/**/macroArgStackDepth:dic.macroArgStackDepth-1 ] ];
+								var exp = function {
+									// [XXX] MacroArgStackDepth と MacroArgs の個数が一致しないので
+									// 必ずTVPKAGMalformedSaveDataエラーが出る
+									(global.KAGParser.restore incontextof context)(arg);
+								} incontextof ctx;
+								if (typeof    Scripts.setEvalErrorLog == "Object") {
+									var seel = Scripts.setEvalErrorLog;
+									var old = seel(false);
+									global.___macropop = exp;
+									try {  Scripts.eval("global.___macropop()"); } catch {}
+									delete global.___macropop;
+									seel(old);
+								} else try { exp(); } catch {}
+							}
+						}
+						return 0;
+					} incontextof kag),
+
+		ignoretags: [
+			"if", "ignore", "endif", "endignore", "else", "elsif",
+			"emb", "macro", "endmacro", "macropop", "erasemacro",
+			"jump", "call"//,
+			] ];
+
+		.textTags.r = function {
+			if (skipToLineStop !== void && skipToLineStop > 0) {
+				cancelSkip() if (mainConductor.curLine+1 >= skipToLineStop);
+//				Debug.message(mainConductor.curLine);
+			}
+			return parseR(...);
+		} incontextof kag;
+
+		.onCloseYes             = function { return (skipToLineStop === void) ? skipToLineHack.onCloseYes(...) : (skipToLine(), shutdown(...)); } incontextof kag;
+		.tagHandlers.select     = function(elm) { if(skipToLineStop === void) return skipToLineHack.select(...);
+			f.selDoneStorage = elm.storage if elm.storage !== void || elm.target !== void;
+			f.selDoneTarget  = elm.target  if elm.target  !== void;
+			return tagHandlers.doneselect(...); } incontextof kag;
+		.tagHandlers.seldone    = function { return (skipToLineStop === void) ? skipToLineHack.seldone(...)    : 0; } incontextof kag;
+		.tagHandlers.mselect    = function { return (skipToLineStop === void) ? skipToLineHack.mselect(...) : tagHandlers.donemapselect(...); } incontextof kag;
+		.tagHandlers.next       = function { return (skipToLineStop === void) ? skipToLineHack.next(...)       : 0; } incontextof kag;
+		.tagHandlers.exit       = function { return (skipToLineStop === void) ? skipToLineHack.exit(...)       : 0; } incontextof kag;
+		.tagHandlers.cancelskip = function { return (skipToLineStop === void) ? skipToLineHack.cancelskip(...) : 0; } incontextof kag;
+		.mainConductor.onStop   = function {
+			if (skipToLineStop !== void) {
+				if (skipToLineStop > 0){ 
+					System.inform("終端に到達しました");
+					cancelSkip();
+				} else if (!skipToLineStop) {
+					onConductorStop() if (typeof this.onConductorStop == "Object");
+				}
+			}
+			return skipToLineHack.onStop(...);
+		} incontextof kag;
+
+		.cancelSkip = function {
+			skipToLine() if (skipToLineStop !== void && skipToLineStop > 0);
+			return skipToLineHack.cancelSkip(...);
+		} incontextof kag;
+
+		.skipToLineStop = void;
+		.skipToLine = function (line = void) {
+			var en = (line !== void);
+			mainConductor.processSpecialTags = !en;
+			skipToLineStop = en ? +line : void;
+			var tags = skipToLineHack.ignoretags, dummy = skipToLineHack.dummy;
+			if (en) {
+				for (var i = 0; i < tags.count; i++) tagHandlers[tags[i]] = dummy;
+				tagHandlers.macropop = skipToLineHack.macropop;
+				skipToLineHack.allskip = (typeof this._allskip != "undefined") ? _allskip : allskip;
+				if (line > 0) {
+					allskip = true;
+					skipToStop(true);
+					updateDebugInfo();
+				}
+			} else {
+				noErOnce = false; // [XXX]
+				allskip = !!skipToLineHack.allskip;
+				for (var i = 0; i < tags.count; i++) delete tagHandlers[tags[i]];
+			}
+		} incontextof kag;
+	}
+}
+
+function DebugSkipToScenarioLine(line) {
+	with (kag) if (!inGameState(kag) ||
+				   .panelShowing || .currentDialog !== void
+				   ) return System.inform("本編シナリオ再生中で使用してください");
+
+	var info = kag.getCurrentInfo();
+	var curline = info.line;
+	var storage = Storages.extractStorageName(info.file);
+	if (line === void) {
+		line = System.inputString(storage, "行番号かラベル名を入力（「help」でヘルプ表示）", curline);
+		if (line == "") return;
+	}
+	if (typeof line == "String" && line.toLowerCase() == "help") {
+		var text = (
+			"「行番号／ラベル名／行番号とラベル両方」を入力して現在のシナリオの再生位置を変更できます\n"
+			"・行番号（「123」など）を入力すると，先頭からその行まで画面非表示スキップします\n"
+			"・ラベル名「*label」を入力すると，そのラベルへジャンプします（画面の初期化などはしないので，現在の表示が維持されます）\n"
+			"・番号とラベルを組み合わせる「123*label」とすると，そのラベルへジャンプして目的の行数までスキップします\n"
+			"なお，行番号は先頭に0を入れないようにしてください（×0123 ○123）\n"
+			"\n"
+			"※特殊スキップによる実装のため以下のような制限があります\n"
+			"・復帰直後に画面演出がおかしい場合があります\n"
+			"・if/endifなどの間に止まるようなスキップはエラーが発生します\n"
+			"・行番号までのスキップ中は[select]や[next]やその他遷移系のタグは無視されます\n"
+			"・シナリオテキストの行数を超えた場合には再生が停止します（シナリオ行数のチェックをしません）\n"
+			"・その他，テスト不足のため動作が不安定になるかもしれません\n"
+			"");
+		ShowDebugHelp("行番号ジャンプについて", text);
+		return;
+	}
+
+	// プラグイン呼び出し確認
+	if (kag.forEachFunctionHook("onSkipToLine", line)) {
+		return;
+	}
+	
+	if (typeof line == "String" && line.charAt(0) == "*") {
+		kag.process(storage,line,,true);
+	} else if (+line >= 0) {
+		var label = void, pos;
+		if (typeof line == "String" && (pos = line.indexOf("*")) > 0) {
+			label = line.substr(pos);
+			Debug.message(label);
+		}
+		try {
+			// キャッシュを破棄させるために別のシナリオを読む
+			kag.process("loadinit.ks");
+
+			// AutoPathを再構築するためのダミー
+			var dummy = [];
+			dummy.save(kag.saveDataLocation + "/" + "savecheck");
+
+			// 元のファイル・指定ラベルへ
+			kag.process(storage,label,,true);
+		} catch(e) {
+			System.inform(e.message);
+			return;
+		}
+		@if (!DEBUG_DISABLE_SKIPTOLINE)
+		if (+line > 0) {
+			SetDebugSkipToLineMode();
+			kag.skipToLine(line);
+		}
+		@endif
+	}
+}
+
+// ---------------------------------------------------------
+// 環境再現タグ生成
+
+function copyCurrentEnvInfo(conf, env) {
+	if (env === void) {
+		env = %[];
+		try { global.world_object.env.onStore(env); }
+		catch { throw new Exception("World environment objectがありません"); }
+	}
+
+	// confオプションが有効かどうか
+	var avail = ((conf !== void) ?
+				 function(v,d) { return typeof this[v] != "undefined" ? this[v] : (d !== void) ? d : this.all; } incontextof conf :
+				 function(v,d) { return (d !== void) ? d : true; });
+
+	var force   =  avail("force",  false);
+	var hidedef =  avail("hide",   false);
+	var strict  =  avail("strict", false);
+	var notrans = !avail("trans",  true );
+	var dispmax =  global.KAGEnvImage.FACE;
+
+	// 辞書を展開
+	var extract = function(ext, tag) {
+		var names = [], ret = [];
+		names.assign(ext) if (ext);
+		if (ext && ext instanceof "Dictionary") {
+			for (var i = 0, cnt = names.count-1; i < cnt; i+=2)
+				ret.add(%[ name:(string)names[i], tag => names[i+1] ]);
+		} else {
+			for (var i = 0, cnt = names.count; i < cnt; i++)
+				ret.add(%[ name:names[i].name, tag => names[i] ]) if (names[i] !== void);
+		}
+		ret.sort(function (a,b) { return a.name < b.name; }, true);
+		return ret;
+	} incontextof env;
+
+	// begintrans有効
+	var settrans = function(rslt, b) { rslt.add(@'@begintrans') if (!b); return true; };
+
+	// KAGEnvImageオプションを展開
+	var setimgopt = function(elm, opt, force = false, ncs = false) {
+		if (elm === void) {
+			return;
+		}
+		var add = opt.add, setopt = function(add, elm, list) {
+			for (var i = 0; i < list.count; i++) {
+				var name = list[i];
+				add(@'${name}="${elm[name]}"') if (name != "" && elm[name] !== void);
+			}
+		};
+		with (elm) {
+			var type = convLayerTypeReverse(.type);
+			add(@'type=${type}') if (type != "" && type != "ltAlpha");
+			add(@'nocamera=${.nocameraMode?"true":"false"}') if (force || .nocameraMode !== void);
+			add(@'noshift=${ .noshiftMode ?"true":"false"}') if (force || .noshiftMode  !== void);
+
+			add(@"opacity=${.opacity}") if (force || (.opacity != 255 && .opacity !== void));
+			add(@"rotate=${ .rotate }") if (force ||  .rotate  != 0                        );
+			add(@"zoom=${   .zoom   }") if (force || (.zoom    != 100 && .zoom    !== void));
+
+			if (.origin === void) {
+				add(@"afx=${.afx}") if (.afx !== void);
+				add(@"afy=${.afy}") if (.afy !== void);
+			} else if (force || .origin != 0) add(@"origin=${.origin}");
+
+			if (.vorigin === void) {
+				add(@"orx=${.orx}") if (.orx !== void);
+				add(@"ory=${.ory}") if (.ory !== void);
+			} else if (force || .vorigin != 0) add(@"vorigin=${.vorigin}");
+
+			add(@"raster=${ .raster }") if (force || .raster != 0);
+			if (.raster != 0) setopt(add, elm, [ "rasterLines", "rasterCycle" ]);
+		}
+		setopt(add, elm, [  "grayscale", "rgamma", "ggamma", "bgamma", "blurx", "blury",
+							"contrast", "brightness", "hue", "saturation", "luminance",
+							"noise", "filter","script" ]);
+	};
+	var setlayopt = function(elm, opt) {
+		if (elm === void) {
+			return;
+		}
+		var add = opt.add;
+		with (elm) {
+			switch (typeof .imageFile) {
+			case "String": add(@'file="${.imageFile}"') if (.imageFile != ""); break;
+			case "Object": add(@'file="${.imageFile.storage}"') if (.imageFile && .imageFile.storage != ""); break;
+			}
+			add(@'tile="${.tileFile}" tilex=${.tilex} tiley=${.tiley}') if (.tileFile != "");
+			add("color=0x%08X width=%d height=%d".sprintf(.imageColor, .width, .height)) if (.imageColor !== void);
+		}
+	};
+	// 位置オプションを展開
+	var setposopt = function(elm, opt, force, hidedef, dispmax) {
+		if (elm === void) {
+			return false;
+		}
+		var vis, add = opt.add, r;
+		with (elm) {
+			r = .disp > 0 && .disp <= dispmax;
+			add(r ? "show" : "hide") if (force || !hidedef);
+			add(@"level=${.level}") if (.level !== void);
+			add(@"xpos=${.xpos !== void ? .xpos : 0}") if (force || .xpos !== void);
+			add(@"ypos=${.ypos !== void ? .ypos : 0}") if (force || .ypos !== void);
+		}
+		return r;
+	};
+	var checkother = function(elm, rslt) {
+		if (elm === void) {
+			return;
+		}
+		rslt.add(";↑action指定があります。この機能では再現できないので手動で指定してください！") if (elm.actionList !== void && elm.actionList.count > 0);
+		rslt.add(";↑flip指定があります。この機能では再現できないので手動で指定してください！")   if (elm.flipFile != "");
+	};
+
+	var rslt = [], chs, lays, trans = notrans;
+	if (avail("voicebase")) {
+		rslt.add(@"[voice base='${kag.voiceBase}']") if (force || !hidedef || kag.voiceBase != "");
+	}
+	if (avail("chvoice")) try {
+		var vhs = extract(kag.voiceMap, "ch");
+		for (var i = 0; i < vhs.count; i++) with (vhs[i].ch) {
+			var name = vhs[i].name;
+			if (.voice === void && .strVoice === void) {
+				rslt.add(@'[${name} clearvoice]') if (force || !hidedef);
+			} else {
+				rslt.add(@'[${name} voice="${.voice}"]')          if (.voice    !== void);
+				rslt.add(@'[${name} voice="${.strVoice}" once]')  if (.strVoice !== void);
+			}
+		}
+	} catch(e) { rslt.add(";ERR! chvoice:"+e.message); }
+	if (avail("chbvoice")) try {
+		chs = extract(env.characters, "ch") if (chs === void);
+		for (var i = 0; i < chs.count; i++) with (chs[i].ch) {
+			var name = chs[i].name;
+			rslt.add(@'[${name} bvoice="${.backVoiceName}"]') if (.backVoiceName != "" && .backVoiceLoop);
+		}
+	} catch(e) { rslt.add(";ERR! chbvoice:"+e.message); }
+	
+	if (avail("bgm")) try {
+		if (env.bgm === void || env.bgm.name == "") {
+			rslt.add(@'[bgm stop]') if (force || !hidedef);
+		} else with (env.bgm) {
+			var opt = [];
+			var isbgm = .name.toLowerCase().indexOf("bgm")==0 && .name.indexOf(" ") < 0;
+			opt.add(@'loop=${.loop ? "true" : "false"}') if (.loop !== void);
+			opt.add(@'fade=${.volume}') if (.volume !== void && .volume != 100);
+			opt.add(@'pause') if (.paused);
+			opt = (opt.count > 0) ? (" "+opt.join(" ")) : "";
+			rslt.add((strict || !isbgm)
+					 ? @'[bgm play="${.name}"${opt}]'
+					 : @'[${.name}${opt}]');
+		}
+	} catch(e) { rslt.add(";ERR! bgm:"+e.message); }
+
+	if (avail("se")) try {
+		var ses = env.ses;
+		if (ses !== void) for (var i = 0; i < ses.count; i++) {
+			if (ses[i] !== void) with (ses[i]) {
+				if (.loop && .name != "") {
+					var opt = [];
+					opt.add(@'play="${.name}"');
+					opt.add(@'loop=true');
+					opt.add(@'fade=${.volume}') if (.volume !== void && .volume != 100);
+					rslt.add(@'[se ${opt.join(" ")}]');
+				}
+			}
+		}
+	} catch(e) { rslt.add(";ERR! se:"+e.message); }
+
+	if (avail("event")) try {
+		var opt = [], vis;
+		/**/setlayopt(env.event, opt);
+		vis=setposopt(env.event, opt, force, hidedef, dispmax);
+		/**/setimgopt(env.event, opt, force, true);
+		if (force || !hidedef || vis) {
+			trans = settrans(rslt, trans);
+			rslt.add(@'[event ${opt.join(" ")}]');
+			checkother(env.event, rslt);
+		}
+	} catch(e) { rslt.add(";ERR! event:"+e.message); }
+
+	if (avail("stage")) try {
+		var opt = [], add = opt.add;
+		with (env) {
+			var stg = .stage !== void ? .stage : %[];
+			add(strict ? @"stime=${stg.time}" : .time) if (stg.time != "");
+			setposopt(stg, opt, force, hidedef, dispmax);
+			add(@'shiftx=${.shiftx !== void ? .shiftx : 0}') if (force || .shiftx !== void);
+			add(@'shifty=${.shifty !== void ? .shifty : 0}') if (force || .shifty !== void);
+			add(@'camerax=${.camerax !== void ? .camerax : 0}') if (force || .camerax !== void);
+			add(@'cameray=${.cameray !== void ? .cameray : 0}') if (force || .cameray !== void);
+			add(@'camerazoom=${.camerazoom !== void ? .camerazoom : 100}') if (force || .cameray !== void);
+			setimgopt(env, opt, force);
+			opt = (opt.count > 0) ? (" "+opt.join(" ")) : "";
+			if (stg.stage != "" || opt != "") {
+				var top = (stg.stage == "" || stg.stage.indexOf(" ") >= 0) ? ('"'+stg.stage+'"') : stg.stage;
+				/**/top = ("stage="+top) if (stg.stage == "" || strict);
+				trans = settrans(rslt, trans);
+				rslt.add(@'[stage ${top}${opt}]');
+			}
+			checkother(stg, rslt);
+		}
+	} catch(e) { rslt.add(";ERR! stage:"+e.message); }
+
+	if (avail("chara")) try {
+		chs = extract(env.characters, "ch") if (chs === void);
+		chs.sort(function (a,b) { return a.ch.absolute < b.ch.absolute; }, true); // absoluteでソート
+		var pos;
+		try { pos = global.world_object.env.positions; } catch {}
+		if (pos !== void) pos = extract(pos, "pos");
+
+		for (var i = 0; i < chs.count; i++) {
+			var elm = chs[i].ch, vis = (elm.disp > 0 && elm.disp <= dispmax), hide;
+			var opt = [], disp = [], level = [], xpos = [], ypos = [];
+
+			// 位置情報オプションを展開
+			if (pos !== void) {
+				for (var i = 0; i < pos.count; i++) with (pos[i]) {
+					var name = .name, info = .pos, und = "undefined";
+					if (name == "" ||  info === void) continue;
+					if (       info.disp  == KAGEnvImage.CLEAR) hide = name;
+					if (typeof info.disp  != und && typeof elm.disp  != und && elm.disp  == info.disp ) disp .add(name);
+					if (typeof info.level != und && typeof elm.level != und && elm.level == info.level) level.add(name);
+					if (typeof info.xpos  != und && typeof elm.xpos  != und && elm.xpos  == info.xpos ) xpos .add(name);
+					if (typeof info.ypos  != und && typeof elm.ypos  != und && elm.ypos  == info.ypos ) ypos .add(name);
+				}
+			}
+			with (elm) {
+				var add = opt.add;
+				if (disp .count > 0) add(disp[0]);
+				else if (!vis) add(hide);
+				add(level.count > 0 ? level[0] : .level != "" ? @"level=${.level}" : void);
+				add(xpos .count > 0 ? xpos [0] : .xpos  != 0  ? @"xpos=${.xpos}"   : void);
+				add(ypos .count > 0 ? ypos [0] : .ypos  != 0  ? @"ypos=${.ypos}"   : void);
+				opt.remove(void, true);
+
+				var dr, po, df, fc;
+				if (strict) dr="dress=", po="pose=", df="diff=", fc="face=";
+				add(@'${dr}${.dress}') if (.dress != "");
+				add(@'${po}${.pose }') if (.pose  != "");
+				add(@'${df}${.diff }') if (.diff  != "");
+				if (.face  != "") {
+					if (.face.indexOf(":") < 0) add(@'${fc}${.face}');
+					else {
+						var flist = .face.split(":");
+						for (var i=0; i < flist.count; i++) add(flist[i]);
+					}
+				}
+
+				// for exstand.
+				add(@'addimage=${.addimage}') if (.addimage != "");
+				add(@'addface=${ .addface }') if (.addface  != "");
+				add(.animCmd) if (.animCmd != "");
+				if (.eyestate > 0) {
+					var state = ([ "flipoff", "open", "close", "flipon" ])[.eyestate];
+					add("eye"+state) if (state != "");
+				}
+				if (.lipstate > 0) {
+					var state = ([ "flipoff", "open", "close", "flipon" ])[.lipstate];
+					add("lip"+state) if (state != "");
+				}
+			}
+			setimgopt(elm, opt, force);
+
+			if (force || !hidedef || vis) {
+				trans = settrans(rslt, trans);
+				rslt.add((elm.initname === void || elm.name == elm.initName) ?
+						 @'[${elm.name} ${opt.join(" ")}]' :
+						 @'[newchar name="${elm.name}" initname="${elm.initName}" ${opt.join(" ")}]');
+				checkother(elm, rslt);
+			}
+		}
+	} catch(e) { rslt.add(";ERR! chara:"+e.message); }
+
+	if (avail("layer")) try {
+		lays  = extract(env.layers, "lay") if (lays === void);
+		lays.sort(function (a,b) { return a.lay.absolute < b.lay.absolute; }, true); // absoluteでソート
+		for (var i = 0; i < lays.count; i++) {
+			var elm = lays[i].lay, vis;
+			var opt = [ @'name="${elm.name}"' ];
+			/**/setlayopt(elm, opt);
+			vis=setposopt(elm, opt, force, hidedef, dispmax);
+			/**/setimgopt(elm, opt, force);
+			if (force || !hidedef || vis) {
+				trans = settrans(rslt, trans);
+				rslt.add(@'[newlay ${opt.join(" ")}]');
+				checkother(elm, rslt);
+			}
+		}
+	} catch(e) { rslt.add(";ERR! layer:"+e.message); }
+
+	rslt.add(@'@endtrans ') if (trans && !notrans);
+	return rslt;
+}
+
+// ---------------------------------------------------------
+// 環境一覧表示プラグイン
+
+class DebugEnvStateChecker extends Layer {
+	var conf;
+	function DebugEnvStateChecker(win) {
+		super.Layer(win, win.primaryLayer);
+		loadConfig();
+		with (win) {
+			name = "EnvStateChecker";
+			hitType = htMask;
+			hitThreshold = 256;
+			opacity = 255;
+			visible = false;
+			clear();
+			absolute = 2000000;
+		}
+		win.addPlugin(this);
+		win.addHook("mouseMove", onWindowMouseMove);
+	}
+	function finalize() {
+		window.removeHook("mouseMove", onWindowMouseMove);
+		super.finalize(...);
+	}
+	function clear() {
+		setImageSize(1,1);
+		face = dfProvince; fillRect(0,0,1,1,0);
+		face = dfBoth;     fillRect(0,0,1,1,0);
+		setImageSize(window.pxWidth, window.pxHeight);
+		setSizeToImageSize();
+	}
+	function drawEnvText() {
+		clear();
+		var list = copyCurrentEnvInfo(conf);
+		var x = 4, y = 4+2, h = conf._fontsize;
+		h = 12 if (h === void);
+		font.face = "ＭＳ ゴシック";
+		font.height = h;
+		h += 4;
+		var col = (int)(conf._opacity  * 255 / 100) << 24;
+		var fop = (int)(conf._fontopac * 255 / 100);
+		for (var i = 0; i < list.count; i++) {
+			var text = list[i].replace(/ /g,"  ");
+			var w = font.getTextWidth(text);
+			face = dfProvince; fillRect(x-2, y-2, w+4, h, 1);
+			face = dfBoth;     fillRect(x-2, y-2, w+4, h, col);
+			drawText(x, y, text, 0xFFFFFF, fop, false);
+			y += h;
+		}
+	}
+	function onWindowMouseMove(x, y) {
+		if (_visible) {
+			var p = 0;
+			try { p = getProvincePixel(x, y); } catch {}
+			opacity = p ? 0 : 255;
+		}
+		if (window._debugwin) with (window._debugwin) {
+			.opacity =  (y >= .top && y < .top+.height) ? 0 : 255 if (.visible);
+		}
+	}
+
+	function onStableStateChanged(stable) {
+		_tempHide = !stable && conf._temphide;
+		redraw();
+	}
+	var _visible, _tempHide;
+	property visible {
+		setter(v) {
+			_visible = !!v;
+			var vis = super.visible = _visible && !_tempHide;
+			drawEnvText() if (vis);
+		}
+		getter { return _visible; }
+	}
+	function redraw() {
+		visible = visible;
+	}
+
+	class SettingDialog extends WIN32GenericDialogEX {
+		var elm = %[
+			"title" => "環境状態表示設定",
+			"width" => 180,
+			"padding" => 8,
+			"fontSize" => 9,
+			"fontFace" => "ＭＳ ゴシック",
+			"fontSizeList" => [ "10", "12", "14", "16", "18", "20" ],
+			"opacityList"  => [ "100%", "90%", "80%", "70%", "60%", "50%", "40%", "20%" ],
+			"modeList"     => [ "非表示アイテムを隠す", "非表示アイテムも表示", "詳細オプションも表示" ],
+			"itemtexts" => %[
+				Mode:"表示モード　　",
+				Size:"フォントサイズ",
+				FOpa:"文字不透明度　",
+				Opac:"背景不透明度　",
+				Voice:"ボイス情報",
+				Hide:"停止時のみ表示",
+				IDOK => "OK",
+				IDCANCEL => "CANCEL",
+				]
+			];
+		function getOpacLevel(opa) {
+			return ((opa > 95) ? 0 :
+					(opa > 85) ? 1 :
+					(opa > 75) ? 2 :
+					(opa > 65) ? 3 :
+					(opa > 55) ? 4 :
+					(opa > 45) ? 5 :
+					(opa > 35) ? 6 : 7);
+		}
+		function SettingDialog(conf) {
+			super.WIN32GenericDialogEX(elm);
+
+			var fsz = (conf._fontsize - 10) \ 2;
+			/**/fsz = 0 if (fsz < 0 || fsz >= elm.fontSizeList.count);
+
+			var fop = getOpacLevel(conf._fontopac);
+			var opa = getOpacLevel(conf._opacity);
+
+			var mod = conf._viewmode;
+			/**/mod = 0 if (mod < 0 || mod >= elm.modeList.count);
+
+			addDropSelect("Size", 100, void, fsz, elm.fontSizeList);
+			nextLine();
+			addDropSelect("FOpa", 100, void, fop, elm.opacityList);
+			nextLine();
+			addDropSelect("Opac", 100, void, opa, elm.opacityList);
+			nextLine();
+			addDropSelect("Mode", 100, void, mod, elm.modeList);
+			nextLine();
+
+			addToggle("Voice", makeSpan(0, 2, 3));
+			addInit(  "Voice", "setCheckBox", (int)conf._voiceinfo);
+			nextLine();
+			addToggle("Hide",  makeSpan(0, 2, 3));
+			addInit(  "Hide", "setCheckBox", (int)conf._temphide);
+
+			addButton("Help",  makeDiv(2, 3));
+			addInit(  "Help", "setItemEnabled", false);
+			nextLine();
+
+			nextLine();
+			addDefPush(IDOK,    makeStepRight(1, 60), 8);
+			addButton(IDCANCEL, makeStepRight(0, 60), 8);
+		}
+		function onInit() {
+			super.onInit(...);
+			setCenterPosition();
+			setItemFocus("Mode");
+		}
+		function onCommand(msg, wp, lp) {
+			super.onCommand(...);
+			var id = getNamedId(wp & 0xFFFF);
+			switch (id) {
+			case "Help": ShowDebugHelp("環境状態表示機能について", getHelpText()); break;
+			}
+		}
+		function getHelpText() {
+			var texts = [
+				"●環境状態表示機能について",
+				"Shift+F5で表示するデバッグ情報に現在の環境情報を表示されるようになりました。",
+			];
+			return texts.join("\n");
+		}
+		function open() {
+			var r = super.open(...);
+			if (r.result != IDOK) return void;
+			return %[
+				_fontsize: +elm.fontSizeList[itemResults.Size],
+				_fontopac: +elm.opacityList [itemResults.FOpa],
+				_opacity:  +elm.opacityList [itemResults.Opac],
+				_viewmode:                   itemResults.Mode,
+				_temphide:                   itemResults.Hide,
+				_voiceinfo:                  itemResults.Voice//,
+				];
+		}
+	}
+	function setting() {
+		var dlg = new SettingDialog(conf);
+		var r = dlg.open(window);
+		invalidate dlg;
+		if (r !== void) {
+			(Dictionary.assign incontextof conf)(r, false);
+			updateConfig();
+			saveConfig();
+		}
+	}
+	function updateConfig() {
+		with (conf) {
+			.all = true, .trans = false;
+			switch (._viewmode) {
+			default:
+			case 0: .hide = true,  .force = false; break;
+			case 1: .hide = false, .force = false; break;
+			case 2: .hide = true,  .force =  true; break;
+			}
+			.voicebase = .chvoice = !!._voiceinfo;
+		}
+	}
+	function loadConfig() {
+		conf = %[   _fontsize:  12,
+					_fontopac: 100,
+					_opacity:   50,
+					_viewmode:   1,
+					_temphide:   1,
+					_voiceinfo:  0 ];
+		var dic = kag.scflags.envStateChecker, save;
+		if (typeof dic == "Object") (Dictionary.assign incontextof conf)(dic, true);
+		else save = true;
+		updateConfig();
+		saveConfig() if (save);
+	}
+	function saveConfig() {
+		var dic = %[];
+		(Dictionary.assign incontextof dic)(conf, true);
+		kag.scflags.envStateChecker = dic;
+		kag.saveSystemVariables();
+	}
+}
+DebugEnvStateChecker.CreateInstance = function () { with (kag) {
+	if (typeof .debugEnvStateChecker != "Object") {
+		/**/   .debugEnvStateChecker = new DebugEnvStateChecker(kag);
+	}
+	return .debugEnvStateChecker;
+} } incontextof global;
+
+function SetDebugEnvStateCheckerVisible(vis) {
+	var inst = DebugEnvStateChecker.CreateInstance();
+	inst.visible = vis;
+}
+function DebugEnvStateCheckerConfig() {
+	var inst = DebugEnvStateChecker.CreateInstance();
+	inst.setting();
+	inst.redraw();
+}
+
+
+
+// ---------------------------------------------------------
+// 現在のボイス番号一覧を取得
+
+function copyCurrentEnvInfoToClipBoard(conf) {
+	var text;
+	try {
+		var rslt = copyCurrentEnvInfo(conf);
+		text = rslt.join("\n") + (rslt.count > 0 ? "\n" : "");
+		playSysSE("ok");
+	} catch (e) {
+		text = ";ERR! "+e.message;
+		playSysSE("cancel");
+	}
+	Clipboard.asText = text;
+}
+function copyCurrentVoiceToClipBoard() {
+	copyCurrentEnvInfoToClipBoard(%[ voicebase:true, chvoice:true, hide:false ]);
+}
+
+// ---------------------------------------------------------
+// 現在のボイスに対してループチューナーを起動する
+
+function DebugEditCurrentVoiceLabel() {
+	with (kag) try {
+		if (.currentVoice === void || !.currentVoice.count) return;
+		for (var i = .currentVoice.count-1; i >= 0; i--) {
+			var  v = .currentVoice[i];
+			if (v !== void && v.voice != "" && Storages.isExistentStorage(v.voice+v.ext)) {
+				var path = Storages.getLocalName(Storages.getPlacedPath(v.voice+v.ext));
+				var exec = @'"${Storages.getLocalName(System.exePath)}\\tools\\krkrlt.exe"';
+				var param = @'"${path}"';
+				var r = System.shellExecute(exec, param);
+				dm(r, exec, param);
+			}
+		}
+		playSysSE("ok");
+	} catch (e) {
+		dm(e.message);
+		playSysSE("cancel");
+	}
+}
+
+// ---------------------------------------------------------
+// レイヤ一覧（Shift+F12より簡略したもの）
+
+function debugShowAllLayers(isInvisibleShow = true, top = kag._primaryLayer, indent="") {
+	var list = top.children;
+	for (var i = 0; i < list.count; i++) {
+		var clsnames = [];
+		try { clsnames.assign(Scripts.getClassNames(list[i])); } catch {}
+		clsnames = clsnames.join(",");
+		with (global.Layer incontextof list[i]) {
+			if (!(isInvisibleShow || .visible)) continue;
+			if (.hasImage)
+				Debug.message(@"${indent}${.visible?'+':'-'}${.absolute} '${.name!=''?.name:list[i]}': ${.left},${.top}:${.width}x${.height} / ${.imageLeft},${.imageTop}:${.imageWidth}x${.imageHeight}", clsnames);
+			else
+				Debug.message(@"${indent}${.visible?'+':'-'}${.absolute} '${.name!=''?.name:list[i]}': ${.left},${.top}:${.width}x${.height}", clsnames);
+
+			debugShowAllLayers(isInvisibleShow, list[i], indent+" ") if (.children.count > 0);
+		}
+	}
+}
+
+// ---------------------------------------------------------
+// 現在のシナリオ位置を編集
+
+function DebugEditCurrentLineScenario(file, line) {
+	try {
+		var edit, cmd;
+		if (file == "") {
+			var info = kag.getCurrentInfo();
+			line = info.line;
+			file = info.file;
+		}
+		with (Storages) file = .getLocalName(.getPlacedPath(file));
+		var read = System.readRegValue;
+		edit = read("HKEY_CURRENT_USER\\Environment\\KRKREDITOR");
+		var err = "テキストエディタが設定されていません。ヘルプを開きます。";
+		if (edit != "") {
+			var chop = new RegExp('^"([^"]+)"\\s+(.*)$');
+			var m = chop.match(edit);
+			invalidate chop;
+			if (m.count > 0) {
+				edit = m[1];
+				cmd  = m[2];
+				cmd = cmd.replace(/\%LINE\%/g, (string)line);
+				cmd = cmd.replace(/\%FILE\%/g, file);
+				if (System.shellExecute(edit, cmd)) playSysSE("ok");
+				else {
+					err = @'エディタの起動に失敗しました。ヘルプを開きます。\n"${edit}" ${cmd}';
+					edit = void;
+				}
+			} else {
+				err = @"環境変数内容の指定が間違っています。ヘルプを開きます。\n${edit}";
+				edit = void;
+			}
+		}
+		if (edit == "") {
+			var text = (
+				"●テキストエディタ設定ヘルプ\n"
+				"ユーザー環境変数「KRKREDITOR」を設定することで，指定のエディタで現在のシナリオファイルの現在行を編集できます。\n"
+				"・環境変数「KRKREDITOR」でテキストエディタ実行ファイル（フルパス）とコマンドラインを指定します\n"
+				"・KRKREDITOR内の「%FILE%」はファイル名，「%LINE%」は行数に置換されます\n"
+				"・実行ファイルは必ず \"～\" で括るようにしてください\n"
+				"\n"
+				"●環境変数の設定方法：\n"
+				"・XPではコンパネ／システム／システムのプロパティ：詳細設定タブ／環境変数ボタン\n"
+				"・Vistaではコンパネ／ユーザーアカウント／環境変数の変更\n"
+				"とすると環境変数のダイアログが開くので，ユーザー環境変数（上側）の新規ボタンを押して，変数名と値を設定します。\n"
+				"\n"
+				"●テキストエディタ別の「KRKREDITOR」の設定例：\n"
+				);
+			text += (
+				'・エディタ名    ：KRKREDITORの内容（実行ファイルは各ユーザーの環境のフルパスに直すこと）\n'
+				'--------------------------------------------------------------------\n'
+				'・秀丸エディタ  ："C:\\ … \\hidemaru.exe" /j%LINE% "%FILE%"\n'
+				'・TeraPad       ："C:\\ …  \\TeraPad.exe" /jl=%LINE% "%FILE%"\n'
+				'・EmEditor      ："C:\\ … \\emeditor.exe" /l %LINE% "%FILE%"\n'
+				'・WzEditor      ："C:\\ …  \\wz_main.exe" /j %LINE% "%FILE%"\n'
+				'・サクラエディタ："C:\\ …   \\sakura.exe" -Y=%LINE% "%FILE%"\n'
+				'・MIFES8        ："C:\\ …      \\miw.exe" /+%LINE% "%FILE%"\n'
+				'・XYZZY         ："C:\\ … \\xyzzycli.exe" "%FILE%" -g %LINE%\n'
+				'\n'
+				);
+			text += (
+				"※マニュアル調査によるものなので，動かない可能性があります。\n"
+				"　動かなかった場合はこちらで確認しますのでご質問ください。\n"
+				"\n"
+				"※エディタの種類や設定によっては複数のエディタが多重起動してしまう場合があります。\n"
+				"　その場合，お使いのエディタのマニュアルをご確認いただくか，ご連絡ください。\n"
+				);
+			ShowDebugHelp("テキストエディタ連携について", text);
+
+			if (checkWindowsVersion("vista")) {
+				System.shellExecute("rundll32.exe", "sysdm.cpl,EditEnvironmentVariables");
+			} else {
+				System.shellExecute("rundll32.exe", "shell32.dll,Control_RunDLL sysdm.cpl,,3");
+				err += "\nシステムのプロパティダイアログの「環境変数」ボタンを押してください」";
+			}
+			throw new Exception(err);
+		}
+	} catch (e) {
+		playSysSE("cancel");
+		System.inform(e.message);
+	}
+}
+
+// ---------------------------------------------------------
+// 画面キャプチャ
+
+function DebugCaptureCurrentScreen() {
+	if (typeof Clipboard.setAsBitmap != "Object") {
+		try {
+			Plugins.link("clipboardEx.dll");
+		} catch {
+			return System.inform("clipboardExプラグインが必要です");
+		}
+	}
+	with (kag) {
+		var lay = .temporaryLayer;
+		.captureSnapshot(lay, .pxWidth, .pxHeight, false);
+		Clipboard.setAsBitmap(lay);
+	}
+	playSysSE("ok");
+}
+
+
+// ---------------------------------------------------------
+// バグレポート
+
+class DebugProgress extends WIN32DialogEX {
+	function DebugProgress(win, text, optov) {
+		super.WIN32DialogEX();
+		modeless = true;
+		var w, h, fh, pad, face, opt = %[
+			width:100, height:12, padding:1,
+			fontSize:12, fontFace:"ＭＳ Ｐゴシック",
+			];
+		(Dictionary.assign incontextof opt)(optov, false) if (typeof optov == "Object");
+		with (opt) w=.width, h=.height, fh=.fontSize, pad=.padding, face=.fontFace;
+		var cx = w+pad*2, cy = h+pad*2;
+		store(%[
+		style: WS_POPUP|WS_VISIBLE|DS_CENTER|DS_SETFONT,
+		x:0, y:0, cx:cx, cy:cy,
+		title:"",
+		pointSize:fh,
+		typeFace:face,
+		weight:FW_HEAVY,
+		items: [
+			Control("",-1,STATIC, SS_BLACKRECT, 0,0, cx, cy, 0),
+			CText(text,-1,pad,pad,w,h,SS_CENTERIMAGE|SS_SUNKEN) ] ]);
+		open(win);
+	}
+	function finalize() {
+		close(-1);
+		super.finalize(...);
+	}
+}
+class BugSheetDialog extends WIN32GenericDialogEX {
+	var config, svnclient, _baseTick;
+	var svnclient, svnscript, svnEnabled;
+	var clipboardEnabled, base64Enabled, ziparcEnabled, fstatEnabled;
+	function BugSheetDialog(elmov) {
+		_baseTick = System.getTickCount();
+		var elm = %[
+			"title" => "バグレポートシート",
+			"width" => 500,
+			"padding" => 4,
+			"fontSize" => 9,
+			"fontFace" => "ＭＳ ゴシック",
+			"kinds" => [ "未指定", "シナリオ", "ボイス", "画像", "サウンド", "スクリプト", "システム", "その他" ],
+			"levels" => [ "未指定", "バグ：致命的", "バグ：重症", "バグ：軽症", "要望：最優先", "要望：通常レベル", "要望：低レベル", "質問：仕様確認" ],
+			"initialstate" => 1,
+			"states" => [ "未指定", "未完：未修正", "未完：問題再発", "対応：修正中", "対応：修正済み", "完了：修正確認" ],
+			"templates" => [],
+			"templatefiles" => [],
+			"itemtexts" => getDefaultDialogItemTexts(),
+			// サムネサイズ
+			"thumbsize" => [ 117, 88 ],
+			];
+		(Dictionary.assign incontextof elm)(elmov, false) if (typeof elmov == "Object" && elmov);
+		with (elm) {
+			loadTemplates(.basepath, .templatefiles, .templates);
+			.kinds    .remove(void, true);
+			.levels   .remove(void, true);
+			.states   .remove(void, true);
+			.templates.remove(void, true);
+			currentStorePath = System.exePath + (.store != "" ? .store : "bugreport");
+		}
+		super.WIN32GenericDialogEX(elm);
+		config = elm;
+
+		// 各種チェック
+		svnEnabled       = svnIsEnabled();
+		clipboardEnabled = isPluginExists("clipboardEx.dll");
+		base64Enabled    = isPluginExists("base64.dll");
+		ziparcEnabled    = isPluginExists("minizip.dll");
+		fstatEnabled     = isPluginExists("fstat.dll");
+		_tempFile        = kag.saveDataLocation + "/bugReportTemp";
+
+		initDialogItems(config);
+		initAdditionalPlugins();
+	}
+	function getDefaultDialogItemTexts() {
+		return %[
+		Subject:"概要", Author: "報告者", Kind:"分類", Level:"重要度", Message:"本文",
+		ApdxAdd:"追加", ApdxList:"一覧", ApdxClr:"全消去",
+		CapScreen:"現在ゲーム画面", CapClipBrd:"クリップボードから", CapClear:"添付画像消去",
+		OptScnPos:"シナリオ位置", OptErrLog:"エラーログ", OptCnsLog:"コンソールログ",
+		OptCurSav:"現在位置セーブ", OptSysSav:"システムセーブ",
+		ConfTmplDC:"ﾃﾝﾌﾟﾚはDｸﾘで反映", ConfAddSVN:"自動でsvnに追加", ConfBase64:"全添付はﾃｷｽﾄ内に",
+		Help:"ヘルプ", ChgPath:"保存先の変更", OK:"レポート作成", IDCANCEL => "キャンセル",
+			];
+	}
+	function initDialogItems(elm) {
+		var ts = 2, tw = 5;
+		beginFrame(makeSpan(0,tw-ts,tw));
+
+		nextLine();
+		addLineInput( "Subject",, elm.subject != "" ? elm.subject : "");
+		nextLine();
+
+		AuthorName = elm.author if (elm.author !== void);
+		addLineInput( "Author", makeDiv(0, 3), AuthorName != "" ? AuthorName : "");
+		addDropSelect("Kind",  100, makeDiv(1, 3), 0, elm.kinds);
+		addDropSelect("Level", 100, makeDiv(2, 3), 0, elm.levels);
+		nextLine();
+
+		addTextInput("Message", 192,, "");
+		nextLine();
+		nextLine();
+
+		beginGroup("添付ファイル(複数可：追加の画像添付もこちら)");
+		addLText("0個のファイル", makeSpan(0,3,6),, "FileLists");
+		getLastItem().y += _padding\2;
+		addButton("ApdxAdd",  makeDiv(3,6));
+		addInit(  "ApdxAdd", "setItemEnabled", ziparcEnabled);
+		addButton("ApdxList", makeDiv(4,6));
+		addButton("ApdxClr",  makeDiv(5,6));
+		nextLine();
+		endGroup();
+
+		setFrame(makeSpan(tw-ts,ts,tw));
+
+		beginGroup("テンプレート(選択すると本文が消えるので注意)");
+		nextLine();
+		addListSelect("Templates", 111,,, elm.templates);
+		nextLine();
+		endGroup();
+
+		nextLine(11);
+
+		beginFrame(makeDiv(0,2));
+
+		beginGroup("添付画像(1枚まで)");
+		addIcon("Bitmap", 60); nextLine();
+		addButton("CapScreen"); nextLine();
+		addButton("CapClipBrd"); nextLine();
+		addInit(  "CapClipBrd", "setItemEnabled", clipboardEnabled);
+		nextLine(6);
+		addButton("CapClear"); nextLine();
+		endGroup();
+
+		setFrame(makeDiv(1,2));
+
+		beginGroup("添付情報");
+		addToggle("OptScnPos"); nextLine();
+		addToggle("OptErrLog"); nextLine();
+		addToggle("OptCnsLog"); nextLine();
+		addToggle("OptCurSav"); nextLine();
+		addToggle("OptSysSav"); nextLine();
+		endGroup();
+
+		nextLine();
+		beginGroup("その他設定");
+		addToggle("ConfTmplDC"); nextLine();
+		addInit(  "ConfTmplDC", "setCheckBox", (int)ConfTmplDC);
+		addToggle("ConfAddSVN"); nextLine();
+		addInit(  "ConfAddSVN", "setCheckBox", (int)ConfAddSVN);
+		addInit(  "ConfAddSVN", "setItemEnabled", svnEnabled);
+		addToggle("ConfBase64"); nextLine();
+		addInit(  "ConfBase64", "setCheckBox", (int)ConfBase64);
+		addInit(  "ConfBase64", "setItemEnabled", base64Enabled);
+		endGroup();
+
+		endFrame();
+		nextLine();
+
+		endFrame();
+
+		nextLine();
+		addButton("Help",   makeStepLeft (0, 70), 10);
+		addButton("ChgPath",makeStepLeft (1, 70), 10);
+		addInit(  "ChgPath", "setItemEnabled", fstatEnabled);
+		addDefPush("OK",    makeStepRight(1, 70), 10);
+		addButton(IDCANCEL, makeStepRight(0, 70), 10);
+	}
+	function initAdditionalPlugins() {
+		// additional plugins
+		if (typeof Array.save2 != "Object") try {
+			Plugins.link("savestruct.dll");
+		} catch {
+			throwError("BugSheetDialog: plugin link failed : savestruct.dll");
+		}
+		if (fstatEnabled && typeof Storages.createDirectory != "Object") try {
+			Plugins.link("fstat.dll");
+		} catch {
+			throwError("BugSheetDialog: plugin link failed : fstat.dll");
+		}
+	}
+	function finalize() {
+		if (!fstatEnabled) clearTemp();
+		else deleteFile(_tempFile);
+		invalidate svnclient if (svnclient !== void);
+		invalidate _snapshotLayer if (_snapshotLayer !== void);
+		super.finalize(...);
+	}
+	function isPluginExists(dll) {
+		var exist = Storages.isExistentStorage, base = System.exePath;
+		return exist(base + "tools/"+ dll) || exist(base + "plugin/"+ dll);
+	}
+
+	function onCommand(msg, wp, lp) {
+		super.onCommand(...);
+		var id = getNamedId(wp & 0xFFFF);
+		switch (id) {
+		case "Templates":
+			if ((wp>>16) == (ConfTmplDC ? LBN_DBLCLK : LBN_SELCHANGE)) {
+				onTemplateChanged(sendItemMessage(id, LB_GETCURSEL, 0, 0));
+			}
+			break;
+		case "ConfTmplDC": ConfTmplDC = (int)getCheckBox(id); break;
+		case "ConfAddSVN": ConfAddSVN = (int)getCheckBox(id); break;
+		case "ConfBase64": ConfBase64 = (int)getCheckBox(id); break;
+		case "CapScreen":  capture("screen");    break;
+		case "CapClipBrd": capture("clipboard"); break;
+		case "CapClear":   capture();            break;
+		case "Help":       ShowDebugHelp("バグレポート機能について", getHelpText()); break;
+		case "ChgPath":    changeStorePath(); break;
+		case "ApdxAdd":
+		case "ApdxList":
+		case "ApdxClr":
+			appendixCommand(id);
+			break;
+		case "OK":
+			if (getItemText("Author") == "")
+				return System.inform(config.itemtexts.Author+"を入力してください");
+			var path = getStorePath();
+			if (path == "") return;
+			currentStorePath = path;
+			close(IDOK);
+			break;
+		}
+	}
+	var _appendix = [], _appendixPadTag = "BugReportAppendix";
+	function appendixCommand(mode) {
+		switch (mode) {
+		case "ApdxAdd":
+			var sel = %[
+			title: "添付ファイルを選択",
+			filter: [ "添付ファイル(*.*)|*.*" ],
+			initialDir : global.BugSheetDialog.AppendixDefaultPath
+				];
+			if (!Storages.selectFile(sel) ||
+				_appendix.find(sel.name) >= 0) return;
+			_appendix.add(sel.name);
+			global.BugSheetDialog.AppendixDefaultPath = Storages.extractStoragePath(sel.name);
+			break;
+		case "ApdxList":
+			var pad = ShowDebugHelp("", _appendix.join("\n"), _appendixPadTag, 640, 480);
+			pad.title = "添付ファイル一覧";
+			return;
+		case "ApdxClr":
+			_appendix.clear();
+			break;
+		}
+		setItemText("FileLists", @"${_appendix.count}個のファイル");
+		HideDebugHelp(_appendixPadTag);
+	}
+	function getHelpText() {
+		var texts = [
+			"●バグレポート機能について",
+			"バグ報告用のレポート作成に使用します。ゲーム中から ALT+B で起動できます。",
+			"レポートは以下の情報から構成されます。",
+			"　・概要　　　　：バグ報告シートのタイトルです。",
+			"　・報告者　　　：このシートを記入した人の名前です。一度記入すると記憶されます。",
+			"　・分類　　　　：バグの種類を選択します。",
+			"　・重要度　　　：バグのレベルを選択します。",
+			"　・本文　　　　：バグの詳細説明を記入します。",
+			"　・添付ファイル：補足用のファイルです。任意個数追加できます。",
+			"　・添付画像　　：補足用の画像です。１レポートにつき１つのみ添付できます。複数添付したい場合は上の添付ファイルを使用します。",
+			"　・添付情報　　：補足用の情報です。セーブデータやログファイルなどを添付できます。",
+			"",
+			"●テンプレートについて",
+			"テンプレート機能を使うと，現在のゲームの状態を自動で取り込んで報告シートを作成できます。",
+			"テンプレートは雛形でしかないので，不具合内容の状況に応じて適宜編集してください。",
+			"",
+			"●レポートファイルについて",
+			"レポートの実体はテキストファイル＋添付ファイルです。",
+			"レポートを作成すると「bugreport/日付_報告者_ランダム文字列.*」というファイルが作成されます。",
+			"svn環境では自動でaddされるので，そのままコミットしてください。",
+			"非svn環境では，上記ファイルをsvnのbugreportフォルダにコピーして追加・コミットしてください。",
+			"",
+			"●各種機能リファレンス",
+			"　・各入力項目（左上）：レポートの入力欄です。",
+			"　・添付ファイル（左下）：添付ファイルを追加できます。一覧で一覧表示，全消去で最初からやり直せます。",
+			"　・テンプレート（右上）：レポート入力欄にテンプレートを流し込みます。詳細は「テンプレートについて」を参照してください。",
+			"　・添付画像（右下）：現在のゲーム画面のキャプチャまたはクリップボードから画像を添付できます。",
+			"　　現在ゲーム画面　　：現在のゲーム画面をキャプチャして添付します。",
+			"　　クリップボードから：クリップボードにある画像を添付します。画像ではない場合は添付はクリアされます。",
+			"　　添付画像消去　　　：添付画像をクリアします。",
+			"",
+			"　・添付情報（右下）：補足用の情報を添付します。テンプレートで本文に挿入される情報とは別のものなので注意してください。",
+			"　　シナリオ位置　：現在のシナリオの位置情報を添付します。",
+			"　　エラーログ　　：KAGEXのエラーログを添付します。",
+			"　　コンソールログ：吉里吉里のコンソールログを添付します。",
+			"　　現在位置セーブ：現在位置のセーブデータを添付します。",
+			"　　システムセーブ：吉里吉里のシステムセーブデータを添付します。",
+			"",
+			"　・その他設定（右下）：レポート作成の動作設定です。設定はウィンドウを閉じても記憶されます。",
+			"　　テンプレはＤクリで反映：テンプレートの流し込みを選択ではなくダブルクリックで行うようにします。",
+			"　　自動でsvnに追加　　　 ：レポート作成後にファイルを自動でsvn addします。（非svn環境では使えません）",
+			"　　全添付はテキスト内に　：レポートの添付ファイルをテキスト内にbase64で含めて，別ファイルを生成しません。",
+			"",
+			"　・ヘルプ：このテキストを表示します。",
+			"　・レポート作成：レポートをファイルに書き込みます。詳細は「レポートファイルについて」を参照してください。",
+			"　・キャンセル：レポート作成をキャンセルしてウィンドウを閉じます。",
+			"",
+			];
+		return texts.join("\n");
+	}
+	function capture(mode) {
+		var lay = kag.temporaryLayer;
+		var w = config.thumbsize[0], h = config.thumbsize[1];
+		with (lay) {
+			.face = dfBoth;
+			switch (mode) {
+			case "screen":
+				kag.captureSnapshot(lay);
+				copySnapshotLayer(lay, w, h);
+				break;
+			case "clipboard":
+				if (typeof Clipboard.getAsBitmap != "Object") {
+					try {
+						Plugins.link("clipboardEx.dll");
+					} catch {
+						return System.inform("clipboardExプラグインが必要です");
+					}
+				}
+				if (typeof Clipboard.getAsBitmap == "Object" &&
+					/**/   Clipboard.getAsBitmap(lay)) {
+					copySnapshotLayer(lay, w, h);
+					break;
+				}
+			default:
+				copySnapshotLayer();
+				.setImageSize(w, h);
+				.setSizeToImageSize();
+				.fillRect(0, 0, w, h, System.toActualColor(clBtnFace)|0xFF000000);
+				break;
+			}
+		}
+		removeAllBitmap();
+		setItemBitmap("Bitmap", lay);
+	}
+	var _snapshotLayer;
+	function copySnapshotLayer(lay, w, h) {
+		if (lay) {
+			var tmp = _snapshotLayer = new global.Layer(lay.window, lay.window.primaryLayer);
+			_snapshotLayer.assignImages(lay);
+			with (lay) {
+				.setImageSize(w, h);
+				.setSizeToImageSize();
+				.stretchCopy(0, 0, w, h, tmp, 0, 0, tmp.imageWidth, tmp.imageHeight, stFastLinear);
+			}
+		} else {
+			invalidate _snapshotLayer if (_snapshotLayer);
+			_snapshotLayer = void;
+		}
+		return _snapshotLayer;
+	}
+	function clearAll() {
+		foreach (config.itemtexts, function (key,v,d) {
+			if (key != "" && key.indexOf("Opt") == 0 && itemMap[key] !== void)
+				setCheckBox(key, false);
+		} incontextof this);
+		selectComboBox("Kind",  0);
+		selectComboBox("Level", 0);
+		setItemText("Subject", "");
+		setItemText("Message", "");
+		capture();
+		appendixCommand("ApdxClr");
+	}
+	function filterPropText(text, join) {
+		var lines = text.split("\n"), ret = [];
+		for (var i = 0; i < lines.count; i++) {
+			var line = lines[i];
+			if (line != "" && line.indexOf("${") >= 0) {
+				var ext = (@"@'${line.escape()}'"!).split("\n");
+				ret.push(ext*);
+			} else ret.add(line);
+		}
+		return ret.join(join);
+	}
+	property CurrentScenarioLine     { getter { return kag.conductor.curLine; } }
+	property CurrentScenarioFile     { getter { return Storages.extractStorageName(kag.conductor.curStorage); } }
+	property CurrentScenarioFileLong { getter {
+		var fullfn  = Storages.getPlacedPath(CurrentScenarioFile);
+		if (fullfn != "") {
+			var exename  = System.exePath.toLowerCase();
+			if (fullfn.substring(0,exename.length).toLowerCase() == exename) {
+				fullfn = fullfn.substring(exename.length);
+			}
+		}
+		return fullfn;
+	} }
+	property CurrentScenarioPosShort { getter { return CurrentScenarioFile + " (" + CurrentScenarioLine + ")"; } }
+	property CurrentScenarioPosLong  { getter { return CurrentScenarioFileLong + ":" + CurrentScenarioLine + ":"; } }
+
+	var _quote = ">", _quote2 = "*";
+	property LastMessageName         { getter { return kag.historyLayer.currentName; } }
+	property LastMessageText         { getter { return kag.historyLayer._currentText; } }
+	property LastMessage             { getter { return ((LastMessageName != "") ? (_quote+LastMessageName+"\n"):"") + _quote + (LastMessageText.split("\n").join("\n"+_quote)); } }
+	property LastVoiceFiles          { getter {
+		if (typeof kag.currentVoice != "Object") return "";
+		var files = [], list = kag.currentVoice;
+		for (var i = 0; i < list.count; i++) {
+			var info = list[i];
+			var voice = info.voice;
+			voice += info.ext if (voice != "");
+			files.add(voice);
+		}
+		return files.join("\n");
+	} }
+
+	property AuthorName {
+		getter { return kag.scflags.bugReportAuthor; }
+		setter(v) {     kag.scflags.bugReportAuthor = v; }
+	}
+	property ConfTmplDC {
+		getter { return kag.scflags.bugReportTmplDC; }
+		setter(v) {     kag.scflags.bugReportTmplDC = v; }
+	}
+	property ConfAddSVN {
+		getter { return kag.scflags.bugReportAddSVN; }
+		setter(v) {     kag.scflags.bugReportAddSVN = v; }
+	}
+	property ConfBase64 {
+		getter { return kag.scflags.bugReportBase64; }
+		setter(v) {     kag.scflags.bugReportBase64 = v; }
+	}
+
+	function GetLastErrorLogs(sec) {
+		if (typeof global.ErrorLogWithTimeStamp != "Object") return;
+		var list = global.ErrorLogWithTimeStamp;
+		var ret = [], tick = _baseTick - sec * 1000;
+		for (var i = 0; i < list.count; i++) {
+			var item = list[i];
+			if (item === void) continue;
+			if (item.time < tick) break;
+			else with (item) ret.unshift(@"${Storages.extractStorageName(.file)}:${.line}:${.msg}");
+		}
+		return ret.join("\n");
+	}
+	function GetCurrentScript(ofs, lines) {
+		var tmp = [];
+		try { tmp.load(kag.conductor.curStorage); } catch { return; }
+		var n = CurrentScenarioLine + ofs;
+		n = 0 if (n < 0);
+		var ret = [], max = tmp.count;
+		for (var i = 0; i < lines; i++) {
+			ret.add(_quote2) if (i == -ofs);
+			ret.add(_quote +tmp[n + i]) if (n + i < max);
+		}
+		return ret.join("\n");
+	}
+
+	function onTemplateChanged(idx) {
+		if (_templates[idx] !== void) with (_templates[idx]) {
+			clearAll();
+			for (var i = 0, key, val; i < .keys.count; i++) {
+				if ((key = .keys[i]) == "" || itemMap[key] === void) continue;
+				val = .results[key];
+				if (key.indexOf("Opt") == 0) setCheckBox(key, +val);
+				else if (key.indexOf("Cap") == 0 && val) onCommand(,getNumberdId(key), 0);
+				else switch(key) {
+				case "Kind":  selectComboBox(key, config.kinds.find(val));  break;
+				case "Level": selectComboBox(key, config.levels.find(val)); break;
+				case "Message": setItemText(key, filterPropText(val, "\r\n")); break;
+				case "Subject": setItemText(key, filterPropText(val)); break;
+				default:
+					dm("unknown template key:", key, val);
+					break;
+				}
+			}
+		}
+	}
+	var _templates = [];
+	function loadTemplates(path, files, names) {
+		for (var i = 0; i < files.count; i++) {
+			if (files[i] == "") continue;
+			var tmpl = loadReportText(path + files[i]);
+			if (tmpl === void) continue;
+			with (tmpl) {
+				_templates.add(tmpl);
+				names.add(tmpl.results.Template);
+			}
+		}
+	}
+	function loadReportText(file) {
+		var lines = [].load(file), ret = %[ keys:[], results:%[] ];
+		var set = function (key, value) {
+			if (typeof results[key] == "undefined") {
+				keys.add(key);
+				/**/results[key]  =      value;
+			} else  results[key] += "\n"+value;
+		} incontextof ret;
+		for (var i = 0, inplace; i < lines.count; i++) {
+			var line = lines[i];
+			if (inplace === void) {
+				var p = line.indexOf(":");
+				if (p <= 0) continue;
+				var key = line.substr(0, p).trim();
+				var val = line.substr(p+1);
+				if (val.indexOf("<<") == 0 && val.length > 2) {
+					inplace = %[ key:key, appends:[], stop:val.substr(2).trim() ];
+					if (inplace.stop == "") throwError("loadReportText: no inplace terminator :"+file);
+				} else {
+					set(key, val != "" ? val.trim() : val);
+				}
+			} else with (inplace) {
+				if (line != .stop) .appends.add(line);
+				else {
+					set(.key, .appends.join("\n"));
+					inplace = void;
+				}
+			}
+		}
+		return ret;
+	}
+	function saveReportText(file, dic, keys, uuid = System.createUUID()) {
+		var ext = [];
+		ext.assign(dic);
+		keys = [] if (keys === void);
+		for (var i = 0; i < ext.count; i+=2) {
+			var k = ext[i];
+			keys.add(k) if (k != "" && keys.find(k) < 0);
+			if (k.indexOf(":") >= 0) throwError("saveReportText: invalid item key : "+k);
+		}
+		var output = [];
+		for (var i = 0; i < keys.count; i++) {
+			var k = keys[i];
+			if (k == "" || typeof dic[k] == "undefined") continue;
+			var v = dic[k];
+			if (typeof v == "Object") {
+				var eot = @"[${uuid}]";
+				output.add(k+":<<"+eot);
+				for (var i = 0, cnt = v.count; i < cnt; i++) output.add(v[i]);
+				output.add(eot);
+			} else  if (typeof v == "String" && v != "" && (v.indexOf("\n") >= 0 || v.trim() != v)) {
+				var eot = "[EOT]";
+				if (v.indexOf(eot) >= 0) eot = @"[${uuid}]";
+				output.add(k+":<<"+eot);
+				output.push((v.split("\n"))*);
+				output.add(eot);
+			} else {
+				var hd = k+":\t";
+				if (k.length < 7) hd += "\t";
+				output.add(hd+(string)v);
+			}
+		}
+		output.save2(file);
+	}
+	var _storePathSave = "_temp_bugreport_savepath.txt";
+	var currentStorePath;
+	function changeStorePath() {
+		if (!fstatEnabled) return;
+		var path = currentStorePath;
+		while (path != "") {
+			var len = path.length;
+			path = path.substr(0, len-1) if (path.charAt(len-1) == "/");
+			if (Storages.isExistentDirectory(path + "/")) break;
+			path = Storages.extractStoragePath(path);
+		}
+		var sel = %[name:path, title:"レポート保存先を変更", window:void ];
+		if (Storages.selectDirectory(sel)) {
+			var text = [], sps = System.exePath+_storePathSave;
+			if (Storages.isExistentStorage(sps)) try { text.load(sps); } catch {}
+			text[0] = sel.name;
+			text.save2(sps);
+			return sel.name;
+		}
+	}
+	function getStorePath(iswrite, sel) {
+		var path, sps = System.exePath+_storePathSave;
+		var path = currentStorePath;
+		do {
+			if (Storages.isExistentStorage(sps)) try {
+				var text = [].load(sps);
+				path = (sel !== void && text[sel] != "") ? text[sel] : text[0];
+			} catch {}
+			path += "/" if (path.charAt(path.length-1) != "/");
+			if (!fstatEnabled || Storages.isExistentDirectory(path)) return path;
+			var ques  = "フォルダを作成しますか？";
+			var doyes = "作成する";
+			var dono  = "別フォルダを選択";
+			var msg = @"保存先フォルダは存在しません。${ques}\n(${path})\n\nはい：${doyes}／いいえ：${dono}／キャンセル：保存中止";
+			var win = typeof this.HWND != "undefined" ? this : null;
+			switch (global.WIN32Dialog.messageBox(win, msg, "確認", MB_ICONINFORMATION|MB_YESNOCANCEL)) {
+			case IDYES: Storages.createDirectory(path); break;
+			case IDNO:  changeStorePath(); break;
+			case IDCANCEL: return "";
+			}
+		} while (1);
+	}
+
+	function writeReport(storePath) {
+		storePath = getStorePath(true, itemResults.Kind) if (storePath == "");
+		if (storePath == "") return;
+		var dic, keys = [ "UUID", "BaseName", "Date", "LastModified", "Author", "Kind", "Level", "State", "Subject", "Message" ];
+		var apdx = [];
+		var id = System.createUUID();
+		with (itemResults) dic = %[
+		UUID:    id,
+		Subject: .Subject,
+		Author:  .Author,
+		Kind:    config.kinds[.Kind],
+		Level:   config.levels[.Level],
+		Message: .Message.replace(/\r\n/g, "\n"),
+			];
+
+		var datestr, filestr, date = new Date();
+		with (date) {
+			datestr = "%04d/%02d/%02d %02d:%02d:%02d".sprintf(
+				.getYear(), .getMonth() + 1, .getDate(),
+				.getHours(), .getMinutes(), .getSeconds());
+			filestr = "_%04d-%02d%02d-%02d%02d".sprintf(
+				.getYear(), .getMonth() + 1, .getDate(),
+				.getHours(), .getMinutes());
+		}
+		with (dic) {
+			var tmp = .Author + "_" + .Kind;
+			filestr = tmp.replace(/[\\\/\:\*\?\"\<\>\|]/g, function(m) { return han2zen(m[0]); }) + filestr;
+			.State = config.states[config.initialstate];
+			.Date  = datestr;
+			.LastModified = datestr;
+		}
+		var file, tcnt = 0;
+		do { file = filestr + getRandomHash(id, tcnt++); }
+		while (Storages.isExistentStorage(storePath + file+".txt"));
+		dic.BaseName = file;
+
+		writeAppendInfos  (storePath + file, keys, dic, apdx);
+		writeAppendFiles  (storePath + file, keys, dic, apdx);
+		writeSnapshotImage(storePath + file, keys, dic, apdx);
+
+		if (ConfBase64 && base64Enabled && initBase64()) {
+			for (var i = 0; i < apdx.count; i++) {
+				var target = apdx[i];
+				if (target == "" || dic[target] !== void) continue;
+				dic[target] = convFileToBase64(storePath + target);
+				keys.add(target);
+				deleteFile(storePath + target);
+			}
+			apdx.clear();
+		}
+		saveReportText(storePath + file+".txt", dic, keys, id);
+		if (svnEnabled && ConfAddSVN && svnIsWorkingCopy(storePath)) {
+			svnAddFile(storePath + file+".txt");
+			for (var i = 0; i < apdx.count; i++) {
+				svnAddFile(storePath + apdx[i]);
+			}
+		}
+		return Storages.isExistentStorage(storePath + file+".txt") ? dic.BaseName : void;
+	}
+	var _svnErrorIgnore;
+	function svnIsEnabled(script) {
+		svnscript = System.exePath+"tools/svnbin/svnclient.tjs";
+		return (svnIsWorkingCopy(System.exePath) &&
+				Storages.isExistentStorage(svnscript) &&
+				isPluginExists("shellExecute.dll"));
+	}
+	function svnInit() {
+		if (svnclient === void) try {
+			KAGLoadScript(svnscript) if (typeof global.SvnClient != "Object");
+			var ver = SvnClient.GetWorkingCopyVersion(System.exePath);
+			svnclient = new SvnClient(System.exePath + "tools/svnbin/format"+ver+"/svn.exe");
+		} catch (e) {
+			System.inform("svnInit: 失敗しました : "+e.message) if (!_svnErrorIgnore);
+			svnclient = void;
+			_svnErrorIgnore = true;
+		}
+	}
+	function svnAddFile(file) {
+		svnInit();
+		svnclient.add(file, false) if (svnclient !== void);
+	}
+	function svnGetRevision(file) {
+		if (file == "" || !svnIsWorkingCopy(file)) return;
+		svnInit();
+		if (svnclient !== void) {
+			var r = svnclient.info(file);
+			if (r) return r.Revision;
+		}
+	}
+	function svnIsWorkingCopy(file) {
+		var ent = "/.svn/entries";
+		with (Storages) {
+			dm(file, .extractStoragePath(file) + ent);
+			return .isExistentStorage(.extractStoragePath(file) + ent);
+		}
+	}
+	function getRandomHash(id, cnt) {
+		var str = "abcdefghijklmnopqrstuvwxyz";
+		var rnd = new Math.RandomGenerator();
+		var r = "_";
+		for (var i = 0; i < 6; i++)
+			r += str.charAt((int)(rnd.random() * str.length));
+		invalidate rnd;
+		return r;
+	}
+	function writeSnapshotImage(file, keys, dic, apdx) {
+		if (_snapshotLayer === void) return;
+		// スナップショット
+		var fn;
+		if (typeof global.Layer.saveLayerImagePng != "Object") {
+			try { Plugins.link("layerExSave.dll"); } catch { dm("plugin link failed: layerExSave.dll"); }
+		}
+		if (typeof global.Layer.saveLayerImagePng == "Object") {
+			fn = file+".png";
+			(global.Layer.saveLayerImagePng incontextof _snapshotLayer)(fn);
+		} else {
+			fn = file+".bmp";
+			_snapshotLayer.saveLayerImage(fn, "bmp24");
+		}
+		keys.add("AppendixImage");
+		dic      .AppendixImage = Storages.extractStorageName(fn);
+		apdx.add(fn);
+	}
+	function writeAppendInfos(file, keys, dic, apdx) {
+		if (Storages.isExistentStorage("currev.ini")) {
+			keys.add("PackRevision");
+			dic      .ArchiveRevision = Scripts.evalStorage("currev.ini");
+		}
+		var rev = svnGetRevision(System.exePath + "data/");
+		if (rev != "") {
+			keys.add("RootRevision");
+			dic      .RootRevision = rev;
+		}
+
+		if (itemResults.OptScnPos) {
+			var fn, cdt = kag.conductor;
+			keys.add("ConductorFile");
+			dic      .ConductorFile = fn = cdt.curStorage;
+			keys.add("ConductorLine");
+			dic      .ConductorLine = cdt.curLine;
+
+			if (fn != "") {
+				var rev = svnGetRevision(Storages.getPlacedPath(fn));
+				if (rev != "") {
+					keys.add("ConductorRev");
+					dic      .ConductorRev = rev;
+				}
+			}
+		}
+	}
+	function writeAppendFiles(file, keys, dic, apdx) {
+		if (!ziparcEnabled) return;
+		if (typeof global.Zip != "Object") try {
+			Plugins.link("minizip.dll");
+		} catch {
+			System.inform("minizip.dll のリンクに失敗しました。添付ファイルは作成されません。");
+			return;
+		}
+		var exist = Storages.isExistentStorage;
+
+		// 添付用zip
+		var zip = new Zip(), hasAppend = false, zipfile = file + ".zip";
+		try {
+			zip.open(zipfile, 1);
+		} catch (e) {
+			System.inform("添付用zipファイルの作成に失敗しました: "+file+".zip\n"+e.message);
+			invalidate zip;
+			return;
+		}
+
+		var append = function (src, dst) {
+			dst = Storages.extractStorageName(src) if (dst == "");
+			return add(src, dst) ? dst : "";
+		} incontextof zip;
+
+		// 添付ファイル
+		for (var i = 0; i < _appendix.count; i++) {
+			var target = _appendix[i];
+			if (!exist(target) ||
+				!zip.add(target, Storages.extractStorageName(target))) {
+				System.inform("添付ファイルの追加に失敗しました: "+target);
+			} else {
+				hasAppend = true;
+			}
+		}
+
+		var inzip = Storages.extractStorageName(file) + ".zip>";
+
+		// コンソールログ
+		var fn = kag.saveDataLocation + "krkr.console.log";
+		if (itemResults.OptCnsLog && exist(fn) && (fn = append(fn)) != "") {
+			hasAppend = true;
+			keys.add("ConsoleLog");
+			dic      .ConsoleLog = inzip + fn;
+		}
+
+		// システムセーブ
+		if (itemResults.OptSysSav) {
+			kag.saveSystemVariables();
+			var sav = %[ datasc:kag.scflags, datasu:kag.sflags ];
+			if ((fn = append(saveDicToTemp(sav), "krkr.system.tjs")) != "") {
+				hasAppend = true;
+				keys.add("SystemSave");
+				dic      .SystemSave = inzip + fn;
+			}
+		}
+		if (itemResults.OptCurSav && 
+			(fn = append(saveDicToTemp(kag.copyHistoryOfStore()), "krkr.current.tjs")) != "") {
+			hasAppend = true;
+			keys.add("CurrentSave");
+			dic      .CurrentSave = inzip + fn;
+		}
+		if (itemResults.OptErrLog) {
+			var log =
+				%[
+				command :kag.cmdLog,
+				image   :kag.imageLog,
+				sound   :kag.soundLog,
+				voice   :kag.voiceLog ];
+			with (log) if (.command.count || .image.count || .sound.count || .voice.count ) {
+				if ((fn = append(saveDicToTemp(log), "krkr.errorlog.tjs")) != "") {
+					hasAppend = true;
+					keys.add("ErrorLog");
+					dic      .ErrorLog = inzip + fn;
+				}
+			}
+		}
+		zip.close();
+		invalidate zip;
+		if (hasAppend) {
+			var fn = Storages.extractStorageName(zipfile);
+			keys.add("AppendixZIP");
+			dic      .AppendixZIP = fn;
+			apdx.add(fn);
+		} else {
+			deleteFile(zipfile);
+		}
+	}
+
+	function deleteFile(file) {
+		if (fstatEnabled) Storages.deleteFile(file);
+		else System.shellExecute("cmd.exe", @'/C del /Q "${Storages.getLocalName(file)}"');
+	}
+	var _tempFile;
+	function clearTemp() {
+		try { [].save2(_tempFile); } catch {};
+	}
+	function saveDicToTemp(dic, mode) {
+		var fn = _tempFile;
+		if (typeof dic != "Object") throwError("savecToTemp: invalid data type.");
+		if      (dic instanceof "Dictionary") (Dictionary.saveStruct incontextof dic)(fn, mode);
+		else if (dic instanceof "Array") dic.saveStruct(fn, mode);
+		return fn;
+	}
+	function initBase64() {
+		if (typeof global.Base64 != "Object") {
+			try { Plugins.link("base64.dll"); } catch { dm("plugin link failed: base64.dll");  }
+		}
+		return (typeof global.Base64        == "Object" &&
+				typeof global.Base64.encode == "Object");
+	}
+	function convFileToBase64(file, step = 64) {
+		if (!initBase64()) return;
+		var ret = [], enc = Base64.encode(file);
+		for (var p = 0, len = enc.length; p < len; p+=step)
+			ret.add(enc.substr(p, step));
+		return ret;
+	}
+	function convDicToBase64(dic) {
+		var mode = initBase64() ? "z" : void;
+		var fn = saveDicToTemp(dic, mode);
+		if (mode == "") {
+			var tmp = [].load(fn);
+			clearTemp();
+			return tmp.join("\n");
+		}
+		var r = convFileToBase64(fn);
+		clearTemp();
+		return r;
+	}
+
+	function makeResults() {
+		super.makeResults(...);
+		AuthorName = itemResults.Author;
+		ConfTmplDC = itemResults.ConfTmplDC;
+		ConfAddSVN = itemResults.ConfAddSVN;
+		ConfBase64 = itemResults.ConfBase64;
+	}
+}
+BugSheetDialog.AppendixDefaultPath = System.exePath;
+
+/*
+class BugSheetEditDialog extends BugSheetDialog {
+	function BugSheetEditDialog(elm) {
+		with (elm) {
+			.width = 300 if (.width === void);
+		}
+		super.BugSheetDialog(elm);
+		
+	}
+	function getDefaultDialogItemTexts() {
+		var base = super.getDefaultDialogItemTexts();
+		var copy = [
+			"Subject", "Author", "Kind", "Level", "Message",
+			"OK", IDCANCEL ];
+		var ret = %[];
+		for (var i = 0; i < copy.count; i++) ret[copy[i]] = base[copy[i]];
+		with (ret) {
+		}
+		return ret;
+	}
+	function initDialogItems(elm) {
+		nextLine();
+		addLineInput( "Subject",, elm.subject != "" ? elm.subject : "");
+		nextLine();
+
+		AuthorName = elm.author if (elm.author !== void);
+		addLineInput( "Author", makeDiv(0, 3), AuthorName != "" ? AuthorName : "");
+		addDropSelect("Kind",  100, makeDiv(1, 3), 0, elm.kinds);
+		addDropSelect("Level", 100, makeDiv(2, 3), 0, elm.levels);
+		nextLine();
+
+		addTextInput("Message", 192,, "");
+
+		nextLine();
+		addDefPush("OK",    makeStepRight(1, 70), 10);
+		addButton(IDCANCEL, makeStepRight(0, 70), 10);
+	}
+}
+class BugSheetListDialog extends BugSheetDialog {
+	function finalize() { super.finalize(...); }
+	function BugSheetListDialog(elm) {
+		super.BugSheetDialog(elm);
+	}
+	function initDialogItems(elm) {
+		nextLine();
+		addListView( "ListView", 300,, [
+			"カラム１", "カラム２", "カラム３", "カラム４", "カラム５",
+			]);
+		nextLine();
+
+		nextLine();
+		addDefPush("OK",    makeStepRight(1, 70), 10);
+		addButton(IDCANCEL, makeStepRight(0, 70), 10);
+	}
+}
+*/
+
+function editBugReport(conf) {
+	var elm;
+	if (conf == "") {
+		var chk, base = System.exePath, exist = Storages.isExistentStorage;
+		var target = "bugreport/bugreport_config.tjs";
+		if (     exist(base+"data.xp3") && exist(chk = base+"data.xp3>main/"+target)) conf = chk;
+		else if (exist(base+"main.xp3") && exist(chk = base     +"main.xp3>"+target)) conf = chk;
+		else if (                          exist(chk = base    +"data/main/"+target)) conf = chk;
+	}
+	if (conf != "") {
+		elm = Scripts.evalStorage(conf);
+		elm.basepath = Storages.extractStoragePath(conf);
+	}
+	var dlg = new BugSheetDialog(elm);
+	var r = dlg.open(kag);
+	if (r.result == dlg.IDOK) {
+		var wait = new DebugProgress(dlg, "バグレポート作成中...",  %[ fontSize:24, height:24, width:120 ]);
+		var fn = dlg.writeReport();
+		invalidate wait;
+		if (fn == "") System.inform(@"レポート作成に失敗しました。");
+	}
+	invalidate dlg;
+}

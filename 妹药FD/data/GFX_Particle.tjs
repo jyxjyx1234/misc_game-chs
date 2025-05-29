@@ -1,0 +1,271 @@
+
+class ParticleController extends GenericFlip, Layer {
+	var FLIP  = global.GenericFlip;
+	var SUPER = global.Layer;
+
+	var file, config, index, units, stamp, rand, once;
+
+	function ParticleController(win) {
+		FLIP.GenericFlip(win);
+		var prim = win.primaryLayer;
+		SUPER.Layer(win, prim);
+		setImageSize(prim.width, prim.height);
+		setSizeToImageSize();
+		name = "ParticleController";
+
+		stamp = new global.Layer(win, this);
+		stamp.name = "animation pattern";
+		units = [];
+
+		rand = new  Math.RandomGenerator();
+	}
+	function finalize() {
+		invalidate rand   if (rand   !== void);
+		invalidate stamp  if (stamp  !== void);
+		SUPER.finalize(...);
+		FLIP.finalize();
+	}
+
+	function getIntRand(max) { return (int)(rand.random() * max); }
+
+	var row, col;
+	var angle, speed, vibsp, vibsz, ctx, cty;
+	var genratio, genpos, patsp, life, fade, term;
+	function init() {
+		units.clear();
+		with (config) {
+			try {
+				stamp.loadImages(.storage);
+			} catch {
+				throw new Exception("パターン画像の読み込みに失敗しました:"+.storage);
+			}
+			row = +.rows;
+			col = +.columns;
+			var aw = stamp.imageWidth;
+			/**/aw \= col if (col > 0);
+			var ah = stamp.imageHeight;
+			/**/ah \= row if (row > 0);
+			stamp.setSize(aw, ah);
+
+			angle = makeGenerator(.angle);
+			speed = makeGenerator(.speed);
+			patsp = makeGenerator(.patsp);
+
+			vibsp = makeGenerator(.vibsp);
+			vibsz = makeGenerator(.vibsz);
+
+			life  = makeGenerator(.life);
+			fade  = +.fade;
+
+			ctx   = .ctx != "" ? +.ctx : void;
+			cty   = .cty != "" ? +.cty : void;
+			genratio = +.genratio;
+			genpos= makeGenerator(.genpos, true);
+
+			term  = typeof .term == "Object" ? .term : (function { return false; });
+		}
+		once = false;
+		resetTime();
+	}
+
+	function makeRangeGen(min, max) {
+		if (min > max) min <-> max;
+		return function { return min + rand()*band; } incontextof %[ min:min, band:(max-min), rand:rand.random ];
+	}
+	function makeConstGen(cnst) {
+		return function { return cnst; } incontextof %[ cnst:cnst ];
+	}
+	function makeGenerator(prm, isvec) {
+		if (isvec) {
+			return function { return %[ x:x(), y:y() ]; } incontextof %[
+				x:makeGenerator(prm.x), y:makeGenerator(prm.y) ];
+		}
+		switch (typeof prm) {
+		case "Object":
+			if (prm instanceof "Function") return (prm incontextof this);
+			throw new Exception("不正なGenerator");
+		case "String":
+			if (prm.indexOf("/") >= 0) {
+				var div = prm.split("/");
+				var d0 = div[0], d1 = div[1];
+				d0 = d0.trim() if (d0 != "");
+				d1 = d1.trim() if (d1 != "");
+				return makeRangeGen(+d0, +d1);
+			}
+			return makeConstGen(+prm);
+		case "Integer": case "Real":
+			return makeConstGen(prm);
+		}
+	}
+
+	var basetime, lastTick;
+	function resetTime() {
+		basetime = lastTick = System.getTickCount();
+		underGenCount = lastGenTime = 0;
+	}
+	var lastGenTime, underGenCount;
+	function getCreateCount(time) {
+		if (genratio < 0) {
+			var gen = once;
+			once = true;
+			return !gen ? -genratio : 0;
+		}
+		var diff = time - lastGenTime;
+		lastGenTime = time;
+		if (diff < 0 || !genratio) return 0;
+		var cnt = (diff * genratio / 1000) + underGenCount;
+		var ret = (int)cnt;
+		underGenCount = cnt - ret;
+		return ret;
+	}
+
+	function flipUpdate(tick) {
+		var	interval = tick - lastTick;
+		if (interval > 16) {
+			fillRect(0, 0, imageWidth, imageHeight, 0);
+
+			var now = tick - basetime;
+			var cc = getCreateCount(now);
+			if (cc > 0) {
+				var step = (genratio > 0) ? 1000.0 / genratio : 0;
+				for (var i = 0; i < cc; i++)
+					createUnit(now - (int)(i * step));
+			}
+			var reset = false;
+			var sw = stamp.width, sh = stamp.height;
+			for (var i = units.count-1; i >= 0; i--) {
+				var u = units[i];
+				if (u !== void && (moveUnit incontextof u)(now, term)) {
+					with (u) {
+						var x0 = .x-sw/2, y0 = .y-sh/2;
+						try { operateAffine(stamp, .px*sw, .py*sh, sw, sh, false, x0,y0,x0+sw,y0,x0,y0+sh, omAuto, .opacity, stFastLinear); } catch {}
+					}
+				} else {
+					units[i] = void;
+					invalidate u;
+					reset = true;
+				}
+			}
+			units.remove(void, true) if (reset);
+
+			flipAssign(this);
+
+			lastTick = tick;
+		}
+	}
+	function createUnit(time) {
+		var pos = genpos();
+		var sp  = speed(pos) / 1000;
+		var vib = vibsz();
+		var rad = (Math.PI * angle()) / 180.0;
+		/**/rad += Math.atan2(pos.y - cty, pos.x - ctx) if (ctx !== void && cty !== void);
+		var unit = %[
+		opacity  : 255,
+		life     : life(),
+		fade     : fade,
+		x        : pos.x,
+		y        : pos.y,
+		basex    : pos.x,
+		basey    : pos.y,
+		xvelo    : Math.cos(rad) * sp,
+		yvelo    : Math.sin(rad) * sp,
+		xvib     :-Math.sin(rad) * vib,
+		yvib     : Math.cos(rad) * vib,
+		vsp      : 2 * Math.PI * vibsp() / 1000,
+		gentime  : time,
+		interval : patsp(),
+		px       : getIntRand(col),
+		py       : getIntRand(row),
+		row      : row,
+			];
+		unit.tdiff = unit.py;
+		units.add(unit);
+	}
+	function moveUnit(now, term) {
+		// 位置
+		var n = now - gentime;
+		x = basex + (xvelo * n);
+		y = basey + (yvelo * n);
+		if (vsp > 0) {
+			var vib = .Math.sin(vsp * n);
+			x += xvib * vib;
+			y += yvib * vib;
+		}
+		if (term(x, y, n)) return false;
+
+		// アニメパターン
+		py = (interval > 0) ? ((int)(n / interval) + tdiff) % row : 0;
+		if (py < 0) {
+			py += ((-py+row-1)\row)*row;
+			if (py < 0) while (py < 0) py += row;
+		}
+
+		// フェード
+		if (fade > 0) {
+			var f = n - (life - fade);
+			if (f > 0) {
+				var opac = 255 * ((fade - f) / fade);
+				opac = 0   if (opac < 0);
+				opac = 255 if (opac > 255);
+				opacity = opac;
+			}
+		}
+		return !life || life > n;
+	}
+
+	function flipStart(file, elm) {
+		this.file = file;
+		index = (int)elm.ptidx;
+		name = "パーティクル:" + file + ":" + index;
+		var fn = getExistFileNameAutoExtFill(file, "tjs");
+		if (fn == "") throw new Exception(@"定義ファイル${Storages.extractStorageName(file)}.tjsが見つかりません");
+		try {
+			var all = Scripts.evalStorage(fn);
+			config = %[];
+			(Dictionary.assign incontextof config)(all[0], true);
+			(Dictionary.assign incontextof config)(all[index],  false) if (index > 0);
+		} catch(e) {
+			throw new Exception(@"定義ファイル${file}の読み込みに失敗しました:"+e.message);
+		}
+		init();
+		flipSetOptions(elm);
+	}
+	function flipStore(dic) {
+		if (dic !== void) with (dic) {
+			.file = file;
+			.tick = lastTick - basetime;
+			.index = index;
+			.genratio = genratio;
+			.units = [];
+			.units.assignStruct(units);
+			.once = once;
+		}
+	}
+	function flipRestore(dic) {
+		if (dic.file != "") {
+			flipStart(dic.file, %[ ptidx:dic.index ]);
+			once     = dic.once     if (dic.once     !== void);
+			genratio = dic.genratio if (dic.genratio !== void);
+			basetime -= dic.tick;
+			units.assignStruct(dic.units);
+		}
+	}
+	function flipSetOptions(elm) {
+		genratio = +elm.genratio if (elm.genratio !== void);
+		once = false;
+	}
+}
+
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "particle",          // 登録タグ
+		"class"    => ParticleController,  // コントローラクラス
+		"trigger"  => "lmstop",            // 停止時に投げるトリガー名
+		"ext"      => "tjs",               // 判定処理（拡張子文字列or配列）
+//		"checker"  => void,                // 判定処理（関数）
+		"options"  => [ "genratio", "ptidx" ],      // 使用するオプション値（KAGEnvLayer用）
+//		"autoflag" => "",                  // 自動フラグタグ名（KAGEnvLayer用）
+		"dtstore"  => true,                // 復帰フラグ（KAGEnvLayer用）
+		]);
+

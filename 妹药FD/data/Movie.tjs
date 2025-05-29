@@ -1,0 +1,519 @@
+// Movie.tjs - ムービー再生
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+class Movie extends VideoOverlay
+{
+	var owner;
+	var lastStatus = "unload"; // 直前のステータス
+	var opened = false;
+	var id = 0; // ムービーオブジェクトID
+	var layerNumber = [];
+	var layerPage = [];
+	var storageName;
+
+	function Movie(owner,id=0)
+	{
+		super.VideoOverlay(...);
+
+		this.owner = owner;
+		this.id = id;
+
+		this.layerNumber[0] = void;
+		this.layerNumber[1] = void;
+		this.layerPage[0] = void;
+		this.layerPage[1] = void;
+	}
+
+	function internalStore(dic) {
+		dic.mode = mode;
+
+		dic.visible = visible;
+		dic.loop = loop;
+		dic.frame = frame;
+
+		dic.useOwnerVolume = useOwnerVolume;
+		dic.audioBalance   = audioBalance;
+		dic.audioVolume    = audioVolume;
+		if( numberOfAudioStream > 0 ) {
+			dic.enabledAudioStream = enabledAudioStream;
+		}
+
+		// dic.playRate // 保持しない方が良い？
+		dic.segmentLoopStartFrame = segmentLoopStartFrame;
+		dic.segmentLoopEndFrame = segmentLoopEndFrame;
+		dic.periodEventFrame = periodEventFrame;
+
+		if( mode == vomLayer )
+		{
+			dic.layerNumber = [];
+			dic.layerNumber[0] = layerNumber[0];
+			dic.layerNumber[1] = layerNumber[1];
+			dic.layerPage = [];
+			dic.layerPage[0] = layerPage[0];
+			dic.layerPage[1] = layerPage[1];
+		}
+
+		dic.lastStatus = lastStatus;
+		dic.storageName = storageName;
+		dic.aspectZoom = aspectZoom;
+	}
+	function internalRestore(dic) {
+		mode = dic.mode;
+		loop = dic.loop;
+		aspectZoom = dic.aspectZoom;
+
+		if (mode == vomLayer)
+		{
+			layerNumber[0] = dic.layerNumber[0];
+			layerNumber[1] = dic.layerNumber[1];
+			layerPage[0] = dic.layerPage[0];
+			layerPage[1] = dic.layerPage[1];
+			if( dic.layerNumber[0] !== void && dic.layerPage[0] !== void )
+			{
+				var elm = %[];
+				elm.layer = dic.layerNumber[0];
+				elm.page = dic.layerPage[0];
+				layer1 = owner.getLayerFromElm(elm);
+			}
+			if( dic.layerNumber[1] !== void && dic.layerPage[1] !== void )
+			{
+				var elm = %[];
+				elm.layer = dic.layerNumber[1];
+				elm.page = dic.layerPage[1];
+				layer2 = owner.getLayerFromElm(elm);
+			}
+		}
+		if( dic.lastStatus != "unload" )
+		{
+			this.open( dic.storageName );
+			periodEventFrame = dic.periodEventFrame;	// この設定は必ずフレームより前に行うこと
+			if( dic.frame >= 0 )
+				frame = dic.frame;
+
+			useOwnerVolume = dic.useOwnerVolume;
+			audioBalance   = dic.audioBalance;
+			audioVolume    = dic.audioVolume;
+			if( numberOfAudioStream > 0 && dic.enabledAudioStream >= 0 )
+			{
+				super.selectAudioStream( dic.enabledAudioStream );
+			}
+			super.setSegmentLoop( dic.segmentLoopStartFrame, dic.segmentLoopEndFrame );
+			if( dic.lastStatus == "pause" || dic.lastStatus == "play" )
+			{
+				play();
+			}
+		}
+	}
+
+	function store()
+	{
+		var dic = %[];
+		dic.mode = mode;
+		internalStore(dic) if( mode == vomLayer );
+		return dic;
+	}
+	function restore(dic)
+	{
+		internalRestore(dic) if( dic.mode == vomLayer );
+	}
+
+	function finalize()
+	{
+		if(lastStatus == "play") stop();
+		super.finalize(...);
+	}
+
+	function onStatusChanged(status)
+	{
+		var oldls = lastStatus;
+		lastStatus = status;
+
+		// ステータスの変更があった
+		if(oldls == "play" && status == "stop")
+		{
+			owner.onMovieStop(id); // 停止通知
+			super.close();
+		} else if(oldls == "stop" && status == "play") {
+			owner.onMoviePlay(id); // 開始通知
+		}
+	}
+
+	function onPeriod(type)
+	{
+		// period イベントが発生した
+		owner.onMoviePeriod(id,type);
+	}
+
+	function onCallbackCommand(cmd, arg)
+	{
+		// コールバックコマンド
+		if(cmd == "Go")
+		{
+			var spos = arg.indexOf('/');
+			if(spos == -1)
+			{
+				// ストレージ指定がない
+				owner.process('', '*' + arg);
+			}
+			else
+			{
+				// ストレージ指定がある
+				var label = arg.substring(spos + 1);
+				if(label != '') label = '*' + label;
+				owner.process(arg.substring(0, spos), label);
+			}
+		}
+		else if(cmd == "Eval")
+		{
+			Scripts.eval(arg);
+		}
+	}
+
+	property canWaitStop
+	{
+		getter
+		{
+			// 待てるかどうか
+			return lastStatus == "play";
+		}
+	}
+	
+	property storage
+	{
+		getter
+		{
+			return this.storageName;
+		}
+	}
+
+	function open(storage)
+	{
+		// open オーバーライド
+		this.storageName = storage;
+		opened = false;
+		var errmes, looped;
+		do {
+			try {
+				super.open(storage);
+				opened = true;
+			} catch(e) {
+				stop();
+				if(e.message.indexOf(".dll") != -1) throw e;
+				errmes = e.message;
+			}
+			looped = false;
+			if (!opened && mode == vomMixer) {
+				try {
+					mode = vomOverlay;
+					Debug.notice(storage + ": VideoMixerからOverlayへフォールバックします: " + errmes);
+					looped = true;
+				} catch(e) {
+					errmes = e.message;
+				}
+			}
+		} while (looped);
+		if (!opened) {
+			dm("ムービー " + storage + " を開けません : " + errmes);
+		}
+		return errmes;
+	}
+
+	function play(storage)
+	{
+		// play オーバーライド
+		storage = this.storageName if (storage == "");
+		try
+		{
+			if (!opened) {
+				var err = open(storage);
+				if (!opened) {
+					if (err != "") throw new Exception(err);
+					return;
+				}
+			}
+			setOwnerVolume() if (useOwnerVolume);
+			super.play();
+			opened = false;
+		}
+		catch(e)
+		{
+			if(e.message.indexOf(".dll") != -1) throw e;
+			error("ムービー " + storage + " を再生できません : " +
+				e.message);
+			return;
+		}
+	}
+	function resume()
+	{
+		try
+		{
+			setOwnerVolume() if (useOwnerVolume);
+			super.play();
+		}
+		catch(e)
+		{
+			if(e.message.indexOf(".dll") != -1) throw e;
+			error("ムービーを再生できません : " + e.message);
+			return;
+		}
+	}
+
+	function error() {
+		//dm(...);
+		owner.errorImage(...);
+	}
+
+	function stop()
+	{
+		// stop オーバーライド
+		super.stop(...);
+		super.close();
+	}
+
+	var _aspectZoom, _aspectZoomEnabled, _aspectZoomWidth, _aspectZoomHeight, _aspectZoomPrimary, _aspectZoomVertCoef,  _aspectZoomHorzCoef;
+	property aspectZoom {
+		getter { return _aspectZoom; }
+		setter(v) {
+			_aspectZoomEnabled = _aspectZoom = void;
+			var m = (/^([1-9]\d*)[Xx,\*]([1-9]\d*)(.*)$/).match(v);
+			if (m.count > 0) {
+				_aspectZoom = m[0];
+				_aspectZoomEnabled = true;
+				_aspectZoomWidth  = +m[1];
+				_aspectZoomHeight = +m[2];
+
+				_aspectZoomVertCoef = 1.0;
+				_aspectZoomHorzCoef = 1.0;
+				_aspectZoomPrimary = false;
+				var opt = (m[3] != "") ? m[3].toLowerCase().split(":",, true) : [];
+				for (var i = opt.count-1; i >= 0; i--) {
+					var tag = opt[i], value = true, eq;
+					if ((eq = tag.indexOf("=")) > 0) value = tag.substr(eq+1), tag = tag.substr(0, eq);
+					switch (tag) {
+					case "primary":  _aspectZoomPrimary  = value; break;
+					case "vertcoef": _aspectZoomVertCoef = Scripts.eval(value); break;
+					case "horzcoef": _aspectZoomHorzCoef = Scripts.eval(value); break;
+					default:
+						dm(@"unknown aspectzoom option : ${tag} = ${value}");
+						break;
+					}
+				}
+			}
+		}
+	}
+	function calcAspectZoom(x,y,w,h) {
+		if (_aspectZoomEnabled) try {
+			var full = (_aspectZoomPrimary && hasOverlayWindow);
+			if (full) {
+				var prim = (typeof owner._primaryLayer == "Object") ? owner._primaryLayer : owner.primaryLayer;
+				x = y = 0;
+				w = prim.width;
+				h = prim.height;
+			}
+			var vert = (w/h > _aspectZoomWidth/_aspectZoomHeight);
+			var z = (vert) ? (h / _aspectZoomHeight) : (w / _aspectZoomWidth);
+
+			var zw = Math.ceil(_aspectZoomWidth  * z * _aspectZoomHorzCoef);
+			var zh = Math.ceil(_aspectZoomHeight * z * _aspectZoomVertCoef);
+			x = /* vert ?*/ (w - zw) \ 2 /*: 0*/;
+			y = /*!vert ?*/ (h - zh) \ 2 /*: 0*/;
+			w = zw, h = zh;
+			if (!full && typeof owner.sysbase == "Object") with (owner.sysbase) {
+				x += .left;
+				y += .top;
+			}
+		} catch {}
+		return %[ x:x, y:y, w:w, h:h ];
+	}
+	function calcAspectZoomX(x) { return !_aspectZoomEnabled ? x : calcAspectZoom(x, _top+offsety,  _boundWidth, _boundHeight).x; }
+	function calcAspectZoomY(y) { return !_aspectZoomEnabled ? y : calcAspectZoom(_left+offsetx, y, _boundWidth, _boundHeight).y; }
+
+	var _left, _top, _boundWidth, _boundHeight, _offsetx, _offsety;
+	property hasOverlayWindow { getter { return (mode == vomMixer || mode == vomOverlay); } }
+	property offsetx { getter { return hasOverlayWindow ? _offsetx : 0; } }
+	property offsety { getter { return hasOverlayWindow ? _offsety : 0; } }
+	property left { getter { return _left; } setter(v) { super.left = calcAspectZoomX((_left = v) + offsetx); } }
+	property top  { getter { return _top;  } setter(v) { super.top  = calcAspectZoomY((_top  = v) + offsety); } }
+	function setBounds(x, y, w, h) {
+		_layerResizeRect = void;
+		var bounds = calcAspectZoom((_left=x) + offsetx, (_top=y) + offsety, (_boundWidth=w), (_boundHeight =h));
+		with (bounds) return super.setBounds(.x, .y, .w, .h);
+	}
+
+	function setOptions(elm)
+	{
+		// elm からオプションを設定
+		visible = +elm.visible if elm.visible !== void;
+		var l = left, t = top, w = _boundWidth, h = _boundHeight;
+		var set = false;
+		(set = true, _offsetx = +elm.primox) if (elm.primox !== void);
+		(set = true, _offsety = +elm.primoy) if (elm.primoy !== void);
+		(set = true, l = +elm.left) if elm.left !== void;
+		(set = true, t = +elm.top) if elm.top !== void;
+		(set = true, w = +elm.width) if elm.width !== void;
+		(set = true, h = +elm.height) if elm.height !== void;
+		if(set && elm.aspectzoom === void) setBounds(l, t, w, h);
+		
+		//
+		position = +elm.position if elm.position !== void;
+		loop = +elm.loop if elm.loop !== void;
+		frame = +elm.frame if elm.frame !== void;
+		if( elm.mode !== void )
+		{
+			if( elm.mode == "layer" ) {
+				mode = vomLayer;
+			} else if (elm.mode == "mixer") {
+				try {
+					mode = vomMixer;
+				} catch (e) {
+					try {
+						mode = vomOverlay;
+					} catch (e) {
+						mode = vomLayer;
+					}
+				}
+			} else {
+				mode = vomOverlay;
+			}
+			dm("video mode:" + ((mode == vomOverlay) ? "overlay" : (mode == vomMixer) ? "mixer" : (mode == vomLayer) ? "layer" : "unknown"));
+
+			layerResizeMode = (mode == vomLayer && elm.laystretch);
+		}
+		if(elm.aspectzoom !== void) {
+			aspectZoom = elm.aspectzoom;
+			setBounds(l, t, w, h);
+		}
+		playRate = +elm.playrate if elm.playrate !== void;
+		if (elm.volume !== void) {
+			useOwnerVolume = (elm.volume == "");
+			if (!useOwnerVolume) audioVolume  = +elm.volume * 1000;
+		}
+		if (elm.pan    !== void) audioBalance = +elm.pan    * 1000;
+		if( elm.audiostreamnum !== void )
+		{
+			selectAudioStream( +elm.audiostreamnum );
+		}
+	}
+
+	var useOwnerVolume = true;
+	var _audioVolume, _audioBalance; // ↓音声のないムービーでは例外が発生する場合がある
+	property audioVolume  { setter(v) { _audioVolume  = v; try { super.audioVolume  = v; } catch {} } getter { return _audioVolume;  } }
+	property audioBalance { setter(v) { _audioBalance = v; try { super.audioBalance = v; } catch {} } getter { return _audioBalance; } }
+	function setOwnerVolume() {
+		with (owner) audioVolume = (.waveenable && .movieAudioEnable) ?
+			/**/                   (.wavevolume *  .movieAudioVolume) * 10 : 0; // 通常は *1000 だが vol*vol なので *10 で十分
+	}
+
+	var _layerResizeMode = false, _renderLayer, _layerResizeRect;
+	property layerResizeMode {
+		getter { return _layerResizeMode; }
+		setter(v) {
+			_layerResizeMode = !!v;
+			if (v) {
+				_renderLayer = new global.Layer(owner, owner.primaryLayer);
+				with (_renderLayer) {
+					.name = "MovieRenderLayer";
+					.absolute = -99999999;
+					.visible = false;
+				}
+				super.layer1 = _renderLayer;
+				super.layer2 = null;
+				this.onFrameUpdate = this.layerResizeModeOnFrameUpdate;
+			} else {
+				super.layer1 = _layer1;
+				super.layer2 = _layer2;
+				invalidate _renderLayer if (_renderLayer !== void);
+				_renderLayer = void;
+				delete this.onFrameUpdate if (typeof this.onFrameUpdate == "Object");
+			}
+			dm("layerResizeMode", _layerResizeMode);
+		}
+	}
+	function layerResizeModeOnFrameUpdate() {
+		var rw, rh;
+		with (_renderLayer) {
+			.visible = false;
+			rw = .imageWidth;
+			rh = .imageHeight;
+		}
+		if (_layerResizeRect === void) {
+			_layerResizeRect = calcAspectZoom(0,0,_boundWidth,_boundHeight);
+			_layer1.fillRect(0, 0, _layer1.imageWidth, _layer1.imageHeight, 0) if (_layer1 && isvalid _layer1);
+			_layer2.fillRect(0, 0, _layer2.imageWidth, _layer2.imageHeight, 0) if (_layer2 && isvalid _layer2);
+		}
+		with (_layerResizeRect) {
+			_layer1.stretchCopy(.x, .y, .w, .h, _renderLayer, 0, 0, rw, rh, stNearest) if (_layer1 && isvalid _layer1);
+			_layer2.stretchCopy(.x, .y, .w, .h, _renderLayer, 0, 0, rw, rh, stNearest) if (_layer2 && isvalid _layer2);
+		}
+	}
+	function layerResizeModeSetLayer(isOne, lay) {
+		if (_layerResizeMode) {
+			if (isOne) _layer1 = lay;
+			else       _layer2 = lay;
+			layerResizeMode = false if (!_layer1 && !_layer2);
+		} else {
+			if (isOne) super.layer1 = _layer1 = lay;
+			else       super.layer2 = _layer2 = lay;
+		}
+	}
+	var _layer1 = null, _layer2 = null;
+	property layer1 { getter { return _layer1; } setter(v) { layerResizeModeSetLayer(true,  v); } }
+	property layer2 { getter { return _layer2; } setter(v) { layerResizeModeSetLayer(false, v); } }
+
+	function setVideoLayer(layer,elm)
+	{
+		if( elm.channel !== void )
+		{
+			if( elm.channel == 1 )
+				layer1 = layer;
+			else
+				layer2 = layer;
+		}
+	}
+	function setSegment(elm)
+	{
+		var startFrame = 0;
+		startFrame = +elm.start if elm.start !== void;
+		if( elm.end !== void )
+			super.setSegmentLoop( startFrame, +elm.end );
+	}
+	function setPeriod(elm)
+	{
+		if( elm.frame !== void )
+			super.setPeriodEvent( +elm.frame );
+	}
+	function storeLayer( layer, page, channel )
+	{
+		if( channel !== void )
+		{
+			if( channel == 1 )
+			{
+				layerNumber[0] = layer;
+				layerPage[0] = page;
+			}
+			else
+			{
+				layerNumber[1] = layer;
+				layerPage[1] = page;
+			}
+		}
+	}
+	function cancelLayer( channel )
+	{
+		if( channel !== void )
+		{
+			if( channel == 1 )
+			{
+				layerNumber[0] = void;
+				layerPage[0] = void;
+			}
+			else
+			{
+				layerNumber[1] = void;
+				layerPage[1] = void;
+			}
+		}
+	}
+}
+
+

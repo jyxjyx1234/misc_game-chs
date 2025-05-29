@@ -1,0 +1,90 @@
+func,item0,	sename,item,	exp,Current.cmd("select/0")
+func,item1,	sename,item,	exp,Current.cmd("select/1")
+func,item2,	sename,item,	exp,Current.cmd("select/2")
+func,item3,	sename,item,	exp,Current.cmd("select/3")
+func,item4,	sename,item,	exp,Current.cmd("select/4")
+func,item5,	sename,item,	exp,Current.cmd("select/5")
+func,item6,	sename,item,	exp,Current.cmd("select/6")
+func,item7,	sename,item,	exp,Current.cmd("select/7")
+func,item8,	sename,item,	exp,Current.cmd("select/8")
+func,item9,	sename,item,	exp,Current.cmd("select/9")
+func,item10,	sename,item,	exp,Current.cmd("select/10")
+func,item11,	sename,item,	exp,Current.cmd("select/11")
+func,item12,	sename,item,	exp,Current.cmd("select/12")
+func,item13,	sename,item,	exp,Current.cmd("select/13")
+func,item14,	sename,item,	exp,Current.cmd("select/14")
+func,item15,	sename,item,	exp,Current.cmd("select/15")
+func,item16,	sename,item,	exp,Current.cmd("select/16")
+func,item17,	sename,item,	exp,Current.cmd("select/17")
+func,item18,	sename,item,	exp,Current.cmd("select/18")
+func,item19,	sename,item,	exp,Current.cmd("select/19")
+func,item20,	sename,item,	exp,Current.cmd("select/20")
+func,item21,	sename,item,	exp,Current.cmd("select/21")
+func,item22,	sename,item,	exp,Current.cmd("select/22")
+func,item23,	sename,item,	exp,Current.cmd("select/23")
+func,item24,	sename,item,	exp,Current.cmd("select/24")
+func,item25,	sename,item,	exp,Current.cmd("select/25")
+func,item26,	sename,item,	exp,Current.cmd("select/26")
+func,item27,	sename,item,	exp,Current.cmd("select/27")
+func,item28,	sename,item,	exp,Current.cmd("select/28")
+func,item29,	sename,item,	exp,Current.cmd("select/29")
+func,item30,	sename,item,	exp,Current.cmd("select/30")
+func,item31,	sename,item,	exp,Current.cmd("select/31")
+func,item32,	sename,item,	exp,Current.cmd("select/32")
+func,item33,	sename,item,	exp,Current.cmd("select/33")
+func,item34,	sename,item,	exp,Current.cmd("select/34")
+func,item35,	sename,item,	exp,Current.cmd("select/35")
+func,item36,	sename,item,	exp,Current.cmd("select/36")
+func,item37,	sename,item,	exp,Current.cmd("select/37")
+func,item38,	sename,item,	exp,Current.cmd("select/38")
+func,item39,	sename,item,	exp,Current.cmd("select/39")
+func,item40,	sename,item,	exp,Current.cmd("select/40")
+func,item41,	sename,item,	exp,Current.cmd("select/41")
+func,item42,	sename,item,	exp,Current.cmd("select/42")
+func,item43,	sename,item,	exp,Current.cmd("select/43")
+#
+eval,pre,call,global.Current.uiEval,setupItemState
+cref,allitems,item0,item1,item2,item3,item4,item5,item6,item7,item8,item9,item10,item11,item12,item13,item14,item15,item16,item17,item18,item19,item20,item21,item22,item23,item24,item25,item26,item27,item28,item29,item30,item31,item32,item33,item34,item35,item36,item37,item38,item39,item40,item41,item42,item43
+rgrp,allitems,item0,item1,item2,item3,item4,item5,item6,item7,item8,item9,item10,item11,item12,item13,item14,item15,item16,item17,item18,item19,item20,item21,item22,item23,item24,item25,item26,item27,item28,item29,item30,item31,item32,item33,item34,item35,item36,item37,item38,item39,item40,item41,item42,item43
+#
+func,sel_fd,	visible,false,	sename,ctrl,	name,selcur,	exp,Current.cmd("setLoopMode/true")
+func,sel_sin,	visible,false,	sename,ctrl,	name,selcur,	exp,Current.cmd("setLoopMode/true")
+func,sel_cn,	visible,false,	sename,ctrl,	name,selcur,	exp,Current.cmd("setLoopMode/true")
+func,sel_ms,	visible,false,	sename,ctrl,	name,selcur,	exp,Current.cmd("setLoopMode/true")
+func,sel_all,	visible,false,	sename,ctrl,	name,selall,	exp,Current.cmd("setLoopMode/false")
+func,all,	visible,false,	sename,ctrl,			exp,Current.cmd("setPlayMode/rnd")
+func,rnd,	visible,false,	sename,ctrl,			exp,Current.cmd("setPlayMode/non")
+func,one,	visible,false,	sename,ctrl,	name,non,	exp,Current.cmd("setPlayMode/one")
+func,rep,	visible,false,	sename,ctrl,	name,one,	exp,Current.cmd("setPlayMode/all")
+cref,allctrls,pprev,playpause,stop,pnext
+func,pprev,	sename,ctrl,	exp,Current.cmd("prev")
+func,playpause,	sename,ctrl,	exp,Current.cmd("playpause")
+func,stop,	sename,ctrl,	exp,Current.cmd("stop")
+func,pnext,	sename,ctrl,	exp,Current.cmd("next")
+func,volume,	min,0, max,100, onchangefunc,Current.prop("changeVolume"),	uipsdfix,true
+#
+cref,allsys,tab_graphic,tab_stand,tab_sound,tab_replay,back
+rgrp,allsys,tab_graphic,tab_stand,tab_sound,tab_replay
+func,tab_graphic,	sename,sysbtn,	target,*cgmode
+func,tab_stand,		sename,sysbtn,	target,*standmode,	storage,custom.ks
+func,tab_sound,		sename,sysbtn,	target,*soundmode
+func,tab_replay,	sename,sysbtn,	target,*scenemode
+eval,tab_sound,exp,toggle=true
+func,back,	target,*back
+#
+cref,allpages,page0,page1,page2,page3,
+rgrp,allpages,page0,page1,page2,page3,
+func,page0,	sename,page,	exp,Current.page=0,	target,*page
+func,page1,	sename,page,	exp,Current.page=1,	target,*page
+func,page2,	sename,page,	exp,Current.page=2,	target,*page
+func,page3,	sename,page,	exp,Current.page=3,	target,*page
+#
+file,speana
+func,base,
+#
+part,rm_page0,	       sel_cn,sel_sin,sel_fd
+part,rm_page1,	sel_ms,       sel_sin,sel_fd
+part,rm_page2,	sel_ms,sel_cn,        sel_fd
+part,rm_page3,	sel_ms,sel_cn,sel_sin,      
+#
+eval,names,call,uiloadSysSE,soundmode

@@ -1,0 +1,288 @@
+// 百科事典用
+
+class Encyclopedia {
+	var _ident;
+	var _map = %[], _names = [], _index = %[];
+	var _regexps;
+	var _Static = global.Encyclopedia;
+
+	function Encyclopedia(storage, utf8 = false, ident = ":") {
+		_ident = ident;
+		if (ident.length != 1) throw new Exception("ident文字が不正です");
+		makeKeys();
+		var csv = new CSVParser(this);
+		csv.parseStorage(storage, utf8);
+		invalidate csv;
+		makeIndex();
+	}
+	function makeKeys() {
+		var km = _Static.keymap, kn = _Static.keynames;
+		if (km === void) {
+			var k = _Static.keys;
+			km = %[];
+			for (var i = 0; i < kn.count; i++) {
+				var key = kn[i], str = k[key];
+				for (var j = 0; j < str.length; j++) km[str.charAt(j)] = key;
+			}
+			with (_Static) {
+				.keymap   = km;
+				.keynames = kn;
+			}
+		}
+	}
+	function _sortIndex(a, b) {
+		return _map[a].read < _map[b].read;
+	}
+	function makeIndex() {
+		_names.sort(_sortIndex, true) if (!_Static.disableSortIndex);
+		var km = _Static.keymap, kn = _Static.keynames;
+		for (var i = 0; i < kn.count; i++) _index[kn[i]] = [];
+		for (var i = 0; i < _names.count; i++) {
+			with (_map[names[i]]) if (.key != "") _index[.key].add(.word);
+		}
+	}
+	function doLine(columns, lineNo) {
+		if (columns.count > 0 && columns[0].charAt(0) != '#') {
+			var val = %[
+			word: columns[0],
+			read: columns[1],
+			text: columns[2] ];
+			with (val) {
+				if (.word.indexOf("*") > 0) {
+					.word = .word.split("*")[0];
+					.norepl = true;
+				}
+				if (.word.indexOf("|") > 0) {
+					var div = .word.split("|");
+					.word = div[0];
+					div.erase(0);
+					.ruby = div.join(",");
+				}
+				if (.read != "") {
+					var key = .read.charAt(0);
+					if (key == "=" || key == "＝") { // エイリアスチェック
+						.alias = .read.substr(1);
+					} else {
+						.key = (key != "") ? _Static.keymap[key] : void;
+					}
+				}
+				_map[.word] = val;
+				_names.add(.word);
+			}
+		}
+	}
+	property ident { getter { return _ident; } }
+	property map   { getter { return _map; } }
+	property names { getter { return _names; } }
+	property regexps { getter {
+		if (_regexps === void) {
+			_regexps = %[];
+			var chk = new RegExp(_Static.invalids);
+			for (var i = 0; i < _names.count; i++)
+				if (chk.test(_names[i])) throw new Exception("単語に不正な記号が含まれています", "Encyclopedia");
+			invalidate chk;
+			with (_regexps) {
+				var repls = [];
+				for (var i = 0; i < _names.count; i++) {
+					with (_map[names[i]]) if (!.norepl) repls.add(.word);
+				}
+				.words = new RegExp("("+repls.join("|")+")", "gi");
+				.pedia = new RegExp(@"\\[\\${_ident}([^\\]\\${_ident}]+)${_ident}?\\]", "g"); // [:{^:]}+:?]
+				.tags  = new RegExp(@"(\\[[^\\]]*\\])", "g");
+			}
+		}
+		return _regexps;
+	} }
+	function _pediaRemove(match) {
+		var word = match[1];
+		var spos = word.indexOf("/"), ppos = word.indexOf("|");
+		if (spos >= 0) word = (ppos >= 0 && ppos > spos) ? word.substr(spos+1, ppos-spos-1) : word.substr(spos+1);
+		return word;
+	}
+	function _pediaAdd(   match) {
+		var word = match[1], info;
+		if (word == "" || (info = _map[word]) === void) return word;
+		with (info) {
+			word = .alias + "/" + word if (.alias !="");
+			word += "|"+.ruby if (.ruby  !="");
+			word += _ident    if (.read == "");
+		}
+		return @"[${_ident}${word}]";
+	}
+
+	function replace(text) {
+		with (regexps) {
+			text = .pedia.replace(text, _pediaRemove);
+			var div = text.split(.tags);
+			for (var i = 0, cnt = div.count; i < cnt; i+=2)
+				div[i] = .words.replace(div[i], _pediaAdd);
+			text = div.join("");
+		}
+		return text;
+	}
+}
+with (Encyclopedia) {
+	.disableSortIndex = false;
+	.invalids = "(\\(|\\||\\)|\\.|\\*|\\[|\\]|\\/|\\\\\\:)";
+	.keymap = void;
+	.keynames = [ "A", "K", "S", "T", "N", "H", "M", "Y", "R", "W" ];
+	.keys =
+		%[
+		A:"あいうえおぁぃぅぇぉアイウエオァィゥェォ",
+		K:"かきくけこがぎぐげごカキクケコガギグゲゴ",
+		S:"さしすせそざじずぜぞサシスセソザジズゼゾ",
+		T:"たちつてとだぢづでどタチツテトダヂヅデド",
+		N:"なにぬねのナニヌネノ",
+		H:"はひふへほばびぶべぼぱぴぷぺぽハヒフヘホバビブベボパピプペポ",
+		M:"まみむめもマミムメモ",
+		Y:"やゐゆゑよゃゅょヤヰユヱヨャュョ",
+		R:"らりるれろラリルレロ",
+		W:"わをんワヲン"
+			];
+}
+
+class EncyclopediaPluginsBase extends KAGPlugin {
+	var _pedia;
+	var _color;
+	function EncyclopediaPluginsBase(col, *) {
+		_pedia = new Encyclopedia(*);
+		_color = col;
+	}
+	function finalize() {
+		invalidate _pedia if (_pedia !== void);
+	}
+	// 不明コマンドハンドラ
+	function onUnknown(tag, elm) {
+		var pedia = checkPediaTag(tag);
+		if (pedia === void) return void;
+		if (pedia === null) return 0;
+		with (pedia) return onPediaTag(.text, .info, elm);
+	}
+	/**
+	 * 辞書単語用の特殊タグかどうかチェック
+	 * @param  tag タグ文字
+	 * @return
+	 *   void : 対象外タグ
+	 *   null : 対象タグだが表示文字なし
+	 *   %[ text:表示単語, info:リンク情報(リンクなしならvoid) ] : 対象タグ
+	 */
+	function checkPediaTag(tag) {
+		// 先頭が":"以外は無視
+		if (tag.charAt(0) !== _pedia.ident) return void;
+		// 頭の":"または "::" を取り除く
+		var info, word =  tag.substr(1), enlink = true;
+		word = word.substr(1) if (word.charAt(0) === _pedia.ident);
+		// [:] または [::] なら区切り用（表示文字なし）
+		if (word.length == 0) return null;
+		if (word.charAt(word.length-1) === _pedia.ident) {
+			// 末尾に ":" ならリンクなしで素通しの通常文字表示処理
+			word = word.substr(0, word.length-1);
+			enlink = false;
+		}
+
+		var text = word;
+		// 表記を変更するチェック
+		var spos = word.indexOf("/"), ppos = word.indexOf("|");
+		if (    spos >= 0 || ppos >= 0) {
+			if (spos >= 0 && ppos >= 0) {
+				// "/" かつ "|" 指定
+				if (spos < ppos) { // "/"が先
+					text = word.substr(spos+1);
+					word = word.substr(0, spos);
+				} else { // "|"が先
+					text = word.substr(spos+1) + word.substr(ppos, spos-ppos);
+					word = word.substr(0, ppos);
+				}
+			} else if (ppos >= 0) {
+				// "|"のみ
+				word = word.substr(0, ppos);
+			} else {
+				// "/"のみ
+				text = word.substr(spos+1);
+				word = word.substr(0, spos);
+			}
+		}
+		dm("checkPediaTag", text, word);
+
+		// 単語情報を取得
+		return %[ info:enlink && canLink(word) ? _pedia.map[word] : void, text:text ];
+	}
+	// リンクするかどうか判定
+	function canLink(word) { return true; }
+	// 単語の既読有無チェック
+	function isSeen(word) { return true; }
+	function onPediaTag(text, info, elm, checkSeen = true, addTag = kag.addTag) {
+		// 行頭名前判定
+		checkName();
+		// 未読なら強制でリンクなし
+		if (info !== void && checkSeen && !isSeen(info.word)) info = void;
+		// 先頭
+		if (info !== void) {
+			addTag("font", %[ color: _color ]) if (_color !== void);
+			addTag("link", getLink(info));
+		}
+		// ルビ展開
+		var noruby = true;
+		var rb = kag.checkRubyTag(text);
+		if (rb !== void) {
+			for (var i = 0; i < rb.length; i++) {
+				addTag("ruby", %[ text:rb.ruby[i] ]) if (rb.ruby[i] != "");
+				addTag("ch",   %[ text:rb.text[i] ]);
+			}
+			noruby = false;
+		}
+		// 通常文字処理
+		if (noruby)
+			for (var i = 0; i < text.length; i++)
+				addTag("ch", %[ text: text.charAt(i) ]);
+		// 末尾
+		if (info !== void) {
+			addTag("endlink");
+			addTag("font", %[ color: "default" ]) if (_color !== void);
+		}
+		//if (info !== void) with (info) dm("onPediaTag", text, .word, .read, .text);
+		return 0;
+	}
+	function checkName()      { kag.checkName(kag.conductor); }
+	function extractRubyTag() { return kag.extractRubyTag(...);    }
+	function getLink(info) {
+		return %[
+		hint:  info.text,
+		opacity: 0
+			];
+	}
+}
+
+// デフォルトのプラグイン
+// 必要に応じて EncyclopediaPluginsBase を継承し EncyclopediaPlugins を上書き
+global.EncyclopediaPlugins = EncyclopediaPluginsBase;
+
+
+
+// 辞書変換ツールからも呼ばれるので addKagHandler の有無をチェック
+if (typeof global.addKagHandler !== "undefined") {
+	addKagHandler("encyclopedia", function(elm) {
+		var name = elm.name, storage = elm.storage, col;
+		name = "encyclopedia"   if (name === void);
+		storage = name + ".csv" if (storage === void);
+		col  = +elm.color       if (elm.color !== void);
+
+		invalidate global[name] if (typeof global[name] == "Object" && global[name] instanceof "EncyclopediaPlugins");
+		var inst= new EncyclopediaPlugins(col, storage, elm.utf8, elm.ident);
+		global[name] = EncyclopediaPluginsBase.lastInstance = inst;
+		addPlugin(inst);
+
+		// ルビ展開用文字を変更
+		RubySplitNormal = "|";
+		return 0;
+	}, true);
+
+	// 通常ルビ展開を置き換え
+	with (KAGWindow) {
+		.origCheckRubyTag = .checkRubyTag;
+		.checkRubyTag = function(tag) {
+			return tag.indexOf(":") >= 0 ? void : origCheckRubyTag(...);
+		};
+	}
+}
+

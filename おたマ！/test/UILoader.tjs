@@ -1,0 +1,707 @@
+//
+// UI ロード処理用専用クラス
+//
+
+// csv パーサプラグインの読み込み
+if (global.CSVParser === void) {
+    Plugins.link("csvParser.dll");
+}
+
+var buttonStateNames = %[ normal:true, over:true, on:true, off:true ];
+
+/**
+ * UI定義ファイル読み出し用パーサ
+ */
+class UIListParser extends CSVParser {
+
+    // パース結果格納用
+    var result;
+    var names;
+	var evals;
+	var order;
+    var check;
+
+    /**
+     * 行毎に呼び出される
+     * @param columns カラムデータ(Array)
+     * @param lineNo 論理行番号(1～)
+     */
+    function doLine(_columns, lineNo) {
+		if (isComment(_columns)) return;
+		var columns = [];
+		for (var i = 0; i < _columns.count; i++) columns[i] = _columns[i].trim();
+
+		var type = columns[0];
+		var name = columns[1];
+		if (type == "eval") {
+			check = true;
+			return doEvals(name, columns, _columns);
+		} else if (type == "rgrp") {
+			check = true;
+			return doRGrp(name, columns);
+		}
+		var info = result[name];
+		if (info === void) {
+			info = %[];
+			info.name = name;
+			info.uiname = name;
+			info.uistates = %[];
+			names.add(name);
+			result[name] = info;
+		}
+		var knownType = true;
+		switch (type) {
+		case "type": doType(info, columns); break;
+		case "file": doFile(info, columns); break;
+		case "func": doFunc(info, columns); break;
+		case "part": doPart(info, columns); break;
+		case "copy": doCopy(info, columns); break;
+		case "cref": doCRef(info, columns); break;
+		case "ordr": doOrdr(info, columns); break;
+		case "stat": doStat(info, columns); break;
+		default: knownType = false; break;
+		}
+		check = true if (knownType);
+	}
+	// コメント行かどうか
+	function isComment(columns) {
+		return (columns              === void ||
+				columns.count        === 0    ||
+				columns[0].charAt(0) === '#');
+	}
+
+	// 種類指定
+	function doType(info, columns) {
+		info.class  = columns[2];
+		info.x      = +columns[3];
+		info.y      = +columns[4];
+		info.width  = +columns[5];
+		info.height = +columns[6];
+	}
+
+	// elm変更用コピー指定(.func用)
+	function doCopy(info, columns) {
+		info.class  = "copy";
+		info.copy   = columns[2];
+		info.subref = columns[3];
+	}
+
+	// stateコピー用
+	function doStat(info, columns) {
+		var target =  columns[1], ui;
+		if (target == "" || result[target] === void || (ui = result[target].uistates) === void) {
+			dm("stat:指定されたtargetは存在しません:" + target) if (target != "");
+			return;
+		}
+		if (columns[3] == "") {
+			dm("stat:上書きするstateを指定してください:" + target);
+			return;
+		}
+		if (columns[2] != "" && ui[columns[2]] === void) {
+			dm("stat:指定されたstatは存在しません:" + columns[2]);
+		}
+		var list = [];
+		{ foreach(ui, function(k,v,d, t) { t.add(k); }, list); }
+
+		dm("statcopy: " + columns[2] +" -> "+ columns[3], list.join(","));
+		ui[columns[3]] = ui[columns[2]] if (columns[2] != "");
+	}
+
+	// rgrp
+	function doRGrp(key, columns) {
+		for (var i = 2; i < columns.count; i++) {
+			var target = columns[i];
+			if (target == "" || result[target] === void) {
+				dm("指定されたrgrpは存在しません:" + target) if (target != "");
+				continue;
+			}
+			result[target].groupName = key;
+		}
+	}
+
+	// cref参照
+	function doCRef(info, columns) {
+		var uis = [];
+		uis.assign(info.uistates);
+		for (var i = 2; i < columns.count; i++) {
+			var target = columns[i];
+			if (target == "" || result[target] === void) {
+				dm("指定されたcrefは存在しません:" + target) if (target != "");
+				continue;
+			}
+			target = result[target];
+			var  x, y, w, h;
+			with (target) x =.x, y =.y, w=.width, h=.height;
+			with (info)   x-=.x, y-=.y;
+			target.cref = true;
+			for (var j = 0; j < uis.count; j+=2) {
+				var name = uis[j], state = uis[j+1];
+				if (name == "" ||  state === void) continue;
+				target.uistates[name] =
+					%[  storage: state.storage,
+					ox: 0, oy: 0, w:w, h:h, cw:w, ch:h,
+					cx:x-state.ox, cy:y-state.oy ];
+			}
+		}
+	}
+
+	// ordr 順序指定(.func用)
+	function doOrdr(info, columns) {
+		order = [] if (order === void);
+		for (var i=1; i<columns.count; i++)
+			if (columns[i] != "") order.add(columns[i].trim());
+	}
+
+	// state 保存
+	function setState(stateName, info, columns) {
+		if (info.class == "layer") {
+			stateName = (string)null if (stateName == "");
+			info.layer = stateName;
+		}
+		if (stateName == "") return false;
+		var state = info.uistates[stateName];
+		if (state === void) {
+			state = %[];
+			info.uistates[stateName] = state;
+		}
+		with (state) {
+			.storage = columns[2];
+			.ox = +columns[3];
+			.oy = +columns[4];
+			.w  = +columns[5];
+			.h  = +columns[6];
+		}
+		return true;
+	}
+
+	// ファイル指定
+	function doFile(info, columns) {
+		switch (info.class) {
+		case "copy":
+			info.copy   = columns[7];
+			info.subref = columns[8];
+			break;
+		case "base":
+			info.storage  = columns[2] if (!setState(columns[7], info, columns));
+			break;
+		default:
+			var stateName = columns[7], isrect = (stateName == "rect");
+			for (var i=8;i<columns.count;i++) {
+				var state = columns[i];
+				if (state == "") continue;
+				if (buttonStateNames[state] !== void) {
+					stateName += "_";
+					stateName += state;
+				} else if (info.class == "radio") {
+					info.groupName = state;
+				}
+				isrect |= (state == "rect");
+			}
+			if (isrect) columns[2] = "";
+			setState(stateName, info, columns);
+			break;
+		}
+	}
+
+	// func (elm) 指定
+	function doFunc(info, columns) {
+		for (var i=2; i<columns.count; i+=2) {
+			var tag = columns[i];
+			var val = columns[i+1];
+			val = true if (val === void);
+			if (tag !==void && tag.length > 0) {
+				try {
+					info[tag] = val;
+				} catch(e) {
+					dm("指定された処理は評価できません:" + val);
+				}
+			}
+		}
+	}
+
+	// パート指定
+	function doPart(info, columns) {
+		if (     info.class === void)   info.class = "part";
+		else if (info.class !== "part") kag.error("part名に実体が存在します:" + info.name);
+		info.part = [] if (info.part === void);
+		var part = info.part;
+		for (var i=2; i<columns.count; i++)
+			if (columns[i] != "") part.add(columns[i].trim());
+	}
+
+	// eval 指定
+	function doEvals(name, c1, c2) {
+		var tag = c1[2];
+		var sel = (tag == "exp") ? c2 : c1;
+		sel.erase(0);
+		sel.erase(0);
+		sel[0] = tag;
+		evals[name] = [] if (evals[name] === void);
+		evals[name].add(sel);
+	}
+
+	function parseStorage(filename,utf8=false) {
+		check = false;
+		super.parseStorage(...);
+		if (check) return result;
+
+//		dm("reload: " + filename);
+		// １行も読まれなかったらとりあえずエンコードを変えて読み直し
+		super.parseStorage(filename, !utf8);
+		if (check) return result;
+
+//		dm("arrayload: " + filename);
+		// それでもダメだったらArrayで読み直す
+		var temp = [];
+		var sep = (Storages.extractStorageExt(filename).toLowerCase() == ".txt") ? "\t" : ",";
+		temp.load(filename);
+		for (var i = 0; i < temp.count; i++) {
+			var line = [];
+			line.split(sep, temp[i]);
+			doLine(line, i+1) if (line.count > 0);
+		}
+		return result;
+	}
+
+    function UIListParser() {
+        super.CSVParser(...);
+        clear();
+    }
+
+    function clear() {
+        result = %[];
+        names = [];
+		evals = %[];
+		order = void;
+    }
+};
+
+function uiloadParse(elm)
+{
+    var separator = #',';
+    var baseName = elm.storage;
+    
+    if (!Storages.isExistentStorage(baseName)) {
+        if (Storages.isExistentStorage(baseName + ".csv")) {
+            baseName += ".csv";
+        } else if (Storages.isExistentStorage(baseName + ".txt")) {
+            baseName += ".txt";
+            separator = #'\t';
+        } else {
+            kag.errorImage("UI定義ファイルが見つかりません:" + baseName);
+            return;
+        }
+    }
+    var parser = new UIListParser(null, separator);
+
+    parser.parseStorage(baseName);
+    var funcName = (elm.func !== void) ? elm.func : Storages.chopStorageExt(baseName) + ".func";
+    if (!Storages.isExistentStorage(funcName)) {
+        if (Storages.isExistentStorage(funcName + ".func")) {
+            funcName += ".func";
+        }
+    }
+    if (Storages.isExistentStorage(funcName)) {
+        parser.parseStorage(funcName);
+    }
+
+	with (parser) return %[ names:.names, result:.result, evals:.evals, order:.order ];
+}
+
+function uiloadCopyElement(dic, elm, name)
+{
+	var target, ret;
+	try { ret = target = dic[name]; } catch {}
+	if (target === void) {
+		kag.error("コピー対象がありません:" + name);
+		return;
+	}
+	if (target.class == "copy") {
+		ret = uiloadCopyElement(dic, elm, target.copy);
+		if (ret === void) return;
+	}
+	(global.Dictionary.assign incontextof elm)(target, false);
+	return ret;
+}
+
+// part中にサブpartを含む場合は展開する
+function uiloadPartExtract(dic, part)
+{
+	part = part.split(",",,true) if (typeof part == "String");
+	if (typeof part != "Object" || !(part instanceof "Array")) return [];
+	var result = [], append = [];
+	for (var i = 0; i < part.count; i++) {
+		var name = part[i];
+		if (typeof name == "String" && name != "") {
+			name = name.trim();
+			var item = (part[i] != "") ? dic[part[i]] : void;
+			if (item !== void) {
+				if (item.class != "part") result.push(name);
+				else {
+					var subpart = uiloadPartExtract(dic, item.part);
+					result.push(subpart*) if (typeof subpart == "Object");
+				}
+			}
+		}
+	}
+	return result;
+}
+
+function uiloadEntry(layer, names, dic, elm, table, evals, order)
+{
+	evals = %[] if (evals === void);
+
+	// elm 加工フック
+	uiloadEvals(elm, evals.pre, dic);
+
+	// 指定part削除動作
+	if (elm.partremove != "") {
+		var parts = uiloadPartExtract(dic, elm.partremove);
+		for (var i = parts.count-1; i >= 0 ; i--) names.remove(parts[i], true);
+	}
+
+	// 指定part以外削除動作
+	if (elm.partexcept != "") {
+		var parts = uiloadPartExtract(dic,   elm.partexcept);
+		if (parts.count > 0) {
+			for (var i = names.count-1; i >= 0; i--) if (parts.find(names[i]) < 0) names[i] = void;
+			names.remove(void, true);
+		}
+	}
+
+	// ordr 順序指定
+	if (typeof order == "Object" && order instanceof "Array") {
+		var parts = uiloadPartExtract(dic, order);
+		for (var i = parts.count-1; i >= 0 ; i--) {
+			var name = parts[i];
+			if (names.find(name) >= 0) with (names) .remove(name, true), .insert(0, name);
+		}
+	}
+
+	// names/dic加工フック
+	uiloadEvals(names, evals.names, dic);
+	uiloadEvals(dic,   evals.funcs, dic);
+
+	var basex = 0, basey = 0;
+
+	// 背景だけ特殊処理
+	var base;
+	for (var i=0; i<names.count; i++) {
+		var value = dic[names[i]];
+		if (value !== void && value.class == "base") {
+			base = names[i];
+			uiloadEvals(elm, evals.elm, dic, base);
+
+			var value = dic[base];
+			table[value.class](layer, base, value, elm);
+			basex = value.x;
+			basey = value.y;
+			break;
+		}
+	}
+	// 背景がなかったときの処理
+	if (base === void) {
+		uiloadEvals(elm, evals.elm, dic, base);
+		table.base(layer, base, %[ x:0, y:0, width:layer.parent.width, height:layer.parent.height, storage:"" ], elm);
+	}
+
+	var links = table._preorder(layer);
+	var ncnt  = names.count;
+	for (var i = 0; i < ncnt; i++) {
+		var name  = names[table._order(i, ncnt)];
+		var value = (name != "") ? dic[name] : void;
+		if (value === void) continue;
+		switch (value.class) {
+		case void:
+			kag.error("クラスが指定されていません:" + name);
+			break;
+		case "cref":
+		case "base":
+		case "part":
+			break;
+		case "copy":
+			/*
+			var target;
+			try { target = dic[value.copy]; } catch {}
+			if (target === void) {
+				kag.error("コピー対象がありません:" + name);
+				break;
+			}
+			var temp = %[];
+			(global.Dictionary.assign incontextof temp)(target, true);
+			(global.Dictionary.assign incontextof temp)(value,  false);
+			 */
+			var temp = %[];
+			var target = uiloadCopyElement(dic, temp, value.copy);
+			if (target === void) break;
+			(global.Dictionary.assign incontextof temp)(value,  false);
+			/**/
+			temp.class = target.class;
+			temp.groupName = value.subref if (temp.class == "radio" && value.subref !== void);
+			temp.uistates = target.uistates if (!value.cref);
+			value = temp;
+			/* not break */
+		default:
+			value.x -= basex;
+			value.y -= basey;
+			uiloadEvals(value,  evals["-"+value.name], dic, base);
+			var func = table[value.class];
+			if (func !== void) {
+				var target = func(layer, name, value, elm);
+				uiloadEvals(target, evals[value.name], dic, base) if (target !== void);
+			}
+			break;
+		}
+	}
+
+	// 優先順位逆転
+	table._reorder(layer, links);
+
+	uiloadEvals(layer, evals.base, dic, base);
+
+	if (typeof layer.clearRedrawTextState == "Object")
+		/**/   layer.clearRedrawTextState();
+}
+
+function uiloadGetRect(tag, result) {
+	if (tag.indexOf(".") < 0) {
+		if (result[tag] === void) return void;
+		with (result[tag]) return %[x:.x, y:.y, w:.width, h:.height, ox:0, oy:0];
+	}
+	var div = tag.split(".");
+	var p = result[div[0]];
+	if (p === void) return void;
+	var s = p.uistates[div[1]];
+	if (s === void) return void;
+	return %[x:p.x + s.ox, y:p.y + s.oy, w:s.w, h:s.h, ox:s.ox, oy:s.oy];
+}
+function uiloadSetRect(target, rect, brect, x, y, w, h) {
+	with (rect) {
+		if (brect !== void) {
+			.x -= brect.x;
+			.y -= brect.y;
+		}
+		target[x] = .x;
+		target[y] = .y;
+		if (w !== void) {
+			target[w] = .w;
+			target[h] = .h;
+		}
+	}
+}
+
+function uiloadEvals(target, evals, result, base) {
+	if (evals == void) return;
+	var brect;
+	if (base !== void) brect = uiloadGetRect(base, result);
+	for (var i = 0; i < evals.count; i++) {
+		var cur = evals[i];
+		switch (cur[0]) {
+		case "pos":   uiloadSetRect(target, uiloadGetRect(cur[1], result), brect, cur[2], cur[3]); break;
+		case "rect":  uiloadSetRect(target, uiloadGetRect(cur[1], result), brect, cur[2], cur[3], cur[4], cur[5]); break;
+		case "name":  uiloadSetRect(target, uiloadGetRect(cur[1], result), brect, "nameleft", "nametop", "namewidth", "nameheight"); break;
+		case "face":  uiloadSetRect(target, uiloadGetRect(cur[1], result), brect, "faceleft", "facetop", "facewidth", "faceheight"); break;
+		case "glyph": uiloadSetRect(target, uiloadGetRect(cur[1], result), brect, "glyphFixedLeft", "glyphFixedTop", "glyphFixedWidth", "glyphFixedHeight"); break;
+		case "margin": // pos,ref
+			var rect = uiloadGetRect(cur[1], result);
+			var bw, bh;
+			if (brect !== void) bw = brect.x + brect.w, bh = brect.y + brect.h;
+			else                bw = kag.scWidth, bh = kag.scHeight; // [XXX] 画面サイズを直参照している
+			rect.w = bw - (rect.x + rect.w);
+			rect.h = bh - (rect.y + rect.h);
+			if (typeof target.marginL !== "undefined") 
+				uiloadSetRect(target, rect, brect, "marginL", "marginT", "marginR", "marginB");
+			else 
+				uiloadSetRect(target, rect, brect, "marginl", "margint", "marginr", "marginb");
+			break;
+		case "prop":
+			for (var j = 1; j < cur.count-2; j+=3)
+				target[cur[j]] = Scripts.eval("("+cur[j+1]+")"+cur[j+2]);
+			break;
+		case "exp":
+			cur.erase(0);
+			(function(e) { e!; } incontextof target)(cur.join(","));
+			break;
+		case "call":
+			var f = Scripts.eval('function() { return "' + cur[1] + '"!; }');
+			var r = (f incontextof target)();
+			if (typeof r == "Object" && r instanceof "Function") {
+				cur.erase(0);
+				cur.erase(0);
+				r(target, result, cur*);
+			}
+			break;
+		}
+	}
+}
+
+
+function uiloadWithFuncTable(layer, elm, funcTable) {
+	var parse = uiloadParse(elm);
+	if (parse === void) return %[];
+	with (parse) uiloadEntry(layer, .names, .result, elm, funcTable, .evals, .order);
+	return parse.result;
+}
+
+// ボタンレイヤを単純なレイヤに変更する
+function uiSetLayerOption(target) {
+	with (target) {
+		.imageWidth = .width; // ボタン分を使わないのでサイズを縮める
+		.enabled = .focusable = false;
+		if (typeof .eventTransparent != "undefined") .eventTransparent = true;
+		else .hitType = htProvince;
+		if (typeof .linkNum != "undefined" && typeof .parent.links != "undefined")
+			.parent.links[.linkNum].type = .parent.ltLayer;
+	}
+	return target;
+}
+
+// MessageLayer/DialogLayerにUIを登録するためのクラス
+class uiEntryNormal {
+	// ベース
+	function base(layer, name, value, elm) {
+		var e = %[];
+		(global.Dictionary.assign incontextof e)(elm,false);
+		e.left   = value.x + e.baseoffsetx;
+		e.top    = value.y + e.baseoffsety;
+		e.width  = value.width;
+		e.height = value.height;
+		e.frame  = value.storage if e.frame === void;
+		if (e.frame == "") {
+			e.frame = ""  if e.frame   === void;
+			e.opacity = 0 if e.opacity === void;
+			e.color   = 0 if e.color   === void;
+		}
+		e.margint = 0 if e.margint === void;
+		e.marginl = 0 if e.marginl === void;
+		e.marginr = 0 if e.marginr === void;
+		e.marginb = 0 if e.marginb === void;
+		e.transparent = false if e.transparent === void;
+		switch (e.visible) {
+		case null: case "null": delete e.visible; break;
+		case void: case "void": e.visible = true; break;
+		}
+		layer.setPosition(e);
+	}
+	function _order(num,max) { return num; }
+	function _preorder(layer) {
+		return (typeof layer.numLinks != "undefined") ? layer.numLinks : void;
+	}
+	// 優先順位逆転
+	function _reorder(layer, links) {
+		if (links === void) return;
+		var cnt = layer.numLinks - links;
+		if (cnt > 0) {
+			var min;
+			for (var i = 0; i < cnt; i++) {
+				var obj = layer.links[links + i].object;
+				if (obj !== void) with (obj) {
+					if (min === void) min = .order;
+					.order = min;
+				}
+			}
+		}
+	}
+
+	// virtual
+	function _pos(layer, x, y)        { layer.locate(x, y); }
+	function _add(layer, type, value) { layer["add"+type](value); }
+	function _get(layer, name) { return layer.names[name]; }
+
+	// 通常登録処理
+	function _entry(type, layer, name, value) {
+		with (value) {
+			_pos(layer, .x, .y);
+			var s;
+			if (.nouiload) s = .uistates, .uistates = void;
+			_add(layer, type, value);
+			if (s !== void) .uistates = s;
+			return _get(layer, .name);
+		}
+	}
+	// 各ui type登録
+	function button(*) { return _entry("Button", *); }
+	function toggle()  { return button(...); }
+	function radio()   { return button(...); }
+	function slider(layer, name, value) {
+		var v = %[];
+		(global.Dictionary.assign incontextof v)(value,false);
+		with (v) {
+			// デフォルト値の設定
+			.nohilight = true if .nohilight === void;
+			.nofixpos  = true if .nofixpos  === void;
+			.bgcolor   = 0    if .bgcolor   === void;
+			.opacity   = 0    if .opacity   === void;
+			if (.uipsdfix) {
+				if (!.vertical) .width+=2,  .x-=1;
+				else            .height+=2, .y-=1;
+			}
+		}
+		return _entry("Slider", layer, name, v);
+	}
+
+	// レイヤを登録する
+	function layer(layer, name, value) {
+		var ns = %[ normal: value.uistates[value.layer] ];
+		ns <-> value.uistates;
+		var target = _entry("Button", layer, name, value);
+		ns <-> value.uistates;
+		return uiSetLayerOption(target);
+	}
+
+	function _sysentry(cls, layer, name, value) {
+		var v = %[];
+		(global.Dictionary.assign incontextof v)(value,false);
+//		dm("_sysentry", cls, name);
+		v.class = cls;
+		_entry("SystemButton", layer, name, v);
+		return layer.buttons[v.name];
+	}
+	// systemボタン
+	function sysbutton(*) { return _sysentry("button", *); }
+	function systoggle(*) { return _sysentry("toggle", *); }
+	function sysradio(*)  { return _sysentry("radio",  *); }
+}
+
+// システムボタン用
+class uiEntrySystem extends uiEntryNormal {
+	// 処理の上書き
+	function _pos(layer, x, y) {}
+	function _add(layer, type, value) { layer["addSystem"+type](value); }
+	function _get(layer, name) { return layer.buttons[name]; }
+	@if (!MESSAGE_SYSTEMSLIDER_ENABLED)
+	function slider() { throw new Exception("sysuiloadではスライダをサポートしません"); }
+	@endif
+
+	function _sysentry(cls, *) { return _entry(*); }
+
+	function _order(num,max) { return max-num-1; }
+	function _preorder(layer) {}
+	function _reorder(layer, links) {}
+
+	function uiSetLayerOption(target) { return target; }
+}
+
+// uiload/uiloadSystem参照用インスタンスを生成
+var uiEntryFuncs       = new uiEntryNormal();
+var uiEntrySystemFuncs = new uiEntrySystem();
+
+/**
+ * UIのロード処理
+ * @param layer レイヤ名
+ * @param ロードする定義ファイル
+ */
+function uiload(layer, elm)
+{
+	return uiloadWithFuncTable(layer, elm, uiEntryFuncs);
+}
+
+/**
+ * UIのロード処理
+ * @param layer レイヤ名
+ * @param ロードする定義ファイル
+ */
+function uiloadSystem(layer, elm)
+{
+	return uiloadWithFuncTable(layer, elm, uiEntrySystemFuncs);
+}

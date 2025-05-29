@@ -1,0 +1,485 @@
+// Initialize.tjs - システムの初期化
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+// ロック区分用
+var lockKey = "";
+
+// システムバージョン
+var kagVersion = "EX 3.27-dev.20070519";
+
+/*
+	Debug.message へのショートカット
+*/
+
+var dm = Debug.message; // これで dm("message"); でコンソールに message を表示できる
+
+/*
+	デバッグウィンドウが有効かどうか
+*/
+
+("property debugWindowEnabled { getter() { return " + (System.getArgument("-debugwin") != "no") + "; } }")!;
+("property inXP3archivePacked { getter() { return " + (Storages.getPlacedPath("startup.tjs").indexOf(">") >= 0) + "; } }")!;
+Scripts.exec(@"@set (PACKED=${inXP3archivePacked})");
+
+if (!debugWindowEnabled) {
+	/*
+		デフォルトの「捕捉されない例外」ハンドラ
+	 */
+	// リリース時処理
+	System.exceptionHandler = function (e) {
+		Debug.logAsError(); // ログのファイルへの書き出し動作の開始など
+		var event_disabled = System.eventDisabled;
+		System.eventDisabled = true;
+		System.inform(e.message);
+		System.terminate();
+		return true;
+	};
+	// コンソール・コントローラーを殺す
+	var dummy = %[];
+	&Debug.console    = dummy;
+	&Debug.controller = dummy;
+} else {
+	// デバッグ時処理
+	System.exceptionHandler = function (e) {
+		// どこにも捕捉されない例外がシステム側で捕捉された場合、この関数が
+		// 呼ばれる。e は例外オブジェクト。
+		if (e instanceof "ConductorException") {
+			// コンダクタの投げた例外の場合
+			Debug.logAsError(); // ログのファイルへの書き出し動作の開始など
+			var event_disabled = System.eventDisabled;
+			System.eventDisabled = true;
+			// エラーの理由を表示させている間にイベントが発生すると
+			// やっかいなのでいったんイベント発生を停止させる
+			System.inform(e.message);
+			System.eventDisabled = event_disabled;
+			// イベントを発生するかどうかを元の状態に
+			return true; // true を返すと本体側で例外の処理は行わなくなる
+		}
+		return false; // false を返すと通常の例外処理
+	};
+	// プリプロセッサ指定
+	Scripts.exec("@set (DEBUG=1)");
+
+	// messenger.dll読み込みはデバッグ時のみ
+	try {
+		var plug = "tools/messenger.dll";
+		Plugins.link(plug) if (Storages.isExistentStorage(System.exePath+plug));
+	} catch(e) {}
+};
+
+/*
+	パスの設定
+	後に指定した物が、より優先されて使用される
+*/
+
+
+var archive_exists = %[]; // アーカイブが存在するかキャッシュ
+
+function useArchiveIfExists(name)
+{
+	// name を正規化
+	with (Storages) name = .chopStorageExt(.extractStorageName(name));
+	// name が存在していたらそのアーカイブを使う
+	var arcname = System.exePath + name + ".xp3";
+	if(Storages.isExistentStorage(arcname)) {
+		archive_exists[name.toLowerCase()] = true;
+		Storages.addAutoPath(arcname + ">");
+	}
+}
+
+function addArchive(name)
+{
+	// 検索パスを設定しつつ，name.xp3 が存在していたらそのアーカイブを使う
+	Storages.addAutoPath(name + "/");
+	useArchiveIfExists(name);
+}
+
+// サブフォルダつき検索パス登録
+function addArchiveWithSubFolder(name, arr*)
+{
+	var arcname = System.exePath + name + ".xp3";
+	var isexist = archive_exists[name.toLowerCase()];
+	for (var i = 0; i < arr.count; i++) {
+		var sub = arr[i];
+		if (sub == "") continue;
+		Storages.addAutoPath(name    + "/" + sub + "/");
+		Storages.addAutoPath(arcname + ">" + sub + "/") if (isexist);
+	}
+}
+
+// サブフォルダ検索パス登録
+function setupSubFolders(list) {
+	var binds = %[], names = [];
+	for (var path, i = 0; i < list.count; i++) {
+		if ((path = list[i]) == "") continue;
+		var div = path.split("/");
+		var name = div[0];
+		if (name == "" || div.count <= 1) continue;
+		div.erase(0);
+		if (binds[name] === void) {
+			binds[name] = [];
+			names.add(name);
+		}
+		binds[name].add(div.join("/",,true));
+	}
+	for (var i = 0; i < names.count; i++) {
+		//dm("setupSubFolders", names[i], binds[names[i]]*);
+		addArchiveWithSubFolder(names[i], binds[names[i]]*);
+	}
+}
+
+// (obsolete) 旧互換用
+function addVoiceArchive(name) {
+	addArchiveWithSubFolder("voice", name);
+}
+
+/*
+	フォルダ登録及びアーカイブの検索と使用
+	（後に登録した物ほど検索の優先度が高くなります）
+*/
+
+if (debugWindowEnabled) {
+	Storages.addAutoPath(System.exePath + "tools/"); // exePath 以下の tools/
+	Storages.addAutoPath(System.exePath + "tools/debug/"); // exePath 以下の tools/debug
+	useArchiveIfExists("debug");
+}
+Storages.addAutoPath(System.exePath + "video/"); // exePath 以下の video/
+Storages.addAutoPath("data/"); // data フォルダ
+{
+	// data以下のサブフォルダを登録
+	// もしこれらの名前を持ったアーカイブが実行可能ファイルと
+	// 同じ場所にあった場合、それを優先して使う
+	var subfolders = [
+		"video",    // video フォルダ
+		"others",   // その他
+		"rule",     // ルール画像フォルダ
+		"sound",    // 効果音フォルダ
+		"bgm",      // BGM フォルダ
+		"fgimage",  // 前景画像フォルダ
+		"bgimage",  // 背景画像フォルダ
+		"scenario", // シナリオフォルダ
+		"image",    // そのほかの画像フォルダ
+		"system",   // システムフォルダ
+		"voice",    // ボイスフォルダ
+		"face",     // フェイスフォルダ
+		"init",     // 初期化用フォルダ
+		"sysscn",   // システム用シナリオ
+		"main",     // システム用シナリオ
+		"evimage",  // イベント画像
+		"thum",     // サムネイル
+		"uipsd",    // ユーザーインターフェース用パーツ画像
+		"motion",   // モーションデータ
+		];
+	for (var i = 0; i < subfolders.count; i++) {
+		var name = subfolders[i];
+		addArchive(name) if (name != "");
+	}
+}
+
+// カスタムフォルダ登録処理スクリプトを実行（※パッチの前に評価すること）
+if(Storages.isExistentStorage("Storages.tjs"))
+	Scripts.execStorage("Storages.tjs");
+
+// パッチアーカイブ（※パッチの中身は平坦展開でパッチ内サブフォルダは使えない）
+useArchiveIfExists("patch.xp3");
+
+// 追加のパッチ用アーカイブの検索
+for(var i = 2; ; i++)
+{
+	// パッチ用アーカイブ patch2.xp3, patch3.xp3 ... がある場合はそちらを
+	// 優先して読み込むように
+	if(Storages.isExistentStorage(System.exePath + "patch" + i + ".xp3"))
+		Storages.addAutoPath(System.exePath + "patch" + i + ".xp3>");
+	else
+		break;
+}
+
+delete useArchiveIfExists; // useArchiveIfExists は使い終わったので一応消しておく
+
+/*
+	システムバージョン
+*/
+Debug.notice("OS : " + System.osName + " (" + System.platformName + ")");
+Debug.notice("KAG : " + kagVersion);
+Debug.notice("Kirikiri : " + System.versionString);
+
+/*
+	( デバッグ ) 時間計測
+*/
+
+var parseStartTick = System.getTickCount();
+
+
+/*
+	スクリプト読み込みラッパー
+*/
+
+function KAGLoadScript(name)
+{
+	var start = System.getTickCount();
+	Scripts.execStorage(name);
+	dm(name + " を読み込みました(" + (System.getTickCount() - start) + "ms)");
+}
+
+var loaded_scripts = %[];
+
+function KAGLoadScriptOnce(name)
+{
+	// 指定したスクリプトを読み込むが、一回しか読み込まない
+	if(global.loaded_scripts[name] === true) return; // 既に読み込んでいる
+	global.KAGLoadScript(name);
+	global.loaded_scripts[name] = true;
+}
+
+function KAGConfigEnabled(name, dflt) {
+	// global変数参照
+	return (typeof global[name] == "undefined") ? dflt : global[name];
+}
+function CanLoadPlugin(name) {
+	var exepath = System.exePath, exist = Storages.isExistentStorage;
+	if (exist(exepath+name) || exist(exepath+"plugin/"+name) || exist(exepath+"system/"+name)) return true;
+	var placed = Storages.getPlacedPath(name);
+	return placed != "" && exist(placed);
+}
+try {
+	var dll = "PackinOne.dll";
+	Plugins.link(dll) if (CanLoadPlugin(dll));
+} catch {}
+try {
+	var dll = "KAGParserEx.dll";
+	Plugins.link(dll) if (CanLoadPlugin(dll));
+} catch {}
+
+/*
+	AppConfig.tjs 読み込み
+*/
+if(Storages.isExistentStorage("AppConfig.tjs"))
+{
+	KAGLoadScript("AppConfig.tjs");
+}
+
+/*
+	Config.tjs 読み込み
+*/
+if(Storages.isExistentStorage("Config.tjs"))
+{
+	KAGLoadScript("Config.tjs");
+}
+else if(Storages.isExistentStorage("Config.~new"))
+{
+	System.inform("Config.tjs が見つかりません。\nsystem フォルダにある "
+		"Config.~new ファイルを Config.tjs に改名してください。");
+	System.exit();
+}
+else
+{
+	throw new Exception("Config.tjs が見つかりません。");
+}
+
+if (typeof global.ENV_GameName != "undefined") {
+	System.title = global.ENV_GameName;
+}
+if (typeof global.ENV_GameId != "undefined" && lockKey == "") {
+	lockKey = global.ENV_GameId;
+}
+
+/*
+	Config.tjs バージョンチェック
+*/
+
+if(typeof global.config_version == "undefined" || config_version != kagVersion)
+{
+	KAGLoadScript("UpdateConfig.tjs");
+}
+
+/*
+	二重起動のチェック
+*/
+
+// 実行可能ファイルのパスをキーにしてロックを行う
+if(!System.createAppLock(System.appLockKey=(System.exePath + lockKey).replace(/[^A-Za-z0-9]/g, '_')) && typeof global.restart == "undefined")
+{
+	// すでに起動している
+	if (debugWindowEnabled && typeof Window.sendMessage == "Object" &&   System.getArgument("-sendmessage") != "") {
+		// 外部制御メッセージを送る
+		try { (Window.sendMessage incontextof %[ HWND:0 ])(System.title, System.getArgument("-sendmessage")); } catch {}
+	} else System.inform(System.title + "はすでに起動しています");
+	System.exit();
+}
+
+
+/*
+	オン・デマンド・ローディングを行うための定義
+*/
+
+
+property askYesNo { getter() { KAGLoadScript("YesNoDialog.tjs"); return global.askYesNo; } }
+property CheckBoxLayer { getter() { KAGLoadScript("CheckBoxLayer.tjs"); return global.CheckBoxLayer; } }
+//property ButtonLayer { getter() { KAGLoadScript("ButtonLayer.tjs"); return global.ButtonLayer; } }
+property EditLayer { getter() { KAGLoadScript("EditLayer.tjs"); return global.EditLayer; } }
+property SliderLayer { getter() { KAGLoadScript("SliderLayer.tjs"); return global.SliderLayer; } }
+property KAGPlugin { getter() { KAGLoadScript("Plugin.tjs"); return global.KAGPlugin; } }
+property execDialog { getter() { KAGLoadScript("ExecDialog.tjs"); return global.execDialog; } }
+property uiload { getter() { KAGLoadScript("UILoader.tjs"); return global.uiload; } }
+property uiloadSystem { getter() { KAGLoadScript("UILoader.tjs"); return global.uiloadSystem; } }
+
+/*
+	各システム読み込み
+*/
+dm("KAG System スクリプトを読み込んでいます...");
+
+// add by takas, modified by miahmie.
+if (typeof global.ratPlayerEnabled != "undefined" && global.ratPlayerEnabled) {
+	KAGLoadScript("RATParser.tjs");
+	KAGLoadScript("RATPlayer.tjs");
+	KAGLoadScript("RATKAGParser.tjs");
+} else global.ratPlayerEnabled = false;
+
+// add by GoWatanabe
+KAGLoadScript("LayerEx.tjs");
+KAGLoadScript("BitmapFont.tjs")   if (KAGConfigEnabled("fontExBitmapEnabled", false));
+
+KAGLoadScript("Utils.tjs");
+KAGLoadScript("KAGLayer.tjs");
+KAGLoadScript("AnimKAGLayer.tjs");
+
+KAGLoadScript("ButtonLayer.tjs");
+
+KAGLoadScript("TransLayer.tjs");
+KAGLoadScript("SelectLayer.tjs");
+KAGLoadScript("MapSelectLayer.tjs");
+KAGLoadScript("DialogLayer.tjs");
+KAGLoadScript("HistoryLayer.tjs");
+KAGLoadScript("BGM.tjs");
+KAGLoadScript("SE.tjs");
+KAGLoadScript("Movie.tjs");
+KAGLoadScript("Conductor.tjs");
+
+KAGLoadScript("UpdateRegion.tjs");
+KAGLoadScript("AffineLayer.tjs");
+KAGLoadScript("AnimationLayer.tjs");
+KAGLoadScript("GraphicLayer.tjs");
+KAGLoadScript("GFX_Fire.tjs")     if (KAGConfigEnabled("gfxFireEnabled",     true) && CanLoadPlugin("gfxEffect.dll"));
+KAGLoadScript("GFX_Movie.tjs")    if (KAGConfigEnabled("gfxMovieEnabled",    true));
+KAGLoadScript("GFX_Flash.tjs")    if (KAGConfigEnabled("gfxFlashEnabled",    true) && CanLoadPlugin("flashPlayer.dll"));
+KAGLoadScript("GFX_Particle.tjs") if (KAGConfigEnabled("gfxParticleEnabled", true));
+KAGLoadScript("GFX_AMovie.tjs")   if (KAGConfigEnabled("gfxAlphaMovieEnabled", true) && CanLoadPlugin("AlphaMovie.dll"));
+KAGLoadScript("motion.tjs") if (KAGConfigEnabled("motionEnabled", true) && CanLoadPlugin("motionplayer.dll"));
+KAGLoadScript("MessageLayer.tjs");
+KAGLoadScript("Menus.tjs");
+KAGLoadScript("DefaultMover.tjs");
+KAGLoadScript("Action.tjs");
+KAGLoadScript("MainWindow.tjs");
+
+// ワールド拡張機能読み込み
+if (typeof global.worldEnabled == "undefined" || global.worldEnabled) {
+	KAGLoadScript("world.tjs");
+}
+
+if(Storages.isExistentStorage("Override.tjs")) {
+	KAGLoadScript("Override.tjs");
+}
+//if(Storages.isExistentStorage(System.exePath + "Override2.tjs"))
+//	KAGLoadScript(System.exePath + "Override2.tjs");
+
+/*
+	( デバッグ ) 時間計測
+*/
+dm("スクリプトの読み込みに " + (System.getTickCount() - parseStartTick) + "ms かかりました");
+parseStartTick = System.getTickCount();
+
+/*
+	( デバッグ ) VM コードのダンプ
+*/
+
+// Scripts.dump();
+
+/*
+	( デバッグ ) 時間計測
+*/
+
+parseStartTick = System.getTickCount();
+
+
+/*
+	KAG メインウィンドウの作成
+	グローバルメンバ kag が存在しなければ KAGWindow クラスの
+	オブジェクトを作成して入れる
+*/
+
+global.kag = new KAGWindow() if typeof global.kag == "undefined";
+	
+if (typeof global.KAGWorldPlugin != 'undefined') {
+
+	// シーンパーサ導入
+	if (debugWindowEnabled) {
+		Storages.addAutoPath(System.exePath + "tools/sceneparser/");
+		if (Storages.isExistentStorage("SceneParser.tjs")) {
+			Scripts.execStorage("SceneParser.tjs");
+			Storages.addAutoPath(System.exePath + "setup/sceneparser/");
+			Storages.addAutoPath(System.exePath + "scenario/");
+		}
+	}
+	// ワールド拡張プラグイン
+	kag.addPlugin(global.world_object = new KAGWorldPlugin(kag));
+	if (kag.debugLevel >= tkdlSimple) {
+		dm("ワールド環境設定完了");
+	}
+	// 立ち絵表示確認用ウインドウ機能
+	if (debugWindowEnabled) {
+		KAGLoadScript('standview.tjs');
+	}
+}
+
+/*
+	グローバルから簡単にアクセスできるように、いくつかの
+	変数の別名を作成
+*/
+
+var f = kag.flags;   // ユーザ変数 (フラグ)
+var sf = kag.sflags; // システム変数 (システム)
+var tf = kag.tflags; // 一時変数 (一時フラグ)
+
+var mp_dummy = %[], mp_target;
+property mp {
+	getter {
+		var macroParams = mp_target ? mp_target.macroParams : void;
+		return macroParams  ? /*dict*/macroParams : /*null or void*/mp_dummy;
+	}
+}
+
+/*
+	RAT Player の組み込み
+*/
+KAGLoadScript("RATInit.tjs") if (global.ratPlayerEnabled);
+
+/*
+	( デバッグ ) 時間計測
+*/
+dm("KAGMainWindow のコンストラクタで " + (System.getTickCount() - parseStartTick) + "ms かかりました");
+delete parseStartTick;
+
+
+/*
+	AfterInit.tjs が存在すれば実行
+*/
+if(Storages.isExistentStorage("AfterInit.tjs"))
+	KAGLoadScript("AfterInit.tjs");
+//if(Storages.isExistentStorage(System.exePath + "AfterInit2.tjs"))
+//	KAGLoadScript(System.exePath + "AfterInit2.tjs");
+
+/*
+	コマンドラインパラメータとして -ovr が指定されていれば
+	そのパラメータを TJS 式として実行
+*/
+//{
+//	var ovr = System.getArgument('-ovr');
+//	if(ovr !== void && ovr != 'yes') Scripts.eval(ovr);
+//}
+
+/*
+	first.ks の実行
+*/
+
+kag.process("first.ks");
+

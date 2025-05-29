@@ -1,0 +1,834 @@
+/**
+ * モーション用ボタン情報
+ */
+class MotionButton
+{
+	var owner;  //< 親オブジェクト
+	var name;   //< 対象レイヤ名
+	var normal; //< 通常状態モーション(一瞬)
+	var over;   //< 選択状態モーション(一瞬
+	var enter;  //< 選択時モーション
+	var leave;  //< 選択解除時モーション
+	var press;  //< 押し下げ時モーション
+	var tooff;  //< off状態に遷移
+	var toon;   //< on状態に遷移
+	var exp;    //< 押し下げ時実行スクリプト
+	var func;   //< 押し下げ時実行ファンクション
+
+	var toggle; //< トグルボタンフラグ(兼トグル状態)
+	var onname; //< トグルボタンON時名称ベース
+	var offname;//< トグルボタンOFF時名称ベース
+
+	var radio;  //< ラジオボタングループ名
+	
+	var focus; //< フォーカス状態
+	var motionqueue; //< 再生予約モーション
+
+	// コンストラクタ
+	function MotionButton(owner, elm) {
+		focus = false;
+		motionqueue = [];
+		this.owner = owner;
+		name = elm.name;
+		normal = elm.normal !== void ? elm.normal : "normal";
+		over   = elm.over   !== void ? elm.over   : "over";
+		enter  = elm.enter  !== void ? elm.enter  : "enter";
+		leave  = elm.leave  !== void ? elm.leave  : "leave";
+		press  = elm.press  !== void ? elm.press  : "press";
+		tooff  = elm.off    !== void ? elm.off    : "off";
+		toon   = elm.on     !== void ? elm.on     : "on";
+		exp    = elm.exp;
+		func   = elm.func !== void ? Scripts.eval(elm.func) : void;
+		if (elm.radio !== void) {
+			radio   = elm.radio;
+			onname  = elm.on  !== void ? elm.on : "on_";
+			offname = elm.off !== void ? elm.off : "off_";
+			owner.initMotionRadio(radio, this, elm.toggle);
+		} else if (elm.toggle !== void) {
+			toggle  = +elm.toggle;
+			onname  = elm.on  !== void ? elm.on : "on_";
+			offname = elm.off !== void ? elm.off : "off_";
+		}
+	}
+
+	// レイヤのモーションを取得
+	function getMotion() {
+		var lay = owner._motionPlayer.getLayerGetter(name);
+		return lay !== void ? lay.motion : void;
+	}
+
+	/**
+	 * 該当ボタンにマウスカーソルが入っているかどうかの判定
+	 * @param x マウスカーソルX位置
+	 * @param y マウスカーソルY位置
+	 * @return カーソルが含まれていればtrue
+	 */
+	function contains(x, y) {
+		if (radio === void || !toggle) { // ラジオボタンはOFF状態でないと選択されない
+			var motion = getMotion();
+			if (motion !== void) {
+				return motion.contains(x,y);
+			}
+		}
+		return false;
+	}
+
+	// モーションのベース名
+	property basename {
+		getter() {
+			return toggle !== void ? (toggle ? onname : offname) : "";
+		}
+	}
+
+	property currentname {
+		getter() {
+			return basename + (focus ? over : normal);
+		}
+	}
+
+	// モーションを再生する
+	function _play(motion, name ,flag) {
+		motionqueue.clear();
+		motion.play(name, flag);
+		//dm(this.name + ":モーション開始:" + name);
+		owner.onMotionStart();
+	}
+
+	// モーションを追加する
+	function _add(name, flag) {
+		motionqueue.add(%[name:name, flag:flag]);
+	}
+	
+	// 状態初期化
+	function onInit() {
+		var motion = getMotion();
+		if (motion !== void) {
+			_play(motion, currentname, Motion.PlayFlagForce | Motion.PlayFlagStealth);
+		}
+	}
+	
+	// フォーカスを得た
+	function onEnter() {
+		if (!focus) {
+			//dm(name + ":onEnter:" + Scripts.getTraceString());
+			focus = true;
+			var motion = getMotion();
+			if (motion !== void) {
+				var e = basename + enter;
+				//dm("isExistEnter:" + motion.isExistMotion(e));
+				if (motion.isExistMotion(e)) {
+					_play(motion, basename + enter, Motion.PlayFlagForce);
+					_add(currentname, Motion.PlayFlagForce);
+				} else {
+					_play(motion, currentname, Motion.PlayFlagForce);
+				}
+			}
+		}
+	}
+
+	// フォーカスが外れた
+	function onLeave() {
+		if (focus) {
+			//dm(name + ":onLeave:" + Scripts.getTraceString());
+			focus = false;
+			var motion = getMotion();
+			if (motion !== void) {
+				var l = basename + leave;
+				//dm("isExistLeave:" + motion.isExistMotion(l));
+				if (motion.isExistMotion(l)) {
+					_play(motion, l, Motion.PlayFlagForce);
+					_add(currentname, Motion.PlayFlagForce);
+				} else {
+					_play(motion, currentname, Motion.PlayFlagForce);
+				}
+			}
+		}
+	}
+
+	// マウス移動
+	function onMouseMove(x, y) {
+		if (contains(x, y)) {
+			onEnter();
+			return true;
+		} else {
+			onLeave();
+			return false;
+		}
+	}
+
+	// バインド関数呼び出し
+	function doEval() {
+		if (exp !== void) {
+			Script.eval(exp);
+		}
+		if (func !== void) {
+			func(this);
+		}
+	}
+
+	// 押し下げられた
+	function onPress() {
+		if (focus) {
+			if (radio !== void) {
+				if (!toggle) {
+					owner.updateMotionRadio(radio, this);
+					doEval();
+				}
+			} else {
+				var motion = getMotion();
+				if (motion !== void) {
+					_play(motion, basename + press, Motion.PlayFlagForce);
+				}
+				if (toggle !== void) {
+					toggle = !toggle;
+				}
+				if (motion !== void) {
+					_add(currentname, Motion.PlayFlagForce);
+				}
+				doEval();
+			}
+		}
+	}
+
+	/**
+	 * フォーカス状態更新
+	 * @param focus フォーカスがあたっているかどうか
+	 */
+	function updateFocus(focus) {
+		//dm(name + ":updateFocus:" + focus);
+		if (focus) {
+			onEnter();
+		} else {
+			onLeave();
+		}
+	}
+
+	/**
+	 * 選択状態変更
+	 * @param toggle トグルボタンの選択状態
+	 */
+	function updateToggle(toggle) {
+		if (this.toggle !== void) {
+			//dm(name + ":トグル更新:" + this.toggle + " to " + toggle);
+			if (this.toggle != toggle) {
+				var motion = getMotion();
+				if (motion !== void) {
+					_play(motion, basename + press, Motion.PlayFlagForce);
+				}
+				this.toggle = toggle;
+				if (motion !== void) {
+					_add(currentname, Motion.PlayFlagForce);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 選択状態変更
+	 * @param toggle トグルボタンの選択状態
+	 */
+	function updateRadio(toggle) {
+		if (this.toggle !== void) {
+			//dm(name + ":トグル更新:" + this.toggle + " to " + toggle);
+			if (this.toggle != toggle) {
+				var motion = getMotion();
+				if (toggle) {
+					// ラジオをON状態にする
+					if (motion !== void) {
+						_play(motion, basename + press, Motion.PlayFlagForce);
+					}
+					this.toggle = true;
+					focus = false;
+					if (motion !== void) {
+						_add(currentname, Motion.PlayFlagForce);
+					}
+				} else {
+					// ラジオをOFF状態にする
+					if (motion !== void) {
+						_play(motion, basename + tooff, Motion.PlayFlagForce);
+					}
+					this.toggle = false;
+					focus = false;
+					if (motion !== void) {
+						_add(currentname, Motion.PlayFlagForce);
+					}
+				}
+			}
+		}
+	}
+	
+	var prevPlaying;//< 前回更新時の再生状況
+	
+	/**
+	 * 更新後コールバック
+	 */
+	function onProgress() {
+		var motion = getMotion();
+		if (motion !== void) {
+			var playing = motion.allplaying;
+			if (prevPlaying && !playing) {
+				//dm(name + ":モーション停止:" + motion.motion);
+				if (motionqueue.count > 0) {
+					// 停止している場合は継続モーションを投入する
+					// 再生完了してたら次のモーションをエントリ
+					var m = motionqueue.shift();
+					motion.play(m.name, m.flag);
+					//dm(name + ":モーション開始:" + m.name);
+				}
+			}
+			prevPlaying = playing;
+		}
+	}
+};
+
+/**
+ * 簡易アニメーション処理つき KAGLayer
+ * M2モーション機能を拡張
+ */
+class AnimKAGLayer extends KAGLayer {
+
+	// コンストラクタ
+	function AnimKAGLayer() {
+		super.KAGLayer(...);
+	}
+
+	// ファイナライザ
+    function finalize() {
+		_doneMotion();
+		animStop();
+		super.finalize(...);
+    }
+
+	// 画面更新処理
+	function onPaint() {
+		super.onPaint(...);
+		if (animCount !== void && animCount > 0 && animTime > 0) {
+			var now = System.getTickCount() - animStartTime;
+			var t = ((now \ animTime) % animCount) * (imageHeight \ animCount);
+			if (t <= imageHeight - height) {
+				imageTop = -t;
+            }
+		} else if (_motionPlayer !== void) {
+			_initMotion();
+
+			// モーション更新
+			var count = _motionButtons.count;
+			for (var i=0;i<count;i++) {
+				var button = _motionButtons[i];
+				button.onProgress();
+			}
+
+			with (_motionPlayer) {
+				if (.allplaying) {
+					var target = _motionSeparate !== void ? _motionSeparate : this;
+					.clear(target, neutralColor);
+					.setCoord(_motionLeft, _motionTop);
+					.progress(_motionInterval);
+					.draw(target);
+				} else {
+					onMotionStop();
+				}
+			}
+		}
+    }
+
+	/**
+	 * 画像読み込み処理
+	 * @param storage 読み込みファイル
+	 * @param key key
+	 * @param count アニメ分割個数
+	 * @param time アニメインターバル指定
+	 */
+    function loadImages(storage, key, count, time) {
+		_doneMotion();
+		animStop();
+        var ret = super.loadImages(storage, key);
+        animStart(count, time);
+        return ret;
+    }
+
+	/**
+	 * サイズ調整
+	 * アニメ処理用に補正
+	 */
+    function setSizeToImageSize() {
+        if (animCount === void) {
+            super.setSizeToImageSize();
+        } else {
+            super.width  = imageWidth;
+            super.height = imageHeight / animCount;
+        }
+    }
+
+	/**
+	 * 画像割り当て
+	 */
+	function assignImages(src, copyvisiblestate = false) {
+		_doneMotion();
+		animStop();
+		super.assignImages(src, copyvisiblestate);
+		if (src instanceof "AnimKAGLayer") with (src) {
+			if (.animCount > 0) {
+				animStart(.animCount, .animTime);
+			} else if (._motionPlayer !== void  && ._motionStorage !== void) {
+				loadMotion(%[
+				  storage:._motionStorage,
+				  separate:._motionSeparate !== void,
+				  width:.width,
+				  height:.height,
+				  left:.motionLeft,
+				  top:.motionTop,
+				  chara:._motionPlayer.chara,
+				  motion:._motionPlayer.motion,
+				  tickCount:._motionPlayer.tickCount,
+				  speed:._motionPlayer.speed
+				]);
+			}
+		}
+    }
+	
+	// -----------------------------------------------
+	// 簡易アニメ処理
+	// -----------------------------------------------
+	
+    var animCount; // アニメーション処理用カウント
+    var animTime;  // アニメーション処理用フリップ時間
+    var animStartTime; // アニメ起動時間
+    var animTimer; // アニメーション処理用タイマ
+
+	// アニメ停止
+	function animStop() {
+        animCount = void;
+		animTime  = void;
+		animStartTime  =void;
+		if (animTimer !== void) {
+			invalidate animTimer;
+			animTimer = void;
+		}
+    }
+
+	// アニメ更新ハンドラ
+	function animHandler() {
+		if (visible) {
+			update(0,0,1,1);
+		}
+    }
+
+	// アニメ開始
+    function animStart(count, time) {
+        if (count === void || count <= 1) {
+            animStop();
+            super.height = imageHeight;
+        } else {
+            super.height = imageHeight / count;
+            animCount = count;
+            if (time > 0) {
+                animTime  = time === void ? (1000 / count) : time;
+                animStartTime = System.getTickCount();
+                animTimer = new Timer(animHandler, '');
+                animTimer.capacity = 1;
+                animTimer.interval = animTime;
+                animTimer.enabled  = true;
+				update(0,0,1,1);
+            }
+        }
+    }
+
+	// -----------------------------------------------
+	// モーション処理
+	// -----------------------------------------------
+
+	var _motionSeparate;
+	var _motionPlayer;   // モーションプレイヤー
+	var _motionStorage;  // 今読み込んでる画像
+	var _motionLastTick; // 前回の更新時刻
+	var _motionInterval; // 経過時間
+	var _motionPlaying;
+	var _motionLeft;        // 配置座標指定X
+	var _motionTop;         // 配置座標指定Y
+	var _motionInit;        // モーション初期化指定フラグ
+
+	// モーション状態初期化処理
+	function _initMotion() {
+		if (_motionInit) {
+			// ボタン系初期化
+			var count = _motionButtons.count;
+			for (var i=0;i<count;i++) {
+				var button = _motionButtons[i];
+				button.onInit();
+			}
+			// スライダ系初期化
+			// XXX
+			
+			_motionInit = false;
+		}
+	}
+	
+	// モーション停止処理
+	function _doneMotion() {
+		clearMotionButtons();
+		if (_motionSeparate !== void) {
+			invalidate _motionSeparate;
+			_motionSeparate = void;
+		}
+		if (_motionPlayer !== void) {
+			_motionPlayer.stop();
+			invalidate _motionPlayer;
+			_motionPlayer = void;
+			onMotionStop();
+		}
+		if (_motionStorage !== void) {
+			window.motion_manager.unload(_motionStorage);
+			_motionStorage = void;
+		}
+	}
+
+	// モーションのフォーカスの更新
+	function _updateMotionFocus() {
+		var count = _motionButtons.count;
+		for (var i=0;i<count;i++) {
+			var button = _motionButtons[i];
+			button.updateFocus(_motionFocus !== void && _motionFocus == i);
+		}
+	}
+	
+	/*
+	 *モーションロード
+	 *  storage モーションのストレージ
+	 *  separate レイヤ分離指定
+	 *  width  レイヤ横幅
+	 *  height レイヤ縦幅
+	 *  left   モーション配置位置X(省略するとセンター)
+	 *  top    モーション配置位置Y(省略するとセンター)
+	 */
+	function loadMotion(elm) {
+		animStop();
+		if (elm.storage === void) {
+			throw new Exception("モーションファイルが指定されていません");
+		}
+		// プレイヤー生成
+		if (_motionPlayer === void) {
+			_motionPlayer = new Motion.Player(window.motion_manager.resourceManager);
+			_motionPlayer.completionType = stFastLinear;
+		}
+		// ストレージ差し替え
+		if (elm.storage !== void) {
+			// ボタン情報もクリアする
+			clearMotionButtons();
+			if (_motionStorage != elm.storage) {
+				if (_motionStorage !== void) {
+					window.motion_manager.unload(_motionStorage);
+				}
+				window.motion_manager.load(elm.storage);
+				_motionStorage = elm.storage;
+			}
+		}
+		// 分離再生指定
+		if (elm.separate === void || elm.separate) {
+			if (_motionSeparate === void) {
+				_motionSeparate = new Motion.SeparateLayerAdaptor(this);
+			}
+		} else {
+			if (_motionSeparate !== void) {
+				invalidate _motionSeparate;
+				_motionSeparate = void;
+			}
+		}
+		// レイヤサイズ調整
+		width       = elm.width  !== void ? +elm.width : window.scWidth;
+		height      = elm.height !== void ? +elm.height : window.scHeight;
+		left        = elm.left !== void ? +elm.left : 0;
+		top         = elm.top  !== void ? +elm.top  : 0;
+		_motionLeft = elm.motionleft !== void ? +elm.motionleft : width / 2;
+		_motionTop  = elm.motiontop  !== void ? +elm.motiontop  : height / 2;
+
+		visible = true;
+		type = ltAlpha;
+		fillRect(0,0,width,height,0);
+		
+		setMotionOption(elm);
+		return 0;
+	}
+
+	/*
+	 * モーションオプション更新
+	 *  stealthchara 隠しキャラ差し替え
+	 *  chara キャラ差し替え
+	 *  stealthmotion 隠しモーション差し替え
+	 *  motion モーション差し替え
+	 *  tickcount 再生位置
+	 *  speed 再生スピード
+	 */
+	function setMotionOption(elm) {
+		if (_motionPlayer !== void) with (_motionPlayer) {
+			if (elm.stealtchara !== void || elm.chara !== void) {
+				// ボタン情報もクリアする
+				clearMotionButtons();
+				if (elm.stealthchara !== void) {
+					.stealthChara = elm.stealthchara;
+				} else {
+					.chara = elm.chara;
+				}
+			}
+			if (elm.stealthmotion !== void) {
+				.stealthMotion = elm.stealthmotion;
+				_motionInit = true;
+			} else if (elm.motion !== void) {
+				.play(elm.motion, elm.flags !== void ? +elm.flags : Motion.PlayFlagForce);
+				_motionInit = true;
+			}
+			if (elm.tickcount !== void) {
+				.tickCount = +elm.tickcount;
+			}
+			if (elm.speed !== void) {
+				.speed = +elm.speed;
+			}
+			onMotionStart();
+		}
+		return 0;
+	}
+	
+	// -----------------------------------------------
+	// モーション制御系
+	// -----------------------------------------------
+
+	// モーション更新処理
+	function onMotionUpdate(tick) {
+		//dm(name + ":モーション更新:" + tick);
+		if (_motionLastTick === void) {
+			_motionLastTick = tick;
+		}
+		_motionInterval = tick - _motionLastTick;
+		with (_motionPlayer) {
+			update(0,0,1,1);
+			_motionLastTick = tick;
+		}
+	}
+
+	// モーション開始時処理
+	function onMotionStart() {
+		if (!_motionPlaying && _motionPlayer.allplaying) {
+			_motionPlaying = true;
+			window.onMotionStart(this);
+			System.addContinuousHandler(onMotionUpdate);
+			_motionLastTick = void;
+		}
+	}
+
+	// モーション停止時処理
+	function onMotionStop() {
+		if (_motionPlaying) {
+			_motionPlaying = false;
+			window.onMotionStop(this);
+			System.removeContinuousHandler(onMotionUpdate);
+		}
+	}
+	
+	// モーション待ち可能か
+	property motionPlaying {
+		getter() {
+			return _motionPlaying;
+		}
+	}
+	
+	// 外部からのモーション停止
+	function stopMotion() {
+		if (_motionPlayer !== void) {
+			_motionPlayer.skipToSync();
+			_motionPlayer.progress(0);
+			_motionPlayer.stop();
+			update(0,0,1,1);
+		}
+	}
+
+	// -----------------------------------------------
+	// ボタン設定
+	// -----------------------------------------------
+
+	var _motionButtons = []; //< モーションボタン一覧
+	var _motionFocus; //< モーションでのフォーカス大正
+
+	/**
+	 * モーション用ボタンの全クリア
+	 */
+	function clearMotionButtons() {
+		_motionButtons.clear();
+		_motionFocus = void;
+	}
+
+	/**
+	 * モーション用ボタンの登録
+	 */
+	function addMotionButton(elm) {
+		if (_motionPlayer !== void) {
+			if (elm.name === void) {
+				throw new Exception("ボタン名が指定されていません");
+			}
+			_motionButtons.add(new MotionButton(this, elm));
+		}
+	}
+
+	/**
+	 * モーションスライダーの登録
+	 */
+	function addMotionSlider(elm) {
+		if (_motionPlayer !== void) {
+			if (elm.name === void) {
+				throw new Exception("ボタン名が指定されていません");
+			}
+			//_motionButtons.add(new MotionSlider(this, elm));
+		}
+	}
+
+	/**
+	 * フォーカスの明示設定
+	 * @param focus フォーカス対象(index)
+	 * @param init 初期化指定かどうか
+	 */
+	function setMotionFocus(focus) {
+		if (focus >= 0  && focus < _motionButtons.count) {
+			_motionFocus = focus;
+		}
+		_updateMotionFocus();
+	}
+
+	// -----------------------------------------------
+	// モーションラジオボタン関係
+	// -----------------------------------------------
+
+	var _motionRadioGroup = %[];
+	
+	function getMotionRadioGroup(radio, create=false) {
+		var ret = _motionRadioGroup[radio];
+		if (ret === void && create) {
+			ret = [];
+			_motionRadioGroup[radio] = ret;
+		}
+		return ret;
+	}
+
+	// 該当ターゲット以外を全部OFF状態に初期化する
+	function initMotionRadio(radio, target, toggle) {
+		var group = getMotionRadioGroup(radio, true);
+		group.add(target);
+		if (toggle !== void && +toggle) {
+			var count = group.count;
+			for (var i=0;i<count;i++) {
+				var button = group[i];
+				button.toggle = button == target;
+			}
+		} else {
+			target.toggle = group.count == 1;
+		}
+		//dm(target.name + ":トグル初期化:" + target.toggle);
+	}
+
+	// 該当ターゲットを押し下げる
+	function updateMotionRadio(radio, target) {
+		var group = getMotionRadioGroup(radio);
+		//dm("ラジオ更新:" + radio + ":" + group);
+		if (group !== void) {
+			var count = group.count;
+			for (var i=0;i<count;i++) {
+				var button = group[i];
+				button.updateRadio(button == target);
+			}
+		}
+	}
+	
+	// -----------------------------------------------
+	// イベント処理
+	// -----------------------------------------------
+	
+	var prevContain;
+	
+	/**
+	 * 当たり判定処理
+	 */
+	function onHitTest(x, y, hit) {
+		var contain = (_motionPlayer !== void && _motionPlayer.contains(x,y));
+		hit = hit || contain || prevContain;
+		prevContain = contain;
+		return super.onHitTest(x, y, hit);
+	}
+
+	/**
+	 * マウス移動
+	 */
+	function onMouseMove(x, y) {
+		if (_motionPlayer !== void) {
+			_motionFocus = void;
+			var count = _motionButtons.count;
+			for (var i=0;i<count;i++) {
+				var button = _motionButtons[i];
+				if (button.onMouseMove(x, y)) {
+					_motionFocus = i;
+				}
+			}
+		}
+		super.onMouseMove(...);
+	}
+
+	/**
+	 * マウスクリック
+	 */
+	function onMouseDown(x, y, button) {
+		if (_motionPlayer !== void) {
+			if (button == mbLeft) {
+				if (_motionFocus !== void) {
+					_motionButtons[_motionFocus].onPress();
+				}
+			}
+		}
+		super.onMouseDown(...);
+	}
+
+	/**
+	 * キー入力への対応
+	 */
+	function onKeyDown(key, shift, process) {
+		if (process && _motionPlayer !== void && _motionButtons.count > 0) {
+			if(((key == VK_UP && !(shift & ssShift)) || key == VK_LEFT || (key == VK_TAB && (shift & ssShift)))) {
+				// フォーカスを前に
+				if (_motionFocus !== void) {
+					if (_motionFocus > 0) {
+						_motionFocus--;
+					} else {
+						_motionFocus = _motionButtons.count - 1;
+					}
+				} else {
+					if (_motionButtons.count > 0) {
+						_motionFocus = 0;
+					}
+				}
+				_updateMotionFocus();
+				super.onKeyDown(key, shift, false);
+			} else if((key == VK_DOWN || key == VK_RIGHT || (key == VK_TAB && !(shift & ssShift)))) {
+				// フォーカスを次に
+				if (_motionFocus !== void) {
+					if (_motionFocus < _motionButtons.count-1) {
+						_motionFocus++;
+					} else {
+						_motionFocus = 0;
+					}
+				} else {
+					if (_motionButtons.count > 0) {
+						_motionFocus = 0;
+					}
+				}
+				_updateMotionFocus();
+				super.onKeyDown(key, shift, false);
+			} else if(key == VK_RETURN) {
+				// 実行処理
+				if (_motionFocus !== void) {
+					_motionButtons[_motionFocus].onPress();
+				}
+				super.onKeyDown(key, shift, false);
+			} else {
+				super.onKeyDown(...);
+			}
+		} else {
+			super.onKeyDown(...);
+		}
+	}
+}

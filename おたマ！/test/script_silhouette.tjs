@@ -1,0 +1,36 @@
+// Affinelayer based effect script
+function (col1, col2)
+{
+	// 対象の画像サイズ
+	var w = this.width;
+	var h = this.height;
+
+	// 作業用レイヤを作成
+	var cpix = new global.Layer(this.window, this.parent);
+	var grad = new global.Layer(this.window, this.parent);
+
+	// グラデ基準カラー用2pixelレイヤ描画
+	with (cpix) {
+		.type = ltOpaque;
+		.setSize(1,2);
+		.fillRect(0,0,1,2,     +col1 & 0xFFFFFF);
+		cpix.setMainPixel(0,1, +col2 & 0xFFFFFF);
+	}
+
+	// 縦グラデーションレイヤ描画
+	with (grad) {
+		.type = ltOpaque;
+		.setSize(1, h);
+		.stretchCopy(0,0,1,h, cpix, 0,0,1,2, stFastLinear);
+	}
+
+	// α維持しつつ元のレイヤに描画
+	var ha = true, fa = dfOpaque;
+	this.holdAlpha <-> ha; this.face <-> fa;
+	this.stretchCopy(0,0,w,h, grad, 0,0,1,h, stNearest);
+	this.holdAlpha <-> ha; this.face <-> fa;
+
+	// 後片付け
+	invalidate grad;
+	invalidate cpix;
+}

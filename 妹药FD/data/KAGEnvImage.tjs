@@ -1,0 +1,2766 @@
+global.layerTypeMap = %[
+ltOpaque:ltOpaque,
+ltCoverRect:ltCoverRect,
+ltAlpha:ltAlpha,
+ltTransparent:ltTransparent,
+ltAddAlpha:ltAddAlpha,
+ltAdditive:ltAdditive,
+ltSubtractive:ltSubtractive,
+ltMultiplicative:ltMultiplicative,
+ltDodge:ltDodge,
+ltDarken:ltDarken,
+ltLighten:ltLighten,
+ltScreen:ltScreen,
+ltPsNormal:ltPsNormal,
+ltPsAdditive:ltPsAdditive,
+ltPsSubtractive:ltPsSubtractive,
+ltPsMultiplicative:ltPsMultiplicative,
+ltPsScreen:ltPsScreen,
+ltPsOverlay:ltPsOverlay,
+ltPsHardLight:ltPsHardLight,
+ltPsSoftLight:ltPsSoftLight,
+ltPsColorDodge:ltPsColorDodge,
+ltPsColorDodge5:ltPsColorDodge5,
+ltPsColorBurn:ltPsColorBurn,
+ltPsLighten:ltPsLighten,
+ltPsDarken:ltPsDarken,
+ltPsDifference:ltPsDifference,
+ltPsDifference5:ltPsDifference5,
+ltPsExclusion:ltPsExclusion,
+];
+
+/**
+ * type名の変換
+ */
+function convLayerType(t)
+{
+	switch (typeof t) {
+	case "String":
+		{
+			var info;
+			if ((info = imageTagLayerType[t]) !== void) {
+				return info.type;
+			} else if ((info = layerTypeMap[t]) !== void) {
+				return info;
+			}
+			return ltAlpha;
+		}
+		break;
+	default:
+		return t;
+	}
+}
+/**
+ * ltXXX から対応する文字列に変換（convLayerTypeの逆）
+ */
+function convLayerTypeReverse(t)
+{
+	if (typeof  global.layerTypeMapReverse == "undefined") {
+		var map=global.layerTypeMapReverse = %[];
+		foreach(layerTypeMap, function(name, value, dic, map) { map[value] = name; }, map);
+		map[ltAlpha]  = "ltAlpha";  // ltAlpha上書き（ltTransparentと同値なため）
+		map[ltOpaque] = "ltOpaque"; // ltOpaque上書き（ltCoverRectと同値なため）
+	}
+	return (t != "") ? layerTypeMapReverse[t] : void;
+}
+
+/**
+ * トランジションする可能性のあるクラスの既定クラス
+ */
+class KAGEnvTrans extends KAGEnvBase {
+
+	var FOREBASE = 0;
+	var BACKBASE = 1;
+	
+	function KAGEnvTrans(env, name) {
+		super.KAGEnvBase(env, name);
+	}
+
+	function finalize() {
+		super.finalize();
+	}
+
+	// -----------------------------------------------
+	
+    // フェード指定のデフォルト値
+    property fadeValue {
+        getter() {
+			if (env.envinfo !== void && env.envinfo.fadeValue !== void) {
+				return env.envinfo.fadeValue;
+			} else {
+				return 500;
+			}
+        }
+    }
+
+	/**
+	 * 相対値計算 Action.tjs からのコピー
+	 * @param value 値指定
+	 * @param orig オリジナルの値
+	 */
+	function getRelative(value, orig) {
+		if (typeof value == "String" && (value.indexOf("@") >= 0)) {
+			return Scripts.eval(value.replace(/@/, (string)orig));
+		} else {
+			return +value;
+		}
+	}
+	
+	// -----------------------------------------------
+
+	// トランジションの sync 指定判定
+	function getSyncMode(elm, trans) {
+		if (!env.envinfo.nosynctrans) {
+			return !forceNosync && !elm.nosync && (elm.sync || elm.wait || elm.msgoff || !(trans !== void && trans.nosync));
+		} else {
+			return !forceNosync && !elm.nosync && (elm.sync || elm.wait || elm.msgoff || (trans !== void && (trans.sync || trans.transwait || trans.msgoff)));
+		}
+	}
+
+	// トランジションの追加待ち時間取得
+	function getSyncTime(trans, defaultValue=0) {
+		return trans.transwait !== void ? +trans.transwait : trans.wait !== void ? +trans.wait : defaultValue;
+	}
+
+	// --------------------------------------------------------------------
+	// トランジション処理
+	// --------------------------------------------------------------------
+	
+    var trans;     // トランジション指定
+	var transall;  // 全トランジションが必要かどうかのフラグ
+	var transsync; // トランジションでシンクロ指定
+	var forceNosync; // 強制 nosync 指定
+	
+    /**
+	 * トランジションを設定
+	 * @param name トランジション名
+	 * @param elm パラメータ
+	 * @return トランジションが設定された
+	 */
+	function setTrans(name, elm) {
+		//dm("トランジション設定:" + name);
+		var tr = env.getTrans(name, elm);
+		if (tr !== void) {
+			trans = tr;
+			return true;
+		}
+		return false;
+	}
+
+	// 自動トランジション
+	var autoTrans;
+	
+	// 自動トランジションを登録
+	function setAutoTrans(list, elm) {
+		for (var i=0;i<list.count;i++) {
+			var param = list[i];
+			if (param !== void) {
+				if (typeof param == "String") {
+					var tr = env.getTrans(param, elm);
+					if (tr !== void) {
+						autoTrans = tr;
+						//dm("自動トランジション指定:" + tr.method + ":" + tr.time);
+						return;
+					}
+				} else if (param instanceof "Dictionary") {
+					autoTrans = %[];
+					(Dictionary.assign incontextof autoTrans)(param); 
+					return;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 表示処理用の自動トランジションの指定
+	 */
+	function setDispAutoTrans(elm) {
+	}
+
+	/**
+	 * レイヤの absolute が変わった判定
+	 */
+	function isChangeAbsolute() {
+		return false;
+	}
+	
+	/**
+	 * トランジション状態初期化
+	 */
+	function initCommand() {
+		super.initCommand();
+		trans = void;
+		autoTrans = void;
+		transall = false;
+		transsync = false;
+		forceNosync = false;
+	}
+
+	/**
+	 * トランジション確定
+	 * @param elm コマンドパラメータ
+	 * @parma showMode 表示状態
+	 */
+	function setupTrans(elm, showMode=0) {
+
+		// 自動トランジション構築
+		if (trans === void) {
+			if (elm.fade) {
+				var fadeTime = elm.fade;
+				trans = %[
+					"time" => fadeTime > 1 ? fadeTime : fadeValue,
+					"method" => "crossfade",
+					];
+				env.copyTransParam(trans, elm);
+			} else {
+				// 表示・消去指定に対応
+				if (showMode == 1 || showMode == 2) {
+					setDispAutoTrans(elm);
+				}
+				trans = autoTrans;
+			}
+		}
+		
+		// 環境状態更新
+		env.updateEnvironment(trans);
+		
+		// 全体トランジション判定
+		if (trans !== void) {
+			if (trans.transall || trans.laytrans || trans.blacktrans) {
+				transall = true;
+			}
+		}
+		if (!transall) {
+			if (env.isTransall() || (trans !== void && trans.method !== void && isChangeAbsolute())) {
+				transall = true;
+			}
+		}
+
+		transsync = getSyncMode(elm,trans);
+	}
+
+	// --------------------------------------------------------------------
+	// アクション処理
+	// --------------------------------------------------------------------
+
+	// nowait つきのアクションかどうか
+	function isNowaitAction(action) {
+		if (typeof action == "Object")  {
+			if (action instanceof "Dictionary") {
+				if (action.nowait !== void) {
+					return action.nowait;
+				}
+			} else if (action instanceof "Array") {
+				for (var i=0;i<action.count;i++) {
+					var ac = action[i];
+					if (typeof ac == "Object" && ac instanceof "Dictionary") {
+						if (ac.nowait !== void) {
+							return ac.nowait;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * アクション情報のコピー
+	 * @param act  元アクション情報
+	 * @param time 時間上書き指定
+	 * @param elm  タグによる上書き用パラメータ情報
+	 * @return システム登録用アクション情報
+	 */
+	function copyActionInfo(act, time, over) {
+		if (act instanceof "Array") {
+			// 配列アクション
+			var arrayAction = [];
+			for (var i=0;i<act.count;i++) {
+				var i = act[i];
+				if (typeof i == "String") {
+					// 文字列の場合再帰的に参照
+					i = env.getActionObject(i);
+				}
+				if (i !== void && i instanceof "Dictionary") {
+					var action = copyActionInfo(i, i.time, over);
+					arrayAction.add(action);
+				}
+			}
+			return arrayAction;
+		} else if (act instanceof "Dictionary") {
+			// 辞書アクション
+			var action = %[];
+			var names = [];
+			names.assign(act);
+			if (act.module !== void || act.moduleName !== void) {
+				// 旧スタイル
+				for (var i=0; i<names.count; i+= 2) {
+					var name = names[i];
+					var elm  = names[i+1];
+					action[name] = elm;
+				}
+				if (time !== void) {
+					action.time = time;
+				}
+				// パラメータのコピー
+				if (over !== void) {
+					foreach(over, function(name, value, over, action) {
+						if (actionParam[name] !== void && value !== void) {
+							//dm("パラメータ上書き:" + name + ":" + value);
+							action[name] = value;
+						}
+					}, action);
+				}
+			} else {
+				// 新スタイル
+				for (var i=0; i<names.count; i+= 2) {
+					var name = names[i];
+					var elm  = names[i+1];
+					if (elm instanceof "Dictionary") {
+						// 辞書の場合はクローンして引き渡す
+						var e = %[];
+						(Dictionary.assign incontextof e)(elm);
+						action[name] = e;
+					} else {
+						// そうでない場合はそのまま
+						action[name] = elm;
+					}
+				}
+				if (time !== void) {
+					action.time = time;
+				}
+				if (over !== void) {
+					action.time   = +over.time if over.time !== void;
+					action.delay  = +over.delay if over.delay !== void;
+					action.spline = +over.spline if over.spline !== void;
+					action.accel  = +over.accel  if over.accel !== void;
+					action.nowait = +over.nowait if over.nowait !== void;
+					action.starttime = +over.starttime if over.starttime !== void;
+				}
+			}
+			return action;
+		}
+		return %[];
+	}
+
+	/**
+	 * アクション情報生成
+	 * @param name アクション名
+	 * @param elm 追加パラメータ
+	 */
+	function createAction(name, elm) {
+		var info;
+		if (typeof name == "Object") {
+			info = name;
+		} else {
+			info = env.getActionObject(name);
+		}
+		if (typeof info == "Object") {
+			if (info instanceof "Dictionary") {
+				return copyActionInfo(info, info.time, elm);
+			} else {
+				return copyActionInfo(info, void, elm);
+			}
+		}
+		// 個別記述
+		if (elm !== void && typeof name == "String" && name.substring(0,5) == "Layer") {
+			var moduleType;
+			if (typeof global[name] != "undefined") {
+				moduleType = global[name];
+				if (typeof moduleType == "Object") {
+					// アクションモジュール名の場合
+					var action = %[];
+					foreach(elm, function(name, value, elm, action) {
+						if (actionParam[name] !== void) {
+							action[name] = value;
+						}
+					}, action);
+					action.module = name;
+					action.time   = +elm.time   if elm.time !== void;
+					action.delay  = +elm.delay  if elm.time !== void;
+					action.nowait = +elm.nowait if elm.nowait !== void;
+					return action;
+				} else {
+					env.errorCmd("不明なレイヤアクション指定:" + name);
+				}
+			} else {
+				env.errorCmd("不明なレイヤアクション指定:" + name);
+			}
+		}
+	}
+	
+	// --------------------------------------------------------------------
+	// 共通コマンド処理
+	// --------------------------------------------------------------------
+
+	// 共通無視用コマンド
+	var ignorecommands = %[
+	"*order"=> null, // cf. Conductor.getNextTag()
+    tagname : null,
+	taglist :null,
+	name : null, // 無視
+    time : null, // 無視
+	delay : null, // 無視
+	spline : null, // 無視
+	accel : null, // 無視
+	nowait : null, // 無視
+	starttime : null, // 無視
+	fade : null, // 無視
+	sync : null, // 無視
+	nosync : null, // 無視
+	nodelaydone: null, // 無視
+	delayrun : null,
+		];
+
+	/**
+     * コマンドの実行
+     * @param cmd コマンド
+     * @param param パラメータ
+     * @param elm 他のコマンドも含む全パラメータ
+     * @return 実行が行われた場合 true
+     */
+	function doCommand(cmd, param, elm) {
+		return (ignorecommands[cmd] !== void ||
+				actionParam[cmd] !== void ||
+				transitionParam[cmd] !== void);
+	}
+};
+
+
+/**
+ * 環境画像の基底クラス
+ */
+class KAGEnvImage extends KAGEnvTrans {
+
+	var layerClass = global.EnvGraphicLayer;
+	// XXX 画像の既定のレイヤ種別になるようにする
+	var defaultLayerType = void;
+	
+	// 処理対象レイヤ
+	var targetLayer;
+	// 単体トランジション処理用レイヤ
+	var transLayer;
+	var dummyLayer;
+	// トランジションを待たない
+	var transNowait;
+	// 全体トランジション時用レイヤ
+	var alltransLayer;
+
+	/// 表示絶対レベル
+	var defaultAbsolute;
+	var _absolute;
+	property absolute {
+		getter() {
+			return _absolute !== void ? _absolute : defaultAbsolute;
+		}
+		setter(v) {
+			_absolute = v != defaultAbsolute ? v : void;
+			updateFlag = true;
+		}
+	}
+	var _prevAbsolute;
+
+	function isChangeAbsolute() {
+		return getShowMode() == 3 && _prevAbsolute != absolute;
+	}
+	
+	// 表示処理用原点計算
+	var defaultAfx = "center";
+	var defaultAfy = "center";
+	var defaultOrx = "center";
+	var defaultOry = "center";
+
+	// カメラ制御用
+	var defaultNoshiftMode;
+	var _noshiftMode;
+	property noshiftMode {
+		getter() {
+			return _noshiftMode !== void ? _noshiftMode : defaultNoshiftMode;
+		}
+		setter(v) {
+			_noshiftMode = v != defaultNoshiftMode ? v : void;
+		}
+	}
+
+	var defaultNocameraMode;
+	var _nocameraMode;
+	property nocameraMode {
+		getter() {
+			return _nocameraMode !== void ? _nocameraMode : defaultNocameraMode;
+		}
+		setter(v) {
+			_nocameraMode = v != defaultNocameraMode ? v : void;
+		}
+	}
+
+	// カメラ処理用level指定
+	var levelz;
+
+	// 全体トランジション前処理
+	function prepareTransition() {
+		initTransition();    // 個別トランジションは強制破棄
+		if (targetLayer !== void) {
+			//dm("裏画面にコピー:" + name);
+			//dm("元レイヤ:" + targetLayer + ":" + (env.isBackLayer(targetLayer) ? "裏" : "表"));
+			if (env.isForeLayer(targetLayer) && targetLayer.visible) {
+				var absolute = targetLayer.absolute;
+				var layer = createLayer(BACKBASE);
+				layer.assign(targetLayer);
+				alltransLayer = targetLayer;
+				layer.absolute = absolute;
+				targetLayer = layer;
+				//dm("複製レイヤ:" + targetLayer + ":" + (env.isBackLayer(targetLayer) ? "裏" : "表"));
+			} else {
+				//dm("廃棄用に登録");
+				alltransLayer = targetLayer;
+				targetLayer = void;
+			}
+		}
+	}
+	
+	// 全体トランジション取りやめ
+	function breakTransition() {
+		initTransition();    // 個別トランジションは強制破棄
+		if (targetLayer !== void) {
+			//dm("表画面にコピー:" + name);
+			if (env.isBackLayer(targetLayer) && targetLayer.visible) {
+				//dm("表に移動");
+				var absolute = targetLayer.absolute;
+				env.toForeLayer(targetLayer);
+				targetLayer.absolute = absolute;
+			} else {
+				//dm("廃棄");
+				invalidate targetLayer;
+				targetLayer = void;
+			}
+		}
+	}
+
+	// デフォルト情報
+	var init;
+	
+	/// 表示状態変更
+    // BOTH      バストアップ＋フェイス (標準）
+    // BU        バストアップ
+    // FACE      フェイス
+	// SHOW      表示状態（自動選択）
+	// CLEAR     消去状態 (標準)
+    // INVISIBLE 非表示
+	var initDisp = false;
+	var _disp;
+	property disp {
+		getter() {
+			return _disp;
+		}
+		setter(v) {
+			if (v == SHOW) {
+				if (isClear()) {
+					// 非表示状態から最初に表示する状態を決定
+					var firstShow = BOTH;
+					firstShow = BU if (env.envinfo.defaultBU);
+					if (init !== void) with (init) {
+						firstShow = BU   if (.defaultBU);
+						firstShow = FACE if (.noPose);
+					}
+					v = firstShow;
+				} else {
+					v = _disp;
+				}
+			}
+			if (v !== _disp) {
+				_disp = v;
+				doShow = true;
+				redraw = true;
+				if (type !== void) {
+					doType = true;
+				}
+			}
+			initDisp = true;
+		}
+	}
+
+	// バストアップ表示中
+	function isShowBU() {
+		return _disp !== void && _disp <= BU;
+    }
+
+	// フェイス表示中
+    function isShowFace() {
+        return (_disp == BOTH && env.bothFace)|| _disp == FACE;
+    }
+
+	// 表示されているか
+	function isShow() {
+        return _disp <= FACE;
+	}
+
+	// 消去状態か
+	function isClear() {
+		return _disp == CLEAR;
+	}
+
+	var _prevShow;
+	function getShowMode() {
+		// 0:非表示 1:表示 2:消去 3:更新
+		return (_prevShow ? 2 : 0) + (isShowBU() ? 1 : 0);
+	}
+	
+	// 更新フラグ
+	var updateFlag;
+	// 再描画指示フラグ
+	var _redraw;
+	property redraw {
+		getter() {
+			return _redraw;
+		}
+		setter(v) {
+			_redraw = v;
+			//dm(name + ":redraw:" + Scripts.getTraceString());
+		}
+	}
+	// アクション初期化指定
+	var initFlag;
+	
+    /**
+     * 時間用最初期化処理
+     */
+	function setRedraw() {
+		if (isShowBU()) {
+			redraw = true;
+			doType = true;
+			doShow = true;
+		}
+    }
+
+	/**
+	 * 配置再調整用
+	 */
+	function recalcPosition() {
+		if (targetLayer !== void) {
+			targetLayer.recalcPosition();
+		}
+    }
+	
+	// -----------------------------------------------------------------------
+	// レイヤ制御
+	// -----------------------------------------------------------------------
+
+	// 表示状態
+	var doShow;
+	
+    // 種別
+    var _type;
+    var doType;
+    property type {
+        getter() {
+            return _type;
+        }
+		setter(v) {
+			_type = convLayerType(v);
+			doType = true;
+			updateFlag = true;
+        }
+    }
+
+    // 透明度
+    var opacityFrom;
+    var opacityTime;
+    var opacityAccel;
+	var opacityNowait;
+    var _opacity;
+    var doOpacity;
+    property opacity {
+        getter() {
+			return _opacity;
+        }
+        setter(v) {
+            _opacity = v;
+			doOpacity = true;
+			updateFlag = true;
+        }
+    }
+
+	function setOpacity(param, elm) {
+		opacityFrom = calcRelative(opacity, getFrom(param), 255);
+		opacity     = calcRelative(opacity, getTo(param), 255);
+		opacityTime  = +elm.time;
+		opacityAccel = +elm.accel;
+		opacityNowait = elm.nowait;
+    };
+
+	
+    // 回転
+    var rotateFrom;
+    var rotateTime;
+    var rotateAccel;
+	var rotateNowait;
+    var _rotate;
+    var doRotate;
+    property rotate {
+        getter() {
+            return _rotate;
+        }
+        setter(v) {
+			_rotate = v;
+			doRotate = (v !== void);
+			updateFlag = true;
+        }
+    }
+
+	function setRotate(param, elm) {
+		rotateFrom = calcRelative(rotate, getFrom(param), 360);
+		rotate     = calcRelative(rotate, getTo(param), 360);
+		rotateTime = +elm.time;
+		rotateAccel = +elm.accel;
+		rotateNowait = elm.nowait;
+    }
+	
+    // ズーム処理
+    var zoomxFrom;
+    var zoomxTime;
+    var zoomxAccel;
+	var zoomxNowait;
+    var _zoomx;
+	var doZoomx;
+
+	property zoomx {
+		getter() {
+			return _zoomx;
+		}
+        setter(v) {
+			_zoomx = v;
+			doZoomx = (v !== void);
+			updateFlag = true;
+        }
+    }
+	
+	function setZoomx(param, elm) {
+		zoomxFrom = calcRelative(zoomx, getFrom(param), 100);
+		zoomx     = calcRelative(zoomx, getTo(param), 100);
+		zoomxTime = +elm.time;
+		zoomxAccel = elm.accel;
+		zoomxNowait = elm.nowait;
+    }
+	
+	var zoomyFrom;
+    var zoomyTime;
+    var zoomyAccel;
+	var zoomyNowait;
+    var _zoomy;
+	var doZoomy;
+
+	property zoomy {
+		getter() {
+			return _zoomy;
+		}
+        setter(v) {
+			_zoomy = v;
+			doZoomy = (v !== void);
+			updateFlag = true;
+		}
+    }
+
+	function setZoomy(param, elm) {
+		zoomyFrom = calcRelative(zoomy, getFrom(param), 100);
+		zoomy     = calcRelative(zoomy, getTo(param), 100);
+		zoomyTime = +elm.time;
+		zoomyAccel = elm.accel;
+		zoomyNowait = elm.nowait;
+    }
+
+	property zoom {
+		getter() {
+			return _zoomx;
+		}
+        setter(v) {
+			_zoomx = v;
+			_zoomy = v;
+			doZoomx = doZoomy = (v !== void);
+			updateFlag = true;
+        }
+    }
+
+	function setZoom(param, elm) {
+		setZoomx(param, elm);
+		setZoomy(param, elm);
+    }
+
+	// ------------------------------------------------
+
+    // ズーム処理
+    var slantxFrom;
+    var slantxTime;
+    var slantxAccel;
+	var slantxNowait;
+    var _slantx;
+	var doSlantx;
+
+	property slantx {
+		getter() {
+			return _slantx;
+		}
+        setter(v) {
+			_slantx = v;
+			doSlantx = (v !== void);
+			updateFlag = true;
+        }
+    }
+	
+	function setSlantx(param, elm) {
+		slantxFrom = calcRelative(slantx, getFrom(param), 100);
+		slantx     = calcRelative(slantx, getTo(param), 100);
+		slantxTime = +elm.time;
+		slantxAccel = elm.accel;
+		slantxNowait = elm.nowait;
+    }
+	
+	var slantyFrom;
+    var slantyTime;
+    var slantyAccel;
+	var slantyNowait;
+    var _slanty;
+	var doSlanty;
+
+	property slanty {
+		getter() {
+			return _slanty;
+		}
+        setter(v) {
+			_slanty = v;
+			doSlanty = (v !== void);
+			updateFlag = true;
+		}
+    }
+
+	function setSlanty(param, elm) {
+		slantyFrom = calcRelative(slanty, getFrom(param), 100);
+		slanty     = calcRelative(slanty, getTo(param), 100);
+		slantyTime = +elm.time;
+		slantyAccel = elm.accel;
+		slantyNowait = elm.nowait;
+    }
+
+	// 反転表示
+	var _flipx;
+	property flipx {
+		getter() {
+            return _flipx;
+        }
+        setter(v) {
+			_flipx = +v;
+			updateFlag = true;
+        }
+    }
+
+	var _flipy;
+    property flipy {
+        getter() {
+            return _flipy;
+        }
+        setter(v) {
+			_flipy = +v;
+			updateFlag = true;
+		}
+    }
+
+    // 回転原点指定
+	var _afx;
+	property afx {
+		getter() {
+			return _afx !== void ? _afx : defaultAfx;
+		}
+		setter(v) {
+			_afx = v;
+			reposition = true;
+        }
+    }
+	var _afy;
+    property afy {
+        getter() {
+			return _afy !== void ? _afy : defaultAfy;
+		}
+        setter(v) {
+			_afy = v;
+			reposition = true;
+        }
+    }
+
+	function convertOriginStringToNum(x, y, defx, defy) {
+		if (x == defx && y == defy) return 0;
+		switch (x) {
+		case "center":
+			switch (y) {
+			case "center":               return 9;
+			case "left":  case "top":    return 2;
+			case "right": case "bottom": return 6;
+			}
+			break;
+		case "left":  case "top":
+			switch (y) {
+			case "center":               return 8;
+			case "left":  case "top":    return 1;
+			case "right": case "bottom": return 7;
+			}
+			break;
+		case "right": case "bottom":
+			switch (y) {
+			case "center":               return 4;
+			case "left":  case "top":    return 3;
+			case "right": case "bottom": return 5;
+			}
+			break;
+		}
+	}
+
+	property originMode {
+		setter(param) {
+			switch (param) {
+			case 1: afx = "left"; afy = "top"; break;
+			case 2: afx = "center"; afy = "top"; break;
+			case 3: afx = "right"; afy = "top"; break;
+			case 4: afx = "right"; afy = "center"; break;
+			case 5: afx = "right"; afy = "bottom"; break;
+			case 6: afx = "center"; afy = "bottom"; break;
+			case 7: afx = "left"; afy = "bottom"; break;
+			case 8: afx = "left"; afy = "center"; break;
+			case 9: afx = "center"; afy = "center"; break;
+			default: afx = void; afy = void; break;
+			}
+		}
+		getter { return convertOriginStringToNum(afx, afy, defaultAfx, defaultAfy); }
+	}
+
+	function calcOrx(v) {
+		if (typeof v == "String") {
+			switch (v) {
+			case "center":               return env.xmax;
+			case "left":  case "top":    return 0;
+			case "right": case "bottom": return env.xmax * 2;
+			}
+		}
+		return +v;
+	}
+	
+	var _orx;
+	property orx {
+		getter() {
+			return calcOrx(_orx !== void ? _orx : defaultOrx);
+		}
+		setter(v) {
+			v = void if (v == "default" || v == "void");
+			_orx = v;
+			reposition = true;
+		}
+	}
+
+	function calcOry(v) {
+		if (typeof v == "String") {
+			switch (v) {
+			case "center":               return env.ymax;
+			case "left":  case "top":    return 0;
+			case "right": case "bottom": return env.ymax * 2;
+			}
+		}
+		return +v;
+	}
+
+	var _ory;
+	property ory {
+		getter() {
+			return calcOry(_ory !== void ? _ory : defaultOry);
+		} 
+		setter(v) {
+			v = void if (v == "default" || v == "void");
+			_ory = v;
+			reposition = true;
+		}
+	}
+	
+	property viewOriginMode {
+		setter(param) {
+			switch (param) {
+			case 1: orx = "left"; ory = "top"; break;
+			case 2: orx = "center"; ory = "top"; break;
+			case 3: orx = "right"; ory = "top"; break;
+			case 4: orx = "right"; ory = "center"; break;
+			case 5: orx = "right"; ory = "bottom"; break;
+			case 6: orx = "center"; ory = "bottom"; break;
+			case 7: orx = "left"; ory = "bottom"; break;
+			case 8: orx = "left"; ory = "center"; break;
+			case 9: orx = "center"; ory = "center"; break;
+			default: orx = "default"; ory = "default"; break;
+			}
+		}
+		getter { return convertOriginStringToNum(_orx, _ory, defaultOrx, defaultOry); }
+	}
+
+	// ラスター処理
+	var rasterFrom;
+	var rasterTime;
+	var rasterAccel;
+	var rasterNowait;
+	var rasterLines;
+	var rasterCycle;
+    var _raster;
+	var doRaster;
+    property raster {
+        getter() {
+			return _raster;
+		}
+        setter(v) {
+			_raster = v;
+			doRaster = (v !== void);
+			updateFlag = true;
+        }
+    }
+
+	function setRaster(param, elm) {
+		rasterFrom = calcRelative(raster, getFrom(param), 100);
+		raster     = calcRelative(raster, getTo(param), 100);
+		rasterTime = +elm.time;
+		rasterAccel = +elm.accel;
+		rasterNowait = elm.nowait;
+		rasterLines = elm.rasterlines;
+		rasterCycle = elm.rastercycle;
+	}
+
+	// クリップ調整
+	var clipx;
+	var clipy;
+	var clipxFrom;
+	var clipyFrom;
+	var clipTime;
+	var clipAccel;
+	var clipNowait;
+	var reclip;
+	
+    // 表示位置座標
+	var xpos = 0;
+	var ypos = 0;
+	var xposFrom;
+    var yposFrom;
+	var moveTime;
+	var moveAccel;
+	var moveNowait;
+
+    // 位置変更
+    var reposition;
+    
+    // アクション処理
+	var doStopAction;
+	var actionList;
+	var currentActionList;
+
+    // 画像補整指定
+	var _grayscale;
+    property grayscale {
+		getter() {
+			return _grayscale === void ? env.grayscale : _grayscale;
+		}
+		setter(v) {
+			_grayscale = v;
+			redraw = true;
+		}
+    }
+
+    var _rgamma;
+    property rgamma {
+        getter() {
+			return _rgamma === void ? env.rgamma : _rgamma;
+        }
+		setter(v) {
+			_rgamma = v;
+			redraw = true;
+		}
+    }
+
+    var _ggamma;
+    property ggamma {
+        getter() {
+			return _ggamma === void ? env.ggamma: _ggamma;
+        }
+        setter(v) {
+			_ggamma = v;
+			redraw = true;
+        }
+    }
+    
+    var _bgamma;
+    property bgamma {
+        getter() {
+			return _bgamma === void ? env.bgamma : _bgamma;
+        }
+        setter(v) {
+			_bgamma = v;
+			redraw = true;
+        }
+    }
+
+	var _blurx;
+	property blurx {
+		getter() {
+			return _blurx === void ? env.blurx : _blurx;
+		}
+		setter(v) {
+			_blurx = v;
+			redraw = true;
+        }
+    }
+
+	var _blury;
+	property blury {
+		getter() {
+			return _blury === void ? env.blury : _blury;
+		}
+		setter(v) {
+			_blury = v;
+			redraw = true;
+        }
+    }
+
+	// コントラスト
+	var _contrast;
+	property contrast {
+		getter() {
+			return _contrast === void ? env.contrast : _contrast;
+		}
+		setter(v) {
+			_contrast = v;
+			redraw = true;
+        }
+    }
+
+	// 明度
+	var _brightness;
+	property brightness {
+		getter() {
+			return _brightness === void ? env.brightness : _brightness;
+        }
+		setter(v) {
+			_brightness = v;
+			redraw = true;
+        }
+    }
+
+	// 色相
+	var _hue;
+	property hue {
+		getter() {
+			return _hue === void ? env.hue : _hue;
+        }
+		setter(v) {
+			_hue = v;
+			redraw = true;
+        }
+    }
+
+	// 彩度
+	var _saturation;
+	property saturation {
+		getter() {
+			return _saturation === void ? env.saturation : _saturation;
+		}
+		setter(v) {
+			_saturation = v;
+			redraw = true;
+        }
+    }
+
+	// 輝度
+	var _luminance;
+	property luminance {
+		getter() {
+			return _luminance === void ? env.luminance : _luminance;
+		}
+		setter(v) {
+			_luminance = v;
+			redraw = true;
+        }
+    }
+
+	// ノイズ
+	var _noise;
+	property noise {
+		getter() {
+			return _noise === void ? env.noise : _noise;
+		}
+		setter(v) {
+			_noise = v;
+			redraw = true;
+        }
+    }
+
+	// スクリプト画像加工処理
+	var _script;
+	property script {
+		getter() {
+			return _script === void ? env.script : _script;
+		}
+		setter(v) {
+			if (_script !== v) {
+				_script = v !== void && (typeof v == "String" && v.length > 0) ? v : void;
+				redraw = true;
+			}
+		}
+	}
+	
+	// カラーフィルタ加工処理
+	var _filter;
+	property filter {
+		getter() {
+			return _filter === void ? env.filter : _filter;
+		}
+		setter(v) {
+			var set;
+			switch (typeof v) {
+			case "String":
+				// ( [空文字]または[type無指定の0] )以外で有効
+				set = v if (!(v == "" || (v.indexOf(":") < 0 && +v == 0)));
+				break;
+			case "Integer":
+				// 数値だった場合は ltAlpha 固定
+				set = "0x%08x".sprintf(v);
+				break;
+			}
+			_filter = set;
+			redraw = true;
+		}
+	}
+
+	// -------------------------------------------------------------
+	
+	// クリップ画像指定
+	var _clip;
+	property clip {
+		getter() {
+			return _clip;
+		}
+		setter(v) {
+			if (_clip !== v) {
+				_clip = v !== void && (typeof v == "String" && v.length > 0) ? v : void;
+				redraw = true;
+			}
+		}
+	}
+
+	// 配置状態の初期化
+	// xpos, ypos, afx, afy, rotate, zoom, raster を初期化
+	function resetPos(param, elm) {
+		if (moveTime === void) {
+			moveTime  = elm.time;
+			moveAccel = elm.accel;
+			moveNowait = elm.nowait;
+		}
+		xpos = 0;
+		ypos = 0;
+		afx = void;
+		afy = void;
+		flipx = false;
+		flipy = false;
+		setRotate(0, elm);
+		setZoom(100, elm);
+		setSlantx(0, elm);
+		setSlanty(0, elm);
+		setRaster(0, elm);
+	}
+	
+	// 色状態の初期化
+	// type, opacity, gamma, grayscale, blurx, blury を初期化
+	function resetColor(param, elm) {
+		type = defaultLayerType;
+		setOpacity(255, elm);
+		_grayscale = void;
+		_rgamma = void;
+		_ggamma = void;
+		_bgamma = void;
+		_blurx  = void;
+		_blury  = void;
+		_contrast = void;
+		_brightness = void;
+		_hue = void;
+		_saturation = void;
+		_luminance = void;
+		_noise = void;
+		_filter = void;
+		_script = void;
+		redraw = true;
+    }
+    
+    /**
+     * コンストラクタ
+     * @param env 環境
+     */
+	function KAGEnvImage(env, name) {
+		super.KAGEnvTrans(env, name);
+		actionList = new Array();
+		currentActionList = new Array();
+		_disp = CLEAR;
+	}
+
+	function initImage() {
+		type = defaultLayerType;
+		opacityFrom = void;
+        opacityTime = void;
+        opacityAccel = void;
+		opacityNowait = void;
+		opacity = void;
+		afx = void;
+		afy = void;
+		orx = void;
+		ory = void;
+		flipx = false;
+		flipy = false;
+		rotateFrom = void;
+        rotateTime = void;
+        rotateAccel = void;
+		rotateNowait = void;
+        rotate = void;
+		zoomxFrom = void;
+        zoomxTime = void;
+        zoomxAccel = void;
+		zoomxNowait = void;
+        zoomx = void;
+        zoomyFrom = void;
+        zoomyTime = void;
+        zoomyAccel = void;
+		zoomyNowait = void;
+        zoomy = void;
+		slantxFrom = void;
+        slantxTime = void;
+        slantxAccel = void;
+		slantxNowait = void;
+        slantx = void;
+        slantyFrom = void;
+        slantyTime = void;
+        slantyAccel = void;
+		slantyNowait = void;
+        slanty = void;
+		rasterFrom = void;
+        rasterTime = void;
+        rasterAccel = void;
+		rasterNowait = void;
+		rasterLines = void;
+		rasterCycle = void;
+		raster = void;
+		xpos     = void;
+        ypos     = void;
+        xposFrom = void;
+        yposFrom = void;
+        moveTime = void;
+		moveAccel = void;
+		moveNowait = void;
+        reposition = false;
+
+		clipx    = void;
+        clipy     = void;
+        clipxFrom = void;
+        clipyFrom = void;
+		clipTime = void;
+		clipAccel = void;
+		clipNowait = void;
+		reclip = false;
+		
+        _rgamma = void;
+		_ggamma = void;
+		_bgamma = void;
+		_grayscale = void;
+		_blurx = void;
+		_blury = void;
+
+		_contrast = void;
+		_brightness = void;
+		_hue = void;
+		_saturation = void;
+		_luminance = void;
+		_noise = void;
+		
+		_filter = void;
+		_script = void;
+		_clip = void;
+        
+		actionList.clear();
+		currentActionList.clear();
+		_disp = CLEAR;
+		if (targetLayer) {
+			invalidate targetLayer;
+			targetLayer = void;
+		}
+    }
+
+	/**
+	 * 表示諸元を初期化する
+	 * @param elm パラメータ指定
+	 */
+	function initFile(elm) {
+		if (elm.type === void) type = defaultLayerType;
+		if (elm.opacity === void) opacity = 255;
+		if (elm.flipx === void) flipx = 0;
+		if (elm.flipy === void) flipx = 0;
+		if (elm.rotate === void) rotate = 0;
+		if (elm.zoom === void) {
+			if (elm.zoomx === void) zoomx = 100;
+			if (elm.zoomy === void) zoomy = 100;
+		}
+		if (elm.slantx === void) slantx = 0;
+		if (elm.slanty === void) slanty = 0;
+		if (elm.raster === void) raster = 0;
+		if (elm.afx === void && elm.origin === void) afx = void;
+		if (elm.afy === void && elm.origin === void) afy = void;
+		if (elm.orx === void && elm.vorigin === void) orx = void;
+		if (elm.ory === void && elm.vorigin === void) ory = void;
+		initFlag = true;
+		clearAction(true);
+	}
+	
+    function finalize() {
+		// 破棄時にトランジション用レイヤがあればそれはenvに預ける
+		if (alltransLayer !== void) {
+			env.translayers.push(alltransLayer);
+			alltransLayer = void;
+		}
+		initTransition();
+		if (targetLayer !== void) {
+			invalidate targetLayer;
+		}
+		clearAction(true);
+		invalidate actionList;
+		invalidate currentActionList;
+		super.finalize();
+    }
+
+    function setXPos(cmd, elm) {
+		if (moveTime === void) {
+			moveTime = +elm.time;
+			moveAccel = elm.accel;
+			moveNowait = elm.nowait;
+		}
+		xposFrom = calcRelative(xpos, getFrom(cmd), env.xmax);
+		xpos     = calcRelative(xpos, getTo(cmd), env.xmax);
+		//dm("X位置指定:", xpos, xposFrom, moveTime);
+        reposition = true;
+    } 
+
+    function setYPos(cmd, elm) {
+		if (moveTime === void) {
+			moveTime = +elm.time;
+			moveAccel = elm.accel;
+			moveNowait = elm.nowait;
+        }
+		yposFrom = calcRelative(ypos, getFrom(cmd), env.ymax);
+		ypos     = calcRelative(ypos, getTo(cmd), env.ymax);
+		//dm("Y位置指定:", ypos, yposFrom, moveTime);
+        reposition = true;
+    }
+
+	function setClipx(cmd, elm) {
+		if (clipTime === void) {
+			clipTime  = elm.time;
+			clipAccel = elm.accel;
+			clipNowait = elm.nowait;
+		}
+		clipxFrom = calcRelative(clipx, getFrom(cmd), env.xmax);
+		clipx     = calcRelative(clipx, getTo(cmd), env.xmax);
+		reclip = true;
+    } 
+
+    function setClipy(cmd, elm) {
+		if (clipTime === void) {
+			clipTime  = elm.time;
+			clipAccel = elm.accel;
+			clipNowait = elm.nowait;
+        }
+		clipyFrom = calcRelative(clipy, getFrom(cmd), env.ymax);
+		clipy     = calcRelative(clipy, getTo(cmd), env.ymax);
+		reclip = true;
+    }
+	
+	function setAfx(cmd, elm) {
+		if (moveTime === void) {
+			moveTime  = elm.time;
+			moveAccel = elm.accel;
+			moveNowait = elm.nowait;
+        }
+		afx = cmd;
+		reposition = true;
+	}
+
+	function setAfy(cmd, elm) {
+		if (moveTime === void) {
+			moveTime  = elm.time;
+			moveAccel = elm.accel;
+			moveNowait = elm.nowait;
+        }
+		afy = cmd;
+		reposition = true;
+	}
+	
+    /**
+     * アクション情報の追加
+     */
+	function addAction(action) {
+		// 規定のモジュールは排除する
+		//dm("アクション情報登録");
+		if (action instanceof "Dictionary") {
+			if (action.module == "LayerFadeToModeModule") {
+				opacity     = action.opacity;
+				opacityTime = action.time;
+				opacityAccel = action.accel;
+				opacityNowait = action.nowait;
+			} else if (action.module == "LayerToRotateModule") {
+				rotate = action.angle;
+				rotateTime = action.time;
+				rotateAccel = action.accel;
+				rotateNowait = action.nowait;
+			} else if (action.module == "LayerNormalZoomModule") {
+				zoomx = action.zoom;
+				zoomxTime = action.time;
+				zoomxAccel = action.accel;
+				zoomxNowait = action.nowait;
+				zoomy = action.zoom;
+				zoomyTime = action.time;
+				zoomyAccel = action.accel;
+				zoomyNowait = action.nowait;
+			} else if (action.module == "LayerAccelMoveModule") {
+				xpos = action.x;
+				ypos = action.y;
+				moveTime = action.time;
+				moveAccel = 1;
+				moveNowait = action.nowait;
+				reposition = true;
+			} else if (action.module == "LayerNormalMoveModule") {
+				xpos = action.x;
+				ypos = action.y;
+				moveTime = action.time;
+				moveAccel = 0;
+				moveNowait = action.nowait;
+				reposition = true;
+			} else if (action.module == "LayerDecelMoveModule") {
+				xpos = action.x;
+				ypos = action.y;
+				moveTime = action.time;
+				moveAccel = -1;
+				moveNowait = action.nowait;
+				reposition = true;
+			} else {
+				actionList.add(action);
+				updateFlag = true;
+			}
+		} else if (action instanceof "Array") {
+			actionList.add(action);
+			updateFlag = true;
+		}
+	}
+
+    /**
+	 * アクション情報の消去
+	 * @param all 全アクション指定
+     */
+	function clearAction(all) {
+		//dm("アクション解除指示:" + name + ":" + all);
+		for (var i=currentActionList.count-1;i>=0;i--) {
+			var info = currentActionList[i];
+			if (all || !isNowaitAction(info)) {
+				currentActionList.erase(i);
+			}
+		}
+    }
+
+    /**
+     * アクションを設定
+     * @param name アクション名
+     * @param elm パラメータ
+     */
+	function setAction(name, elm) {
+		var action = createAction(name, elm);
+		if (action !== void) {
+			addAction(action);
+			return true;
+		}
+	}
+
+	function setPathAction(name, elm) {
+		var action = createAction(%[path:name], elm);
+		if (action !== void) {
+			addAction(action);
+			return true;
+		}
+	}
+
+	
+    /**
+     * アクションを解除
+     */
+	function stopAction() {
+		clearAction(true);
+		doStopAction = true;
+		updateFlag = true;
+    }
+
+	// --------------------------------------------------------------
+	
+	/**
+	 * 状態更新処理
+     */
+	function updateLayer(layer) {
+		if (flipx !== void) {
+			layer.flipx = flipx;
+		}
+		if (flipy !== void) {
+			layer.flipy = flipy;
+		}
+		if (doOpacity) {
+			//dm("透明度変更:" + layer.opacity + "to :" + opacity + ":" + opacityTime); 
+			if (opacityFrom !== void) {
+				layer.opacity = opacityFrom;
+				opacityFrom = void;
+			}
+			if (opacityTime == 0) {
+				layer.opacity = opacity;
+			} else {
+				layer.setOpacityTime(opacity, opacityTime, opacityAccel, opacityNowait);
+			}
+			doOpacity = false;
+		}
+		if (doRotate) {
+			//dm("回転変更:" + layer.rotate + " to:" + rotate + ":" + rotateTime);
+			if (rotateFrom !== void) {
+				layer.rotate = rotateFrom;
+				rotateFrom = void;
+			}
+			if (rotateTime == 0) {
+				layer.rotate = rotate;
+			} else {
+				layer.setRotateTime(rotate, rotateTime, rotateAccel, rotateNowait);
+			}
+			doRotate = false;
+		}
+		if (doZoomx) {
+			//dm("ズーム変更:" + layer.zoomx + " to:" + zoomx + ":" + zoomxTime);
+			if (zoomxFrom !== void) {
+				layer.zoomx = zoomxFrom;
+				zoomxFrom = void;
+			}
+			if (zoomxTime == 0) {
+				layer.zoomx = zoomx;
+			} else {
+				layer.setZoomXTime(zoomx, zoomxTime, zoomxAccel, zoomxNowait);
+			}
+			doZoomx = false;
+		}
+		if (doZoomy) {
+			//dm("ズーム変更:" + layer.zoomy + " to:" + zoomy + ":" + zoomyTime);
+			if (zoomyFrom !== void) {
+				layer.zoomy = zoomyFrom;
+				zoomyFrom = void;
+			}
+			if (zoomyTime == 0) {
+				layer.zoomy = zoomy;
+			} else {
+				layer.setZoomYTime(zoomy, zoomyTime, zoomyAccel, zoomyNowait);
+			}
+			doZoomy = false;
+		}
+		if (doSlantx) {
+			if (slantxFrom !== void) {
+				layer.slantx = slantxFrom;
+				slantxFrom = void;
+			}
+			if (slantxTime == 0) {
+				layer.slantx = slantx;
+			} else {
+				layer.setSlantXTime(slantx, slantxTime, slantxAccel, slantxNowait);
+			}
+			doSlantx = false;
+		}
+		if (doSlanty) {
+			if (slantyFrom !== void) {
+				layer.slanty = slantyFrom;
+				slantyFrom = void;
+			}
+			if (slantyTime == 0) {
+				layer.slanty = slanty;
+			} else {
+				layer.setSlantYTime(slanty, slantyTime, slantyAccel, slantyNowait);
+			}
+			doSlanty = false;
+		}
+
+		if (doRaster) {
+			//dm("ラスター変更:" + layer.raster + " to:" + raster + ":" + rasterTime);
+			if (rasterFrom !== void) {
+				layer.raster = rasterFrom;
+				rasterFrom = void;
+			}
+			layer.setRasterTime(raster, rasterLines, rasterCycle, rasterTime, rasterAccel, rasterNowait);
+			doRaster = false;
+		}
+
+		if (doType) {
+			//dm("合成種別変更:" + type);
+			layer.type = type;
+			doType = false;
+		}
+		if (doStopAction) {
+			//dm("アクション停止");
+			layer.stopAction();
+			doStopAction = false;
+		}
+		// アクション処理
+		if (actionList.count > 0) {
+			//dm("アクション適用開始:" + actionList.count);
+			for (var i=0;i<actionList.count;i++) {
+				var action = actionList[i];
+				var act = (action instanceof "Array")  ? action[action.count-1] : action;
+				if (act.time == 0) {
+					// 継続性アクションは動かさないことができる
+					if (act.eval === void || Scripts.eval(act.eval)) {
+						layer.beginAction(action);
+					}
+					currentActionList.add(action);
+				} else {
+					layer.beginAction(action);
+				}
+			}
+			actionList.clear();
+		}
+		// アクションの結果の吸収
+		var result = layer.getActionResult();
+		if (result !== void) {
+			//dm("アクション結果取得");
+			//dm("不透明度:" + result.opacity);
+			//dm("回転量:" + result.rotate);
+			//dm("拡大率:" + result.zoom);
+			//dm("left:" + result.left);
+			//dm("top:" + result.top);
+			_opacity = result.opacity if result.opacity !== void;
+			_rotate  = result.rotate  if result.rotate  !== void;
+			_zoomx   = result.zoom    if result.zoom    !== void;
+			_zoomx   = result.zoomx   if result.zoomx   !== void;
+			_zoomy   = result.zoom    if result.zoom    !== void;
+			_zoomy   = result.zoomy   if result.zoomy   !== void;
+			_slantx   = result.slantx   if result.slantx   !== void;
+			_slanty   = result.slanty   if result.slanty   !== void;
+			_raster  = result.raster  if result.raster  !== void;
+			xpos = result.left if result.left !== void;
+			ypos = result.top  if result.top  !== void;
+			clipx = result.clipImageLeft if result.clipImageLeft !== void;
+			clipy = result.clipImageTop  if result.clipImageTop !== void;
+		}
+	}
+
+	function updatePropMoveAction(action, prop, thisprop) {
+		if (thisprop === void) {
+			thisprop = prop;
+		}
+		var info = action[prop];
+		if (info !== void && info.handler == "MoveAction") {
+			if (info.value !== void) {
+				info.value = getRelative(info.value, this[thisprop]);
+			}
+		}
+	}
+
+	function updateMoveAction(action) {
+		if (action.module !== void) {
+			// 旧スタイルアクションは無視の方向
+			return;
+		}
+		updatePropMoveAction(action, "opacity");
+		updatePropMoveAction(action, "rotate");
+		updatePropMoveAction(action, "zoom");
+		updatePropMoveAction(action, "zoomx");
+		updatePropMoveAction(action, "zoomy");
+		updatePropMoveAction(action, "slantx");
+		updatePropMoveAction(action, "slanty");
+		updatePropMoveAction(action, "raster");
+		updatePropMoveAction(action, "left", "xpos");
+		updatePropMoveAction(action, "top",  "ypos");
+		updatePropMoveAction(action, "clipImageLeft", "clipx");
+		updatePropMoveAction(action, "clipImageTop",  "clipy");
+	}
+	
+	function applyPropMoveAction(action, prop, thisprop) {
+		if (thisprop === void) {
+			thisprop = prop;
+		}
+		var info = action[prop];
+		if (info !== void && info.handler == "MoveAction") {
+			if (info.value !== void) {
+				this[thisprop] = info.value;
+			}
+		}
+	}
+
+	function applyMoveAction(action) {
+		if (action.module !== void) {
+			// 旧スタイルアクションは無視の方向
+			return;
+		}
+		applyPropMoveAction(action, "opacity");
+		applyPropMoveAction(action, "rotate");
+		applyPropMoveAction(action, "zoom");
+		applyPropMoveAction(action, "zoomx");
+		applyPropMoveAction(action, "zoomy");
+		applyPropMoveAction(action, "slantx");
+		applyPropMoveAction(action, "slanty");
+		applyPropMoveAction(action, "raster");
+		applyPropMoveAction(action, "left", "xpos");
+		applyPropMoveAction(action, "top",  "ypos");
+		applyPropMoveAction(action, "clipImageLeft", "clipx");
+		applyPropMoveAction(action, "clipImageTop",  "clipy");
+		//dm("%s:アクション強制適応後位置:%d,%d".sprintf(name,xpos, ypos));
+	}
+
+	function updateSkip() {
+		// アクション廃棄処理
+		if (actionList.count > 0) {
+			for (var i=0;i<actionList.count;i++) {
+				var action = actionList[i];
+				if (action instanceof "Dictionary") {
+					updateMoveAction(action);
+					applyMoveAction(action);
+				} else if (action instanceof "Array") {
+					for (var j=0;j<action.count;j++) {
+						updateMoveAction(action[j]);
+					}
+					for (var j=0;j<action.count;j++) {
+						applyMoveAction(action[j]);
+					}
+				}
+			}
+			actionList.clear();
+		}
+		// 内部移動処理時間クリア
+		opacityTime = void;
+		rotateTime = void;
+		zoomxTime = void;
+		zoomyTime = void;
+		slantxTime = void;
+		slantyTime = void;
+		rasterTime = void;
+		moveTime = void;
+		clipTime = void;
+	}
+
+    var commands = %[
+	type : function(param, elm) { type =  param; } incontextof this,
+    opacity : setOpacity incontextof this,
+    rotate : setRotate incontextof this,
+	zoom : setZoom incontextof this,
+	zoomx : setZoomx incontextof this,
+	zoomy : setZoomy incontextof this,
+	slantx : setSlantx incontextof this,
+	slanty : setSlanty incontextof this,
+	flipx : function(param,elm) { flipx = param; } incontextof this,
+	flipy : function(param,elm) { flipy = param; } incontextof this,
+	afx : setAfx incontextof this,
+    afy : setAfy incontextof this,
+	origin : function(cmd,elm) { originMode = +cmd; } incontextof this,
+	orx : function(param, elm) { orx = param; } incontextof this,
+    ory : function(param, elm) { ory = param; } incontextof this,
+	vorigin : function(cmd,elm) { viewOriginMode = +cmd; } incontextof this,
+	raster : setRaster incontextof this,
+	rasterlines : null,
+	rastercycle : null,
+    reset : function(param, elm) {
+		resetColor(param, elm);
+		resetPos(param, elm);
+		script = void;
+		clip = void;
+    } incontextof this,
+	resetpos : this.resetPos incontextof this,
+	resetcolor : this.resetColor incontextof this,
+	forceredraw : function(param, elm) { redraw = true; } incontextof this,
+
+	grayscale : function(param, elm) { grayscale = param; } incontextof this,
+    rgamma : function(param, elm) { rgamma = param; } incontextof this,
+    ggamma : function(param, elm) { ggamma = param; } incontextof this,
+    bgamma : function(param, elm) { bgamma = param; } incontextof this,
+	blurx : function(param, elm) { blurx = param; } incontextof this,
+	blury : function(param, elm) { blury = param; } incontextof this,
+	blur : function(param, elm) { blurx = blury = param; } incontextof this,
+	contrast : function(param, elm) { contrast = +param; } incontextof this,
+	brightness : function(param, elm) { brightness = +param; } incontextof this,
+	hue : function(param, elm) { hue = +param; } incontextof this,
+	saturation : function(param, elm) { saturation = +param; } incontextof this,
+	luminance : function(param, elm) { luminance = +param; } incontextof this,
+	noise : function(param, elm) { noise = +param; } incontextof this,
+	filter : function(param, elm) { filter = param; } incontextof this,
+	script : function(param, elm) { script = param; } incontextof this,
+
+	clip : function(param, elm) { clip = param; } incontextof this,
+	action : setAction incontextof this,
+	path : setPathAction incontextof this,
+    stopaction : stopAction incontextof this,
+	xpos : this.setXPos incontextof this,
+	ypos : this.setYPos incontextof this,
+	clipx : this.setClipx incontextof this,
+	clipy : this.setClipy incontextof this,
+	left : this.setXPos incontextof this,
+	top : this.setYPos incontextof this,
+	noshift : function(cmd,elm) { noshiftMode = +cmd; } incontextof this,
+	nocamera : function(cmd,elm) { nocameraMode = +cmd; } incontextof this,
+	trans : this.setTrans incontextof this,
+	notrans : function(param) { trans = %[]; } incontextof this,
+	stoptrans : function(param) { stopTransition(true); } incontextof this,
+	show : function(param) { disp = SHOW; },
+	hide : function(param) { disp = CLEAR; },
+	waitmovie : null,
+	waitanime : null,
+	waitmotion : null,
+		];
+
+    /**
+     * コマンドの実行
+     * @param cmd コマンド
+     * @param param パラメータ
+     * @param elm 他のコマンドも含む全パラメータ
+     * @return 実行が行われた場合 true
+     */
+	function doCommand(cmd, param, elm) {
+		var func;
+		if ((func = commands[cmd]) !== void) {
+			if (func != null) {
+				func(param, elm);
+			}
+			return true;
+		}
+		if (super.doCommand(cmd, param, elm)) {
+			return true;
+		}
+		return false;
+    }
+
+    /**
+     * セーブ処理
+     */
+	function onStore(f) {
+		f.defaultAfx = defaultAfx if defaultAfx != "center";
+		f.defaultAfy = defaultAfy if defaultAfy != "center";
+		f.defaultOrx = defaultOrx if defaultOrx != "center";
+		f.defaultOry = defaultOry if defaultOry != "center";
+		f.type    = type if type !== void && type != ltAlpha;
+		f.opacity = opacity if opacity !== void && opacity != 255;
+		f.rotate  = rotate if rotate !== void && rotate != 0;
+		f.zoomx   = zoomx if zoomx !== void && zoomx != 100;
+		f.zoomy   = zoomy if zoomy !== void && zoomy != 100;
+		f.slantx  = slantx if slantx !== void && slantx != 0;
+        f.slanty  = slanty if slanty !== void && slanty != 0;
+		f.flipx   = flipx if flipx !== void && flipx != 0;
+		f.flipy   = flipy if flipy !== void && flipy != 0;
+		f.afx     = _afx if _afx !== void && _afx != defaultAfx;
+		f.afy     = _afy if _afy !== void && _afy != defaultAfy;
+		f.orx     = _orx if _orx !== void && _orx != defaultOrx;
+		f.ory     = _ory if _ory !== void && _ory != defaultOry;
+		if (raster !== void && raster != 0) {
+			f.raster  = raster;
+			f.rasterLines = rasterLines;
+			f.rasterCycle = rasterCycle;
+		}
+		f.xpos    = xpos if xpos !== void && xpos != 0;
+		f.ypos    = ypos if ypos !== void && ypos != 0;
+		f.disp    = disp if disp != CLEAR;
+		f.clipx   = clipx if clipx !== void;
+		f.clipy   = clipy if clipy !== void;
+
+		if (currentActionList.count > 0) {
+			f.actionList = [];
+			(Array.assign incontextof f.actionList)(currentActionList);
+		}
+
+		f.grayscale = _grayscale if _grayscale !== void;
+        f.rgamma    = _rgamma if _rgamma !== void;
+        f.ggamma    = _ggamma if _ggamma !== void;
+        f.bgamma    = _bgamma if _bgamma !== void;
+		f.blurx     = _blurx if _blurx !== void;
+		f.blury     = _blury if _blury !== void;
+		f.contrast   = _contrast if _contrast !== void;
+		f.brightness = _brightness if _brightness !== void;
+		f.hue        = _hue if _hue !== void;
+		f.saturation = _saturation if _saturation !== void;
+		f.luminance = _luminance if _luminance !== void;
+		f.noise = _noise if _noise !== void;
+		f.filter = _filter if _filter !== void;
+		f.script = _script if _script !== void;
+
+		f.clip   = _clip if _clip !== void;
+
+		f.absolute = _absolute if _absolute !== void;
+
+		f.nocameraMode = _nocameraMode if _nocameraMode !== void;
+		f.noshiftMode  = _noshiftMode if _noshiftMode !== void;
+	}
+
+    /**
+     * ロード処理
+     */
+    function onRestore(f) {
+		defaultAfx = f.defaultAfx !== void ? f.defaultAfx : "center";
+		defaultAfy = f.defaultAfy !== void ? f.defaultAfy : "center";
+		defaultOrx = f.defaultOrx !== void ? f.defaultOrx : "center";
+		defaultOry = f.defaultOry !== void ? f.defaultOry : "center";
+		type = f.type !== void ? f.type : ltAlpha;
+		opacity     = f.opacity !== void ? f.opacity : 255;
+		opacityFrom = void;
+		opacityTime = void;
+        opacityAccel = void;
+		rotate      = f.rotate !== void ? f.rotate : 0;
+		rotateFrom  = void;
+		rotateTime  = void;
+        rotateAccel = void;
+		zoomx       = f.zoomx !== void ? f.zoomx : 100;
+        zoomxFrom   = void;
+        zoomxTime   = void;
+        zoomxAccel  = void;
+        zoomy       = f.zoomy !== void ? f.zoomy : 100;
+        zoomyFrom   = void;
+        zoomyTime   = void;
+        zoomyAccel  = void;
+        slantx       = f.slantx !== void ? f.slantx : 0;
+        slantxFrom   = void;
+        slantxTime   = void;
+        slantxAccel  = void;
+        slanty       = f.slanty !== void ? f.slanty : 0;
+        slantyFrom   = void;
+        slantyTime   = void;
+        slantyAccel  = void;
+		flipx        = f.flipx !== void ? f.flipx : 0;
+		flipy        = f.flipy !== void ? f.flipy : 0;
+		if (f.raster !== void) {
+			raster        = f.raster;
+			rasterLines   = f.rasterLines;
+			rasterCycle   = f.rasterCycle;
+		}
+		rasterFrom    = void;
+		rasterTime    = void;
+		rasterAccel   = void;
+		afx         = f.afx;
+		afy         = f.afy;
+		orx         = f.orx;
+		ory         = f.ory;
+		if (f.actionList !== void) {
+			for (var i=0;i<f.actionList.count;i++) {
+				addAction(f.actionList[i]);
+            }
+        }
+		disp      = f.disp !== void ? f.disp : CLEAR;
+		xpos      = f.xpos !== void ? f.xpos : 0;
+		xposFrom  = void;
+        ypos      = f.ypos !== void ? f.ypos : 0;
+        yposFrom  = void;
+		moveTime  = void;
+        moveAccel = void;
+		moveNowait = void;
+
+		clipx      = f.clipx;
+		clipxFrom  = void;
+		clipy      = f.clipy;
+        clipyFrom  = void;
+		clipTime  = void;
+        clipAccel = void;
+		clipNowait = void;
+		
+        if (isShowBU()) {
+			reposition = true;
+			reclip = true;
+        }
+
+		_grayscale = f.grayscale;
+        _rgamma    = f.rgamma;
+        _ggamma    = f.ggamma;
+        _bgamma    = f.bgamma;
+		_blurx     = f.blurx;
+		_blury     = f.blury;
+		_contrast = f.contrast;
+		_brightness = f.brightness;
+		_hue = f.hue;
+		_saturation = f.saturation;
+		_luminance = f.luminance;
+		_noise = f.noise;
+		_filter    = f.filter;
+		_script    = f.script;
+		_clip      = f.clip;
+
+		_absolute = f.absolute;
+		_nocameraMode = f.nocameraMode;
+		_noshiftMode  = f.noshiftMode;
+
+		redraw = true;
+	}
+
+	/**
+	 * 複製処理
+	 * 描画内容だけ複製する
+	 * absolute は変更しない
+	 */	
+	function copy(orig) {
+
+		type        = orig.type;
+		opacity     = orig.opacity;
+        opacityFrom = void;
+        opacityTime = void;
+        opacityAccel = void;
+        rotate      = orig.rotate;
+        rotateFrom  = void;
+        rotateTime  = void;
+        rotateAccel = void;
+        zoomx       = orig.zoomx;
+        zoomxFrom   = void;
+        zoomxTime   = void;
+        zoomxAccel  = void;
+        zoomy       = orig.zoomy;
+        zoomyFrom   = void;
+        zoomyTime   = void;
+        zoomyAccel  = void;
+        slantx       = orig.slantx;
+        slantxFrom   = void;
+        slantxTime   = void;
+        slantxAccel  = void;
+        slanty       = orig.slanty;
+        slantyFrom   = void;
+        slantyTime   = void;
+        slantyAccel  = void;
+		raster      = orig.raster;
+		rasterLines   = orig.rasterLines;
+		rasterCycle   = orig.rasterCycle;
+        rasterFrom    = void;
+        rasterTime    = void;
+		rasterAccel   = void;
+		afx         = orig.afx;
+		afy         = orig.afy;
+		orx         = orig.orx;
+		ory         = orig.ory;
+		if (orig.actionList !== void) {
+			for (var i=0;i<orig.actionList.count;i++) {
+				addAction(orig.actionList[i]);
+				//dm("アクション復帰:" + orig.actionList[i].handler);
+            }
+        }
+		disp      = orig.disp;
+		xpos      = orig.xpos;
+		xposFrom  = void;
+        ypos      = orig.ypos;
+        yposFrom  = void;
+		moveTime  = void;
+        moveAccel = void;
+		moveNowait = void;
+
+		clipx      = orig.clipx;
+		clipxFrom  = void;
+        clipy      = orig.clipy;
+        clipyFrom  = void;
+		clipTime  = void;
+		clipAccel = void;
+		clipNowait = void;
+		
+        if (isShowBU()) {
+			reposition = true;
+			reclip = true;
+        }
+
+		_grayscale = orig.grayscale;
+        _rgamma    = orig.rgamma;
+        _ggamma    = orig.ggamma;
+        _bgamma    = orig.bgamma;
+		_blurx     = orig.blurx;
+		_blury     = orig.blury;
+		_contrast = orig.contrast;
+		_brightness = orig.brightness;
+		_hue = orig.hue;
+		_saturation = orig.saturation;
+		_luminance = orig.luminance;
+		_noise = orig.noise;
+		_filter = orig.filter;
+		_script = orig.script;
+		_clip   = orig.clip;
+		if (_grayscale !== void ||
+			_rgamma    !== void ||
+			_ggamma    !== void ||
+			_bgamma    !== void ||
+			_blurx     !== void ||
+			_blury     !== void ||
+			_contrast !== void ||
+			_brightness !== void ||
+			_hue !== void ||
+			_saturation !== void ||
+			_luminance !== void ||
+			_noise !== void ||
+			_filter !== void ||
+			_script !== void ||
+			_clip !== void) {
+            redraw = true;
+        }
+	}
+	
+	// レイヤのサイズ調整用
+	function setSize(layer) {
+	}
+	
+	/**
+	 * 画像を描画する
+	 * @param layer 描画先レイヤ
+	 */
+	function drawLayer(layer) {
+	}
+
+    /**
+     * レイヤ配置処理(標準)：左上原点
+     * @param layer 処理対象レイヤ
+     */
+	function calcPosition(layer) {
+		//dm("%s:位置指定:%s,%s af:%s,%s time:%s".sprintf(name, xpos, ypos, afx, afy, moveTime));
+		layer.originx = orx;
+		layer.originy = ory;
+		var l  = layer.align(xpos);
+		var t  = layer.align(ypos);
+		if (moveTime !== void && moveTime > 0) {
+			if (xposFrom !== void || yposFrom !== void) {
+				var fl = xposFrom !== void ? layer.align(xposFrom) : l;
+				var ft = yposFrom !== void ? layer.align(yposFrom) : t;
+				layer.setPos(fl, ft);
+				layer.afx = afx;
+				layer.afy = afy;
+			}
+			layer.setMove(l, t, moveTime, moveAccel, moveNowait, afx, afy);
+		} else {
+			layer.setMove(l, t, 0, 0, false, afx, afy);
+		}
+		xposFrom = void;
+		yposFrom = void;
+		moveTime = void;
+	}
+
+    /**
+     * レイヤ配置処理(標準)：左上原点
+     * @param layer 処理対象レイヤ
+     */
+	function calcClip(layer) {
+		//dm("%s:位置指定:%s,%s af:%s,%s time:%s".sprintf(name, xpos, ypos, afx, afy, moveTime));
+		var l = (int)clipx;
+		var t = (int)clipy;
+		if (clipTime !== void && clipTime > 0) {
+			if (clipxFrom !== void || clipyFrom !== void) {
+				var fl = clipxFrom !== void ? (int)clipxFrom : l;
+				var ft = clipyFrom !== void ? (int)clipyFrom : t;
+				layer.clipImageLeft = fl;
+				layer.clipImageTop  = ft;
+			}
+			layer.setClipImageMove(l, t, clipTime, clipAccel, clipNowait);
+		} else {
+			layer.setClipImageMove(l, t, 0, 0, false);
+		}
+		clipxFrom = void;
+		clipyFrom = void;
+		clipTime = void;
+	}
+
+	/**
+	 * モーションの強制中断
+	 */
+	function stopMotion() {
+		if (targetLayer !== void && isvalid targetLayer) {
+			targetLayer.stopMotion();
+		}
+	}
+
+	function clearTransLayer() {
+		if (transLayer !== void) {
+			//dm("transLayer削除:" + transLayer.name + ":" + Scripts.getTraceString());
+			invalidate transLayer;
+			transLayer = void;
+		}
+		if (dummyLayer !== void) {
+			invalidate dummyLayer;
+			dummyLayer = void;
+		}
+	}
+
+	function isInTransition() {
+		return transLayer !== void && transLayer.inTransition;
+	}
+
+	/**
+	 * トランジションの強制中断
+	 */
+	function stopTransition(all) {
+		if (isInTransition()) {
+			if (all || !transNowait) {
+				transLayer.stopTransition();
+			}
+		}
+	}
+
+	/**
+	 * トランジション用の初期化。動作中のものは停止してトランジション用のレイヤを破棄する
+	 */
+	function initTransition() {
+		stopTransition(true);
+		clearTransLayer();
+		doneAllTransition();
+	}
+
+	/**
+	 * トランジション完了後呼び出し。
+	 * トランジション用レイヤを破棄。
+	 * @param target トランジション/アクション処理が完了したレイヤ
+	 */
+	function doneTransition(target) {
+		if (target == transLayer || target == dummyLayer) {
+			//dm("トランジションレイヤを解放");
+			clearTransLayer();
+		}
+	}
+
+	/**
+	 * 全体トランジション完了後呼び出し
+	 * システム側で表示が安定したタイミングで呼ばれる
+	 */
+	function doneAllTransition() {
+		if (alltransLayer !== void) {
+			invalidate alltransLayer;
+			alltransLayer = void;
+		}
+	}
+	
+	/*
+	 * トランジション用の一時レイヤを作成する
+	 */
+	function createTransShowHideLayer(base, src, vis = true) {
+		var   layer = createLayer(base);
+		with (layer) {
+			.type = type;
+			try {
+				if (typeof .clearNeutralColor == "Object") {
+					/**/   .clearNeutralColor();
+				} else {
+					var w = src.width, h = src.height;
+					.setImageSize(w, h);
+					.setSizeToImageSize();
+					.fillRect(0, 0, w, h, .neutralColor);
+				}
+			} catch {}
+			.visible  = vis;
+			.absolute = src.absolute;
+		}
+		return layer;
+	}
+
+	/*
+	 * トランジション実行エントリ
+	 * @param trans トランジション情報
+	 * KAG にトランジション実行命令を差し込む
+	 */
+	function beginTransShow(trans) {
+		//dm(name + ":トランジション表示実行");
+		
+		initTransition();
+		
+		// 新レイヤの準備（裏につくる）
+		update(BACKBASE);
+
+		// 旧レイヤを準備
+		transLayer = createTransShowHideLayer(FOREBASE, targetLayer);
+		with (transLayer) {
+			.opacity  = targetLayer.opacity;
+			.name = "old_" + transLayer.name;
+		}
+
+		// トランジション実行
+		trans.children = true;
+		trans.target = transLayer;
+		trans.src    = targetLayer;
+		env.addFastTag("laytrans", trans);
+	}
+	
+	/*
+	 * トランジション実行エントリ
+	 * @param trans トランジション情報
+	 * KAG にトランジション実行命令を差し込む
+	 */
+	function beginTransHide(trans) {
+		//dm("トランジション消去実行");
+
+		initTransition();
+		
+		// 旧レイヤの破棄準備
+		transLayer      = targetLayer;
+		transLayer.name = "old_" + transLayer.name;
+		targetLayer = void;
+
+		// 新レイヤの準備（裏につくる：生成されないはず）
+		update(BACKBASE);
+		// targetLayer が存在してないのでダミーを作成。完了後消去される
+		dummyLayer = createTransShowHideLayer(BACKBASE, transLayer);
+		
+		// トランジション実行
+		trans.children = true;
+		trans.target = transLayer;
+		trans.src    = dummyLayer;
+		env.addFastTag("laytrans", trans);
+	}
+
+	/*
+	 * トランジション実行エントリ
+	 * @param trans トランジション情報
+	 * KAG にトランジション実行命令を差し込む
+	 */
+	function beginTransUpdate(trans) {
+		//dm("トランジション更新実行");
+
+		initTransition();
+		
+		// 旧レイヤの破棄準備
+		if (targetLayer !== void && targetLayer.visible) {
+			transLayer = targetLayer;
+			targetLayer = createLayer(BACKBASE);
+			targetLayer.assign(transLayer);
+		} else {
+			transLayer  = targetLayer;
+			targetLayer = void;
+		}
+		if (transLayer !== void) {
+			transLayer.name = "old_" + transLayer.name;
+		}
+
+		// 新レイヤの準備（裏につくる）
+		update(BACKBASE);
+		
+		//dm("旧レイヤ表示状態:" + transLayer  + ":" + transLayer.visible);	
+		//dm("新レイヤ表示状態:" + targetLayer + ":" + targetLayer.visible);
+		
+		// トランジション実行
+		trans.children = true;
+		trans.target = transLayer;
+		trans.src    = targetLayer;
+		env.addFastTag("laytrans", trans);
+	}
+
+	function addTransAction(target, action, time, delay, show) {
+		if (typeof action == "String") {
+			action = createAction(action, %[]);
+		} else {
+			action = copyActionInfo(action, time, %[delay:delay]);
+		}
+		// 表示制御を追加
+		if (action instanceof "Dictionary" && action.visvalue === void) {
+			action.visvalue = %[ handler:MoveAction, value:show ? 100 : 0, time:time, delay:delay];
+		}
+		env.addFastTag("action", %[target:target, action:action]);
+	}
+	
+
+	function beginTransActionShow(trans) {
+		//dm("アクション表示実行:" + trans.time);
+		initTransition();
+		doShow = false;
+		update(FOREBASE);
+		addTransAction(targetLayer, trans.showaction, trans.time, trans.delay, true);
+	}
+	
+	function beginTransActionHide(trans) {
+		//dm("アクション消去実行:" + trans.time);
+		initTransition();
+		doShow = false;
+		update(FOREBASE);
+		transLayer = targetLayer;
+		targetLayer = void;
+		addTransAction(transLayer, trans.hideaction, trans.time, trans.delay, false);
+	}
+	
+	function beginTransActionUpdate(trans) {
+		//dm("アクション更新実行");
+		initTransition();
+
+		// 古いレイヤの処理
+		transLayer = targetLayer;
+		targetLayer = void;
+		if (transLayer !== void) {
+			targetLayer = createLayer(FOREBASE);
+			targetLayer.assign(transLayer);
+			targetLayer.visible = false;
+			transLayer.name = "old_" + transLayer.name;
+			transLayer.absolute--;
+			var time  = trans.hidetime !== void ? trans.hidetime : trans.time;
+			var delay = trans.hidedelay !== void ? trans.hidedelay : trans.delay;
+			addTransAction(transLayer, trans.hideaction, time, delay, false);
+		}
+
+		// 新しいレイヤの処理
+		doShow = false;
+		update(FOREBASE);
+		if (targetLayer !== void) {
+			var time = trans.showtime !== void ? trans.showtime : trans.time;
+			var delay = trans.showdelay !== void ? trans.showdelay : trans.delay;
+			addTransAction(targetLayer, trans.showaction, time, delay, true);
+		}
+	}
+	
+	// 画像加工処理用コンテキストを返す
+	function getRedrawContext() {
+		var context = %[name:name,
+					env:env,
+					script:script, noise:noise,
+					contrast:contrast, brightness:brightness,
+					hue:hue, saturation:saturation, luminance:luminance,
+					filter:filter,
+					blurx:blurx, blury:blury,
+					grayscale:grayscale,
+					rgamma:rgamma, ggamma:ggamma, bgamma:bgamma];
+		return context;
+	}
+
+	// 画像加工処理関数
+	function layerRedrawFunction(layer) {
+		if (script !== void) {
+			// スクリプト適用
+			try {
+				var args = script.split(",");
+				var name = args.shift();
+				var func;
+				for (var i=args.count-1;i>=0;i--) {
+					args[i] = global.Scripts.eval(args[i]);
+				}
+				if ((func = env.getFunction(name, "scripts", "script_")) !== void) {
+					//dm("script find:" + name);
+					(func incontextof layer)(args*);
+				} else if (typeof layer[name] == "Object" && (func = layer[name]) && func instanceof "Function") {
+					func(args*);
+				}
+			} catch(e) {
+				global.Debug.message("%s:failed to run script:%s".sprintf(name, script));
+			}
+		}
+		if (noise !== void) {
+			layer.noise(+noise);
+		}
+		if (contrast !== void || brightness !== void) {
+			layer.light(brightness, contrast);
+		}
+		if (hue !== void || saturation !== void || luminance !== void) {
+			//dm("HSL補正処理 %d:%d:%d".sprintf(hue, saturation, luminance));
+			layer.modulate(hue, saturation, luminance);
+		}
+		if (filter !== void) {
+			var f = filter.split(":");
+			var color   = f.count > 0 ? +f[0]:0xffffffff;
+			var type    = f.count > 1 ? global.convLayerType(f[1]):global.ltAlpha;
+			if (type !== void) {
+				with (layer) {
+					.fillOperateRect(0,0, .imageWidth, .imageHeight, color, type);
+				}
+			}
+		}
+		if (blurx || blury) {
+			layer.doBoxBlur(blurx, blury);
+		}
+		if (grayscale) {
+			layer.doGrayScale();
+		}
+		if (rgamma !== void || ggamma !== void || bgamma !== void) {
+			layer.adjustGamma(rgamma === void ? 1.0 : rgamma, 0, 255,
+							  ggamma === void ? 1.0 : ggamma, 0, 255,
+							  bgamma === void ? 1.0 : bgamma, 0, 255);
+		}
+	}
+
+	function isUpdate() {
+		if ((isShowBU() || _prevShow) && (updateFlag || redraw || reposition || reclip)) {
+			//dm("%s:isUpdate show:%d targetLayer:%d up:%d draw:%d pos:%d clip:%d".sprintf(name, isShowBU(), targetLayer!=-void, updateFlag, redraw, reposition, reclip));
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 単純更新
+	 */
+	function update(base) {
+		if (isUpdate()) {
+			//dm("更新処理実行:" + name + " show:" + isShowBU() +  " updateFlag:" + updateFlag + " redraw:" + redraw + " reposition:" + reposition);
+			if (targetLayer === void || !env.isBaseLayer(base, targetLayer)) {
+				var layer = createLayer(base);
+				if (targetLayer !== void) {
+					layer.assign(targetLayer);
+					invalidate targetLayer;
+				}
+				targetLayer = layer;
+			}
+			// 変更されてることがあるので常に反映
+			targetLayer.absolute = +absolute if (absolute !== void);
+			if (initFlag) {
+				targetLayer.stopAction();
+				initFlag = false;
+			}
+			if (redraw) {
+				targetLayer.setRedrawFunction(layerRedrawFunction incontextof getRedrawContext());
+				drawLayer(targetLayer);
+				if (clip !== void) {
+					targetLayer.loadClipImage(clip);
+				} else {
+					targetLayer.clearClipImage();
+				}
+				// 描画処理中に必要な情報更新が行われる場合があるので
+				// オフセット調整はこの位置で行う
+				targetLayer.updateOffsetInfo();
+			}
+			if (redraw || reposition) {
+				setSize(targetLayer);
+				calcPosition(targetLayer);
+			}
+			if (redraw || reclip) {
+				calcClip(targetLayer);
+			}
+			redraw = false;
+			reposition = false;
+			reclip = false;
+			updateLayer(targetLayer);
+			if (doShow) {
+				// XXX 先に判定するべき？
+				if (isShowBU()) {
+					targetLayer.visible = true;
+				} else {
+					invalidate targetLayer;
+					targetLayer = void;
+				}
+				doShow = false;
+			}
+			kag.updateBeforeCh = 1;
+		} else {
+			updateSkip();
+		}
+		updateFlag = false;
+
+		_prevAbsolute = absolute;
+		_prevShow     = isShowBU();
+	}
+
+	function updateSound(skipMode){
+	}
+	
+	/**
+	 * KAG 個別コマンド処理
+	 * @param elm 引数
+	 */
+	function command(elm) {
+		var names = [];
+		names.assign(elm);
+		onBeforeDoCommand(elm);
+		for (var i=0; i<names.count; i+= 2) {
+			var cmd = names[i];
+			var param = names[i+1];
+			if (!doCommand(cmd, param, elm)) {
+				env.errorCmd(name + ":未知のコマンド:" + cmd);
+			}
+		}
+		onAfterDoCommand(elm);
+	}
+
+	function onBeforeDoCommand() {}
+	function  onAfterDoCommand() {}
+
+	function checkSync(elm) {
+		if (!env.transMode && getShowMode() != 0) {
+			setupTrans(elm, getShowMode());
+			if (transall || (trans !== void && !(trans.method !== void && trans.time == 0))) {
+				// トランジションが有効な場合
+				syncCommand = true if transsync;
+			} else {
+				syncCommand = true if (elm.waitmovie ||
+									   elm.waitanime ||
+									   elm.waitmotion ||
+									   (!elm.nosync && (elm.sync || elm.wait)));
+			}
+		}
+	}
+	
+	function sync(elm, skipMode) {
+		updateSound(skipMode);
+		var showMode = getShowMode();
+		//dm("更新処理開始" + name);
+		if (env.transMode) {
+			//dm("トランジション処理中");
+			update(BACKBASE);
+		} else if (showMode == 0) {
+			// 非表示のまま変更無し
+			//dm("画像破棄");
+			if (targetLayer !== void) {
+				invalidate targetLayer;
+				targetLayer = void;
+			}
+			update(FOREBASE);
+		} else if (transall) {
+			//dm("全体トランジション処理");
+			env.entryAllTrans(trans, transsync);
+		} else {
+			var waitMode = 0; // 0:待ちなし 1:アクションまち 2:トランジションまち
+			// ベースのトランジションは強制停止
+			env.checkTransition();
+			if (trans === void  || (trans.method !== void && trans.time == 0)) {
+				if (isInTransition()) {
+					// トランジション実行中だった場合は裏(新規に出てくるもの)にコマンド実行
+					update(BACKBASE);
+				} else {
+					update(FOREBASE);
+				}
+			} else {
+				if (trans.method !== void) {
+					//dm("画像変更（トランジション）");
+					waitMode = 2;
+					switch (showMode) {
+					case 1: beginTransShow(trans);break;
+					case 2: beginTransHide(trans);break;
+					case 3: beginTransUpdate(trans);break;
+					}
+					transNowait = elm.nowait;
+				} else {
+					//dm("画像変更（アクショントランジション")
+					waitMode = 1;
+					switch (showMode) {
+					case 1: beginTransActionShow(trans);break;
+					case 2:	beginTransActionHide(trans);break;
+					case 3:	beginTransActionUpdate(trans);break;
+					}
+				}
+			}
+			env.hideMessage(trans);
+			
+			// シンクロ指定
+			if (waitMode == 1) {
+				// アクショントランス待ち
+				if (transsync) {
+					env.addFastTag("wat", %[wait:getSyncTime(trans)]);
+				}
+			} else if (waitMode == 2) {
+				// 通常トランジション待ち
+				if (transsync) {
+					// トランジション待ち
+					env.addFastTag("wt", %[target:transLayer, wait:getSyncTime(trans)]);
+				}
+			} else {
+				// その他の待ち系処理
+				if (targetLayer !== void && targetLayer.visible) {
+					if (elm.waitmovie) {
+						env.addFastTag("wv", %[target:targetLayer, canskip:true, wait:elm.waitmovie]);
+					}
+					if (elm.waitanime) {
+						env.addFastTag("wa", %[target:targetLayer, casnskip:true, wait:elm.waitanime]);
+					}
+					if (elm.waitmotion) {
+						env.addFastTag("wmotion", %[target:targetLayer, canskip:true, wait:elm.waitmotion]);
+					}
+					if (!elm.nosync && (elm.sync || elm.wait)) {
+						env.addFastTag("wact", %[target:targetLayer, canskip:true, wait:elm.wait]);
+					}
+				}
+			}
+		}
+	}
+
+	function nodisp(elm) {
+		updateSkip();
+	}
+
+	function createLayer(base) {
+		return env.createLayer(base, layerClass, this);
+	}
+}

@@ -1,0 +1,1 @@
+chs_pack pack transdata KimiIta_CHS.cpk KimiIta

@@ -1,0 +1,28 @@
+copy,vreplay0,vreplay
+copy,vreplay1,vreplay
+copy,vreplay2,vreplay
+copy,vreplay3,vreplay
+copy,vreplay4,vreplay
+#
+func,vreplay0,	exp,Current.cmd("vreplay/0"),	onenter,Current.cmd("showJumpView/0"),	onleave,Current.cmd("hideJumpView/0"),	sename,vreplay
+func,vreplay1,	exp,Current.cmd("vreplay/1"),	onenter,Current.cmd("showJumpView/1"),	onleave,Current.cmd("hideJumpView/1"),	sename,vreplay
+func,vreplay2,	exp,Current.cmd("vreplay/2"),	onenter,Current.cmd("showJumpView/2"),	onleave,Current.cmd("hideJumpView/2"),	sename,vreplay
+func,vreplay3,	exp,Current.cmd("vreplay/3"),	onenter,Current.cmd("showJumpView/3"),	onleave,Current.cmd("hideJumpView/3"),	sename,vreplay
+func,vreplay4,	exp,Current.cmd("vreplay/4"),	onenter,Current.cmd("showJumpView/4"),	onleave,Current.cmd("hideJumpView/4"),	sename,vreplay
+#
+file,scroll,
+#func,vreplay,
+#
+func,slider,	vertical,true,	onchangefunc,Current.prop("onSliderChanged"), uipsdfix,true
+func,pageup,	exp,Current.cmd("prevPage")
+func,pagedown,	exp,Current.cmd("nextPage")
+#
+cref,allbtns,back,title,exit
+func,back,	target,*back
+func,title,	exp,kag.goToStartWithAsk()
+func,exit,	exp,kag.close()
+func,base,
+#
+part,remove,vreplay
+eval,pre,exp,this.partremove="remove"
+eval,names,call,uiloadSysSE,backlog

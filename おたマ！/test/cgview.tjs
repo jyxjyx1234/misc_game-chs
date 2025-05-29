@@ -1,0 +1,279 @@
+class        UiBasedCgViewLayer extends CgViewLayer {
+	function UiBasedCgViewLayer { super.CgViewLayer(...);
+		uilayer = new global.KAGLayer(window, this);
+		with (uilayer) {
+			.name = "CgViewUiLayer";
+			.setImageSize(window.scWidth, window.scHeight);
+			.setSizeToImageSize();
+			//.hasImage = false; // イメージがないと子のopacityが正常に反映されないっぽい
+			.setPos(0, 0);
+			.enabled = true;
+			.visible = true;
+		}
+	}
+	function Invalidate(obj) {
+		invalidate obj if (obj && typeof obj == "Object" && isvalid obj);
+	}
+	function finalize() {
+		if (uilayer) try { window.stopAction(uilayer, true); } catch {}
+		var tmp = [];
+		tmp.assign(names);
+		for (var i = 0; i < tmp.count; i+=2)
+			Invalidate(tmp[i]) if (tmp[i] !== void);
+		Invalidate(timer);
+		Invalidate(uilayer);
+		super.finalize(...);
+	}
+
+	var uilayer, timer, aim;
+	var autoHideTime = 1500; // アイコンを自動で消す時間
+	var SEtag = "cgview"; // 効果音sysseタグ
+
+	function setup(elm, autohidetime, setag) {
+		autoHideTime = autohidetime if (autohidetime !== void);
+		SEtag = setag if (setag !== void);
+
+		if (typeof elm == "String") elm = %[ storage:elm ];
+		uiload(this, elm);
+		timer = new global.Timer(this, "onInterval");
+		with (timer) {
+			.capacity = 1;
+			.interval = 500;
+			.enabled = false;
+		}
+		resetTimer();
+	}
+
+	function          afterLoadImages {
+		var r = super.afterLoadImages(...);
+		if (uilayer) {
+			window.stopAction(uilayer, true);
+			resetUiLayer(canScroll);
+		}
+		resetTimer();
+		return r;
+	}
+	function resetUiLayer(vis) {
+		if (vis) {
+			forceHideMode = false;
+			with (uilayer) .enabled = .visible = currentButtonsVisible = true,  .opacity = 255;
+		} else {
+			forceHideMode = true;
+			with (uilayer) .enabled = .visible = currentButtonsVisible = false;
+		}
+	}
+	/*
+	function         internalOnMouseDown       { resetTimer();
+		return super.internalOnMouseDown(...);  }
+	function         internalOnMouseMove       { resetTimer();
+		return super.internalOnMouseMove(...);  }
+	function         internalOnMouseUp         { resetTimer();
+		return super.internalOnMouseUp(...);    }
+	 */
+	function         internalOnMouseWheel      { resetTimer();
+		return super.internalOnMouseWheel(...); }
+
+	function         onMouseMove() {
+		onMouseEvent("move");
+		return super.onMouseMove(...);
+	}
+	function onMouseUp(x, y, button, shift) {
+		onMouseEvent("click") if (button == mbLeft);
+		return super.onMouseUp(...);
+	}
+	function onMouseEvent(tag) {
+		switch (tag) {
+		case "move":
+			if (!forceHideMode) {
+				setButtonsShowHide(true);
+				return true;
+			}
+			break;
+		case "tout":
+			var lay = getLayerAt(cursorX, cursorY, false, true);
+			if (lay === this) {
+				setButtonsShowHide(false);
+				return true;
+			}
+			break;
+		case "click":
+			if (!(inDragByMouse && _dragmoved)) {
+				playSE(void, "show");
+				setButtonsShowHide(true);
+				return true;
+			}
+			break;
+		}
+	}
+
+	function onFocus() { startTimer(true); return super.onFocus(...); }
+	function onBlur()  { stopTimer();      return super.onBlur (...); }
+	function startTimer(reset) { if (timer) timer.enabled = (autoHideTime > 0); if (reset) resetTimer(); }
+	function stopTimer()  { if (timer) timer.enabled = false; }
+	function resetTimer() { aim = System.getTickCount() + autoHideTime; }
+	function onInterval() {
+		if (!(isvalid this) || forceHideMode || inDragging) return;
+		if (System.getTickCount() >= aim) {
+			//resetTimer();
+			if (onMouseEvent("tout")) resetTimer();
+		}
+	}
+	var forceHideMode = false, currentButtonsVisible;
+	function setButtonsShowHide(vis) {
+		if (!uilayer || inDragging) return;
+		forceHideMode = false;
+		if (!currentButtonsVisible == !vis) return;
+		/**/ currentButtonsVisible = !!vis;
+		releaseCapture();
+		var oldvis = uilayer.visible;
+		uilayer.visible = true;
+		uilayer.enabled = false;
+		with (window) {
+			var param = getShowHideFromTo(uilayer, vis, oldvis);
+			.stopAction(uilayer, true);
+			.beginAction(uilayer, getShowHideAction(param),
+						 (vis ? function { enabled = true  if (isvalid this); } :
+						  /**/  function { visible = false if (isvalid this); }) incontextof uilayer, true);
+		}
+		resetTimer();
+	}
+	function getShowHideFromTo(uilayer, vis, oldvis) {
+		return %[ from:oldvis ? uilayer.opacity : 0, to:vis?255:0 ];
+	}
+	function getShowHideAction(param) {
+		with (param) return %[ opacity: %[ handler:MoveAction, start:.from, value:.to, time:Math.abs(.from-.to) ] ];
+	}
+
+	// uiload用
+	var names = %[];
+
+	// for uiload : not implemented
+	function locate() {}
+	function setPosition() {}
+
+	// for uiload
+	function addButton(elm) {
+		var x = +elm.x;
+		var y = +elm.y;
+		var object = new ButtonLayer(window, uilayer);
+		with (object) {
+			.name = (elm.name !== void) ? elm.name : ("button :"+elm);
+			.loadUIInfo(elm);
+			.uiname = elm.uiname;
+
+			.owner = this;
+			.absolute = +elm.absolute;
+			.hint     = elm.hint;
+			.visible = true;
+			.setPos(x, y);
+			.SEname = elm.sename != "" ? elm.sename : elm.name;
+			.origOnKeyDown    = .onKeyDown;
+			.origOnMouseEnter = .onMouseEnter;
+			.origOnMouseLeave = .onMouseLeave;
+			.onKeyDown    = function(key, sft) {
+				switch (key) {
+				case VK_RETURN: case VK_SPACE: return owner.onButtonClick(name, mbLeft,  sft);
+				case VK_ESCAPE:                return owner.onButtonClick(name, mbRight, sft);
+				case VK_CONTROL: return origOnKeyDown(...);
+				}
+				//origOnKeyDown(...);
+				return owner.onKeyDown(...);
+			} incontextof object;
+			.onMouseEnter = function() { focus();       owner.playSE(SEname, "enter"); return origOnMouseEnter(...); } incontextof object;
+			.onMouseLeave = function() { owner.focus(); owner.playSE(SEname, "leave"); return origOnMouseLeave(...); } incontextof object;
+			.onExecute = function(x, y, btn, sft) {     owner.playSE(SEname, "click"); owner.onButtonClick(name, btn, sft); } incontextof object;
+			this.names[.name] = object;
+		}
+	}
+	// for uiload
+	function addSlider(elm) {
+		var x = +elm.x;
+		var y = +elm.y;
+		var object = new SliderLayer(window, uilayer);
+		with (object) {
+			.name = (elm.name !== void) ? elm.name : ("slider :"+elm);
+			.vertical = +elm.vertical;
+			.loadUIInfo(elm);
+			.uiname = elm.uiname;
+
+			.owner = this;
+			.absolute = +elm.absolute;
+			.color = elm.bgcolor if elm.bgcolor !== void; // color でない事に注意
+			.bgOpacity = elm.opacity if elm.opacity !== void;
+			.min  = +elm.min  if elm.min  !== void;
+			.max  = +elm.max  if elm.max  !== void;
+			.step = +elm.step if elm.step !== void;
+			.nohilight = elm.nohilight if elm.nohilight !== void;
+			.jumpMode = elm.jumpmode if elm.jumpmode !== void;
+			.onChange = function(*) { owner.onSliderChange(name, *); } incontextof object;
+
+			.hint     = elm.hint;
+			.visible = true;
+			.setPos(x, y);
+			.focusable = false;
+			this.names[.name] = object;
+		}
+	}
+
+	function onButtonClick(name, btn, sft) {
+		switch (btn) {
+		case mbRight: quit(false); break;
+		case mbLeft:
+			switch (name) {
+			case "prev":
+			case "next": sendMessage(name); break;
+			case "hide": hide(); break;
+			case "back": quit(false); break;
+			}
+			break;
+		}
+	}
+
+	var     ignoreSliderChange;
+	function onSliderChange(name, pos, drag) {
+		if (ignoreSliderChange) return;
+		// ...
+	}
+	function setSliderPosition(name, pos, direct) {
+		if (names[name] !== void) with (names[name]) {
+			ignoreSliderChange = true;
+			.position = direct ? pos : convertRangeToPos(pos, .min, .max);
+			ignoreSliderChange = false;
+		}
+	}
+	function getSliderPosition(name, pos, direct) {
+		if (names[name] !== void) with (names[name]) {
+			if (pos === void) pos = .position;
+			return direct ? pos : convertPosToRange(pos, .min, .max);
+		}
+	}
+
+	function hide() {
+		focus();
+		setCursorPos(cursorX, cursorY);
+		playSE(void, "hide");
+		setButtonsShowHide(false);
+		forceHideMode = true;
+		updateMouseCursor();
+	}
+
+	function playSE(name, tag) {
+		tag =     name  + "." + tag if (name != "");
+		playSysSE(SEtag + "." + tag);
+	}
+
+
+@if (0)
+	// example
+	function onScrolled() {
+		if (!canScroll) return;
+		setSliderPosition("slider", scrollVert);
+	}
+	function onSliderChange(pos, drag) {
+		if (ignoreSliderChange) return;
+		resetTimer();
+		scrollVert = getSliderPosition("slider", pos);
+	}
+@endif
+}
+

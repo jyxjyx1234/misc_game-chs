@@ -1,0 +1,63 @@
+func,cursor,	visible,false
+func,item0,	sename,item,	exp,Current.cmd("select/0"),	target,*view
+func,item1,	sename,item,	exp,Current.cmd("select/1"),	target,*view
+func,item2,	sename,item,	exp,Current.cmd("select/2"),	target,*view
+func,item3,	sename,item,	exp,Current.cmd("select/3"),	target,*view
+func,item4,	sename,item,	exp,Current.cmd("select/4"),	target,*view
+func,item5,	sename,item,	exp,Current.cmd("select/5"),	target,*view
+func,item6,	sename,item,	exp,Current.cmd("select/6"),	target,*view
+func,item7,	sename,item,	exp,Current.cmd("select/7"),	target,*view
+func,item8,	sename,item,	exp,Current.cmd("select/8"),	target,*view
+func,item9,	sename,item,	exp,Current.cmd("select/9"),	target,*view
+func,item10,	sename,item,	exp,Current.cmd("select/10"),	target,*view
+func,item11,	sename,item,	exp,Current.cmd("select/11"),	target,*view
+func,item12,	sename,item,	exp,Current.cmd("select/12"),	target,*view
+func,item13,	sename,item,	exp,Current.cmd("select/13"),	target,*view
+func,item14,	sename,item,	exp,Current.cmd("select/14"),	target,*view
+func,item15,	sename,item,	exp,Current.cmd("select/15"),	target,*view
+func,item16,	sename,item,	exp,Current.cmd("select/16"),	target,*view
+func,item17,	sename,item,	exp,Current.cmd("select/17"),	target,*view
+func,item18,	sename,item,	exp,Current.cmd("select/18"),	target,*view
+func,item19,	sename,item,	exp,Current.cmd("select/19"),	target,*view
+#
+func,item0,	onenter,Current.cmd("enter/0"),		onleave,Current.cmd("leave/0")
+func,item1,	onenter,Current.cmd("enter/1"),		onleave,Current.cmd("leave/1")
+func,item2,	onenter,Current.cmd("enter/2"),		onleave,Current.cmd("leave/2")
+func,item3,	onenter,Current.cmd("enter/3"),		onleave,Current.cmd("leave/3")
+func,item4,	onenter,Current.cmd("enter/4"),		onleave,Current.cmd("leave/4")
+func,item5,	onenter,Current.cmd("enter/5"),		onleave,Current.cmd("leave/5")
+func,item6,	onenter,Current.cmd("enter/6"),		onleave,Current.cmd("leave/6")
+func,item7,	onenter,Current.cmd("enter/7"),		onleave,Current.cmd("leave/7")
+func,item8,	onenter,Current.cmd("enter/8"),		onleave,Current.cmd("leave/8")
+func,item9,	onenter,Current.cmd("enter/9"),		onleave,Current.cmd("leave/9")
+func,item10,	onenter,Current.cmd("enter/10"),	onleave,Current.cmd("leave/10")
+func,item11,	onenter,Current.cmd("enter/11"),	onleave,Current.cmd("leave/11")
+func,item12,	onenter,Current.cmd("enter/12"),	onleave,Current.cmd("leave/12")
+func,item13,	onenter,Current.cmd("enter/13"),	onleave,Current.cmd("leave/13")
+func,item14,	onenter,Current.cmd("enter/14"),	onleave,Current.cmd("leave/14")
+func,item15,	onenter,Current.cmd("enter/15"),	onleave,Current.cmd("leave/15")
+func,item16,	onenter,Current.cmd("enter/16"),	onleave,Current.cmd("leave/16")
+func,item17,	onenter,Current.cmd("enter/17"),	onleave,Current.cmd("leave/17")
+func,item18,	onenter,Current.cmd("enter/18"),	onleave,Current.cmd("leave/18")
+func,item19,	onenter,Current.cmd("enter/19"),	onleave,Current.cmd("leave/19")
+#
+cref,allpages,page0,page1,page2,page3,page4
+rgrp,allpages,page0,page1,page2,page3,page4
+func,page0,	sename,page,	exp,Current.page=0,	target,*page
+func,page1,	sename,page,	exp,Current.page=1,	target,*page
+func,page2,	sename,page,	exp,Current.page=2,	target,*page
+func,page3,	sename,page,	exp,Current.page=3,	target,*page
+func,page4,	sename,page,	exp,Current.page=4,	target,*page
+#
+cref,allsys,tab_graphic,tab_stand,tab_sound,tab_replay,back
+rgrp,allsys,tab_graphic,tab_stand,tab_sound,tab_replay
+func,tab_graphic,	sename,sysbtn,	target,*cgmode
+func,tab_stand,		sename,sysbtn,	target,*standmode,	storage,custom.ks
+func,tab_sound,		sename,sysbtn,	target,*soundmode
+func,tab_replay,	sename,sysbtn,	target,*scenemode
+eval,tab_graphic,exp,toggle=true
+func,back,	target,*back
+func,caption,
+func,base,
+#
+eval,names,call,uiloadSysSE,cgmode

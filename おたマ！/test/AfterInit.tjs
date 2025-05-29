@@ -1,0 +1,60 @@
+// AfterInit コールバック呼び出し
+callAfterInit();
+
+// リリース版処理
+if (!debugWindowEnabled) {
+	kag.saveDataMode = "z" if (kag.saveDataMode == "");
+	// 表示位置がズレる可能性があるので Config.tjs の Menu_visible_config へ記述するのが妥当
+	kag.debugMenu.visible = false if (typeof kag.debugMenu != "undefined");
+} else {
+	// デバッグ時はAlt+←/→を復活させる
+	delete kagCustomizedKeys["A_" + VK_LEFT];  // 前のラベルへ戻る
+	delete kagCustomizedKeys["A_" + VK_RIGHT]; // 次のラベルへ進む
+	delete kagCustomizedKeys["S_" + VK_BACK];  // 直前に戻る
+
+	// 直前に戻る選択
+	var sbtag = "debugselback";
+	kagCustomizedKeys["A_" + VK_BACK] = sbtag;  
+	kagCustomizedKeys["!"+sbtag] = "selectAutoLabelStore()";
+
+	var vrec = "videorec.tjs";
+	KAGLoadScript(vrec) if (Storages.isExistentStorage(vrec));
+}
+
+// kagexopt オプション設定
+function setKagExOpt(tag, set, val) {
+	var arg = System.getArgument("-"+tag);
+	if (arg != "") try {
+		var opt = (val instanceof "Dictionary") ? val[arg] : val(arg);
+		//dm("setKagExOpt", set, tag, arg, typeof opt, opt);
+		if (opt === void) return;
+		switch (typeof set) {
+		case "Object":
+			if      (set instanceof "Property") *set = opt;
+			else if (set instanceof "Function") set(opt);
+			break;
+		case "String":
+			opt = @'"${opt.escape()}"' if (typeof opt == "String");
+			(@"${set} = ${opt}")!;
+			break;
+		}
+	} catch(e) {
+		dm(e.message);
+	}
+}
+{
+	var YN = %[ yes:true,  no:false ];
+	var NY = %[ yes:false, no:true  ];
+	setKagExOpt("unseenskip",		"kag.allskip",				YN);
+	setKagExOpt("seoffinskip",		"kag.nosewhenskip",			YN);
+	setKagExOpt("stopskipbyselect",	"kag.afterskip",			NY);
+	setKagExOpt("stopskipbyclick",	"kag.cancelSkipWhenClick",	YN);
+	setKagExOpt("stopautobyselect",	"kag.afterauto",			NY);
+	setKagExOpt("stopautobyclick",	"kag.cancelAutoWhenClick",	YN);
+	setKagExOpt("voicestopbyclick",	"kag.voicecut",				%[ page:true, name:true,  no:false ]);
+	setKagExOpt("voicestopbyclick",	"kag.voicecutpage",			%[ page:true, name:false, no:false ]);
+	setKagExOpt("bgmdownbyvoice",	"kag.bgmdown",				function(v) { return (v == "0") || (+v > 0 && +v < 100); });
+	setKagExOpt("bgmdownbyvoice",	"kag.bgmdownlevel",			function(v) { return (v == "0" || +v > 0) ? +v : void; });
+	setKagExOpt("voicespeed",		"kag.voicespeed",			function(v) { return (+v >= 100 && +v <= 400) ? +v/100 : void; });
+	setKagExOpt = void;
+}

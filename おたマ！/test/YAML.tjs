@@ -1,0 +1,362 @@
+/**
+ * YAML もどきパーサ
+ *
+ * example:
+ *   var yaml = [].load('hoge.yaml');
+ *   var obj = YAML.parse(yaml);
+ *
+ * 主な制限:
+ * - インデントにタブは使えません。
+ * - 複数行のスカラーには未対応です。
+ * - フロースタイルには未対応です。
+ * - ノードのエイリアスには未対応です。
+ *
+ * Written by Kouhei Yanagita.
+ */
+class YAML {
+    /**
+     * YAML をパースし、オブジェクトを返す。
+     * @param str_or_array パースする YAML 文字列、または文字列を 1 行ごとに収めた配列。
+     */
+    function parse(str_or_array) {
+        var lines;
+        if (str_or_array instanceof 'String') {
+            lines = str_or_array.split(/\r?\n/);
+        }
+        else {
+            lines = str_or_array;
+        }
+
+        lines = YAML._preprocess(lines);
+
+        var a = [];
+        for (var i = 0; i < lines.count; ++i) {
+            var s = lines[i].replace(/\r?\n/, '');
+            if (/\S/.test(s)) {
+                a.add(s);
+            }
+        }
+
+        return (new YAML.TopParser()).parseLines(a);
+    }
+
+    function _preprocess(lines) {
+        var index = lines.find('---');
+        if (index >= 0) {
+            var a = [];
+            for (var i = index + 1; i < lines.count; ++i) {
+                a.add(lines[i]);
+            }
+            lines = a;
+        }
+
+        return YAML._removeEmptyLines(lines);
+    }
+
+    function _removeEmptyLines(lines) {
+        var result = [];
+        for (var i = 0; i < lines.count; ++i) {
+            if (!/\A\s*(#.*)?\z/.test(lines[i])) {
+                result.add(lines[i]);
+            }
+        }
+        return result;
+    }
+
+
+    /*
+     * 内部で使うパーサ
+     */
+    class TopParser {
+        function parseLines(lines) {
+            lines = _skipEmptyLines(lines);
+    
+            var parser;
+            if (/\A-( |\z)/.test(lines[0])) {
+                parser = new YAML.SequenceParser();
+            }
+            else if (_isMapKeyLine(lines[0])) {
+                parser = new YAML.MapParser();
+            }
+            else {
+                parser = new YAML.ScalarParser();
+            }
+    
+            return parser.parseLines(lines);
+        }
+    
+        function _skipEmptyLines(lines) {
+            var first = 0;
+            for (var i = 0; i < lines.count; ++i) {
+                if (!/\A\s*(#.*)?\z/.test(lines[i])) {
+                    first = i;
+                    break;
+                }
+            }
+    
+            var a = [];
+            for (var i = first; i < lines.count; ++i) {
+                a.add(lines[i]);
+            }
+            return a;
+        }
+
+        function _isMapKeyLine(line) {
+            var parser = new YAML.MapParser();
+            return parser.isKeyLine(line);
+        }
+    }
+    
+    class MapParser {
+        function parseLines(lines) {
+            var result = %[];
+            for (;;) {
+                if (lines === void || lines.count == 0) {
+                    break;
+                }
+                var a = _getNextPair(lines);
+                lines = a[0];
+                result[a[1]] = a[2];
+            }
+            return result;
+        }
+
+        function isKeyLine(line) {
+            var key_row = _getToColon(line);
+            var after_colon = line.substr(key_row.length);
+            return /\A:(\s*(#.*)?\z|\s+[^#])/.test(after_colon);
+        }
+
+        function _getToColon(line) {
+            var r;
+            switch (line[0]) {
+            case "'":
+                r = /\A'((''|[^'])*)'/; //';
+                break;
+            case '"':
+                r = /\A"((\\"|[^"])*)"/; //";
+                break;
+            default:
+                r = /\A[^:]+/;
+            }
+
+            return r.match(line)[0];
+        }
+    
+        function _getNextPair(lines) {
+            var key_row = _getToColon(lines[0]);
+            var sp = new YAML.ScalarParser();
+            var key = sp.parseLines([key_row]);
+
+            var after_colon = lines[0].substr(key_row.length);
+            if (after_colon[0] != ':') {
+                throw new Exception('Parse error: マップのキーがコロンで終わっていません: ' + lines[0]);
+            }
+
+            var m;
+            var indent;
+            var value_beginning_index;
+            if ((m = /\A:\s*(#.*)?\z/.match(after_colon)).count > 0) {
+                if (lines.count == 1) {
+                    return [void, key, void];
+                }
+
+                value_beginning_index = 1;
+                var m = /\A\s+/.match(lines[value_beginning_index]);
+                if (m.count == 0) {
+                    throw new Exception('Parse error: マップのキーと別の行に書かれた値がインデントされていません: ' +
+                                        lines[value_beginning_index]);
+                }
+                indent = m[0].length;
+            }
+            else if ((m = /\A(:\s+)[^#]/.match(after_colon)).count > 0) {
+                value_beginning_index = 0;
+                indent = key_row.length + m[1].length;
+            }
+            else {
+                throw new Exception('Parse error: This must not happen: ' + lines[0]);
+            }
+
+            var last = _calcPairLastIndex(lines, value_beginning_index, indent);
+    
+            var one_pair_lines = [];
+            var remaining_lines = [];
+            for (var i = value_beginning_index; i < last; ++i) {
+                one_pair_lines.add(lines[i]);
+            }
+            for (var i = last; i < lines.count; ++i) {
+                remaining_lines.add(lines[i]);
+            }
+    
+            var a = [];
+            for (var i = 0; i < one_pair_lines.count; ++i) {
+                a.add(one_pair_lines[i].substr(indent));
+            }
+            return [remaining_lines, key, (new YAML.TopParser()).parseLines(a)];
+        }
+
+        function _calcPairLastIndex(lines, value_beginning_index, indent) {
+            var last = lines.count;
+            for (var i = value_beginning_index + 1; i < lines.count; ++i) {
+                if (lines[i].substr(0, indent) != ' '.repeat(indent) && /\S/.test(lines[i])) {
+                    last = i;
+                    break;
+                }
+            }
+            return last;
+        }
+    }
+    
+    class SequenceParser {
+        function parseLines(lines) {
+            var result = [];
+            for (;;) {
+                if (lines === void || lines.count == 0) {
+                    break;
+                }
+                var a = _getNextValue(lines);
+                lines = a[0];
+                result.add(a[1]);
+            }
+            return result;
+        }
+    
+        function _getNextValue(lines) {
+            var last = lines.count;
+            for (var i = 1; i < lines.count; ++i) {
+                if (/\A\S/.test(lines[i])) {
+                    last = i;
+                    break;
+                }
+            }
+    
+            var one_elem_lines = [];
+            var remaining_lines = [];
+            for (var i = 0; i < last; ++i) {
+                one_elem_lines.add(lines[i]);
+            }
+            for (var i = last; i < lines.count; ++i) {
+                remaining_lines.add(lines[i]);
+            }
+    
+            var m = /\A(-\s+)\S/.match(one_elem_lines[0]);
+            var indent;
+            var beg;
+            if (m.count > 0) {
+                // 値が - と同じ行
+                // - hoge
+                indent = m[1].length;
+                beg = 0;
+            }
+            else {
+                var m = /\A(\s+)\S/.match(one_elem_lines[1]);
+                if (m.count > 0) {
+                    // 値が - の次の行
+                    // -
+                    //   hoge
+                    indent = m[1].length;
+                    beg = 1;
+                }
+                else {
+                    throw new Exception("Parse error: `-' の次の行に値がありません");
+                }
+            }
+
+            for (var i = beg + 1; i < one_elem_lines.count; ++i) {
+                var s = one_elem_lines[i];
+                if (s.substr(0, indent) + ' '.repeat(indent - s.length) != ' '.repeat(indent)) {
+                    throw new Exception('Parse error: シーケンスの値の中でインデントが下がっています: ' + s);
+                }
+            }
+    
+            var a = [];
+            for (var i = beg; i < one_elem_lines.count; ++i) {
+                a.add(one_elem_lines[i].substr(indent));
+            }
+            return [remaining_lines, (new YAML.TopParser()).parseLines(a)];
+        }
+    }
+    
+    class ScalarParser {
+        function parseLines(lines) {
+            var s = lines[0];
+            if (s[0] == "'") {
+                return _getSingleQuoted(s);
+            }
+            else if (s[0] == '"') {
+                return _getDoubleQuoted(s);
+            }
+            else {
+                s = s.replace(/\s*(#.*)?\z/, '');
+                if (/\A[-+]?(0[0-7]*|[1-9]\d*|0x[\da-f]+)\z/i.test(s)) {
+                    return (int)s;
+                }
+                else if (/\A[-+]?\d*\.\d+(e[-+]\d+?)?\z/i.test(s)) {
+                    return (real)s;
+                }
+                else if (/\A[-+]?\.(inf|Inf|INF)\z/.test(s)) {
+                    return s[0] == '-' ? -Infinity : Infinity;
+                }
+                else if (/\A\.(nan|NaN|NAN)\z/.test(s)) {
+                    return NaN;
+                }
+                else if (/\A(y|Y|Yes|YES|true|True|TRUE|on|On|ON)\z/.test(s)) {
+                    return true;
+                }
+                else if (/\A(n|N|No|NO|false|False|FALSE|off|Off|OFF)\z/.test(s)) {
+                    return false;
+                }
+                else if (/\A(~|null|Null|NULL)\z/.test(s)) {
+                    return void;
+                }
+                else {
+                    return s;
+                }
+            }
+        }
+        
+        function _getSingleQuoted(str) {
+            var r = /\A'((''|[^'])*)'/.exec(str); //';
+            var matched = r[1];
+            var remainder = str.substr(matched.length + 2).replace(/#.*/, '');
+            if (/\S/.test(remainder)) {
+                throw new Exception('Parse error: シングルクオート文字列のクオートがおかしいです: ' + str + '(' + remainder + ')');
+            }
+            return matched.replace(/''/g, "'");
+        }
+    
+        function _getDoubleQuoted(str) {
+            var r = /\A"((\\"|[^"])*)"/.exec(str); //';
+            var matched = r[1];
+            var remainder = str.substr(matched.length + 2).replace(/#.*/, '');
+            if (/\S/.test(remainder)) {
+                throw new Exception('Parse error: ダブルクオート文字列のクオートがおかしいです: ' + str + '(' + remainder + ')');
+            }
+            return _processEscapeSequences(matched);
+        }
+    
+        function _processEscapeSequences(str) {
+            var r = /\\(?:(0.*)|(a)|(b)|(t)|(n)|(v)|(f)|(r)|(e)|(")|(x(?:[0-9a-fA-F]{2}))|(u(?:[0-9a-fA-F]{4}))|(\\))/g; // ";
+
+            return str.replace(r, function(m) {
+                    var replacement = ['', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1b', '"',
+                                       function(s) { return ('"\\' + s + '"')!; },
+                                       function(s) { return ('"\\x' + s.substr(1) + '"')!; },
+                                       '\\'];
+                    for (var i = 0; i < replacement.count; ++i) {
+                        if (m[i+1].length > 0) {
+                            if (replacement[i] instanceof 'String') {
+                                return replacement[i];
+                            }
+                            else {
+                                return replacement[i](m[i+1]);
+                            }
+                        }
+                    }
+                    return '';
+                });
+        }
+    }
+
+}
+

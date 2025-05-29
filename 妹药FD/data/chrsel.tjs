@@ -1,0 +1,109 @@
+SystemConfig.CharaSelect = [
+	"ユキ",
+	"アル",
+	"真央",
+	"心音",
+	"クシミ",
+	"莉都",
+	"星華",
+	"和奏",
+	"白雪",
+	"小夜璃",
+	"春奈",
+	"さくや",
+	"翔子",
+	"いろは",
+	"銀子",
+	"沙智子",
+	"朱音",
+	"美里" ];
+
+SystemConfig.CharaGameMap = %[
+	"ユキ"		=> %[ type: "ms",  voice:"003_%02d" ],
+	"アル"		=> %[ type: "ms",  voice:"004_%02d" ],
+	"真央"		=> %[ type: "ms",  voice:"005_%02d" ],
+	"心音"		=> %[ type: "ms",  voice:"006_%02d" ],
+	"クシミ"	=> %[ type: "cn",  voice:"001_%02d" ],
+	"莉都"		=> %[ type: "cn",  voice:"007_%02d" ],
+	"星華"		=> %[ type: "cn",  voice:"008_%02d" ],
+	"和奏"		=> %[ type: "cn",  voice:"009_%02d" ],
+	"白雪"		=> %[ type: "cn",  voice:"010_%02d" ],
+	"小夜璃"	=> %[ type: "cn",  voice:"011_%02d" ],
+	"春奈"		=> %[ type: "sin", voice:"002_%02d" ],
+	"さくや"	=> %[ type: "sin", voice:"012_%02d" ],
+	"翔子"		=> %[ type: "sin", voice:"013_%02d" ],
+	"いろは"	=> %[ type: "sin", voice:"014_%02d" ],
+	"銀子"		=> %[ type: "sin", voice:"015_%02d" ],
+	"沙智子"	=> %[ type: "sin", voice:"016_%02d" ],
+	"朱音"		=> %[ type: "sin", voice:"017_%02d" ],
+	"美里"		=> %[ type: "sin", voice:"018_%02d" ],
+	];
+
+function IsValidCharaSelected(sel = sf.chselect) {
+	return SystemConfig.CharaSelect.find(sel) >= 0;
+}
+function GetCharaGameType(sel = sf.chselect, idx = "type") {
+	var info = (sel != "" && idx != "") ? SystemConfig.CharaGameMap[sel] : void;
+	return (info !== void) ? info[idx] : void;
+}
+class CustomCharaSelect {
+	function CustomCharaSelect(elm) {
+		first = cur = SystemConfig.CharaSelect.find(sf.chselect);
+		fromTitle = elm.fromtitle;
+		enableTama   = !!+sf.chsel_tama;
+		enableHaruna = !!+sf.chsel_haru;
+	}
+	function finalize {}
+
+	var fromTitle, first, cur, enableTama, enableHaruna;
+	function onUiload(elm, ui) {
+		elm.partremove = (getOnOff("part4_",  enableTama) + "," +
+						  getOnOff("part10_", enableHaruna));
+	}
+	function getOnOff(tag, en) { return tag + (en ? "on" : "off"); }
+
+	function onUiloaded(elm, ui) {
+		var names = kag.current.names;
+		var btn = names["ch"+cur];
+		if (btn) btn.toggle = true;
+
+		/**/btn = names.ok;
+		if (btn) btn.enabled = !(!fromTitle && cur < 0);
+	}
+	function select(idx) {
+		cur = (int)+idx;
+		var ch = sf.chselect = SystemConfig.CharaSelect[cur];
+		var btn = kag.current.names.ok;
+		if (btn) btn.enabled = (ch != "");
+		if (ch != "") try {
+			var vo  = getSysSE("sample."+ch);
+			if (vo !== void) {
+				var file = vo.storage + ".ogg";
+				if (Storages.isExistentStorage(file)) {
+					var unk = kag.forEachFunctionHook;
+					unk("onUnknown", "env", %[ stopallvoice:true ]);
+					unk("onUnknown",  ch,   %[ playvoice:file, sync:true ]);
+				}
+			}
+		} catch {}
+	}
+	function isTitleChanged {
+		// プロローグから選択した場合もしくはキャラが変更された場合にタイトル変更
+		return !fromTitle || (cur != first);
+	}
+}
+Dialog.add(%[ name:"chrsel", start:CustomCharaSelect, storage:"chselect" ]);
+
+with (SystemScript) {
+	.add("chrsel", "chrsel");
+	.add("chrsel.from.title",    "*start_title");
+	.add("chrsel.from.game",     "*start_game");
+//	.add("chrsel.sysfrom.title", "*sysfrom_title");
+//	.add("chrsel.sysfrom.game",  "*sysfrom_game");
+	.add("game.from.chrsel",     "chrsel*return");
+	.add("title.from.chrsel",    "custom*title_restore");
+	.add("title.from.chrsel.game", "custom*title");
+}
+SystemHook.add("chrsel.leave", "dialog.done");
+setSystemMenuStorage("chrsel.ks");
+

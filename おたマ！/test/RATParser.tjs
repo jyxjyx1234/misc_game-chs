@@ -1,0 +1,640 @@
+/**
+ * RATParser.tjs: RAT parser
+ *
+ * Copyright 2008 SAKAMOTO Takahiro, gato-tigre
+ * Copyright 2008 WATANABE Go, wamsoft
+ */
+
+/*
+ * コメント種別
+ */
+var RAT_COMMENT_TYPE_EDITOR  = 0;
+var RAT_COMMENT_TYPE_WRITER  = 1;
+var RAT_COMMENT_TYPE_OTHER   = 2;
+
+/**
+ * RAT のパースを行うクラス
+ */
+class RATParser
+{
+    // ---------------------------------------------------------
+    // RAT Object
+    // ---------------------------------------------------------
+
+    /**
+     * ページ情報
+     *
+     * [%[
+     *   lineno:行番号,
+     *   label:%[label:ラベル名, title:ラベルタイトル名],
+     *   name:話者名,
+     *   disp:表示話者名,
+     *   text:%[text:本文, ruby:ルビ, cmd:コマンド名, syscmd:予約コマンド名],
+     *   cmdmap:%[m_CmdPrefix + コマンド名 → コマンド文字列],
+     *   cmtlst:[%[type:コメントタイプ, name:編集者コメント名, value:編集者コメント内容, text:編集者以外コメント内容]],
+     * ]]
+     */
+    var m_PageList;
+
+    /**
+     * PageID情報
+     *
+     * %[ページID → ページ番号]
+     */
+    var m_PageMap;
+
+    /**
+     * ラベル情報
+     *
+     * %[ラベル名 → ページ番号]
+     */
+    var m_LabelMap;
+
+    /**
+     * コマンド名接頭辞
+     *
+     * ページ内コマンド名のプリフィックス（定数）
+     */
+    var m_CmdPrefix = "cmd:";
+
+    // ---------------------------------------------------------
+    // accessor
+    // ---------------------------------------------------------
+
+    /**
+     * 別インスタンスの内容をコピーする
+     *
+     * @param src コピー元
+     */
+    function assign(src) {
+        initAll();
+        if ( src !== void ) {
+            m_PageList.assignStruct(src.m_PageList);
+            (Dictionary.assignStruct incontextof m_LabelMap)(src.m_LabelMap);
+        }
+    }
+
+    /**
+     * ページ数を返す
+     *
+     * @retrun 段落数
+     */
+    function getPageCount() {
+        return m_PageList.count;
+    }
+
+    /**
+     * ページ情報を返す
+     *
+     * @param n 段落番号
+     * @return 段落情報 or void
+     */
+    function getPage(n) {
+        return (n < m_PageList.count) ? m_PageList[n] : void;
+    }
+
+    /**
+     * ページIDを検索する
+     *
+     * @param pageid ページID
+     * @return ページ番号 or void
+     */
+    function getPageID(pageid) {
+        return m_PageMap[pageid];
+    }
+
+    /**
+     * ラベルを検索する
+     *
+     * @param label ラベル名
+     * @return ページ番号 or void
+     */
+    function getLabelPage(label) {
+        if ( label === "" )
+            return 0;
+        return m_LabelMap[label];
+    }
+
+    // ---------------------------------------------------------
+    // parser
+    // ---------------------------------------------------------
+
+    var m_CurPageLabel;		//< 現ページのラベル
+    var m_CurPageName;		//< 現ページの名前
+    var m_CurPageDisp;		//< 現ページの表示名
+    var m_CurPageText;		//< 現ページの本体
+    var m_CurPageCmdMap;	//< 現ページのコマンドマップ
+    var m_CurPageCmtList;	//< 現ページのコメントリスト
+
+    /**
+     * コンストラクタ
+     */
+    function RATParser() {
+        initPage();
+        m_PageList = [];
+        m_PageMap = %[];
+        m_LabelMap = %[];
+    }
+
+    /**
+     * 初期化（クラス全体）
+     */
+    function initAll() {
+        initPage();
+        m_PageList.clear();
+        (Dictionary.clear incontextof m_PageMap)();
+        (Dictionary.clear incontextof m_LabelMap)();
+    }
+
+    /**
+     * 初期化（解析中の段落）
+     */
+    function initPage() {
+        m_CurPageLabel		= void;
+        m_CurPageName		= void;
+        m_CurPageDisp		= void;
+        m_CurPageText		= void;
+        m_CurPageCmdMap		= void;
+        m_CurPageCmtList	= void;
+    }
+
+    /**
+     * 段落の追加
+     *
+     * 現在パース中の m_CurPage* をページとして m_PageList に追加する。
+     */
+    function addPage(lineno) {
+        if ( m_CurPageLabel   !== void ||
+             m_CurPageName    !== void ||
+             m_CurPageDisp    !== void ||
+             m_CurPageText    !== void ||
+             m_CurPageCmdMap  !== void ||
+             m_CurPageCmtList !== void ) {
+            m_PageList.add(%[lineno:lineno,
+                         label:m_CurPageLabel,
+                         name:m_CurPageName,
+                         disp:m_CurPageDisp,
+                         text:m_CurPageText,
+                         cmdmap:m_CurPageCmdMap,
+                         cmtlst:m_CurPageCmtList]);
+        }
+        initPage();
+    }
+
+    /**
+     * ラベルの解析
+     *
+     * 解析結果を m_CurPageLabel に追加する
+     * m_LabelMap に現在のページ番号を登録する。
+     *
+     * @param line 行情報
+     */
+    function parseLabel(line) {
+        //dm("RAT info: parseLabel " + line);
+        // 解釈：ラベル[|セクションタイトル]
+        var label = line;
+        var title = "";
+        var n = line.indexOf("|");
+        if ( n >= 0 ) {
+            label = line.substring(0, n);
+            title = line.substring(n + 1);
+        }
+        // 登録：ラベルマップ
+        if ( label !== void && label != "" )
+            m_LabelMap[label] = m_PageList.count;
+        // 追加
+        //dm("RAT info: parseLabel " + label + " " + title);
+        m_CurPageLabel = %[label:label, title:title];
+    }
+
+    /**
+     * コメントの解析
+     *
+     * 解析結果を m_CurPageCmtLst に追加する
+     *
+     * @param cmt コメント情報(編集者, 執筆者 or その他)
+     */
+    function parseComment(cmt) {
+        //dm("RAT info: parseComment " + cmt);
+        // 追加
+        if ( m_CurPageCmtList === void ) {
+            m_CurPageCmtList = [];
+        }
+        m_CurPageCmtList.add(cmt);
+    }
+
+    /**
+     * 編集者コメントの解析
+     *
+     * 以下の変換を行い、m_CurPageCmrLst に追加する。
+     * page-id: の場合、m_PageMap に現在のページ番号を登録する。
+     *
+     * "名前 値" → m_CurPageCmtLst.add(%[type:RAT_COMMENT_TYPE_EDITOR, name:名前, value:値])
+     *
+     * @param line ("name value")
+     */
+    function parseEditorComment(line) {
+        //dm("RAT info: parseEditorComment " + line);
+        // 解釈
+        var info = %[name:line, value:""];		// 返値の箱
+        line = line.trim();				// 正規化
+        var idx = line.indexOf(":");
+        if ( idx >= 0 ) {
+            info.name = line.substring(0, idx+1);	// "name:"
+            info.value = line.substring(idx+1).trim();	// "value"
+        }
+        // 登録
+        switch ( info.name.toLowerCase() ) {
+        case "page-id:":
+            if ( info.value !== void && info.value != "" ) {
+                //dm("RAT info: #Page-Id " + info.value +  " -> " + m_PageList.count);
+                m_PageMap[info.value] = m_PageList.count; // ページマップ
+            }
+            break;
+        }
+        // 追加
+        //dm("RAT info: parseEditorComment " + info.name + " " + info.value);
+        parseComment(%[type:RAT_COMMENT_TYPE_EDITOR, name:info.name, value:info.value]);
+    }
+
+    /**
+     * 執筆者コメントの解析
+     *
+     * 以下の変換を行い、m_CurPageCmrLst に追加する。
+     * "コメント" → m_CurPageCmtLst.add(%[type:RAT_COMMENT_TYPE_WRITER, text:コメント])
+     *
+     * @param line ("comment")
+     */
+    function parseWriterComment(line) {
+        //dm("RAT info: parseWriterComment " + line);
+        parseComment(%[type:RAT_COMMENT_TYPE_WRITER, text:line]);
+    }
+
+    /**
+     * その他コメントの解析
+     *
+     * 以下の変換を行い、m_CurPageCmrLst に追加する。
+     * "コメント" → m_CurPageCmtLst.add(%[type:RAT_COMMENT_TYPE_OTHER, text:コメント])
+     *
+     * @param line ("comment")
+     */
+    function parseOtherComment(line) {
+        //dm("RAT info: parseOtherComment " + line);
+        parseComment(%[type:RAT_COMMENT_TYPE_OTHER, text:line]);
+    }
+
+    /**
+     * 演出コマンドの解析
+     *
+     * 以下の変換を行い、m_CurPageCmdMap に追加する。
+     * "コマンド名: コマンド文字列" → m_CurPageCmdMap[m_CmdPrefix + コマンド名].add(コマンド文字列)
+     *
+     * @param line ("name: ops")
+     */
+    function parseCommand(line) {
+        //dm("RAT info: parseCommand " + line);
+        var n = line.indexOf(":");
+        if ( n >= 0 ) {
+            var name = m_CmdPrefix + line.substring(0, n);
+            var str  = line.substring(n + 1);
+            var cmds = tokenize(str, ",");
+
+            // m_CurPageCmdMap に追加する
+            if ( cmds.count > 0 ) {
+                if ( m_CurPageCmdMap === void ) {
+                    m_CurPageCmdMap = %[];
+                }
+                if ( m_CurPageCmdMap[name] === void ) {
+                    m_CurPageCmdMap[name] = [];
+                }
+                for (var i = 0; i < cmds.count; i++) {
+                    //dm("RAT info: parseCommand " + cmds[i].trim());
+                    m_CurPageCmdMap[name].add(cmds[i].trim());
+                }
+            }
+        }
+    }
+
+    /**
+     * テキストの解析
+     *
+     * テキスト、ルビ、コマンド参照、システムコマンドを解釈する。
+     *
+     * @param line テキスト本文
+     */
+    function parseText(line) {
+        //dm("RAT info: parseText " + line);
+        // 初期化
+        if ( m_CurPageText === void ) {
+            m_CurPageText = [];
+        }
+
+        // 名前展開処理（最初のテキスト行でのみ有効）
+        // 【名前/表示名】
+        var i = 0;
+        if ( m_CurPageText.count == 0 && line.charAt(0) == "【" ) {
+            i++;
+            var idxSlash = line.indexOf("/");
+            var idxClose = line.indexOf("】");
+            if ( idxClose > idxSlash ) {
+                if ( idxSlash > 0 ) {
+                    m_CurPageName = line.substring(1, idxSlash-1);
+                    m_CurPageDisp = line.substring(idxSlash+1, idxClose-idxSlash-1);
+                } else {
+                    m_CurPageName = line.substring(1, idxClose-1);
+                    m_CurPageDisp = m_CurPageName;
+                }
+                i = idxClose + 1;
+            }
+        }
+
+        // 行頭特殊処理： "　" スキップ
+        if ( i == 0 && line.charAt(0) == "　" )
+            i++;
+
+        // 本文展開処理
+        var text = "";
+        while ( i < line.length ) {
+            var ch = line.charAt(i++);
+            switch ( ch ) {
+            case '[': // ルビ or 用語
+                if ( text != "" ) { m_CurPageText.add(%[text:text]); text = ""; }
+                {
+                    var rmode = 0; // 0:test, 1:disp, 2:ruby
+                    var rtext = "";
+                    var rdisp = void;
+                    var rruby = void;
+                    while ( i < line.length ) {
+                        ch = line.charAt(i++);
+                        if ( ch === ']' ) {
+                            break;
+                        } else if ( ch === '/' ) {
+                            rmode = 1; rdisp = "";
+                        } else if ( ch === '|' ) {
+                            rmode = 2; rruby = "";
+                        } else {
+                            switch ( rmode ) {
+                            case 0: rtext += ch; break;
+                            case 1: rdisp += ch; break;
+                            case 2: rruby += ch; break;
+                            }
+                        }
+                    }
+                    // 追加
+                    if ( rtext === "" || rtext.charAt(0) !== ':' ) {
+                        // ルビ
+                        m_CurPageText.add(%[text:rtext, ruby:rruby]);
+                    } else {
+                        // 用語
+                        m_CurPageText.add(%[text:rtext, term:true, disp:rdisp, ruby:rruby]);
+                    }
+                }
+                break;
+            case '*': // コマンド名
+                if ( text != "" ) { m_CurPageText.add(%[text:text]); text = ""; }
+                {
+                    var cmd = "";
+                    while ( i < line.length ) {
+                        ch = line.charAt(i++);
+                        if ( ch >= '0' && ch <= '9' ) {
+                            cmd += ch;
+                        } else {
+                            i--;
+                            break;
+                        }
+                    }
+                    m_CurPageText.add(%[text:text, cmd:cmd]);
+                }
+                break;
+            case '@': // 予約コマンド名
+                if ( text != "" ) { m_CurPageText.add(%[text:text]); text = ""; }
+                {
+                    var cmd = "";
+                    while ( i < line.length ) {
+                        ch = line.charAt(i++);
+                        if ( ch >= '0' && ch <= '9' ||
+                             ch >= 'a' && ch <= 'z' ||
+                             ch >= 'A' && ch <= 'Z') {
+                            cmd += ch;
+                        } else {
+                            i--;
+                            break;
+                        }
+                    }
+                    m_CurPageText.add(%[text:text, syscmd:cmd]);
+                }
+                break;
+            case '\\': // エスケープ
+                if ( ++i < line.length ) {
+                    text += line.charAt(i++);
+                }
+                break;
+            default: // その他
+                text += ch;
+                break;
+            }
+        }
+        if ( text != "" ) { m_CurPageText.add(%[text:text]); text = ""; }
+        m_CurPageText.add(%[text:void]); // 行末区切り
+    }
+
+    /**
+     * 条件読込と文の解析
+     *
+     * 行継続を解釈して、文の配列を作る。
+     *
+     * @param readlines ファイルそのまま（行の配列）
+     * @return [%[line:行文字列, lineno:行番号]]
+     */
+    function parseLines(readlines)
+    {
+        var lines = [];		// これまでに読んだ文
+        var line = "";		// 現在読み込み中の文
+        var mode = true;	// 条件読み込みの状態
+        var lineno = 0;		// 行番号
+
+        for (var i = 0 ; i < readlines.count; i++) {
+            var readline = readlines[i];
+
+            // 単行処理（条件処理）
+            if ( readline.length > 0 && readline.charAt(0) === '#' ) {
+                var str = readline.substring(1).trim();
+                var info = str.split(" \t");
+                if ( info.length >= 1 ) {
+                    switch ( info[0] ) {
+                    case "ifdef":
+                        if ( info.length >= 2 )
+                            mode = (info[1] == "RAT_TYPE_EXEC");
+                        continue;
+                    case "ifndef":
+                        if ( info.length >= 2 )
+                            mode = (info[1] != "RAT_TYPE_EXEC");
+                        continue;
+                    case "else":
+                        mode = !mode;
+                        continue;
+                    case "endif":
+                        mode = true;
+                        continue;
+                    }
+                }
+            }
+            if ( !mode )
+                continue;
+
+            // 空行
+            if ( readline.length == 0 ) {
+                // 空行（＝段落区切り）
+                lines.add(%[line:line, lineno:lineno]);
+                line = readline; lineno = i;
+                lines.add(%[line:line, lineno:lineno]);
+                continue;
+            }
+
+            // 実行
+            if ( line.length == 0 ) {
+                // 文の最初
+                line = readline; lineno = i;
+            } else if ( readline.charAt(0) == ' ' ||
+                        readline.charAt(0) == '\t' ) {
+                // 行継続
+                for (var j = 1; j < readline.length; j++) {
+                    if ( readline.charAt(j) !== ' ' &&
+                         readline.charAt(j) !== '\t' ) {
+                        line += readline.substring(j);
+                        break;
+                    }
+                }
+            } else {
+                // 次の文
+                lines.add(%[line:line, lineno:lineno]);
+                line = readline; lineno = i;
+            }
+        }
+
+        // ファイル末尾
+        if ( mode ) lines.add(%[line:line, lineno:lineno]);
+
+        return lines;
+    }
+
+    /**
+     * RAT シナリオ読み込み
+     *
+     * @param storage ストレージ名
+     */
+    function loadScenario(storage) {
+        // 全初期化
+        initAll();
+
+        // 文解析＋条件処理解釈
+        var readlines = [];
+        readlines.load(storage);
+        var lines = parseLines(readlines);
+        invalidate readlines;
+
+        // 段落解析
+        var lineno = -1;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].line;
+            // 空行
+            if ( line.length == 0 ) {
+                addPage(lineno); lineno = -1;
+                continue;
+            }
+            // 行
+            if ( lineno < 0 )
+                lineno = lines[i].lineno;
+            switch ( line.charAt(0) ) {
+            case ':': // ラベル（単独段落）
+                addPage(lineno); lineno = lines[i].lineno;
+                parseLabel(line.substring(1));
+                addPage(lineno); lineno = -1;
+                break;
+            case '#': // 編集者コメント
+                parseEditorComment(line.substring(1));
+                break;
+            case '/': // 執筆者コメント
+                parseWriterComment(line.substring(1));
+                break;
+            case ';': // その他コメント
+                parseOtherComment(line.substring(1));
+                break;
+            case '*': // 演出定義
+                parseCommand(line.substring(1));
+                break;
+            default:  // テキスト
+                parseText(line);
+                break;
+            }
+        }
+        addPage(lineno);
+    }
+
+    // ---------------------------------------------------------
+    // misc
+    // ---------------------------------------------------------
+
+    /**
+     * token 分解
+     *
+     * sep で区切られたトークン列に分解する。
+     * '\"', '\'' による引用を考慮するが、閉じられていないものは失われる。
+     *
+     * @param str 任意の文字列
+     * @param sep 区切り文字列 (ex: " \t", ",", "[]")
+     * @param strip 区切り文字を消すかどうか
+     * @return トークン配列
+     */
+    function tokenize(str, sep, strip=false) {
+        var tokens = [];	// トークン配列
+        var token = "";		// 現在読み込み中のトークン
+        var quote0 = false;	// 引用中かどうか ""
+        var quote1 = false;	// 引用中かどうか ''
+
+        for (var i = 0; i < str.length; i++) {
+            var ch = str.charAt(i);
+            switch ( ch ) {
+            case '\"':
+                if ( !quote1 )
+                    quote0 = !quote0;
+                if ( quote1 || !strip )
+                    token += ch;
+                break;
+            case '\'':
+                if ( !quote0 )
+                    quote1 = !quote1;
+                if ( quote0 || !strip )
+                    token += ch;
+                break;
+            default:
+                if ( sep.indexOf(ch) >= 0 ) {
+                    if ( quote0 || quote1 ) {
+                        token += ch;
+                    } else if ( token !== "" ) {
+                        tokens.add(token); token = "";
+                    }
+                } else {
+                    token += ch;
+                }
+                break;
+            }
+        }
+        if ( !quote0 && !quote1 && token.length > 0 ) {
+            tokens.add(token);
+        }
+
+        return tokens;
+    }
+
+    /**
+     * デバッグメッセージ
+     *
+     * @param ... メッセージ
+     */
+    function dm() {
+        if ( kag.debugLevel >= tkdlSimple ) {
+            global.dm(...);
+        }
+    }
+}

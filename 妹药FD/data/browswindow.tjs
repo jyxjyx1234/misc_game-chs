@@ -1,0 +1,790 @@
+class BrowsButtonLayer extends LinkButtonLayer {
+	var padding = 0;
+	function BrowsButtonLayer() { super.LinkButtonLayer(...); }
+	function finalize() { super.finalize(...); }
+	function loadUIInfo(elm) {
+		var pad = this.padding = (elm.padding !== void) ? +elm.padding : 2;
+		var w = +elm.w, h = +elm.h;
+		var mw, mh;
+
+		var col = elm.color, hfc, qfc;
+		col = parent.chColor if (col === void);
+		col =  col | 0xFF000000 if ((col & 0xFF000000) == 0);
+		hfc = (col & 0x00FFFFFF) | ((col>>1) & 0x7F000000);
+		qfc = (col & 0x00FFFFFF) | ((hfc>>1) & 0x7F000000);
+
+		var tmp = getTemporary();
+		if (elm.icon != "") with (tmp) {
+			.loadImages(elm.icon);
+			mw = .imageWidth;
+			mh = .imageHeight;
+			if (elm.char === void || elm.char) {
+				var f = dfMain, ha = true;
+				.face <-> f, .holdAlpha <-> ha;
+				.fillRect(0, 0, mw, mh, col & 0xFFFFFF);
+				.face <-> f, .holdAlpha <-> ha;
+			}
+		} else if (    elm.text != "") {
+			var text = elm.text;
+			with (tmp.font) {
+				var pf = parent.lineLayer.font;
+				.face = pf.face;
+				.bold = pf.bold;
+				.height = pf.height;
+				mw = .getTextWidth( text);
+				mh = .getTextHeight(text);
+			}
+			with (tmp) {
+				var f = dfBoth, ha = false;
+				.face <-> f, .holdAlpha <-> ha;
+				.setImageSize(mw, mh);
+				.fillRect(0, 0, mw, mh, 0);
+				.drawText(0, 0, text, col&0xFFFFFF, 255, 0);
+				.face <-> f, .holdAlpha <-> ha;
+			}
+		}
+		w = mw + pad*2 if (w <= 0);
+		h = mh + pad*2 if (h <= 0);
+		h = Math.max(parent.lineSize, h) if (elm.linesize);
+
+		Butt_showFocusImage = false;
+		Butt_imageLoaded = callOnPaint = true;
+		setImageSize(w*3, h);
+		*(&global.Layer.width  incontextof this) = w;
+		*(&global.Layer.height incontextof this) = h;
+
+		// off
+		fillRect(0, 0, w,   h,   hfc);
+		fillRect(1, 1, w-2, h-2, 0);
+		// on
+		fillRect(w+1, 1, w-2, h-2, hfc);
+		// over
+		fillRect(w*2,   0, w,   h,   col);
+		fillRect(w*2+1, 1, w-2, h-2, qfc);
+
+		var ox = (w - mw)\2, oy = (h - mh)\2;
+		_copyButton2(w, h, 0, tmp, ox, oy);
+		_copyButton2(w, h, 1, tmp, ox, oy);
+		_copyButton2(w, h, 2, tmp, ox, oy);
+	}
+}
+
+
+
+class BrowsMessageLayer extends MessageLayer {
+	function finalize() { super.finalize(...); }
+	function BrowsMessageLayer(own, par, name, id, conf) {
+		// 設定
+		userFace = "ＭＳ Ｐゴシック";
+		marginRCh = 1;
+		defaultFontSize = 14;
+		defaultLineSpacing = 4;
+		defaultPitch = 0;
+		defaultRubySize =  9;
+		defaultRubyOffset = -2;
+		defaultAutoReturn = true; 
+		defaultAntialiased = defaultBold = defaultShadow = defaultEdge = false;
+
+		defaultChColor = 0x000000;
+
+		frameColor = frameOpacity = 0;
+		marginL = marginR = marginT = marginB = 0;
+
+		vertical = draggable = glyphFixedPosition = false;
+		eventTransparent = true;
+		layerType = ltAlpha;
+
+		super.MessageLayer(own, par, name, id, false); // configを通さない
+
+		// 追加設定
+		hasTextLayer = true;
+		highlightLayer.order = 0;
+	}
+
+	// リンクボタンクラス置き換え
+	property LinkButtonLayer { getter { return BrowsButtonLayer; } }
+
+	function addButton(elm) {
+		elm.uistates = true;
+		super.addButton(elm);
+		with (links[numLinks-1]) x += .w[0] + .object.padding*2;
+		initLineLayer();
+	}
+
+	// リンクはアンダーライン
+	var highlightSize = 2;
+	function drawHighlight(layer, linkn, i, x, y, w, h, color, opacity) {
+		var lw = highlightSize;
+		with (layer) {
+			if (i == 0) {
+				.imageHeight += lw;
+				.setSizeToImageSize();
+				.baseLeft = .left;
+				.baseTop  = .top;
+				.left += .parent.imageLeft if (.parent.imageLeft < 0);
+				.top  += .parent.imageTop  if (.parent.imageTop  < 0);
+			}
+			.colorRect(x - .baseLeft, y - .baseTop + h, w, lw, color, opacity);
+		}
+	}
+	function endOfLinkAndFix() {
+		if(inLink != -1) endLinkLine();
+		decideSizeChange();
+		fixLineLayer();
+	}
+	function lineFeed(add) {
+		y += add;
+		x = marginL + indentxpos;
+		kinsokuCount = marginRCh;
+	}
+	// 改行は改ページなし，右寄せイメージ対応
+	var relineRestoreMargin = void;
+	function reline() {
+		lineSize = reserveLineSize if (!lineLayerLength);
+
+		endOfLinkAndFix();
+		lineFeed(lineSize + lineSpacing);
+
+		if (void  !== relineRestoreMargin &&
+			y      >= relineRestoreMargin.y) {
+			marginR = relineRestoreMargin.r;
+			setFont(%[]);
+			relineRestoreMargin = void;
+		}
+
+		isLastLine = true if (y + lineSize*2 >= imageHeight-marginB);
+		initLineLayer();
+		return false;
+	}
+
+	// 右寄せイメージ描画
+	function drawRightAlignedImage(lay, padding) {
+		var w = lay.imageWidth;
+		var h = lay.imageHeight;
+		textLayer.copyRect(imageWidth - marginR - w, lineLayerOriginY, lay, 0, 0, w, h);
+		relineRestoreMargin = %[ y : lineLayerOriginY + h + padding, r : marginR ];
+		marginR += w + padding;
+		setFont(%[]);
+	}
+
+	// 位置リセット
+	function resetInitialPosition() {
+		x = marginL;
+		y = marginT;
+		initLineLayer();
+	}
+
+	var lineAlpha = 0x80000000;
+
+	// 水平ライン描画
+	function drawHorzLine(elm) {
+		var x1, x2, nl = !!elm.noreline;
+		if (nl) {
+			x1 = x + (elm.padding !== void ? +elm.padding : 8);
+			x2 = width - marginR;
+		} else {
+			x1 = 0;
+			x2 = width;
+			reline();
+		}
+		textLayer.fillRect(x1, y + (fontSize+lineSpacing)\2, x2-x1, 1, chColor | lineAlpha);
+		if (nl) {
+			endOfLinkAndFix();
+			lineFeed(lineSize + lineSpacing);
+		} else {
+			x = marginL + indentxpos;
+			y += fontSize; //*3\4;
+		}
+		initLineLayer();
+	}
+
+	// ボックス描画
+	var _boxInfo;
+	function drawBox(elm) {
+		if (elm.begin) with (elm) {
+			indentxpos = 0; // インデントはクリア
+			var padding = (.padding !== void) ? +.padding : 8;
+			var indent  = (.indent  !== void) ? +.indent  : 16;
+			var fixw    = +.width;
+			var sy = y + (lineSize+lineSpacing)\2;
+
+			_boxInfo = %[
+			x:x, y:sy, bottom:.bottom, top:y, padding:padding, step:+.step,
+			w: fixw > 0 ? fixw    : (imageWidth  - marginR - x ),
+			h: !.bottom ? .height : (imageHeight - marginB - sy),
+			ml:marginL, mr:marginR,
+			color:chColor,
+				];
+
+			if (.text != "") {
+				var ar = autoReturn;
+				autoReturn = false;
+				x += indent;
+				_boxInfo.tx = x;
+				initLineLayer();
+				processCh(.text);
+				autoReturn = ar;
+				_boxInfo.tw = lineLayerLength;
+			}
+			marginL  = padding + _boxInfo.x;
+			marginR += padding;
+			if (fixw > 0) marginR = imageWidth - _boxInfo.x - fixw;
+
+			setFont(%[]);
+			reline();
+		} else if (elm.end && _boxInfo !== void) with (_boxInfo) {
+			marginL = .ml, marginR = .mr;
+			setFont(%[]);
+			reline();
+			var h = (.h !== void) ? .h : y-.y;
+			fillRect(.x,   .y,   .w,   h,   .color | lineAlpha);
+			fillRect(.x+1, .y+1, .w-2, h-2, 0);
+			fillRect(.tx-2, .y, .tw+4, 1, 0) if (.tw > 0);
+			if (.bottom) {
+				indentxpos = 0;
+				x = marginL = .x+.w+.padding+.step;
+				y = .top;
+
+				setFont(%[]);
+				initLineLayer();
+			}
+			_boxInfo = void;
+		}
+	}
+
+	function resetMargin(elm) {
+		with (elm) {
+			marginL = +.marginl if .marginl !== void;
+			marginT = +.margint if .margint !== void;
+			marginR = +.marginr if .marginr !== void;
+			marginB = +.marginb if .marginb !== void;
+			x = (.x !== void) ? +.x : marginL;
+			y = (.y !== void) ? +.y : marginT;
+		}
+		setFont(%[]);
+		initLineLayer();
+	}
+}
+
+class BrowsBaseLayer extends BaseLayer {
+	function BrowsBaseLayer() { super.BaseLayer(...); }
+	function finalize() { super.finalize(...); }
+	function clearImage() {
+		global.GraphicLayer.clearImage(false);
+		setImageSize(window.exWidth, window.exHeight);
+		setSizeToImageSize();
+		face = dfAlpha;
+		fillRect(0, 0, imageWidth, imageHeight, 0xFFFFFFFF);
+	}
+
+}
+
+class BrowsWindow extends KAGWindow {
+	var _myClass, _myClassName = "BrowsWindow", _myInstanceName = "CurrentWindow";
+	property refInstance { getter { return "global."+_myClassName+"."+_myInstanceName; } }
+
+	var _tag = "brows", _scn = "brows.ks";
+	var _info;
+	var _origLinkTag;
+	var _fonts = %[];
+
+	// クラス差し替え
+	property MessageLayer { getter { return BrowsMessageLayer; } }
+	property BaseLayer    { getter { return BrowsBaseLayer;    } }
+
+	function finalize() {
+		if (isvalid this) applyAllDelayedMenuItem();
+		super.finalize(...);
+	}
+	function BrowsWindow(key, w, h, parent = null) {
+		super.KAGWindow(false, w, h);
+
+		_myClass = global[_myClassName];
+		/**/_info = _myClass.KeyInfos[key];
+		if (_info === void) {
+			_info = _myClass.KeyInfos[key] = %[ key:key ];
+			clear();
+		}
+
+		// 不要機能オフ
+		autoLabelMode = false;
+		historyWriteEnabled = false;
+		mainConductor.ignoreCR = false;
+		debugLevel = tkdlVerbose; // tkdlNone; //
+		with (drawDevice) {
+			.preferredDrawer = .dtDrawDib;
+			.recreate();
+		}
+
+		// 外観
+		borderStyle = bsSingle; //bsToolWindow;
+		with (fore.base)
+		//		setInnerSize(w, h);
+		setCenterPos(parent);
+
+		// メッセージレイヤ改造
+		var iw = innerWidth, ih = innerHeight;
+		var mes = fore.messages[0];
+		with (mes) {
+		}
+
+		this.rightClickMenuItem = new KAGMenuItem(this, "RightClick", 0, onRightClickMenuItemClick, false);
+		add(rightClickMenuItem);
+
+		_origLinkTag = tagHandlers.link;
+		tagHandlers.link  = this.onTagLink;
+		tagHandlers.chd   = this.onTagCHD;
+		tagHandlers[_tag] = this.onTagBrows;
+	}
+
+	function onResize { return global.Window.onResize(...); }
+
+	function setCenterPos(win) {
+		var pos = getParentWindowCenterPos(win, width, height);
+		if (pos !== void) with (pos) setPos(.x, .y);
+	}
+
+	function load(file) {
+		var lines = [], uf = file.toUpperCase();
+		lines.load(file);
+		for (var i = 0; i < lines.count; i++) {
+			var line = lines[i], pos;
+			if (line.charAt(0) != "*") continue;
+			var div = line.substr(1).split("|");
+			var tag = div[0], cap = div[1];
+			cap = Scripts.eval(cap.substr(1)) if (cap != "" && cap.charAt(0) == "&");
+			if (tag != "") with (_info) {
+				.labels[uf] = [] if (.labels[uf] === void);
+				.labels[uf].add(tag);
+				.files[tag] = file;
+				.caps [tag] = cap if (cap != "");
+			}
+		}
+	}
+
+	function callMethod(method, *) { return (typeof this[method] == "Object") ? this[method](*) : void; }
+	function open(tag, files) {
+		_myClass[_myInstanceName] = global.brows = this;
+
+		var exists = [ _scn ];
+		for (var i = 0; i < files.count; i++) {
+			exists.add(files[i]) if (Storages.isExistentStorage(files[i]));
+		}
+		if (!exists.count) return System.inform("ファイルがありません");
+		if (_info.loaded === void || !compareArray(exists, _info.loaded)) {
+			_info.loaded = exists;
+			for (var i = 0; i < exists.count; i++) load(exists[i]);
+		}
+
+		var top = _info.key;
+		if (tag == "") {
+			tag = pageBackPop();
+			tag = top if (tag == "");
+		} else {
+			var sec = splitSections(tag);
+			pageForeClear();
+			pageBackClear();
+			for (var i = 0; i < sec.count; i++) pageBackPush(sec[i]);
+		}
+		_info.start = tag;
+
+		process(_scn,,, true);
+		showModal();
+
+		_myClass[_myInstanceName] = void;
+		delete global.brows;
+	}
+
+	function clear() {
+		with (_info) {
+			.pageback =  [];
+			.pagefore =  [];
+			.labels   = %[]; // ファイル(UpperCase)⇒ラベル配列
+			.files    = %[]; // ラベル⇒ファイル
+			.caps     = %[]; // ラベル⇒キャプション
+			.aliases  = %[]; // ラベル⇒エイリアス名
+			.start    = void;
+			.loaded   = void;
+			.pos      = void;
+		}
+	}
+
+	function compareArray(a1, a2) {
+		if (a1.count != a2.count) return false;
+		for (var i = 0; i < a1.count; i++)
+			if (a1[i] != a2[1]) return false;
+		return true;
+	}
+
+	function splitSections(tag) {
+		var tabs = [];
+		tag = tag.substr(1) if (tag != "" && tag.charAt(0) == "*");
+		var div = tag.split(".");
+		for (var i = 0; i < div.count; i++) {
+			var tmp = [];
+			for (var j = 0; j <= i; j++) tmp.add(div[j]);
+			tabs.add(tmp.join("."));
+		}
+		var key = _info.key;
+		tabs.insert(0, key) if (!tabs.count || tabs[0] != key);
+		return tabs;
+	}
+
+	function onTagLink(elm) {
+		with (elm) {
+			.color = current.chColor if (.color === void);
+			.opacity = 192 if (.opacity === void);
+		}
+		return _origLinkTag(...);
+	}
+
+	function onTagCHD(elm) {
+		var text = (elm !== void) ? elm.text : void;
+		if (text != "") for (var i = text.length-1; i >= 0; i--) insertTag("ch", %[ text:text.charAt(i) ]);
+		return 0;
+	}
+
+	function onTagBrows(elm) {
+		var th = tagHandlers;
+		if (typeof elm != "Object") return 0;
+
+		with (elm) switch (.mode) {
+		case "text":
+			if (     .caption      ) return th.chd(%[ text:_info.caps[currentLabel] != "" ? _info.caps[currentLabel] : currentPageName ]);
+			else if (.text    != "") return th.chd(%[ text:.text ]);
+			else if (.section != "") return th.chd(%[ text:getText("section", .section) ]);
+			else if (.game    != "") return th.chd(%[ text:getText("game",,   .game)    ]);
+			else if (.pos     != "") return th.chd(%[ text:getText("pos",     .pos,  .default) ]);
+			else if (.name    != "") return th.chd(%[ text:getText("name",    .name, .default) ]);
+			else notice("unknown mode=ch");
+			break;
+
+		case "image":
+			if (.file != "") {
+				switch (.align) {
+				case "right":
+					var tmp = temporaryLayer;
+					tmp.loadImages(.file);
+					current.drawRightAlignedImage(tmp, +.padding);
+					break;
+				default:
+					/**/            return th.graph(%[ storage:.file, char:false, alt:"" ]);
+				}
+			} else if (.icon != "") return th.graph(%[ storage:"brows_"+.icon, char:true,  alt:"" ]);
+			break;
+
+		case "draw":
+			if (     .box)   current.drawBox(elm);
+			else if (.hline) current.drawHorzLine(elm);
+			break;
+
+		case "layout":
+			if (     .repos)  current.resetInitialPosition();
+			else if (.margin) current.resetMargin(elm);
+			break;
+
+		case "link":
+			if (.click   != "") {
+				insertTag(_tag, %[ mode:"text", (.usepos ? "pos" : "name") =>.click, text:.text ]);
+				var stat = getMenuState(.click);
+				insertTag(_tag, %[ mode:"image",  icon:stat.icon ]) if (stat.icon != "");
+				return th.link(stat.enabled ?
+							   %[ exp:@"${refInstance}.onMenuItemClick('${.click}')" ] :
+							   %[ exp:"", opacity:0, hint:"クリック無効" ]);
+			}
+			else if (.menu != "") th.link((getEnabledMenuItem(.menu) !== void) ?
+										  %[ exp:@"clickMenuItem('${.menu}'),brows.setFlag('${.menu}')" ] :
+										  %[ exp:"", opacity:0, hint:"クリック無効" ]);
+			else if (.link != "") return th.link(%[ storage:_info.files[.link], target:"*"+.link ]);
+			else if (.exec != "") return th.link(%[ exp:@"(System.shellExecute('${.exec}', '${.param}') ? " +
+													   (.tag != "" ? @"brows.setFlag('${.tag}')" : "void") +
+													   " : System.inform('失敗しました'))" ]);
+			else if (.tab) {
+				var tabs = splitSections(currentLabel);
+				var first = true, one = tabs.count <= 1;
+				for (var i = tabs.count-1; i >= 0; i--, first=false) {
+					var cur = tabs[i], div = cur.split(".");
+					var chop = div.count > 0 ? div[div.count-1].toUpperCase() : "";
+					if      (one)   insertTag("chd", %[ text:chop ]);
+					else if (first) insertTag(_tag, %[ mode:"text", section:cur ]);
+					else {
+						insertTag("resetfont");
+						insertTag("endlink");
+						insertTag("chd", %[ text:chop ]);
+						insertTag(_tag,  %[ mode:"link", link:cur ]);
+						insertTag(_tag,  %[ mode:"font", reffont:"tab" ]);
+					}
+					insertTag("chd", %[ text:" / " ]); // if (i > 0);
+				}
+			}
+			else if (.pillar != "") {
+				var labels = [], find = .pillar, match = [], cur = pageCurrent;
+				/**/labels.assign(_info.caps);
+				for (var i = 0; i < labels.count; i++) {
+					var label = labels[i];
+					match.add(label) if (label != "" && (label == find || label.indexOf(find+".") == 0));
+				}
+				match.sort("a");
+				insertTag(_tag, %[ mode:"draw", box:true, end:true ]);
+				for (var i = match.count-1; i >= 0; i--) {
+					insertTag("r");
+					var label = match[i];
+					if (label == cur) {
+						insertTag("resetfont");
+						insertTag("chd", %[ text:_info.caps[label] ]);
+						insertTag(_tag,  %[ mode:"font", reffont:"sec" ]);
+					} else {
+						insertTag("resetfont");
+						insertTag("endlink");
+						insertTag("chd", %[ text:_info.caps[label] ]);
+						insertTag(_tag,  %[ mode:"link", link:label ]);
+						insertTag(_tag,  %[ mode:"font", reffont:"link" ]);
+					}
+				}
+				var box = %[ box:true, begin:true, bottom:true ];
+				(Dictionary.assign incontextof box)(elm, false);
+				box.mode = "draw";
+				insertTag(_tag, box);
+			}
+			else notice("unknown mode=link");
+			break;
+
+		case "font":
+			if (.setfont != "") {
+				var font = _fonts[.setfont] = %[];
+				(Dictionary.assign incontextof font)(elm, true);
+				delete font.setfont;
+				delete font.tagname;
+				return 0;
+			}
+			if (.selfont) {
+				.reffont = sf[getFlag(.flag)] ? .on : .off;
+			}
+			if (.reffont != "") {
+				var font = _fonts[.reffont];
+				if (font !== void) return th.font(font);
+			}
+			else notice("unknown mode=font");
+			break;
+
+		case "proc":
+			if (.close) close();
+			else if (.cancel) _overrideMenuState = void;
+			else if (.init || .endinit) {
+				if ( .init) _info.pos = 0;
+				if (callAllLoadedLabels("_init"))
+					process(_info.files[_info.start], "*"+_info.start,, true);
+			}
+			else if (.jump != "") process(_info.files[.jump], "*"+.jump,, true);
+			else if (.call != "") processCall(, "*"+.call);
+			break;
+
+		case "history":
+			if      (.push)   pagePush();
+			else if (.reload) pageReload();
+			else if (.fore)   pageFore();
+			else if (.back)   pageBack();
+			else throw new Exception("BrowsWindow.history");
+			break;
+		}
+
+		return 0;
+	}
+	function callAllLoadedLabels(foreach) {
+		for (var pos = _info.pos; pos < _info.loaded.count; pos++) {
+			var file = _info.loaded[pos];
+			var labels = _info.labels[file.toUpperCase()];
+			if (labels !== void && labels.find(foreach) >= 0) {
+				_info.pos = ++pos;
+				process(file, "*"+foreach,, true);
+				return false;
+			}
+		}
+		_info.pos = void;
+		return true;
+	}
+
+	function pageForeClear { return _info.pagefore.clear();   }
+	function pageForeCount { return _info.pagefore.count;     }
+	function pageForePop   { return _info.pagefore.pop();     }
+	function pageForePush  { return _info.pagefore.push(...); }
+
+	function pageBaclClear { return _info.pageback.clear();   }
+	function pageBackCount { return _info.pageback.count;     }
+	function pageBackPop   { return _info.pageback.pop();     }
+	function pageBackPush  { return _info.pageback.push(...); }
+
+	property pageCurrent { getter {
+		var tabs = splitSections(currentLabel);
+		return (tabs.count > 0) ? tabs[tabs.count-1] : void;
+	} }
+
+	var _pageNoForeClear = false;
+	function pagePush() {
+		var tag = pageCurrent;
+		if (tag != "") {
+			pageBackPush(tag);
+			setFlag(tag);
+		}
+		pageForeClear() if (!_pageNoForeClear);
+		_pageNoForeClear = false;
+	}
+	function pageReload() {
+		var cur = pageBackCount() > 0 ? pageBackPop() : void;
+		/**/cur = pageCurrent if (cur == "");
+		if (cur != "") {
+			onTagBrows(%[ mode:"proc", jump:cur ]);
+			_pageNoForeClear = true;
+		}
+	}
+	function pageFore() {
+		var fore = pageForeCount() > 0 ? pageForePop() : void;
+		if (fore != "") {
+			onTagBrows(%[ mode:"proc", jump:fore ]);
+			_pageNoForeClear = true;
+		}
+		
+	}
+	function pageBack() {
+		if (pageBackCount() <= 1) return;
+		pageForePush(pageBackPop()); // 現在のページ
+		var back =   pageBackPop();
+		if (back != "") {
+			onTagBrows(%[ mode:"proc", jump:back ]);
+			_pageNoForeClear = true;
+		}
+	}
+
+	var _overrideMenuState;
+	property hasDelayedApply { getter { return _overrideMenuState !== void; } }
+
+	function applyAllDelayedMenuItem() {
+		if (_overrideMenuState === void) return;
+		var ext = [];
+		ext.assign(_overrideMenuState);
+		for (var i = 0; i < ext.count; i+=2) {
+			var root = ext[i], sub = ext[i+1];
+			if (typeof sub == "String") {
+				var item = getEnabledMenuItem(root+"."+sub);
+				item.click() if (item !== void);
+			} else {
+				var item = getEnabledMenuItem(root);
+				item.click() if (item !== void && !item.checked != !sub);
+			}
+		}
+	}
+
+	function onMenuItemClick(tag) {
+		var item = getEnabledMenuItem(tag);
+		if (item !== void) {
+			var arg = getSysArgMenuInfo(tag);
+			if (arg !== void || typeof item.delayed == "Object") {
+				arg = item.delayed if (arg === void);
+				_overrideMenuState = %[] if (_overrideMenuState === void);
+
+				var root = (arg.root != "") ? arg.root : tag;
+				var old = _overrideMenuState[root], ov;
+
+				if (item.radio && item.group > 0 && arg.sub != "") ov = arg.sub;
+				else if (old === void) ov = !item.checked;
+				else                   ov = !old;
+				_overrideMenuState[root] = ov;
+			} else item.click();
+			pageReload();
+		}
+	}
+	function getMenuState(tag) {
+		var ret, item = getMenuItem(tag);
+		if (item === void) return %[ enabled:false ];
+		with (item) ret = %[ enabled: (.enabled && .accessible), radio:(.radio && .group > 0), checked:.checked ];
+
+		if (_overrideMenuState !== void) {
+			var arg = getSysArgMenuInfo(tag);
+			if (arg !== void || typeof item.delayed == "Object") {
+				arg = item.delayed if (arg === void);
+				var root = (arg.root != "") ? arg.root : tag;
+				var sub  = (ret.radio && arg.sub != "") ? arg.sub : true;
+				var ov = _overrideMenuState[root];
+				if (ov != "") ret.checked = (ov == sub);
+			}
+		}
+		var chk = ret.checked;
+		ret.icon = (ret.radio ? (chk ? "radon" : "radoff") :
+					/**/        (chk ? "check" : "unchk" ));
+		return ret;
+	}
+	function getEnabledMenuItem(tag) {
+		var item = getMenuItem(tag);
+		if (item !== void) with (item) {
+			if (.enabled && .accessible) return item;
+		}
+	}
+	function getSysArgMenuInfo(tag) {
+		if (tag == "") return void;
+		var arg, dot, sysarg = global.SystemArgumentInfo;
+		if ((arg = sysarg[tag]) !== void) return arg;
+		else if ((dot = tag.indexOf(".")) > 0) {
+			var root = tag.substr(0,dot), sub = tag.substr(dot+1);
+			if ((arg = sysarg[root]) !== void) {
+				var ret = %[ root:root, sub:sub ];
+				(Dictionary.assign incontextof ret)(arg, false);
+				return ret;
+			}
+		}
+	}
+	function getMenuItem(tag) {
+		if (typeof tag == "Object") return tag;
+		if (tag == "") return void;
+		var arg = getSysArgMenuInfo(tag);
+		if (arg !== void) {
+			if (arg.root == "") tag = arg.menu;
+			else {
+				var sub = arg.sub, menu = global.kag[arg.menu];
+				if (sub == "") return %[ caption:arg.caption, visible:true, parent:menu ];
+				var list = menu.children, grp = arg.group;
+				for (var i = list.count-1; i >= 0; i--) with (list[i]) {
+					if (typeof .value != "undefined" && .value == sub && (grp === void || (.radio && grp == .group)))
+						return list[i];
+				}
+			}
+		}
+		if (tag != "" && typeof global.kag[tag] == "Object") return global.kag[tag];
+	}
+
+	function getText(sel, tag, unknown = "？？？") {
+		var norm = function(name) { return name.replace(/[\(\[][^\)\]]*[\)\]]/g, "").replace(/\&/,"").trim(); };
+		switch (sel) {
+		case "game": return (typeof global.ENV_GameName != "undefined") ? global.ENV_GameName : unknown;
+		case "section": return (tag != "" && _info.caps[tag] != "") ? _info.caps[tag] : unknown;
+		case "top": var g=(typeof global.ENV_GameName != "undefined") ? global.ENV_GameName : "";
+			return g + (g != "" ? " の " : "") + "ヘルプ";
+		case "name":
+			var item = getMenuItem(tag);
+			if (item !== void) {
+				if (!item.visible) notice(@"${tag}は非表示です");
+				if (item.caption != "") return norm(item.caption);
+			}
+			return unknown;
+		case "pos":
+			var item = getMenuItem(tag), names = [];
+			while (item && item != item.root) {
+				if (!item.visible) notice(@"${item.caption}は非表示です");
+				names.insert(0, norm(item.caption));
+				item = item.parent;
+			}
+			return names.count > 0 ? "『"+names.join("／")+"』" : unknown;
+		}
+	}
+
+	function getFlag(tag) { return @"_brows_${_info.key}_visited_${tag}"; }
+	function setFlag(tag) {
+		try {
+			tag = getFlag(tag);
+			sf[tag] = true;
+//			kag.saveSystemVariables();
+		} catch {}
+	}
+	function notice() { Debug.message(...); }
+}
+BrowsWindow.KeyInfos = %[];
+

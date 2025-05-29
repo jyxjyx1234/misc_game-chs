@@ -1,0 +1,147 @@
+
+//==============
+// 低画質ムービー再生選択
+var _movieQualitySelect, _movieQualityAutoDetect;
+var MovieQualitySelectConfig = %[
+	menu:"ムービー画質",
+	types:[ "hd", "sd" ],
+	auto:%[ menu:"自動：自動選択" ],
+	hd:  %[ menu:"高画質：HDサイズ動画を再生",   suffix:"",     stretch:false ],
+	sd:  %[ menu:"低画質：SDサイズ動画を再生",   suffix:"_sd",  stretch:true  ],
+//	mid: %[ menu:"中画質：中間サイズ動画を再生", suffix:"_mid", stretch:true  ],
+	];
+property movieQualitySelect { getter {
+	var val = void;
+	var sel = System.getArgument("-vqfilesel");
+	if (MovieQualitySelectConfig.types.find(sel) >= 0) val = sel;
+	if((_movieQualitySelect = val) == "") {
+		// 自動設定でかつ縮小表示の場合は強制でSD画質
+		var shrink = false;
+		if (typeof global.kag == "Object" && kag && isvalid kag) with (kag) {
+			shrink = ((.fullScreen && !.pseudoFullScreened)
+					  ? (System.screenWidth < .pxWidth && System.getArgument("-fszoom") != "no")
+					  : .zoomNumer < .zoomDenom);
+			_movieQualitySelect = "sd" if (shrink);
+			dm("movieQuality/Shrink", shrink, .fullScreen, .pseudoFullScreened, System.screenWidth, .pxWidth, .zoomNumer, .zoomDenom);
+		}
+		// CPUクロックで自動決定
+		if (_movieQualitySelect     == "" &&
+			_movieQualityAutoDetect == "") {
+			_movieQualityAutoDetect = "sd";
+			@if (USE_GETABOUT_DLL)
+			if (typeof System.getAboutString != "Object") {
+				try { Plugins.link("getabout.dll"); } catch {}
+			}
+			@endif
+			if (typeof System.getAboutString == "Object") {
+				var cpu, clock = 0;
+				var about = System.getAboutString();
+				var cut = about.indexOf("閲覧できます");
+				if (cut > 0) about = about.substr(cut + 7);
+				/**/cut = about.indexOf("! (info) DirectDraw");
+				if (cut > 0) about = about.substr(0, cut);
+				about = about.split("\n", true);
+				var rxclock = new RegExp("CPU clock[^!]+: (\\d+)MHz");
+				for (var i = 0; i < about.count; i++) {
+					var line = about[i];
+					if (line == "") continue;
+					else if (line.indexOf("CPU clock") >= 0) clock = (int)(rxclock.match(line))[1];
+					else if (line.indexOf("CPU #0 : ") >= 0) cpu   = line.substr(line.indexOf("CPU #0 : ")+9);
+				}
+				// 敷居クロックのデフォルト
+				var threshold = 2000;
+				var rxcpu = new RegExp(".*\\s+([^\\(\\s]+)\\([^\\)]+\\)\\s+\\[([^\\]]+)\\]");
+				var match = rxcpu.match(cpu);
+				if (match.count > 0) {
+					var vendor = match[1].toLowerCase();
+					var name   = match[2].toLowerCase();
+					name = name.replace(/[ ]+/g, " ");
+					//name = name.replace(/\(tm\)/g, "");
+					//name = name.replace(/\(r\)/g, "");
+					// 適当に閾値決定
+					switch (vendor) {
+					case "intel":
+						if (     name.indexOf("core")    >= 0) threshold = 1600;
+						else if (name.indexOf("pentium") >= 0) threshold = 1700;
+						else if (name.indexOf("celeron") >= 0) threshold = 1800;
+						else if (name.indexOf("atom")    >= 0) threshold = -1;
+						break;
+					case "amd":
+						if (     name.indexOf("phenom")  >= 0) threshold = 1600;
+						else if (name.indexOf("athlon")  >= 0) threshold = 1700;
+						else if (name.indexOf("sempron") >= 0) threshold = 1800;
+						else if (name.indexOf("duron")   >= 0) threshold = -1;
+						break;
+						// 無いと思うけど，一応
+					case "idt":
+					case "cyrix":
+					case "nexgen":
+					case "rise":
+					case "umc":
+					case "transmeta":
+					case "unknown":
+						threshold = -1;
+						break;
+					}
+					dm("CPU INFO", vendor, name, clock, threshold);
+				}
+				if (threshold >= 0) {
+					_movieQualityAutoDetect = (clock >= threshold) ? "hd" : "sd";
+				}
+			@if (USE_GETABOUT_DLL)
+				// DLLアンロード
+				try { Plugins.unlink("getabout.dll"); } catch {}
+			@endif
+			}
+		}
+		_movieQualitySelect = _movieQualityAutoDetect if (_movieQualitySelect == "");
+	}
+	dm("movieQualitySelect", _movieQualitySelect);
+	return _movieQualitySelect;
+} }
+SystemArgumentInfo.vqfilesel = %[ type:"String" ];
+
+addKagHookCallback("onKAGSetupMenu", function(kag) {
+	var menus = [ "*auto:"+MovieQualitySelectConfig.auto.menu ];
+	var types = MovieQualitySelectConfig.types;
+	for(var i = 0; i < types.count; i++) {
+		menus.add(types[i]+":"+MovieQualitySelectConfig[types[i]].menu);
+	}
+	createMenuFromList(kag, kag.troubleShootMenu,[
+		getSysArgRadioMenu("movieQualitySelectMenuItem", MovieQualitySelectConfig.menu, "vqfilesel", true, menus)
+		]);
+}, true);
+addAfterInitCallback(function() {
+	if (!global.SystemConfig.disableTroubleShootMenuFlatten) {
+		resetSysArgRadioMenuParent("troubleShootMenu", "vqfilesel", 5);
+		updateSysArgMenuItem(kag.troubleShootMenu);
+	} else {
+		updateSysArgMenuItem(kag.movieQualitySelectMenuItem);
+	}
+	objectHookInjection(%[ target:kag.tagHandlers, method:"sysmovie", func:function (orig, elm, *) {
+		if (elm && elm.state == "play") {
+			var ql = movieQualitySelect;
+			if (ql != "") {
+				var conf = MovieQualitySelectConfig[ql];
+				if (conf !== void) with (elm) {
+					var file = .file != "" ? .file : .storage;
+					if (file != "") {
+						if (.flag == "") {
+							var flag;
+							with (Storages) flag = "movie_" + .chopStorageExt(.extractStorageName(file)).toLowerCase();
+							.flag = flag;
+						}
+						var repl = file + conf.suffix;
+						if (getExistFileNameAutoExtFill(repl, "wmv", "mpg", "mpeg") != "") {
+							delete .storage if (.storage !== void);
+							.file  = repl;
+							.laystretch = true if (conf.stretch);
+						}
+					}
+				}
+				dm("movieFileSelected", elm.storage, elm.file, elm.laystretch, elm.flag);
+			}
+		}
+		return (orig incontextof global.kag)(elm, *);
+	} ]);
+} incontextof global);

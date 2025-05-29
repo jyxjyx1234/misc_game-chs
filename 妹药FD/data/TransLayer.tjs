@@ -1,0 +1,220 @@
+// 画面切り替え処理用レイヤ
+
+/**
+ * 画面切り替え処理用レイヤ
+ * ・ワイプベースの切りかえ
+ * ・フェード処理による切りかえ
+ */
+class TransLayer
+{
+    var owner; //< 親ウインドウ(kag)
+    var working; //< 動作中
+
+    var layer;   //< 処理用レイヤ
+    var tlayer;  //< トランジション処理用レイヤ
+    
+    var width;
+    var height;
+    
+    /**
+     * コンストラクタ
+     */
+    function TransLayer(owner) {
+        this.owner = owner;
+        width = owner.exWidth;
+        height = owner.exHeight;
+        
+        layer = new Layer(owner, owner.primaryLayer);
+        layer.setSize(width, height);
+        layer.hitType = htMask;
+        layer.hitThreshold = 256; // 全域透過
+        layer.name = "切り替えレイヤ";
+    }
+
+    var info;   //< 種別情報
+    var time;   //< 切り替えにかかる時間
+    var color;  //< 塗りつぶし色
+    var trans;  //< トランジション情報
+    var hide;   //< 消去指定
+    
+    // ワイプの幅を指定
+    var wipe_size;
+    
+    function initWipeLR(elm) {
+        wipe_size = elm.size !== void ? +elm.size : 16;
+        maxCount  = ((width+wipe_size-1)/wipe_size)+wipe_size-1;
+        if (!hide) {
+            layer.fillRect(0,0,width,height,layer.neutralColor);
+            layer.opacity = 255;
+        }
+    }
+
+    var types = %[
+      // 左から右にワイプ
+      wipeltor : %[
+        init : function(elm) {
+            initWipeLR(elm);
+        } incontextof this,
+        effect : function(count) {
+            var cnt = count;
+            for (var x=0; x<width; x+=wipe_size) {
+                var size = (cnt > wipe_size) ? wipe_size : (cnt < 0) ? 0 : cnt;
+                layer.fillRect(x, 0, size, height, hide ? 0 : color);
+                cnt--;
+            }
+        } incontextof this
+      ],
+
+      // 右から左にワイプ
+      wipertol : %[
+        init : function(elm) {
+            initWipeLR(elm);
+        } incontextof this,
+        effect : function(count) {
+            var cnt = count;
+            for (var x=width; x>0; x-=wipe_size) {
+                var size = (cnt > wipe_size) ? wipe_size : (cnt < 0) ? 0 : cnt;
+                layer.fillRect(x-size, 0, size, height, hide ? 0 : color);
+                cnt--;
+            }
+        } incontextof this
+      ],
+
+      // フェード
+      fade : %[
+        init : function(elm) {
+            maxCount = time;
+            if (!hide) {
+                layer.fillRect(0, 0, width, height, color);
+            }
+        } incontextof this,
+        effect : function(count) {
+            if (!hide) {
+                // フェードイン
+                layer.opacity = 255 * count / maxCount;
+            } else {
+                // フェードアウト
+                layer.opacity = 255 * (maxCount - count) / maxCount;
+            }
+        } incontextof this
+      ],
+
+      // トランジション利用
+      trans : %[
+        init : function(elm) {
+            if (elm.method !== void) {
+                trans = %[];
+                (Dictionary.assign incontextof trans)(elm);
+				//dm("トランジション実行:" + trans.method + ":" + trans.rule);
+				trans.selfupdate = true;
+				trans.time = time;
+            }
+            maxCount = time;
+            if (tlayer === void) {
+                tlayer = new Layer(owner, owner.primaryLayer);
+                tlayer.setSize(width, height);
+                tlayer.hitType = htMask;
+                tlayer.hitThreshold = 256; // 全域透過
+                tlayer.name = "切り替えレイヤ";
+            }
+            if (!hide) {
+                layer.fillRect(0, 0, width, height, 0);
+                tlayer.fillRect(0, 0, width, height, color);
+                layer.opacity = 255;
+                tlayer.opacity = 255;
+            } else {
+                layer.fillRect(0, 0, width, height, color);
+                tlayer.fillRect(0, 0, width, height, 0);
+                layer.opacity = 255;
+                tlayer.opacity = 255;
+            }
+			layer.beginTransition(trans.method, true, tlayer, trans);
+        } incontextof this,
+        effect : function(count) {
+            layer.update();
+        } incontextof this
+      ],
+        
+    ];
+    
+    var first;     //< 初回フラグ
+    var startTime; //< 開始時刻
+    var count;     //< 現在のカウント
+    var maxCount;  //< 最大カウント
+
+    /**
+     * タイマ駆動部
+     */
+    function update(now) {
+        if (working) {
+            if (first) {
+                count = -1;
+                startTime = now;
+                first = false;
+            }
+            now -= startTime;
+            
+            // 描画処理
+            var newcount;
+            if ((newcount = (now * maxCount)/time) > count) {
+                if (newcount >= maxCount) {
+                    newcount = maxCount;
+                }
+                info.effect(newcount);
+                count = newcount;
+            } 
+            
+            // 終了処理
+            if (count >= maxCount) {
+				done();
+                owner.trigger("layertrans");
+            }
+        }
+    }
+
+    /**
+     * 描画処理
+     */
+    function start(elm, hide) {
+        this.hide = hide;
+        time = elm.time if elm.time !== void;
+        color = 0xff000000 | +elm.color if elm.color !== void;
+        if (time === void) {
+            time = 1000;
+        }
+        if (color === void) {
+            color = 0xff000000;
+        }
+		info = types[elm.type] if elm.type !== void;
+		if (info === void) {
+			info = types["trans"];
+		}
+		info.init(elm);
+        layer.visible = true;
+        working = true;
+        first = true;
+    }
+
+    /**
+     * 終了
+     */
+    function done() {
+        working = false;
+        if (!hide) {
+            layer.fillRect(0,0,width,height,color);
+        } else {
+            layer.fillRect(0,0,width,height,0);
+			layer.visible = false;
+		}
+		layer.stopTransition();
+	}
+
+    /**
+     * 強制終了
+     */
+    function stop() {
+        done();
+        layer.visible = false;
+    }
+
+};

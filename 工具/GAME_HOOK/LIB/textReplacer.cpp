@@ -1,4 +1,9 @@
 # include "textReplacer.h"
+#ifndef MD
+# include "CHS_PACK_LIB.h"
+# pragma comment(lib, "CHS_PACK_LIB.lib")
+# pragma comment(lib, "zlib.lib")
+#endif
 
 std::map<std::wstring, std::wstring> charReplaceMap;
 pGetGlyphOutlineA TrueGetGlyphOutlineA = GetGlyphOutlineA;
@@ -43,7 +48,7 @@ std::map<std::wstring, std::wstring> readReplaceMap(const std::string& filename,
     std::wstring u32line = MultiByteToWide(data, CP_UTF8);
     std::wstring key, value;
 
-	//std::ofstream out("log.txt", std::ios::out);
+	std::ofstream out("log.txt", std::ios::out);
 
     for (WCHAR ch : u32line) {
         if (i % 2 == 0) {
@@ -58,7 +63,38 @@ std::map<std::wstring, std::wstring> readReplaceMap(const std::string& filename,
     }
     return result;
 }
+#ifndef MD
+std::map<std::wstring, std::wstring> readReplaceMapFromPack(const std::string& packname, const std::string& filename, std::string k) {
+    std::map<std::wstring, std::wstring> result;
+	std::cout << packname << std::endl;
+	std::cout << filename << std::endl;
+    if (! CustomPack::isInPack(packname, filename)) {
+        MessageBoxA(NULL, (std::string("Unable to open file ") + filename).c_str(), "Error", MB_OK);
+        return result;
+    }
 
+    CustomPack pack;
+    std::string data = pack.getFile(packname, k, filename);
+	printf("data2：%s\n", data.c_str());
+    std::wstring u32line = MultiByteToWide(data, CP_UTF8);
+    std::wstring key, value;
+
+    //std::ofstream out("log.txt", std::ios::out);
+    int i = 0;
+    for (WCHAR ch : u32line) {
+        if (i % 2 == 0) {
+            key = ch;
+        }
+        else {
+            value = ch;
+            result[key] = value;
+            //out << WideToMultiByte(key, CP_UTF8) << " = " << WideToMultiByte(value, CP_UTF8) << std::endl;
+        }
+        i++;
+    }
+    return result;
+}
+#endif
 
 std::wstring changeTextW(LPCWSTR text) {
     std::wstring wstr = text;
@@ -111,7 +147,7 @@ BOOL WINAPI HOOK_TextOutA(
     int cbString
 ) {
     // 获取当前字体
-    nYStart += 10;
+    nYStart += 0;
 	printf("Hooked TextOutA\n");
     HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
     LOGFONTA logFont;
@@ -246,3 +282,26 @@ void install_hook_textreplaceEx(int mode, std::string filepath, std::string key)
     }
     DetourTransactionCommit();
 }
+#ifndef MD
+void install_hook_textreplaceFromPackEx(int mode, std::string packpath, std::string filepath, std::string key) {
+    charReplaceMap = readReplaceMapFromPack(packpath, filepath, key);
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    if (mode == 1) {
+        DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA);
+    }
+    else if (mode == 2) {
+        DetourAttach(&(PVOID&)TrueGetGlyphOutlineA, HOOK_GetGlyphOutlineA);
+    }
+    else if (mode == 3) {
+        DetourAttach(&(PVOID&)TrueExtTextOutA, HOOK_ExtTextOutA);
+    }
+    else if (mode == 4) {
+        DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA_U8);
+    }
+    else if (mode == 5) {
+        DetourAttach(&(PVOID&)TrueTextOutW, HOOK_TextOutW);
+    }
+    DetourTransactionCommit();
+}
+#endif

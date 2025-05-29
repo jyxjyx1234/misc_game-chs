@@ -1,0 +1,72 @@
+//==============
+// マウスカーソル変更
+
+// ↓後で SystemConfig にて可変にする
+
+// カーソル名: "cur_normal.cur", "cur_over.cur"
+// オプション定義名: "designCursor"
+
+//--------------------------------------------------------------
+
+property enableDesignCursor { getter { return System.getArgument("-mousecursor") != "system"; } }
+SystemArgumentInfo.mousecursor = (%[
+type:"String", caption:"マウスカーソル", changed: function() {
+	try {
+		var design = enableDesignCursor, oldDefault, oldPointed;
+		var normal = design ? "cur_normal.cur" : crArrow;
+		var over   = design ? "cur_over.cur" : crHandPoint;
+		with (kag) {
+			oldDefault = .cursorDefault;
+			oldPointed = .cursorPointed;
+			.setCursor(%[ "default" => normal, "click" => normal, "auto" => normal, "pointed" => over ]);
+			if (typeof .origCursorPointed != "undefined" && .cursorPointed == crHandPoint) .cursorPointed = .origCursorPointed;
+			setMouseCursorRecursice(.primaryLayer, %[
+				oldDefault => .cursorDefault,
+				oldPointed => .cursorPointed ]);
+		}
+		systemUpdate("designCursor");
+	} catch(e) {
+		Debug.notice(e.message);
+	}
+} incontextof global,
+onStore:function (f) { try {
+	delete f.cursorDefault;
+	delete f.cursorPointed;
+	delete f.cursorWaitingClick;
+	delete f.cursorWaitingAuto;
+	delete f.cursorDraggable;
+} catch {} } incontextof global ]);
+addAfterInitCallback(function() {
+	with (kag) {
+		var lay = .fore.base;
+		setMouseCursorID(lay, .origCursorPointed = .cursorPointed);
+		setMouseCursorID(lay, "cur_normal.cur");
+		setMouseCursorID(lay, "cur_over.cur");
+		.addPlugin(SystemArgumentInfo.mousecursor);
+	}
+	SystemArgumentInfo.mousecursor.changed();
+} incontextof global);
+
+var MouseCursorIDmap = %[ crDefault => crDefault ];
+function setMouseCursorID(lay, cur) {
+	var orig = lay.cursor;
+	/**/     lay.cursor = cur;
+	var nc = lay.cursor;
+	if (nc > 0) MouseCursorIDmap[nc] = cur;
+	lay.cursor = orig;
+}
+function setMouseCursorRecursice(lay, map) {
+	try {
+		var cur = lay.cursor;
+		if (cur > 0) {
+			cur = MouseCursorIDmap[cur];
+			if (cur === void) cur = crDefault;
+		}
+		var set = map[cur];
+		if (set !== void) lay.cursor = set;
+		for (var list = lay.children, cnt = list.count, i = 0; i < cnt; i++) {
+			setMouseCursorRecursice(list[i], map);
+		}
+	} catch {}
+}
+

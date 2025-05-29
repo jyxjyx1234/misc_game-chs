@@ -1,0 +1,52 @@
+class KAGEnvBase {
+
+	// 各種情報を保持する環境
+	var env;
+	var name;
+	
+	function KAGEnvBase(env, name) {
+		this.env = env;
+		this.name = name;
+	}
+
+	function finalize() {
+	}
+
+	function dm() {
+		env.dm(...);
+	}
+	
+	// ----------------------------------
+
+
+	var syncCommand; //< 同期するコマンドだったかどうか
+
+	function initCommand() {
+		syncCommand = false;
+	}
+
+	// ----------------------------------
+
+	// タグ実行
+	function tagfunc(elm, skipMode, skipNoDisp) {
+		initCommand();
+		command(elm);
+		checkSync(elm);
+		if (env.envinfo.autolabelSync && syncCommand) {
+			kag.setAutoLabel();
+		}
+		if (skipNoDisp) {
+			nodisp(elm);
+		} else {
+			sync(elm, skipMode);
+		}
+	}
+	// コマンド
+	function command(elm) {};
+	// トランジション判定とsync状態の判定
+	function checkSync(elm) {}
+	// 状態反映
+	function sync(elm, skipMode) {}
+	// 表示せずに状態反映
+	function nodisp(elm) {}
+};

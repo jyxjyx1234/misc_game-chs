@@ -1,0 +1,589 @@
+//--------------------------------------------------------------
+// クイックメニュー
+// SystemConfig.QuickMenuUIStorage = "quickmenu"
+// SystemConfig.QuickMenuButtonList
+// SystemConfig.QuickMenuButtonFadeTime = 300
+// SystemConfig.QuickMenuInitialLockState = false
+// SystemConfig.QuickMenuShowInAutoSkip = true
+
+class QuickMenuLayerBase extends DialogLayer {
+	class EventProxyLayer extends global.Layer {
+		var owner, target;
+		function EventProxyLayer(o, n, d) {
+			owner = o;
+			target = owner.names[n];
+			if (target === void) throw new Exception(@"EventProxyLayer: レイヤ ${n}がありません");
+			with (target) {
+				super.Layer(.window, .parent);
+				setPos(.left, .top);
+				setSize(.width, .height);
+			}
+			hitType = htMask;
+			hitThreshold = 0;
+			joinFocusChain = false;
+			focusable = false;
+
+			absolute = 100000;
+			name = n;
+			hasImage = false;
+			visible = true;
+
+			resetMouseCursor();
+			d[n] = %[ enabled:&proxyEnabled, toggle:&target.toggle ] if (d !== void);
+		}
+		function onMouseDown(x,y,b) { if (b==mbRight) window.onPrimaryRightClick();
+			/**/                 else with (target) if (.enabled) .onMouseDown(...); }
+		function onMouseUp  (x,y,b) { with (target) if (.enabled) .onMouseUp(...); else if (b==mbLeft)  window.onPrimaryClick(); }
+		function onMouseEnter()     { with (target) if (.enabled) .onMouseEnter(...); owner.onButtonEnter(name); }
+		function onMouseLeave()     { with (target)               .onMouseLeave(...); owner.onButtonLeave(name); }
+		property proxyEnabled {
+			getter    { return target.enabled; }
+			setter(v) {        target.enabled = v; owner.onButtonEnabled(name, v); resetMouseCursor(); }
+		}
+		function resetMouseCursor() {
+			cursor = target.enabled ? window.cursorPointed : window.cursorDefault;
+		}
+	}
+
+	var tip, offtimer;
+	var proxy = %[], proxyLays = [];
+	function QuickMenuLayerBase(win) {
+		with (win) {
+			.add(this);
+			.addPlugin(this);
+			addSystemHooks(.addHook, SystemHook.add);
+		}
+		coverParent = false;
+		super.DialogLayer(win, win.primaryLayer, "QuickMenu");
+		setup();
+	}
+	function addSystemHooks(addHook, syshook) {
+		addHook("mouseMove", this.onMouseMoveHook);
+		addHook("onMouseLeaveHook",   this.onMouseLeaveWindow);
+		addHook("onModeChangeHookEx", this.onModeChanged);
+		addHook("onResetModeChanged", this.onResetModeChanged);
+		syshook("loadinit.end",      this.onLoadInitEnd   );
+		syshook("loadinit.done",     this.onLoadInitDone  );
+		syshook("execdialog.start",  this.onDebugExecStart);
+	}
+	function setup() {
+		var storage = SystemConfig.QuickMenuUIStorage;
+		if (storage == "") storage = "quickmenu";
+		var elm = %[ storage:storage , transparent:true, visible:false, color:0, opacity:0 ];
+		onUiloaded(elm, uiload(elm));
+
+		hitType = htMask;
+		hitThreshold = 256;
+		joinFocusChain = false;
+		focusable = false;
+		absolute = 2000000;
+
+		if (btns === void) {
+			btns = [];
+			window.errorCmd("内部エラー:SystemConfig.QuickMenuButtonListの定義がありません");
+		}
+		for (var i = 0; i < btns.count; i++) {
+			var tag = btns[i];
+			proxyLays.add(new EventProxyLayer(this, tag, proxy));
+			switch (tag) {
+			case "skip": case "auto":
+				proxy[tag].noStable = true;
+				break;
+			}
+		}
+		createOffTimer();
+
+		if (canShowHelpTip(true)) {
+			tip = new global.Layer(window, parent);
+			with (tip) {
+				.hitType = htMask;
+				.hitThreshold = 256;
+				.enabled = false;
+				.name = "help tip";
+				.absolute = absolute+1;
+			}
+			hideAllTips();
+		}
+
+		_initialLeft = left;
+		_initialTop  = top;
+
+		global.onModeChangeMessageLayerNum = proxy;
+	}
+	function createOffTimer() {
+		offtimer = new Timer(this, "onOffTimer");
+		with (offtimer) {
+			.capacity = 1;
+			.interval = 3000;
+			.mode = atmAtIdle;
+		}
+	}
+	function finalize() {
+		if (isvalid this) {
+			stopAction(this);
+			hideAllTips();
+			invalidate tip if (tip);
+			invalidate offtimer if (offtimer);
+			for (var i = 0; i < proxyLays.count; i++) {
+				var lay = proxyLays[i];
+				invalidate lay if (lay && isvalid lay);
+			}
+		}
+		super.finalize(...);
+	}
+	function onUiloaded(elm, ui) {}
+
+	// キー入力無効
+	function onKeyDown() { return window.onKeyDown(...); }
+	// open/close は無効化
+	function open() {}
+	function close() {}
+	// setOption 上書き
+	function setOption(elm) {
+		left   = elm.left   if elm.left !== void;
+		top    = elm.top    if elm.top !== void;
+		width  = elm.width  if elm.width !== void;
+		height = elm.height if elm.height !== void;
+
+		frameGraphic  = elm.frame    if elm.frame !== void;
+		frameKey      = elm.framekey if elm.framekey !== void;
+		frameColor    = +elm.color   if elm.color !== void;
+		frameOpacity  = +elm.opacity if elm.opacity !== void;
+
+		backColor    = +elm.bgcolor   if elm.bgcolor !== void;
+		backOpacity  = +elm.bgopacity if elm.bgopacity !== void;
+
+		vertical = +elm.vertical if elm.vertical !== void;
+
+		imageModified = true;
+		clearLayer();
+	}
+
+	var _initialLeft, _initialTop;
+
+	// 移動座標取得 on>0:open, on<0:notify !on:close
+	function getPosition(on) {
+		// left : on ? (pxHeight - height) : pxHeight
+		return %[ left:_initialLeft, top: _initialTop + (on ? 0 : height) ];
+	}
+	function getOpacity(on = locked || _dropdown) {
+		return on ? 255 : 0;
+	}
+
+	var currentEnter;
+	function onButtonEnter(tag) {
+		showHideHelpTip((currentEnter = tag), true);
+	}
+	function onButtonLeave(tag) {
+		currentEnter = "" if (tag == "" || currentEnter == tag);
+		if (tag == "") hideAllTips(true);
+		else showHideHelpTip(tag, false);
+	}
+	function onButtonEnabled(tag) {
+		var target = names[tag];
+		if (target !== void) with (target) .onMouseEnter() if (.enabled && tag == currentEnter);
+	}
+	function updateButtonDisable(tag, en) {
+		var target = names[tag];
+		if (target !== void) {
+			var ds = names["ds_"+tag];
+			if (ds !== void) ds.visible = !(target.visible = en);
+		}
+	}
+	function showHideHelpTip(tag, vis) {
+		if (!tip) return;
+		stopAction(tip);
+		if (!canShowHelpTip()) return hideAllTips();
+		if (vis) drawTipText(tip, tag);
+		var act = getTipAction(vis, tag);
+		if (act !== void) {
+			tip.visible = true;
+			beginAction(tip, act, !vis ? function { if (isvalid this) visible=false; } incontextof tip : void, true);
+		}
+		//if (tag == "qload") ShowHideQLoadPopup(vis);
+	}
+	function hideAllTips(onleave) {
+		tip.visible = false if (tip);
+		//ShowHideQLoadPopup(false);
+	}
+	// stubs for help tip action
+	function canShowHelpTip(init) { return false; } //SystemConfig.QuickMenuEnableHelpTip; }
+	function getTipAction(vis, tag) {}
+	function drawTipText(lay, tag) {}
+
+	function onRestore(f) {
+		var vis = (f !== void && f.quickMenuState !== void) ? +f.quickMenuState.visible : true;
+		initState();
+		var elm = %[ visible:vis, fade:vis, forceoff:false, notify:vis ];
+		setRestoreVisibleState(elm);
+		setVisible(elm);
+	}
+	function setRestoreVisibleState(elm) {}
+	function onStore(f) {
+		if (f === void) return;
+		f.quickMenuState = %[] if (f.quickMenuState === void);
+		f.quickMenuState.visible = _visible;
+	}
+
+	function initState() {
+		stopAction(this);
+		hideAllTips();
+		this.enabled = this.visible = _visible = _forceOff = _lastImm = _hidden = false;
+
+		updateLockState();
+		return 0;
+	}
+	function setVisible(elm) {
+		if (elm.init) return initState();
+
+		if (elm.push) {
+			_lastvis  = _visible;
+		}
+		var oldvis = showing;
+		var fade = +elm.fade;
+		_visible =   fade = true  if (elm.fadein );
+		_visible = !(fade = true) if (elm.fadeout);
+		_visible = +elm.visible   if (elm.visible  !== void);
+		if (elm.pop) {
+			_visible = _lastvis if (_lastvis !== void);
+			_lastvis = void;
+		}
+		if (elm.forceoff !== void) {
+			_forceOff = +elm.forceoff;
+			if (_forceOff) fade = !(_lastImm = +elm.imm);
+			else           fade = ! _lastImm;
+		}
+		if (elm.hidden !== void) {
+			_hidden = +elm.hidden;
+			fade = false;
+		}
+
+		// フェードさせる
+		var vis = showing;
+		if (oldvis != vis) {
+			stopAction(this);
+			if (vis) {
+				_moving = false;
+				_dropdown = locked || inMouseCursor;
+				resetPosition();
+			}
+			if (fade) {
+				var time = (elm.time !== void) ? +elm.time : btnFadeTime;
+				this.visible = true;
+				this.enabled = vis;
+				beginAction(this, %[
+				opacity: %[ handler:MoveAction, start: (this.opacity=getOpacity(!vis)), value:getOpacity(vis), time:time ]
+					], vis ? void : function { visible = false if (isvalid this); } incontextof this, true);
+				if (elm.wait) return window.tagHandlers.wact(%[ target:this ]);
+			} else {
+				this.opacity = getOpacity(true);
+				this.enabled = this.visible = vis;
+			}
+		}
+		notifyAction() if (elm.notify && !locked);
+		return 0;
+	}
+	var _lastvis  = void;
+	var _visible  = false;
+	var _forceOff = false;
+	var _lastImm  = false;
+	var _hidden   = false;
+
+	function resetPosition() {
+		stopAction(this);
+		with (getPosition(locked || _dropdown)) setPos(.left, .top);
+	}
+	function onResetModeChanged() {
+		if (isvalid this && inGameState(window) && !_moving) {
+			resetPosition();
+		}
+	}
+
+	function onMessageHiddenStateChanged(hidden) {
+		setVisible(%[ hidden:hidden ]);
+	}
+
+	property locked {
+		getter {
+			var r = window.scflags.QuickMenuLocked;
+			if (r === void) r = !!SystemConfig.QuickMenuInitialLockState;
+			return r;
+		}
+		setter (v) {
+			window.scflags.QuickMenuLocked = !!v;
+			updateLockState();
+		}
+	}
+	function updateLockState(state = locked) {
+		if (names.lock !== void)
+			names.lock.toggle = !!state;
+	}
+
+	property showing { getter { return _visible && !_forceOff && !_hidden; } }
+	property visible { getter { return super.visible; }
+		setter(v) {
+			super.visible = v;
+			var lays = proxyLays;
+			for (var i = 0; i < lays.count; i++) {
+				lays.visible = v;
+			}
+		}
+	}
+	function onVisibleChanged(vis) {}
+
+	function beginAction() { window.beginAction(...); }
+	function stopAction(t) { window.stopAction(t, true); }
+
+	var btnFadeTime = SystemConfig.QuickMenuButtonFadeTime !== void ? (int)SystemConfig.QuickMenuButtonFadeTime : 300;
+	var btns        = SystemConfig.QuickMenuButtonList     !== void ?      SystemConfig.QuickMenuButtonList : [
+		"lock", "hide", "vreplay", "next", "prev", "option", "skip", "auto", "log", "load", "save", "qload", "qsave"  ];
+
+	var _enabled, _dropdown, _moving;
+	property enabled { getter { return super.enabled; } setter(v) { super.enabled = ((_enabled = !!v) != 0) && !_moving; } }
+	function onScreenMouseMove(x, y) {
+		if (enabled) updown(internalHitCheck(x - _initialLeft, y - _initialTop));
+	}
+	property inMouseCursor { getter { with (window.primaryLayer)
+		return internalHitCheck(.cursorX - _initialLeft, .cursorY - _initialTop);
+	} }
+	function onScreenMouseLeave() {
+		if (enabled) updown(false);
+	}
+	// from kag.callHook
+	function onMouseMoveHook(x, y) {
+		offtimer.enabled = false;
+		var ingame = inGameState(window) && !inSystemMenu(window);
+		if (ingame) onScreenMouseMove(x, y);
+		else        onScreenMouseLeave();
+	}
+	function onMouseLeaveWindow() {
+		offtimer.enabled = true;
+	}
+	function onOffTimer() {
+		if (!isvalid this) return;
+		offtimer.enabled = false;
+		onScreenMouseLeave();
+	}
+	function internalHitCheck(x, y) {
+		return x >= 0 && y >= 0 && x < width && y < height;
+	}
+
+	property canDropDown { getter {
+		var r = ! locked;
+		if (forceShowInAutoSkip) with (window) {
+			if (getForceShowState(.autoMode, .skipMode >= SKIP_STOP)) r = false;
+		}
+		return r;
+	} }
+	function updown(enter) {
+		if (      _dropdown && !enter && canDropDown) move(false);
+		else if (!_dropdown &&  enter               ) move(true);
+	}
+	function move(isON, time = 200) {
+		_dropdown = isON;
+		var pos = getPosition(isON);
+		if (time <= 0) {
+			stopAction(this);
+			with (pos) setPos(.left, .top);
+		} else {
+			var oldx = this.left, oldy = this.top;
+			stopAction(this);
+			setPos(oldx, oldy);
+			_moving = true;
+			beginAction(this, internalGetMoveAction(isON, pos, time), onMoveStop, true);
+		}
+	}
+	function notifyAction() {
+		stopAction(this);
+		_dropdown = false;
+		_moving = true;
+		var on = getPosition(-1);
+		var of = getPosition(false);
+		with (of) setPos(.left, .top);
+		beginAction(this, internalGetNotifyAction(of, on), onMoveStop, true);
+	}
+	function internalGetMoveAction(isON, pos, time) {
+		return %[
+			/**/left:%[ handler:MoveAction, start:left, value:pos.left, time:time, accel:(isON?-1:1) ],
+			/**/top: %[ handler:MoveAction, start:top,  value:pos.top,  time:time, accel:(isON?-1:1) ] ];
+	}
+	function internalGetNotifyAction(of, on, time=200, delay=1000) {
+		return [
+			/**/%[ "left"=>%[ handler:MoveAction, start:of.left, value:on.left, time:time, accel:-1 ],
+				   "top" =>%[ handler:MoveAction, start:of.top,  value:on.top,  time:time, accel:-1 ] ],
+			/**/%[ "left"=>%[ handler:MoveAction, start:on.left, value:of.left, time:time, accel: 1, delay:delay ],
+				   "top" =>%[ handler:MoveAction, start:on.top,  value:of.top,  time:time, accel: 1, delay:delay ] ],
+			];
+	}
+	function onMoveStop() {
+		_moving = false;
+		enabled = _enabled;
+		resetPosition();
+	}
+
+	function onLoadInitEnd  { setVisible(%[ init:true ]); }
+	function onLoadInitDone { setVisible(%[ fadein:true, notify:true ]) if (window.isRecollection); }
+	function onDebugExecStart {
+		setVisible(%[ init:true   ]);
+		setVisible(%[ fadein:true ]);
+	}
+
+	function onModeChanged(prop, kag, auto, skip, canauto, canskip, ss, modal, cr) {
+		var r = callDefaultModeChangeProc(...);
+		with (window) {
+			var imm, fade;
+			imm  = (.historyShowing || (.currentDialog !== void));
+			fade = ((.conductor == .extraConductor) || /*.mapSelectShowing ||*/ !inGameState(window));
+			var off = (imm || fade);
+			if (isModeChanged("forceOff", off)) {
+				setVisible(%[ forceoff:off, imm:imm ]);
+			}
+		}
+		if (forceShowInAutoSkip) {
+			var as = getForceShowState(auto, skip);
+			if (isModeChanged("autoOrSkip", as)) {
+				if (as) updown(true);
+				else with (window.primaryLayer) {
+					onScreenMouseMove(.cursorX, .cursorY);
+				}
+			}
+		}
+		resetButtonDisable(...);
+		return r;
+	}
+	function callDefaultModeChangeProc {
+		DefaultModeChangeProc(...);
+		return true;
+	}
+	var forceShowInAutoSkip = SystemConfig.QuickMenuShowInAutoSkip !== void ?
+		/**/                !!SystemConfig.QuickMenuShowInAutoSkip : true;
+	function getForceShowState(auto, skip) { return auto || skip; }
+	function resetButtonDisable(prop, kag, auto, skip) {
+		with (window) {
+			var ds = updateButtonDisable, en;
+			if (isModeChanged("dsvreplay", (en = .hasCurrentVoice && !skip)))	ds("vreplay", en);
+			if (isModeChanged("dsqload", (en = SystemAction.canQuickLoad)))		ds("qload",   en);
+			if (isModeChanged("dsprev", (en = .isHistoryOfStoreAlive())))		ds("prev",    en);
+			if (isModeChanged("dsnext", (en = prop.get("skip", "enabled"))))	ds("next",    en);
+			if (isModeChanged("dsskip", (en |= skip)))							ds("skip",    en);
+			if (isModeChanged("dsload", (en = .canRestore())))					ds("load",    en);
+			if (isModeChanged("dssave", (en = .canStore()))) {					ds("save",    en); ds("qsave", en); }
+			//if (isModeChanged("dslove", (en = !.isRecollection)))				ds("love",    en);
+		}
+	}
+
+}
+@if (QUICKMENU_USEBRINK)
+class        QuickMenuWithBrink extends QuickMenuLayerBase {
+	function QuickMenuWithBrink { super.QuickMenuLayerBase(...);
+		brinkTimer = new Timer(this, "onBrink");
+		with (brinkTimer) {
+			.enabled = false;
+			.capacity = 1;
+			.interval = 100;
+			.mode = atmNormal;
+		}
+	}
+	function finalize {
+		if (isvalid this) {
+			invalidate brinkTimer if (brinkTimer);
+		}
+		super.finalize(...);
+	}
+	var brinkTimer, brinkBase, brinkSkip, brinkAuto;
+	function brinkLight(sel, vis) {
+		if (sel) brinkSkip = vis; else brinkAuto = vis;
+		var en = (brinkSkip || brinkAuto);
+		var old = brinkTimer.enabled;
+		if     (!en &&  old) brinkTimer.enabled = false;
+		else if (en && !old) {
+			brinkBase = System.getTickCount();
+			brinkTimer.enabled = true;
+		}
+		var target = names[sel ? "hl_skip" : "hl_auto"];
+		/**/target.visible = vis if (target !== void);
+	}
+	function getBrinkOpacity(bc, div) {
+		var r = (bc \ div) % 512;
+		return (r < 256) ? r : 511 - r;
+	}
+	function onBrink() {
+		var btn, bc = System.getTickCount() - brinkBase;
+		if ((btn = names.hl_skip) !== void) btn.opacity = getBrinkOpacity(bc, 3);
+		if ((btn = names.hl_auto) !== void) btn.opacity = getBrinkOpacity(bc, 7);
+	}
+
+	function onModeChanged(prop, kag, auto, skip, canauto, canskip, ss, modal, cr) {
+		var r = super.onModeChanged(...);
+		if (isModeChanged("autoLight", auto)) brinkLight(0, auto);
+		if (isModeChanged("skipLight", skip)) brinkLight(1, skip);
+		return r;
+	}
+}
+@endif
+
+var QuickMenuClass = QuickMenuLayerBase;
+addAfterInitCallback(function { kag.QuickMenu = new QuickMenuClass(kag); } incontextof global);
+addKagHandler( "quickmenu",  function(elm) {
+	invokeDelayedTrigger("QuickMenuDelayedNotify") if (elm && elm.delayednotify);
+	return QuickMenu.setVisible(elm);
+}, true);
+property QuickMenuLock {
+	getter    { try { return kag.QuickMenu.locked;     } catch {} }
+	setter(v) { try {        kag.QuickMenu.locked = v; } catch {} }
+}
+setDelayedTrigger("QuickMenuDelayedNotify", function {
+	try { kag.QuickMenu.setVisible(%[ fadein:true, notify:true ]); } catch {}
+} incontextof global, 100);
+
+@if (0)
+// customized sample code:
+class        CustomQuickMenu extends QuickMenuLayerBase {
+	function CustomQuickMenu { super.QuickMenuLayerBase(...); }
+	function finalize { super.finalize(...); }
+
+	var tipTexts = %[
+	lock:	"ツールバーを固定/解除します",
+	hide:	"ウィンドウを閉じます",
+	vreplay:"音声を再生します",
+	qsave:	"クイックセーブします",
+	qload:	"クイックロードします",
+	save:	"セーブメニューを開きます",
+	load:	"ロードメニューを開きます",
+	log:	"過去ログを表示します",
+	auto:	"オートモードへ移行します",
+	skip:	"スキップモードへ移行します",
+	prev:	"前の選択肢に飛びます",
+	next:	"次の選択肢に飛びます",
+	option:	"設定メニューを開きます",
+	love:	"好感度表を表示します",
+		];
+	function drawTipText(lay, tag) {
+		var tip = lay;
+		var text = tipTexts[tag], w, h, pad=4;
+		with (tip.font) {
+			w = .getTextWidth (text) + pad*2;
+			h = .getTextHeight(text) + pad*2;
+		}
+		with (tip) {
+			.setSize(w, h);
+			.fillRect(0, 0, w,   h,   0xFFF9F0BF);
+			.fillRect(1, 1, w-2, h-2, 0xC0000000);
+			.drawText(pad, pad, text, 0xFFFFFF, 255, true);
+		}
+		var target = names[tag];
+		if (target === void) return;
+		with (target) {
+			var x = (.left + .parent.left + .width\2);
+			tip.setPos(x-w\2, _ontop-h+pad);
+		}
+	}
+	var tipFadeTime = 100;
+	function getTipAction(vis, tag) {
+		return  vis ? %[ opacity: %[ handler:MoveAction, start:0, value:255, time:tipFadeTime ] ]
+			/**/    : %[ opacity: %[ handler:MoveAction, start:255, value:0, time:tipFadeTime ] ];
+	}
+	function canShowHelpTip(init) { return init || window.scflags.showHelpTips; }
+}
+global.QuickMenuClass = CustomQuickMenu;
+@endif

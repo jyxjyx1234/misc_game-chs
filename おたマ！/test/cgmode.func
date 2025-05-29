@@ -1,0 +1,45 @@
+func,number,	visible,false
+func,item0,	sename,item,	exp,Current.cmd("select/0"),	target,*view
+func,item1,	sename,item,	exp,Current.cmd("select/1"),	target,*view
+func,item2,	sename,item,	exp,Current.cmd("select/2"),	target,*view
+func,item3,	sename,item,	exp,Current.cmd("select/3"),	target,*view
+func,item4,	sename,item,	exp,Current.cmd("select/4"),	target,*view
+func,item5,	sename,item,	exp,Current.cmd("select/5"),	target,*view
+func,item6,	sename,item,	exp,Current.cmd("select/6"),	target,*view
+func,item7,	sename,item,	exp,Current.cmd("select/7"),	target,*view
+func,item8,	sename,item,	exp,Current.cmd("select/8"),	target,*view
+func,item9,	sename,item,	exp,Current.cmd("select/9"),	target,*view
+func,item10,	sename,item,	exp,Current.cmd("select/10"),	target,*view
+func,item11,	sename,item,	exp,Current.cmd("select/11"),	target,*view
+func,item12,	sename,item,	exp,Current.cmd("select/12"),	target,*view
+func,item13,	sename,item,	exp,Current.cmd("select/13"),	target,*view
+func,item14,	sename,item,	exp,Current.cmd("select/14"),	target,*view
+#
+cref,allpages,page0,page1,page2,page3,page4,
+rgrp,allpages,page0,page1,page2,page3,page4,
+func,page0,	sename,page,	name,subpage0,	exp,Current.cmd("setSubPage/0"),	target,*page
+func,page1,	sename,page,	name,subpage1,	exp,Current.cmd("setSubPage/1"),	target,*page
+func,page2,	sename,page,	name,subpage2,	exp,Current.cmd("setSubPage/2"),	target,*page
+func,page3,	sename,page,	name,subpage3,	exp,Current.cmd("setSubPage/3"),	target,*page
+func,page4,	sename,page,	name,subpage4,	exp,Current.cmd("setSubPage/4"),	target,*page
+#
+cref,alltabs,tab_ev,tab_sd,
+rgrp,alltabs,tab_ev,tab_sd,
+func,tab_ev,	sename,page,	name,tabpage0,	exp,Current.cmd("setTabPage/0"),	target,*page
+func,tab_sd,	sename,page,	name,tabpage1,	exp,Current.cmd("setTabPage/1"),	target,*page
+#
+cref,allsys,to_cg,to_scene,to_bust,to_music,back,exit,
+rgrp,modesel,to_cg,to_scene,to_bust,to_music
+#
+eval,-lock,exp,this.visible=!.IsStandModeOpened()
+func,to_cg,	
+eval,to_cg,exp,this.toggle=true
+func,to_scene,	target,*scenemode
+func,to_bust,	target,*standmode,	storage,custom.ks
+eval,-to_bust,exp,this.visible=.IsStandModeOpened()
+func,to_music,	target,*soundmode
+func,back,	target,*back
+func,exit,	exp,kag.close()
+func,base,
+#
+eval,names,call,uiloadSysSE,cgmode

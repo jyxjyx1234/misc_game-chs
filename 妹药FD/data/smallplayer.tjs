@@ -1,0 +1,239 @@
+Plugins.link("shrinkCopy.dll");
+
+// セーブサムネ差し替え用のhack
+function SmallHookEventReplace(elm, reload) {
+	var file = elm.storage;
+	var repl = SystemAction._checkSaveThumbnail(file);
+	resolution = 100;
+	if (repl != "") {
+		var ow = width, oh = height;
+		var file = repl.replace(/thum_/, "thum2_");
+		if (getExistImageName(file) != "") {
+			elm.storage = file;
+			reload(elm);
+			resolutionx = width  / ow * 100;
+			resolutiony = height / oh * 100;
+		}
+	}
+}
+class SmallEnvGraphicLayer extends EnvGraphicLayer {
+	function finalize { super.finalize(...); }
+	function SmallEnvGraphicLayer { super.EnvGraphicLayer(...); }
+	function loadImages(elm) {
+		var r = super.loadImages(...);
+		//dm("layerhook");
+		(SmallHookEventReplace incontextof this)(elm, super.loadImages);
+		return r;
+	}
+}
+class SmallKAGEnvSimpleLayer extends KAGEnvSimpleLayer {
+	function finalize { super.finalize(...); }
+	function SmallKAGEnvSimpleLayer {
+		super.KAGEnvSimpleLayer(...);
+		layerClass = SmallEnvGraphicLayer; // hack
+	}
+}
+class SmallPlayerWindow extends KAGWindow
+{
+	var ThisClass = global.SmallPlayerWindow;
+	var world_object, updateTimer;
+	var owner, drawTarget, shrink;
+	var modCh, modR, modER, modSEL, modSAD, modNext, ignoreR;
+	var resetState = %[];
+	function finalize() {
+		ThisClass.LastInstance = void;
+		super.finalize(...);
+	}
+	function SmallPlayerWindow(kag, owner, interval = 100, ignoreR = true) {
+		ThisClass.LastInstance = this;
+		this.owner  = owner;
+		this.shrink = shrink;
+		this.ignoreR= ignoreR;
+		menuBarMode = 0;
+		menuBarEnable = false;
+
+		// 必要な情報をkagからコピー
+		numSEBuffers = kag.numSEBuffers;
+		numMovies    = kag.numMovies;
+		(Dictionary.assignStruct incontextof scflags)(kag.scflags); // scflags をコピー
+
+		super.KAGWindow(false, kag.scWidth, kag.scHeight, true);
+		for( var i = 0; i < numMovies; i++) add(movies[i] = new Movie(this,i));
+
+		add(updateTimer = new Timer(onCopyScreen, ''));
+		with (updateTimer) {
+			.interval = interval;
+			.capacity = 1;
+			.mode = atmAtIdle;
+			.enabled = false;
+		}
+		var dummyTag = function { return 0; };
+		modCh  = this.tagHandlerCh;
+		modR   = this.tagHandlerR;
+		modER  = this.tagHandlerER;
+		modSEL = this.tagHandlerSEL;
+		modSAD = this.tagHandlerSAD;
+		modNext= this.tagHandlerNext;
+		with (tagHandlers) {
+			.ch <-> modCh;
+			.r  <-> modR;
+			.er <-> modER;
+			.select <-> modSEL;
+			.seladd <-> modSAD;
+			.next <-> modNext;
+			.sysmovie   = dummyTag;
+			.sysrclick  = dummyTag;
+			.meswinload = dummyTag;
+			.set        = dummyTag;
+		}
+
+		setSystemStateFromSystemVariables();
+		addPlugin(world_object = new KAGWorldPlugin(this));
+		with (world_object.env) {
+			.drawName = this.drawName;
+			.event.layerClass = global.SmallEnvGraphicLayer; // hack
+			.KAGEnvSimpleLayer = SmallKAGEnvSimpleLayer; // hack;
+		}
+
+		cancelAutoWhenClick = false;
+
+		debugLevel = tkdlNone;
+
+		bgmenable   = false;
+		seenable    = false;
+		voiceenable = false; //true; //kag.voiceenable;
+//		voicevolume = 0; //kag.voicevolume;
+
+		(Dictionary.assign incontextof mainConductor.macros)(kag.mainConductor.macros);
+	}
+	function getVoiceOn(name) { return false; } // ボイス無し
+	
+	var currentText, currentName, currentSelects = [];
+	function tagHandlerCh(elm) {
+		var r = modCh(...);
+		if (r >= -1) currentText += elm.text;
+		return r;
+	}
+	function tagHandlerR {
+		if (!ignoreR) currentText += "\n";
+		return modR (...);
+	}
+	function tagHandlerER {
+		clearText();
+		return modER(...);
+	}
+	function tagHandlerSAD(elm) {
+		currentSelects.add(@"＊${elm.text}");
+		return modSAD(...);
+	}
+	function tagHandlerSEL(elm) {
+		owner.onSmallPlayerShowText(currentSelects.join("\n"), elm.selcaption != "" ? elm.selcaption : "選択肢");
+		currentSelects.clear();
+		return modSEL(...);
+	}
+	function tagHandlerNext(elm) {
+		if (elm !== void && elm.storage != "") {
+			clearText();
+			owner.onSmallPlayerShowText("", "\n（ここまで）");
+			//owner.stopSmallPlayer();
+			return -1;
+		}
+		return modNext(...);
+	}
+
+	function showLineBreak(elm) { return 0; }
+	function showPageBreak(elm) {
+		owner.onSmallPlayerShowText(currentText, currentName != "" ? "【"+currentName+"】" : void);
+		currentName = currentText = "";
+		return super.showPageBreak(...);
+	}
+	function drawName(name) {
+		currentName = (name != "") ? name.trim() : "";
+	}
+	function clearText() {
+		owner.onSmallPlayerShowText(currentName = currentText = "");
+		currentSelects.clear();
+	}
+	function initAndDelayRun(method, args*) {
+		ThisClass.DelayRunMethod = method;
+		ThisClass.DelayRunArgs = args;
+		updateTimer.enabled = false;
+		clearText();
+		super.cancelSkip();
+		super.cancelAutoMode();
+
+		purgeMoviePeriod();
+		freeSnapshot();
+		stopAllTransitions(true);
+		stopAllActions(true);
+		stopAllMoves();
+		hideClickGlyphs();
+		hideHistory();
+		hideSelect();
+		hideMapSelect();
+		hideTransLayer();
+		hidePanel();
+
+		storeLabelPassed = true;
+		nextRecordHistory = false;
+		stablePosibility = false;
+
+		currentRecordName = "";
+		autoLabelCurrentRecordName = "";
+		extraConductor.clear();
+		setConductorToMain();
+		mainConductor.clear();
+		mainConductor.sleep();
+
+		stopRecollection();
+		process("smallplayer.ks", "*reset", false, true);
+	}
+	function stop()  { initAndDelayRun(); }
+	function play(*) { initAndDelayRun("delayPlay", *); forceSkip = false; }
+	function delayPlay(storage, target) {
+		process(storage, target, false);
+		enterAutoMode();
+		updateTimer.enabled = true;
+	}
+	function onCopyScreen() {
+		lockSnapshot();
+		snapshotLockCount = 1;
+		captureSnapshot(snapshotLayer, scWidth, scHeight, true);
+		owner.onSmallPlayerCopyScreen(snapshotLayer);
+	}
+
+	var forceSkip = false;
+	function setForceSkipState(s) {
+		var old = forceSkip;
+		forceSkip = !!s;
+		if (forceSkip && !old) {
+			processKeys(VK_CONTROL, 0);
+		}
+	}
+	function getKeyState(key) {
+		return (key == VK_CONTROL) ? forceSkip : false;
+	}
+	
+
+	function setBaseLayerPos() {}
+	property actualChSpeed       { getter { return 0;     } setter(v) {} }
+	property autoWCEnabled       { getter { return false; } setter(v) {} }
+	property textWriteEnabled    { getter { return false; } setter(v) {} }
+	property historyWriteEnabled { getter { return false; } setter(v) {} }
+
+	function errorLine(target, msg) { Debug.notice(msg); }
+	function initLogPad() {}
+
+}
+with (SmallPlayerWindow) {
+	.LastInstance = void;
+	.DelayRunMethod = void;
+	.DelayRunArgs   = void;
+	.DelayRun = function {
+		LastInstance[DelayRunMethod](DelayRunArgs*)
+			if (LastInstance !== void && isvalid LastInstance &&
+				DelayRunMethod != "" && DelayRunArgs !== void);
+	} incontextof SmallPlayerWindow;
+}
+
+

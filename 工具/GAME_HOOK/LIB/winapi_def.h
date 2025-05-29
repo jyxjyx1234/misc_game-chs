@@ -133,6 +133,34 @@ typedef int(WINAPI* pEnumFontFamiliesExW)(
 	LPARAM lParam
 	);
 
+typedef HANDLE(WINAPI* pCreateFileA)(
+	LPCSTR lpFileName,
+	DWORD dwDesiredAccess,
+	DWORD dwShareMode,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+	DWORD dwCreationDisposition,
+	DWORD dwFlagsAndAttributes,
+	HANDLE hTemplateFile
+	);
+
+typedef HANDLE(WINAPI* pCreateFileW)(
+	LPCWSTR lpFileName,
+	DWORD dwDesiredAccess,
+	DWORD dwShareMode,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+	DWORD dwCreationDisposition,
+	DWORD dwFlagsAndAttributes,
+	HANDLE hTemplateFile
+	);
+
+typedef BOOL(WINAPI* pReadFile)(
+	HANDLE hFile,
+	LPVOID lpBuffer,
+	DWORD nNumberOfBytesToRead,
+	LPDWORD lpNumberOfBytesRead,
+	LPOVERLAPPED lpOverlapped
+	);
+
 struct hook_stack {
     DWORD pfd;
     DWORD pedi;

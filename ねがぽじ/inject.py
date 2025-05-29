@@ -11,7 +11,7 @@ namedict = open_json("namedict.json")
 
 h = HanziReplacer()
 h.ReadTransAndGetHanzidictFromFolder(transPath, [namedict])
-h.gen_replace("release\\data2.bin", enc=b"ALyCE")
+h.gen_replace("release\\data2.bin")
 
 def preProcess(text, name = ""):
     text = replace_halfwidth_with_fullwidth(text)

@@ -1,6 +1,7 @@
 #include "textReplacer.h"
 #include "text_process.h"
 #include "HookTitle.h"
+#include "CHS_PACK_LIB.h"
 #include <regex>
 #include <filesystem>
 
@@ -12,6 +13,78 @@ int retAddAddr = 5;
 
 DWORD originalFuncAddr;
 
+std::string packname;
+std::string key = "SBRioshiina";
+
+std::string process_scr(std::string input) {
+    std::vector<std::string> lines;
+    bool lastLineWasEmpty = false;
+    size_t start = 0;
+    size_t end = 0;
+
+    // 第一步：分割字符串为行，处理混合换行符
+    while (end < input.size()) {
+        // 查找换行符
+        if (input[end] == '\r') {
+            // 处理 \r\n 或单独的 \r
+            if (end + 1 < input.size() && input[end + 1] == '\n') {
+                lines.push_back(input.substr(start, end - start));
+                start = end + 2;
+                end++;
+            }
+            else {
+                lines.push_back(input.substr(start, end - start));
+                start = end + 1;
+            }
+        }
+        else if (input[end] == '\n') {
+            // 处理单独的 \n
+            lines.push_back(input.substr(start, end - start));
+            start = end + 1;
+        }
+        end++;
+    }
+    // 添加最后一行（如果没有以换行符结尾）
+    if (start < input.size()) {
+        lines.push_back(input.substr(start));
+    }
+
+    // 第二步：处理注释行和连续空行
+    std::vector<std::string> processedLines;
+    for (const auto& line : lines) {
+        // 移除行首空白字符后检查是否以;开头
+        auto firstNonSpace = line.find_first_not_of(" \t");
+        if (firstNonSpace != std::string::npos && line[firstNonSpace] == ';') {
+            continue; // 跳过注释行
+        }
+
+        // 检查是否是空行（只包含空白字符）
+        bool isEmpty = (line.find_first_not_of(" \t\r\n") == std::string::npos);
+
+        if (isEmpty) {
+            if (lastLineWasEmpty) {
+                continue; // 跳过连续的空行
+            }
+            lastLineWasEmpty = true;
+        }
+        else {
+            lastLineWasEmpty = false;
+        }
+
+        processedLines.push_back(line);
+    }
+
+    // 第三步：将处理后的行重新组合成字符串（统一使用\n作为换行符）
+    std::string result;
+    for (size_t i = 0; i < processedLines.size(); ++i) {
+        if (i != 0) {
+            result += "\n";
+        }
+        result += processedLines[i];
+    }
+
+    return result;
+}
 
 DWORD searchHookAddr() {
     byte pattern1[] = {// for 2.48 //0X00为通配符
@@ -117,23 +190,32 @@ void replace_file(const char** filename, int* length, int* ecx, char** text) {
 		outFile.close();
 	}
 	else if (mode == REPLACE_MODE) {
-		printf("Replacing %s\n", name.c_str());
-        std::filesystem::create_directories("trans");
-        std::string new_filename = "trans\\" + name;
-        std::ifstream inFile(new_filename, std::ios::binary);
-        if (!inFile) {
+//		printf("Replacing %s\n", name.c_str());
+//        std::filesystem::create_directories("trans");
+//        std::string new_filename = "trans\\" + name;
+//        std::ifstream inFile(new_filename, std::ios::binary);
+//        if (!inFile) {
+//            return;
+//        }
+//        std::stringstream buffer;
+//        buffer << inFile.rdbuf();
+//        std::string transData = buffer.str();
+//#ifndef Release_for_others
+//        for (size_t i = 0; i < transData.size(); ++i) {
+//            transData[i] = transData[i] ^ enc[i % enc.size()];
+//        }
+//		printf("transData:\n\n %s\n", transData.c_str());
+//#endif
+
+        if (!CustomPack::isInPack(packname, name)) {
+			printf("Unable to find file %s\n", name.c_str());
             return;
         }
-        std::stringstream buffer;
-        buffer << inFile.rdbuf();
-        std::string transData = buffer.str();
-#ifndef Release_for_others
-        for (size_t i = 0; i < transData.size(); ++i) {
-            transData[i] = transData[i] ^ enc[i % enc.size()];
-        }
-		printf("transData:\n\n %s\n", transData.c_str());
-#endif
-        fileContent = transData;
+
+        std::string fileContent = CustomPack::getFile(packname, key, name);
+		fileContent = process_scr(fileContent);
+        //std::ofstream out("log.txt", std::ios::out);
+        //out << fileContent.c_str() << std::endl;
 		*text = (char*)fileContent.c_str();
 		*length = fileContent.size();
 		*ecx = fileContent.size() / 4;
@@ -272,17 +354,16 @@ void InstallHook_replacetext_LL() {
 
     type = config.ReadInt("GLOBAL", "TYPE", 1);
     mode = config.ReadInt("GLOBAL", "MODE", 2);
+	packname = config.ReadString("GLOBAL", "PACKNAME", "PACKNAME");
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     DetourAttach(&(PVOID&)TrueCreateFontA, HookedCreateFontA);
-#ifndef Release_for_others
-    if (mode == REPLACE_MODE) {
-        charReplaceMap = readReplaceMap("trans\\data2.bin", enc);
+	if (mode == REPLACE_MODE) {
+		charReplaceMap = readReplaceMapFromPack(packname, "data.bin", key);
 		printf("charReplaceMap size: %d\n", charReplaceMap.size());
-        DetourAttach(&(PVOID&)TrueGetGlyphOutlineA, HOOK_GetGlyphOutlineA);
-    }
-#endif // !Release_for_others
+		DetourAttach(&(PVOID&)TrueGetGlyphOutlineA, HOOK_GetGlyphOutlineA);
+	}
     DetourTransactionCommit();
     
     if (config.ReadInt("GLOBAL", "DEBUG", 0) == 1) {

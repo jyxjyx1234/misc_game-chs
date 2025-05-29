@@ -1,0 +1,120 @@
+// 動画α処理用プラグイン
+if (typeof global.AlphaMovie == "undefined") {
+	try {
+		Plugins.link("AlphaMovie.dll");
+	} catch(e) {
+	}
+}
+
+class AMovieControlLayer extends GenericFlip, AlphaMovie
+{
+	var FLIP  = global.GenericFlip;
+	var SUPER = global.AlphaMovie;
+
+	var targetLayer; //< 動画表示用 
+	var file;        //< 現在のファイル
+	var	firstTick, nextTick, lastFrame;
+	
+	function AMovieControlLayer(window) {
+		SUPER.AlphaMovie();
+		FLIP.GenericFlip(window);
+		targetLayer = new Layer(window, window.primaryLayer);
+		targetLayer.type = ltAddAlpha;
+		targetLayer.face = dfAddAlpha;
+	}
+
+	function finalize() {
+		stop();
+		invalidate targetLayer;
+		FLIP.finalize();
+		SUPER.finalize();
+	}
+
+	/**
+	 * ムービー再生開始
+	 * @param filename ファイル名
+	 * @param alpha α動画扱い
+	 * @param loop ループ指定
+	 * @param ovtype 合成モード
+	 */
+	function start(filename, loop=false) {
+		targetLayer.name = "alpha動画:" + filename;
+		this.loop=loop;
+		file = filename;
+		var fn = getExistFileNameAutoExtFill(file, "amv");
+		open(fn);
+		play();
+
+		firstTick = System.getTickCount();
+		lastFrame = nextTick = void;
+		assignMovieFrame();
+	}
+
+	// 外部から停止
+	function stop() {
+		SUPER.stop();
+		flipStop();
+	}
+
+	// 更新処理用
+	function flipUpdate(tick) {
+		var cur = checkFrameUpdate(tick);
+		if (cur !== void) {
+			var ret  = assignMovieFrame();
+			if (!loop && cur >= numOfFrame) {
+				//dm("stop");
+				stop();
+			}
+			if (lastFrame !== void && lastFrame+1 < cur) {
+				//dm("*skip", lastFrame, cur, ret);
+				frame = cur;
+			}
+			lastFrame = cur;
+		}
+	}
+	function checkFrameUpdate(tick) {
+		if (nextTick === void) {
+			nextTick = firstTick + (1000 * FPSScale / FPSRate);
+			return 0;
+		}
+		if (tick >= nextTick) {
+			var r = (tick - firstTick) * FPSRate \ (1000 * FPSScale);
+			nextTick = firstTick + ((r+1) * 1000 * FPSScale / FPSRate);
+			return r;
+		}
+	}
+
+	function assignMovieFrame() {
+		var ret = showNextImage(targetLayer);
+		flipAssign(targetLayer, false, true);
+		flipOffset(targetLayer.left, targetLayer.top, screenWidth, screenHeight);
+		return ret;
+	}
+
+	function flipStore(dic) {
+		with (dic) {
+			;.file  = file;
+			;.loop  = loop;
+		}
+	}
+	function flipRestore(dic) {
+		start(dic.file, dic.loop);
+	}
+
+	function flipStart(storage, elm) {
+		start(storage, elm.loop);
+	}
+}
+
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "amovie",             // 登録タグ
+		"class"    => AMovieControlLayer,   // コントローラクラス
+		"trigger"  => "lamstop",            // 停止時に投げるトリガー名
+		"ext"      => [ "amv" ], // 判定処理（拡張子文字列or配列）
+//		"checker"  => void,                // 判定処理（関数）
+		"options"  => [ "loop" ], // 使用するオプション値（KAGEnvLayer用）
+		"autoflag" => "amovie",             // 自動フラグタグ名（KAGEnvLayer用）
+		]);
+

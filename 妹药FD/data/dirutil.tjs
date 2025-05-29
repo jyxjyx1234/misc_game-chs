@@ -1,0 +1,66 @@
+function dirFilesIsExistentDirectory(path) {
+	var tmp = path.charAt(path.length-1);
+	path += "/" if (tmp != "/" && tmp != "\\");
+	with (Storages) return .isExistentDirectory(path) ? 1 : .isExistentStorage(path.substr(0,path.length-1)) ? 0 : -1;
+}
+function dirFilesSearch(path, match, ignoredot = true, append = void) {
+	if (append === void) {
+		Plugins.link("fstat.dll") if (typeof Storages.dirlist == "undefined");
+		var func = function { return true; };
+		switch (typeof match) {
+		case "String":
+			func = Scripts.eval(@"function(name) { return Storages.extractStorageExt(name).toLowerCase() == '${match}'; } incontextof global");
+			break;
+		case "Object":
+			if        (match instanceof "Function") {
+				func = match;
+			} else if (match instanceof "Array") {
+				func = function(name) {
+					var ext = global.Storages.extractStorageExt(name).toLowerCase();
+					return this.find(ext) >= 0;
+				} incontextof match;
+			} else if (match instanceof "RegExp") {
+				func = function(name) {
+					return this.match(name).count > 0;
+				} incontextof match;
+			}
+			break;
+		}
+		return dirFilesSearch(Storages.getFullPath(path), func, ignoredot, []);
+	}
+	if (path == "") return append;
+	// ディレクトリかどうか
+	var tmp = dirFilesIsExistentDirectory(path);
+	if (tmp <= 0) {
+		append.add(path) if (tmp == 0 && match(path));
+		return append;
+	}
+
+	// 一覧取得
+	tmp = path.charAt(path.length-1);
+	path += "/" if (tmp != "/" && tmp != "\\");
+	tmp = Storages.dirlist(path);
+
+	// マッチするファイルのみ登録
+	for (var i = 0; i < tmp.count; i++) {
+		var name = tmp[i];
+		if (name == "" || name == "." || name == ".." ||
+			(ignoredot && name.charAt(0) == ".")) continue;
+		name = path + name;
+		if (dirFilesIsExistentDirectory(name) > 0) {
+			dirFilesSearch(name, match, ignoredot, append);
+		} else {
+			append.add(name) if (match(name));
+		}
+	}
+	return append;
+}
+
+function dirFilesForeach(callback, path, match, ignoredot = true) {
+	var list = dirFilesSearch(path, match, ignoredot);
+	for (var i = 0; i < list.count; i++) callback(list[i]);
+}
+
+//property dirFilesSearch  { getter { Storages.execStorage("dirutil.tjs"); return global.dirFilesSearch;  } }
+//property dirFilesForeach { getter { Storages.execStorage("dirutil.tjs"); return global.dirFilesForeach; } }
+

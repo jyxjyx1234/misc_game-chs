@@ -1,0 +1,993 @@
+// KAGParserによる新方式のパーサ
+class        RollParserKAGF extends KAGParser {
+	function RollParserKAGF(owner) { super.KAGParser(); this.owner = owner; }
+	function finalize { super.finalize(...); }
+	var owner, infos, addofs, conds = [];
+	var curtext, curinfo = %[], definfo = %[];
+
+	function parse(file, infos) {
+		this.infos = infos;
+		loadScenario(file);
+		processSpecialTags = false;
+
+		initDefault();
+		clearCurrent();
+		var obj;
+		while ((obj = getNextTag()) !== void) {
+			var tagname = obj.tagname;
+			if (typeof this["onTag_"+tagname] == "Object")
+				/**/   this["onTag_"+tagname](obj);
+			else error(@"${file}:${curLine}:不明なタグ:${tagname}");
+		}
+		if (curtext !== void) processLine(true);
+		if (conds.count > 0) error("ifが閉じていません");
+	}
+	function error(args*) { owner.error(args.join(",")); }
+	function initDefault() {
+		clearDict(definfo);
+		with (definfo) {
+			.size = owner.normalSize;
+			// ...
+		}
+		addofs = 0;
+		conds.clear();
+	}
+	function clearDict(dic)     { (Dictionary.clear  incontextof dic)(); }
+	function cloneDict(dic, r)  { (Dictionary.assignStruct incontextof (r=%[]))(dic); return r; }
+	function copyDict (dic, ov) { (Dictionary.assign incontextof dic)(ov, true ); }
+	function mergeDict(dic, ov) { (Dictionary.assign incontextof dic)(ov, false); }
+
+	function setDefault(dic) { mergeDict(definfo, dic); }
+	function setNext(dic)    { mergeDict(curinfo, dic); }
+	function pushCond(exp) { conds.push(exp); }
+	function popCond() { if (!conds.count) error("endifが多すぎます"); return conds.pop(); }
+
+	function setCurrentSize(sz) {
+		sz = "normal" if (sz == "");
+		if (typeof owner[sz + "Size"] != "undefined")
+			sz   = owner[sz + "Size"];
+		sz = (int)sz;
+		with (curinfo) {
+			if (.sizechanged) {
+				.size = sz if (.size < sz); // 大きいほうに合わせる
+			} else {
+				.size = sz;
+				.sizechanged = true;
+			}
+		}
+		return sz;
+	}
+
+	function processCh(ch) { curtext += ch; }
+	function processLine(force) {
+		if (force || curtext != "") with (curinfo) {
+			.text = curtext;
+			.offset = +(.offset) + addofs;
+			if (conds.count > 0) {
+				.eval = @"(${conds.join(')&&(')})";
+			}
+			var store = cloneDict(definfo);
+			mergeDict(store, curinfo);
+			infos.add(store);
+			clearCurrent();
+		}
+	}
+	function clearCurrent() {
+		curtext = void;
+		clearDict(curinfo);
+	}
+	function processMark(mark) {
+		processCh(mark) if (owner.renderType == "TREN");
+	}
+	function processFont(elm) {
+		with (elm) {
+			if (.size !== void) processMark("%"+setCurrentSize(.size));
+			if (.bold   !== void) processMark("%"+(.bold  ?"b":"r"));
+			if (.italic !== void) processMark("%"+(.italic?"i":"r"));
+		}
+	}
+	function processSpace(elm) {
+		processLine();
+		setNext(%[ size:(int)elm.size, space:true ]);
+		processLine(true);
+	}
+	function processImage(elm) {
+		processLine();
+		var file = elm.file;
+		setNext(%[ image:file, size:owner.getInlineImageHeight(file) ]);
+		processLine(true);
+	}
+	// tag mappings
+	function onTag_ch   (elm) { processCh(elm.text); }
+	function onTag_emb  (elm) { processCh(Scripts.eval(elm.exp)); }
+	function onTag_r    (elm) { processLine(detectEOL || !elm.eol); }
+	function onTag_set  (elm) { delete elm.tagname; setDefault(elm); }
+	function onTag_once (elm) { delete elm.tagname; setNext(elm); }
+	function onTag_move (elm) { addofs = +elm.offset; }
+	function onTag_font (elm) { processFont(elm); }
+	function onTag_space(elm) { processSpace(elm); }
+	function onTag_image(elm) { processImage(elm); }
+
+	var detectEOL = true;
+	function onTag_linemode(elm) { detectEOL = !!elm.eol;  }
+
+	// フォントサイズ変更
+	function onTag_normal { processFont(%[ size:"normal" ]); }
+	function onTag_medium { processFont(%[ size:"medium" ]); }
+	function onTag_small  { processFont(%[ size:"small"  ]); }
+	function onTag_big    { processFont(%[ size:"big"    ]); }
+	function onTag_normal { processFont(%[ size:"normal" ]); }
+
+	// 条件場合わけ
+	function onTag_if(elm) { pushCond(elm.exp); }
+	function onTag_else()  { var cond = popCond(); pushCond(@"!(${cond})"); }
+	function onTag_endif() { popCond(); }
+
+	// ラベル処理
+	function onLabel(label, page) {
+		setNext(%[ label:label, page:page ]);
+	}
+}
+
+// 旧記述方式によるパーサ
+class        RollParserOLDF {
+	function RollParserOLDF(owner) { this.owner = owner; }
+	function finalize {}
+
+	var defaultAlign   = 0;
+	var defaultOffsetL = 0;
+	var defaultOffsetR = 0;
+	function parse(file, texts) {
+		var lines = [];
+		lines.load(file);
+		var nest = [], info = %[];
+		var offset = 0, clr = true;
+		for (var i=0;i<lines.count;i++) {
+			if (clr) with (info) {
+				.page = .label = .eval = .nolf = void;
+				.size   = owner.normalSize;
+				.align  = defaultAlign;
+				.drift  = .offset = 0;
+			}
+			clr = true;
+			var line = lines[i], top = line.charAt(0);
+			switch (top) {
+			case "#": clr = false; break;
+			case "~": info.page   = line.substr(1).trim(); clr = false; break;
+			case "*": info.label  = line.substr(1).trim(); clr = false; break;
+			case "$": info.offset = getNum(line, 1);       clr = false; break;
+			case "+": info.drift  = getNum(line, 1);       clr = false; break;
+			case "?": info.eval   = line.substr(1);        clr = false; break;
+			case "{": nest.unshift(line.substring(1)); break;
+			case "}": nest.shift(); break;
+			case "&":
+				if (line.length > 1) {
+					var ok = 0, err = 0;
+					for (var i = 1, len = line.length; i < len; i++) {
+						switch (line.charAt(i).toLowerCase()) {
+						case " ": break;
+						case "s": ok++; info.size = smallSize;  break;
+						case "m": ok++; info.size = mediumSize; break;
+						case "b": ok++; info.size = bigSize;    break;
+						case "r": ok++; info.align = 1; break;
+						case "c": ok++; info.align = 2; break;
+						case "n": ok++; info.nolf = true; break;
+						default:  err++; break;
+						}
+					}
+					if (ok) clr = false;
+					if (err) dm("unknown command(s)", line);
+				} else{
+					dm("no commands", line);
+				}
+				break;
+			case "=":
+				if (line.length > 1 && owner.doEvalText(makeEvalText(info.eval, nest))) {
+					switch (line.charAt(1)) {
+					case ">": defaultOffsetL = getNum(line, 2); break;
+					case "<": defaultOffsetR = getNum(line, 2); break;
+					case "&": defaultAlign   = info.align;      break;
+					default:  dm("unkonwn offset command", line);
+					}
+				}
+				break;
+			case "@":
+				texts.add(makeInfo(info, nest, %[ size:getNum(line, 1), space:true ]));
+				break;
+			case "!":
+				var img = line.substring(1).trim();
+				//dm("イメージ描画:" + img);
+				if (img != "") {
+					var h = owner.getInlineImageHeight(img);
+					texts.add(makeInfo(info, nest, %[ image:img, size:h ]));
+				}
+				break;
+			default:
+				//dm("描画対象:" + line);
+				var text = line.replace(/%([0-9a-fA-F]+)/g, function(m) {
+					return $ (int)("0x" + m[1]);
+				});
+				texts.add(makeInfo(info, nest, %[ text:text ]));
+				break;
+			}
+		}
+	}
+	function getNum(s, ofs) {
+		return +s.substr(ofs).trim();
+	}
+	function makeInfo(info, nest, ov) {
+		var ret = %[];
+		(Dictionary.assign incontextof ret)(info, true);
+		(Dictionary.assign incontextof ret)(ov,   false);
+		with (ret) {
+			.eval = makeEvalText(.eval, nest);
+			switch (.align) {
+			case 0: .offset += defaultOffsetL; break;
+			case 1: .offset += defaultOffsetR; break;
+			}
+		}
+		return ret;
+	}
+	function makeEvalText(e, list) {
+		return (!list.count) ? e : (e == "") ? ("("+list.join(") && (")+")") :
+		/**/                        ("("+e+") && ("+list.join(") && (")+")") ;
+	}
+}
+
+// 吉里吉里のdrawTextによるレンダラー（組み込みフォント対応）
+class RollRenderKRKR {
+	var owner, color, edgeParam;
+	function RollRenderKRKR(owner) {
+		with (this.owner = owner) {
+			color = owner.color;
+			if (.edgeSize > 0)
+				edgeParam = [ .edgeColor, 255, true, .edgeEmphasis, .edgeColor, .edgeSize, 0, 0 ];
+		}
+	}
+	function finalize {}
+	function getSize(lay, text, size, info) {
+		var ret = %[];
+		with (lay.font) {
+			.face = owner.fontName;
+			.height = size;
+			ret.width  = .getTextWidth (text);
+			ret.height = .getTextHeight(text);
+		}
+		return ret;
+	}
+	function draw(lay, text, size, info) {
+		with (lay) {
+			// 組み込みフォント用にわざとフチを別に描画する
+			.drawText(.left, .top, text, edgeParam*) if (edgeParam !== void);
+			.drawText(.left, .top, text, color);
+		}
+	}
+}
+
+// GDI+によるレンダラー（組み込みフォント非対応）
+class        RollRenderGDIP {
+	function RollRenderGDIP(owner) {
+		if (typeof global.GdiPlus != "Object") {
+			Plugins.link("layerExDraw.dll");
+		}
+		with (this.owner = owner) {
+			_drawTextApp = new GdiPlus.Appearance();
+			if (.edgeSize > 0) {
+				app.addPen(.edgeColor|0xff000000, %[
+					/**/width:    .edgeSize,
+					/**/startCap: GdiPlus.LineCapRound,
+					/**/endCap:   GdiPlus.LineCapRound,
+					/**/dashCap:  GdiPlus.LineCapRound,
+					/**/lineJoin: GdiPlus.LineJoinRound ], 0, 0);
+			}
+			app.addBrush(.color|0xff000000, 0, 0);
+		}
+	}
+	function finalize {
+		invalidate _drawTextApp  if (_drawTextApp  !== void);
+		invalidate _drawTextFont if (_drawTextFont !== void);
+	}
+	var owner, _drawTextApp, _drawTextFont;
+	function getSize(lay, text, size, info) {
+		if (_drawTextFont === void)
+			_drawTextFont = new GdiPlus.Font(owner.fontName, size, GdiPlus.FontStyleRegular);
+		else
+			_drawTextFont.emSize = size;
+		return measureString(_drawTextFont, text);
+	}
+	function draw(lay, text, size, info) {
+		lay.drawPathString(_drawTextFont, _drawTextApp, lay.left, lay.top, text);
+	}
+}
+
+// TextRender.tjsによるレンダラー
+class        RollRenderTREN {
+	function RollRenderTREN(owner) {
+		// まだ
+	}
+}
+
+/**
+ * スタッフロール専用処理
+ */
+class RollLayer extends Layer
+{
+	var parseType;  //< ロールテキスト内容のパーサタイプ（RollParser*）
+	var renderType; //< ロールテキストの描画タイプ（RollRender*）
+
+	var imageType;  //< 画像種別
+	var textName;   //< 画像ロード時のベース名
+	var saveType;   //< 画像保存時の拡張子（bmp/tlg/png）
+
+	var color;      //< 表示用色
+	var fontName;   //< フォントフェイス名
+	var edgeSize;   //< フチ用
+	var edgeColor;
+	var edgeEmphasis;
+
+	var normalSize; //< 通常時の表示サイズ
+	var smallSize;  //< 小さい文字の表示サイズ
+	var mediumSize; //< やや小文字の表示サイズ
+	var bigSize;    //< 大きい文字の表示サイズ
+
+	var indent;     //< 右寄せ／左寄せ時のマージン量
+
+	var linewidth;  //< 行間割合
+	var linespace;  //< 行間固定空白サイズ
+	var pad;        //< 画像パディング
+	var mode;       //< パース時の条件判定用変数
+
+
+	var elm;  //< init時のパラメータコピー
+	var work; //< ワーク作業用レイヤ
+	var parser, render; //< パーサとレンダ
+
+	// パラメータの初期値
+	var defaultParams = %[
+		parse     : %[ name:"parseType",    type:"String",  initial:"KAGF"            ],
+		render    : %[ name:"renderType",   type:"String",  initial:"KRKR"            ],
+		save      : %[ name:"saveType",     type:"String",  initial:"png"             ],
+		font      : %[ name:"fontName",     type:"String",  initial:"ＭＳ Ｐゴシック" ],
+		color     : %[ name:"color",        type:"Integer", initial: 0xffffff         ],
+		normal    : %[ name:"normalSize",   type:"Integer", initial: 18               ],
+		small     : %[ name:"smallSize",    type:"Integer", initial: 10               ],
+		medium    : %[ name:"mediumSize",   type:"Integer", initial: 14               ],
+		big       : %[ name:"bigSize",      type:"Integer", initial: 20               ],
+		indent    : %[ name:"indent",       type:"Integer", initial: 80               ],
+		linewidth : %[ name:"linewidth",    type:"Real",    initial: 1.2              ],
+		linespace : %[ name:"linespace",    type:"Number",  initial: 0                ],
+		type      : %[ name:"imageType",    type:"Integer", initial: 0                ],
+		edgesize  : %[ name:"edgeSize",     type:"Number",  initial: 0                ],
+		edgecolor : %[ name:"edgeColor",    type:"Integer", initial: 0                ],
+		emphasis  : %[ name:"edgeEmphasis", type:"Integer", initial: 2048             ],
+		height    : %[ name:"height",       type:"Integer",                           ],
+		mode      : %[ name:"mode",                                                   ],
+		padding   : %[ name:"pad",          type:"Integer", initial: 8                ],
+		];
+
+	/**
+	 * コンストラクタ
+	 */
+	function RollLayer(kag, par) {
+		super.Layer(kag, par);
+		name = "スクロール対象レイヤ";
+		setPos(0,0,kag.scWidth,kag.scHeight);
+
+		work = createLayer("KAGLayer");
+	}
+	function createLayer(cls = "Layer") {
+		return new global[cls](window, this);
+	}
+
+	function finalize() {
+		clearImages();
+		invalidate work   if (work);
+		invalidate parser if (parser);
+		invalidate render if (render);
+		super.finalize(...);
+	}
+
+	
+	/**
+	 * 初期化用
+	 */
+	function init(elm) {
+		this.elm = elm;
+		if (elm !== void) with (elm) {
+			var ext = [];
+			ext.assign(defaultParams);
+			for (var i = 0; i < ext.count; i+=2) {
+				var tag = ext[i], define = ext[i+1];
+				if (tag == "" || define === void) continue;
+				with (define) {
+					if (typeof elm[tag] != "undefined") {
+						var value = elm[tag];
+						switch (.type) {
+						case "String":  value = (string)value; break;
+						case "Integer": value = (int)   value; break;
+						case "Number":  value =        +value; break;
+						case "Real":    value = (real)  value; break;
+						}
+						this[.name] = value;
+					} else if (typeof .initial != "undefined") {
+						this[.name] = .initial; // デフォルト値を設定
+					}
+				}
+			}
+		}
+		imageHeight = height;
+		textName = Storages.chopStorageExt(elm.base !== void ? elm.base : elm.file);
+
+		if (typeof global["RollParser"+parseType ] != "Object") throw new Exception(@"未知のパーサ:${parseType}");
+		if (typeof global["RollRender"+renderType] != "Object") throw new Exception(@"未知のレンダ:${renderType}");
+
+		dm("RollLayer.init", parseType, renderType);
+		invalidate parser if (parser);
+		invalidate render if (render);
+		parser = new global["RollParser"+parseType ](this);
+		render = new global["RollRender"+renderType](this);
+
+		loadText(elm.file);
+	}
+
+	function error(mes) { window.errorCmd(mes); }
+	
+	// ロール用情報
+	var texts = [];
+	var images = [];
+	var inline = %[];
+	var labels = %[];
+	var _rollMax; //< スクロール量最大値
+
+	function clearImages() {
+		for (var i=0;i<images.count;i++) {
+			invalidate images[i] if (images[i] !== void);
+		}
+		images.clear();
+
+		var ext = [];
+		ext.assign(inline);
+		for (var i=0;i<ext.count;i+=2) {
+			invalidate ext[i+1] if (ext[i+1] !== void);
+		}
+		(Dictionary.clear incontextof inline)();
+		(Dictionary.clear incontextof labels)();
+	}
+
+	/*
+	 * スクロール用情報の読み込み
+	 */
+	function loadText(text) {
+		texts.clear();
+		clearImages();
+
+		parser.parse(text, texts);
+
+		_rollMax = 0;
+		for (var i=0, n=0;i<texts.count;i++) with (texts[i]) {
+			var show = .show = doEvalText(.eval);
+			var sz = show ? .size : 0;
+			if (.label != "") {
+				var name = .label, ofs = 0, pos;
+				if ((pos =  name.indexOf("+")) > 0) {
+					ofs  = +name.substr(pos+1);
+					name =  name.substr(0, pos);
+				}
+				labels[name] = _rollMax + sz\2 + ofs;
+			}
+			if      (.text  != "") sz *= linewidth, sz += linespace, .tnum = n++;
+			else if (.image != "") sz += normalSize * (linewidth-1) + linespace;
+			else .show = false;
+
+			.pos = _rollMax + (+.drift);
+			_rollMax += sz if (!.nolf);
+
+			//dm(i, StructToString(texts[i]));
+		}
+
+		dm("loadText", text, texts.count, _rollMax);
+	}
+
+	function getInlineImageHeight(img) {
+		var lay = inline[img] = createLayer();
+		lay.loadImages(img);
+		return lay.imageHeight;
+	}
+	function doEvalText(exp) {
+		//dm("elm.base:" + elm.base + ":" + exp + ":" + exp!);
+		return exp == "" || exp!;
+	}
+
+	function getLabelPos(name) {
+		var r = (name != "" && labels[name] !== void )? labels[name] + height/2 : void;
+		dm("getLabelPos", name, r);
+		return r;
+	}
+
+	property rollMax {
+		getter() {
+			return _rollMax + height/2;
+		}
+	}
+	
+
+	/**
+	 * 画面をクリア
+	 */
+	function clear() {
+		setPos(0,0,kag.scWidth,kag.scHeight);
+		fillRect(0,0,width,height,0);
+	}
+
+	/**
+	 * @return 画像版の場合のファイル名を返す
+	 */
+	function getImageFilename(n, id) {
+		return (id != "") ? (textName+id) : ("%s%03d".sprintf(textName, n));
+	}
+
+	function drawText(*) {
+		var sz = render.getSize(work, *);
+		with (work) {
+			var o = pad*2;
+			.setPos(0, 0);
+			if (sz !== void) {
+				.setPos(pad, pad);
+				.setImageSize(sz.width + o, sz.height + o);
+				.fillRect(0, 0, .imageWidth, .imageHeight, (edgeSize > 0 ? edgeColor : color) & 0xFFFFFF);
+				render.draw(work, *);
+			} else {
+				dm("レンダリングサイズ取得失敗", *);
+				.setImageSize(1, 1);
+				.fillRect(0, 0, 1, 1, 0);
+			}
+		}
+	}
+
+	/**
+	 * テキストの表示
+	 * @param n テキスト番号
+	 * @param y 表示位置
+	 * @param text テキスト
+	 * @param size 表示するテキストのサイズ
+	 */
+	function getDrawImage(info) {
+		var n = (int)info.tnum;
+		var image = images[n];
+		if (image === void) with (info) {
+			//dm("画像ロード" + getImageFilename(n, id));
+			image = createLayer();
+			if (imageType != 0) {
+				try {
+					image.loadImages(getImageFilename(n, .id));
+				} catch(e) {
+					imageType = 0;
+					dm(@"フォント画像ロードに失敗しました。以降ソフト描画を使用します。", e.message);
+				}
+			}
+			if (imageType == 0) {
+				// テキストで描画
+				drawText(.text, .size, info);
+				image.assignImages(work);
+			}
+			images[n] = image;
+		}
+		with (work) {
+			.assignImages(image);
+			.setSizeToImageSize();
+			return %[ w:.width, h:.height, pad:true ];
+		}
+	}
+	function getInlineImage(image) {
+		with (work) {
+			.assignImages(inline[image]);
+			.setSizeToImageSize();
+			return %[ w:.width, h:.height ];
+		}
+	}
+
+	/**
+	 * テキストの表示
+	 * @param info = %[ // 表示情報
+	 *                  tnum  : テキスト番号
+	 *                  text  : テキスト,
+	 *                  size  : 表示するテキストのサイズ
+	 *                  align : アラインメント 0:左よせ 1:右よせ 2:センタリング
+	 *                ]
+	 * @param y 表示位置
+	 */
+	function draw(info, y) {
+		var size = info.size;
+		if (y + size + pad + 1 <= 0 || y >= height) return;
+		if (info.text == "" && info.image == "") return;
+
+		//dm("描画:" + info.text + "," + size + "," + info.align);
+		var s = (info.text != "") ? getDrawImage(info) : getInlineImage(info.image);
+		var x, w=s.w, h=s.h;
+		switch (info.align) {
+		case 1:  x =  width - indent - w; if (s.pad) x += pad; break;
+		case 2:  x = (width - w) / 2;                          break;
+		default: x =          indent;     if (s.pad) x -= pad; break;
+		}
+		x += info.offset;
+		y -= pad if (s.pad);
+		var x1 = x-0.5,  y1 = y-0.5;
+		var x2 = x1 + w, y2 = y1 + h;
+		(global.Layer.operateAffine incontextof this)(work,0,0,w,h,false,x1,y1,x2,y1,x1,y2,omAuto,255,stCubic|stRefNoClip);
+	}
+
+	/**
+	 * ロール用画像データ生成
+	 */
+	function createImage(elm, basefolder = "image/") {
+		init(elm);
+		if (basefolder == "*") {
+			imageType = 0;
+			var noresize = function { fillRect(0,0,width,height,0); } incontextof this;
+			clear <-> noresize;
+			roll = height = _rollMax;
+			clear <-> noresize;
+			with (Storages) saveImage(this, System.exePath+"_temp_rollimage_"+.chopStorageExt(.extractStorageName(elm.file)));
+			return;
+		}
+		if (basefolder.charAt(basefolder.length-1) != "/") basefolder += "/";
+		if (elm.page) {
+			// ページ画像生成
+			var pageoff = elm.pageoffset !== void ? elm.pageoffset : elm.normal * elm.linewidth;
+			var pagepos = 0;
+			clear();
+			var info;
+			var first = true;
+			var pageNum = 0;
+			var pageName;
+			for (var i=0;i<texts.count;i++) with (info = texts[i]) {
+				if (.page !== void) {
+					if (!first) {
+						outputPage(basefolder + pageName);
+					}
+					first = false;
+					clear();
+					pagepos = .pos;
+					pageName = textName + "_" + (.page != "" ? .page : pageNum);
+					pageNum++;
+				}
+ 				draw(info, (pageoff + .pos - pagepos));
+			}
+			outputPage(basefolder + pageName);
+		} else {
+			// 個別画像生成
+			var n=0, info;
+			for (var i=0;i<texts.count;i++) with (info = texts[i]) {
+				if (.text != "") {
+					drawText(.text, .size, info);
+					// セーブ処理
+					saveImage(work, basefolder + getImageFilename(n++, .id));
+				}
+			}
+		}
+	}
+
+	function outputPage(fname) {
+		var crop = (global.Layer.getCropRect incontextof this)();
+		if (crop !== void && crop.w > 0 && crop.h > 0) {
+			setSize(crop.x + crop.w, crop.y + crop.h);
+			setImageSize(width,height);
+		}
+		saveImage(this, fname);
+	}
+
+	function saveImage(lay, name) {
+		var func = "saveLayerImage", ext = "."+saveType;
+		switch (saveType) {
+		case "tlg": func += "Tlg5"; break;
+		case "png": func += "Png";  break;
+		default:    ext   = ".bmp"; break;
+		}
+		if (typeof global.Layer[func] != "Object") {
+			// layerExSaveを動的読み込み
+			try { Plugins.link("layerExSave.dll"); } catch {}
+		}
+		(global.Layer[func] incontextof lay)(name + ext);
+	}
+
+	property roll {
+		setter(r) {
+			// 再描画
+			clear();
+			var info;
+			for (var i=0;i<texts.count;i++) with (info = texts[i]) {
+				if (.show) draw(info, (height + .pos - r));
+			}
+			//dm("再描画完了:" + r);
+		}
+	}
+};
+
+/**
+ * 特殊スタッフロールプラグイン
+ */
+class StaffRollPlugin extends GenericFlip {
+
+	var roll; // スクロール処理用情報
+	var file; // 初期化情報ファイル
+
+	function StaffRollPlugin(kag) {
+		super.GenericFlip(kag);
+		roll = new RollLayer(kag, kag.primaryLayer);
+	}
+
+	function finalize() {
+		invalidate roll if (roll !== void);
+		super.finalize(...);
+	}
+
+	var rollTime;    //< スクロール時間
+	var rollEndWait; //< スクロール終了後の停止時間
+	var startTime;   //< 開始時刻
+	var currentTime; //< 現在時刻
+	var rollBegin, rollEnd;
+	var startPos, endPos; //< 開始位置・停止位置
+
+	/**
+	 * スクロール開始
+	 * @param time スクロールに必要な時間(tick値)
+	 */
+	function flipStart(file, elm) {
+		this.file = file;
+		var info = Scripts.evalStorage(file);
+		roll.clear();
+		roll.init(info);
+
+		startPos  = roll.getLabelPos((rollBegin = elm.rollbegin));
+		endPos    = roll.getLabelPos((rollEnd   = elm.rollend  ));
+		startPos  = 0            if (startPos === void);
+		endPos    = roll.rollMax if (endPos   === void);
+
+		rollEndWait = (int)elm.rollendwait;
+
+		setRollTime(elm);
+		//dm("flipStart", startPos, endPos, rollBegin, rollEnd, roll.rollMax, rollTime, rollEndWait);
+	}
+	function setRollTime(elm) {
+		var time, tmstr = elm.rolltime;
+		// roletime = 数値                              : 時間指定
+		//            bgm                               : BGM再生時間
+		//            bgm+time, bgm-time                : BGM再生時間±time
+		//            label:ラベル名[::{+-}time]        : ラベル名までの時間[±time]
+		//            label:ラベル１:ラベル２[:{+-}time]: ラベル１から２までの時間[±time]
+		if (tmstr.indexOf("bgm") == 0) {
+			time =  getBGMProp("totalTime");
+			time -= getBGMProp("position") if (time !== void);
+		} else if (elm.rolltime.indexOf("label:") == 0) {
+			var split = elm.rolltime.split(":");
+			if (split.count >= 3 && split[2] != "") {
+				time  = getBGMLabel(split[2]);
+				time -= getBGMLabel(split[1]) if (time !== void);
+			} else {
+				time  = getBGMLabel(split[1]);
+				time -= getBGMProp("position") if (time !== void);
+			}
+		}
+		if (time !== void) {
+			var pos;
+			if ((pos = tmstr.indexOf("+")) > 0) time += (int)tmstr.substr(pos+1);
+			if ((pos = tmstr.indexOf("-")) > 0) time -= (int)tmstr.substr(pos+1);
+			rollTime = time;
+		} else {
+			try { rollTime = (int)tmstr; } catch { rollTime = 30*1000; }
+		}
+		currentTime = void;
+		if (rollTime > 0) {
+			startTime = elm.rollcurrent !== void ? System.getTickCount() - +elm.rollcurrent : void;
+		} else {
+			roll.roll = startPos;
+		}
+		//dm("rollTime", startTime, rollTime);
+	}
+
+	function getBGMProp(prop) {
+		return (kag.bgm.playingStorage != "") ? kag.bgm.buf1[prop] : void;
+	}
+	function getBGMLabel(lbl) {
+		var labels = getBGMProp("labels");
+		var info = (labels !== void && lbl != "") ? labels[lbl] : void;
+		dm("getLabel", lbl, (info !== void) ? info.position : "-");
+		return (info !== void) ? info.position : void;
+	}
+
+	/**
+	 * スクロール処理用
+	 */
+	function flipFrame(tick) {
+		if (rollTime <= 0) {
+			flipAssign(roll);
+			return flipping;
+		}
+		startTime = tick if (startTime === void);
+		currentTime = tick - startTime;
+		var en = currentTime < (rollTime + rollEndWait);
+		currentTime = rollTime if (currentTime > rollTime);
+		roll.roll = startPos + (endPos - startPos) * currentTime / rollTime;
+		flipAssign(roll);
+		return flipping && en;
+	}
+
+	function flipStore(dic) {
+		if (file != "" && dic !== void) with (dic) {
+			.file = file;
+			.rollbegin   = rollBegin;
+			.rollend     = rollEnd;
+			.rollendwait = rollEndWait;
+			.rollcurrent = currentTime;
+			.rolltime    = rollTime;
+		}
+	}
+
+	function flipRestore(dic) {
+		flipStart(dic.file, dic) if (dic !== void);
+	}
+	function flipSetOptions(elm) {
+		setRollTime(elm);
+	}
+}
+
+
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "exroll",            // 登録タグ
+		"class"    => StaffRollPlugin,     // コントローラクラス
+		"trigger"  => "rolldone",          // 停止時に投げるトリガー名
+		"ext"      => "tjs",               // 判定処理（拡張子文字列or配列）
+//		"checker"  => void,                // 判定処理（関数）
+		"options"  => [ "rollcurrent", "rolltime", "rollbegin", "rollend", "rollendwait" ],   // 使用するオプション値（KAGEnvLayer用）
+//		"autoflag" => "",                  // 自動フラグタグ名（KAGEnvLayer用）
+		"dtstore"  => true,                // 復帰フラグ（KAGEnvLayer用）
+		]);
+
+addKagHandler("rollwait", function(elm) { return waitTrigger(%[name:"rolldone", canskip:true]); }, true);
+addKagHandler("rollinit", function(elm) {
+	stopAllGenericFlipsOneClass("exroll");
+	if (elm.flag != "") {
+		// スキップ設定
+		var en = sf[elm.flag];
+		insertTag("clickskip",        %[ enabled: en ]);
+		insertTag("rclickrollcancel", %[ enabled:!en ]);
+	} else {
+		insertTag("rclickrollcancel", %[ enabled:false ]);
+	}
+	return 0;
+}, true);
+
+@if (DEBUG)
+// ロール画像生成メニュー
+function createRollFontImage(script, output = "image/roll/") {
+	if (typeof script == "Object") {
+		output = script.output if (typeof script.output != "undefined" && script.output != "");
+		script = script.target;
+	}
+
+	// フォントを選択する
+	var face, tmp = new global.Layer(kag, kag.primaryLayer);
+	with (tmp.font) {
+		.height = -20;
+		if (!.doUserSelect(fsfSameCharSet | fsfNoVertical | fsfTrueTypeOnly | fsfUseFontFace, "フォントの選択",
+						   "フォントを選択してください", "ABCDEFGHIあいうえお亜胃宇絵御")) return;
+		face = .face;
+	}
+	invalidate tmp;
+
+	var rollLayer = new RollLayer(kag, kag.primaryLayer);
+	var info = Scripts.evalStorage(script);
+	info.font = face;
+
+	rollLayer.createImage(info, output);
+	invalidate rollLayer;
+}
+addAfterInitCallback(function() {
+	var items = [], list = [].load("rollmenu.ini");
+	for (var i = 0; i < list.count; i++) {
+		var div = ((string)list[i]).split(":");
+		if (div.count > 1 && div[0].charAt(0) != "#")
+			items.add(%[ caption:div[0], exp:createRollFontImage, prop:%[ target:div[1], output:div[2] ] ]);
+	}
+	if (items.count > 0) {
+		if (items.count == 1) {
+			createMenuFromList(kag, kag.debugMenu, [ "-", items[0] ]);
+		} else {
+			createMenuFromList(kag, kag.debugMenu, [ "-", %[  caption:"エンドロール画像生成", children:items ] ]);
+		}
+	}
+} incontextof global) if (debugWindowEnabled && Storages.isExistentStorage("rollmenu.ini"));
+@endif
+
+
+
+// evに画像を次々読み込むタグを差し込む
+addKagHandler("rollimage", function(elm) {
+	var touches = [];
+	var target = elm.file;
+	var label = elm.label;
+	switch (((string)Storages.extractStorageExt(target)).toLowerCase()) {
+	case ".ks":
+		var parser = new KAGParser(), n = 0, obj;
+		with (parser) {
+			.ignoreCR = true;
+			.loadScenario(elm.file);
+			while ((obj = .getNextTag()) !== void) with (obj) {
+				var file = "ev";
+				.tagname <-> file;
+				if (file == "ev") file = .file;
+				if (file != "") {
+					.file = file if (.file === void);
+					touches.add(file);
+					n++;
+				}
+				if (.delayrun === void) {
+					.delayrun = label + n;
+				}
+				addTag("ev", obj);
+			}
+		}
+		invalidate parser;
+		break;
+	default:
+		var dat = [].load(elm.file), n = 1;
+		var getopt = function (elm, tag, line, num) {
+			elm[tag] = line[num] if (line.count > num && line[num] != "");
+		};
+		for (var i=0;i<dat.count;i++) {
+			var line = dat[i];
+			if (line.length > 0 && line.charAt(0) != "#" && (line = line.split("\t")).count > 0) {
+				var file = line[0];
+				if (file != "") file = file.trim();
+				if (file != "") {
+					touches.add(file);
+					var elm    = %[tagname:"ev", file:file, delayrun:label+n ];
+					elm.xpos   = line.count > 1 && line[1].length > 0 ? +line[1] : 0;
+					elm.ypos   = line.count > 2 && line[2].length > 0 ? +line[2] : 0;
+					elm.script = line.count > 3 && line[3].length > 0 ?  line[3] : void;
+					elm.trans  = line.count > 4 && line[4].length > 0 ?  line[4] : "normal";
+					getopt(elm, "zoom", line, 5);
+					getopt(elm, "afx" , line, 6);
+					getopt(elm, "afy",  line, 7);
+					addTag("ev", elm);
+					n++;
+				}
+			}
+		}
+		break;
+	}
+	var n = 0;
+	var tch = %[], exist = getExistImageName;
+	var dim = (typeof global.Layer.diffImageMap == "Object") ? global.Layer.diffImageMap : %[];
+	for (var i = 0; i < touches.count; i++) {
+		var file = touches[i];
+		if (exist(file) != "") tch["file"+(++n)] = file;
+		else if (dim[file.toLowerCase()] !== void) with (dim[file.toLowerCase()]) {
+			tch["file"+(++n)] = .base if (.base != "" && exist(.base) != "");
+			tch["file"+(++n)] = .diff if (.diff != "" && exist(.diff) != "");
+		}
+	}
+	addTag("touch", tch) if (n > 0);
+	return 0;
+}, true);
+
+// 右クリックでロール強制キャンセル処理
+function RClickRollCancelHandler() {
+	try { kag.conductor.trigger('rolldone'); }
+	catch {}
+}
+function RemoveRClickRollCancelHandler() {
+	try { kag.rightClickHook.remove(RClickRollCancelHandler, true); }
+	catch {}
+}
+addKagHandler("rclickrollcancel", function(elm) {
+	if (elm !== void) with (elm) {
+		/**/          rightClickHook.remove(RClickRollCancelHandler, true);
+		if (.enabled) rightClickHook.add   (RClickRollCancelHandler);
+	}
+	return 0;
+}, true);
+SystemHook.add("exit.begin", RemoveRClickRollCancelHandler);
+SystemHook.add("title.logo", RemoveRClickRollCancelHandler);

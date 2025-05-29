@@ -1,0 +1,237 @@
+
+// ---------------------------------------------------------------
+// レイヤ機能拡張処理
+// ---------------------------------------------------------------
+
+// 拡張ファンクション群のよみこみ
+
+//    /**
+//     * 明度とコントラスト
+//     * @param brightness 明度 -255 ～ 255, 負数の場合は暗くなる
+//     * @param contrast コントラスト -100 ～100, 0 の場合変化しない
+//     */
+//    function light(brightness, contrast);
+//    
+//    /**
+//     * 色相と彩度
+//     * @param hue 色相
+//     * @param sat 彩度
+//     * @param blend ブレンド 0 (効果なし) ～ 1 (full effect)
+//     */
+//    function colorize(hue, sat, blend);
+//    
+//    /**
+//     * ノイズ追加
+//     * @param level ノイズレベル 0 (no noise) ～ 255 (lot of noise).
+//     */
+//    function noize(level);
+//
+//	/**
+//	 * 色相と彩度と輝度の変更
+//	 * @param hue 色相 -180～180 (度)
+//	 * @param saturation 彩度 -100～100 (%)
+//	 * @param luminance 輝度 -100～100 (%)
+//	 */
+//	function modulate(hue, saturation, luminance);
+
+Plugins.link("layerExImage.dll");
+
+/**
+ * 影を追加する
+ * @param dx 影のX移動量 (右にプラス)
+ * @param dy 影のY移動量 (下にプラス)
+ * @param blur ぼかし量
+ * @param shadowColor 影の色
+ * @param shadoAlpha 影の不透明度
+ */
+Layer.doDropShadow = function(dx=10, dy=10, blur=3, shadowColor=0x000000, shadowOpacity=200)
+{
+    var THIS = global.Layer;
+    
+    // 作業用レイヤ
+    var work = new THIS(window, parent);
+    work.setImagePos(THIS.imageLeft, THIS.imageTop);
+    work.setImageSize(THIS.imageWidth, THIS.imageHeight);
+    
+    // 影生成処理
+    var shadow = new THIS(window, parent);
+    shadow.assignImages(this);
+    // 塗りつぶし
+    shadow.face = dfMain;
+    shadow.holdAlpha = true;
+    shadow.fillRect(THIS.imageLeft, THIS.imageTop, THIS.imageWidth, THIS.imageHeight, shadowColor);
+    shadow.face = dfBoth;
+    shadow.holdAlpha = false;
+    // ぼかす
+    shadow.doBoxBlur(blur, blur);
+    
+    // 影をコピー
+    work.operateRect(THIS.imageLeft + dx, THIS.imageTop + dy, shadow, THIS.imageLeft, THIS.imageTop, THIS.imageWidth, THIS.imageHeight, ltPsNormal, shadowOpacity);
+    // 自分をコピー
+    work.operateRect(THIS.imageLeft, THIS.imageTop, this, THIS.imageLeft, THIS.imageTop, THIS.imageWidth, THIS.imageHeight, ltPsNormal, 255);
+    
+    // 画像さしかえ
+    THIS.assignImages(work);
+    
+    // 後片付け
+    invalidate work;
+    invalidate shadow;
+};
+
+/**
+ * ぼわぼわ光効果
+ * @param blur ぼかし度合い
+ * @param blurOpacity ぼかし合成不透明度
+ * @param lightType 光合成種別
+ * @param lightOpacity 光不透明度
+ */
+Layer.doBlurLight = function (blur=10, blurOpacity=128, lightOpacity=200, lightType=ltPsHardLight)
+{
+    var THIS = global.Layer;
+    
+    // ぼかし生成処理
+    var light = new THIS(window, parent);
+    light.assignImages(this);
+    light.doBoxBlur(blur, blur);
+    // ぼかしをコピー
+    THIS.operateRect(THIS.imageLeft, THIS.imageTop, light, THIS.imageLeft, THIS.imageTop, THIS.imageWidth, THIS.imageHeight, ltPsNormal, blurOpacity);
+    // 光をコピー
+    THIS.operateRect(THIS.imageLeft, THIS.imageTop, light, THIS.imageLeft, THIS.imageTop, THIS.imageWidth, THIS.imageHeight, lightType, lightOpacity);
+    // 後片付け
+    invalidate light;
+};
+
+/**
+ * レイヤへのタイル敷き詰め処理
+ * @param left
+ * @param top
+ * @param width
+ * @param height
+ * @param tile 敷き詰めるレイヤ（画像部分が参照される）
+ * @param x X方向ずれ量
+ * @param y Y方向ずれ量
+ */
+Layer.tileRect = function (left, top, width, height, tile, x=0, y=0)
+{
+    if (tile instanceof "Layer") {
+
+        var THIS = global.Layer;
+
+        var tl = tile.imageLeft;
+        var tt = tile.imageTop;
+        var tw = tile.imageWidth;
+        var th = tile.imageHeight;
+        if (tw > 0 && th > 0) {
+            x = x % tw;
+            y = y % th;
+            if (x > 0) {
+                x -= tw;
+            }
+            if (y > 0) {
+                y -= th;
+            }
+            while (y < height) {
+                var x2 = x;
+                while (x2 < width) {
+                    var dx = x2;
+                    var dy = y;
+                    var sx = tl;
+                    var sy = tt;
+                    var sw = tw;
+                    var sh = th;
+                    // クリッピング
+                    if (dx < 0) {
+                        sx -= dx;
+                        sw += dx;
+                        dx = 0;
+                    }
+                    if (dy < 0) {
+                        sy -= dy;
+                        sh += dy;
+                        dy = 0;
+                    }
+                    if (dx + sw > width) {
+                        sw = (width - dx);
+                    }
+                    if (dy + sh > height) {
+                        sh = (height - dy);
+                    }
+                    THIS.copyRect(left + dx, top + dy, tile, sx, sy, sw, sh);
+                    x2 += tw;
+                }
+                y += th;
+            }
+        }
+    } else {
+        throw new Exception("Layer.tile() の第一引数は Layer である必要があります");
+    }
+};
+
+/**
+ * レイヤへの色反映処理
+ * @param left
+ * @param top
+ * @param width
+ * @param height
+ * @param color 塗りつぶす色(マスク値を含む）
+ * @param mode 合成モード
+ */
+Layer.fillOperateRect = function (left, top, width, height, color, mode)
+{
+    var tw = 128;
+    var th = 64;
+    var fillLayer = new global.Layer(window, this);
+    // 元々吉里吉里のものなら、不透明の一色レイヤーを、不透明度を指定して描画。
+    // PhotoShop準拠のものなら、半透明の一色レイヤーを、透明度を指定せず(opacity=255)に描画。
+    var orgmodes	= %[ltOpaque=>1,ltAlpha=>1,ltAddAlpha=>1,ltAdditive=>1,ltSubtractive=>1,ltMultiplicative=>1,ltDodge=>1,ltLighten=>1,ltDarken=>1,ltScreen=>1];
+    fillLayer.setSize(tw, th);
+    var opacity	= 255;
+    var lastface = face, lastha = holdAlpha;
+    if(orgmodes[mode])
+    {
+		fillLayer.fillRect(0, 0, tw, th, color | 0xFF000000);
+		opacity = (color >> 24) & 0xFF;
+		face	= dfOpaque;
+    }
+    else
+        fillLayer.fillRect(0, 0, tw, th, color);
+	holdAlpha	= true if !isPrimary;
+    var x = 0;
+    var y = 0;
+    while (y < height) {
+        var x2 = x;
+        while (x2 < width) {
+            //Debug.message("pos:" + x2 + "," + y);
+            global.Layer.operateRect(x2, y, fillLayer, 0, 0, tw, th, mode, opacity);
+            x2 += tw;
+        }
+        y += th;
+    }
+    face = lastface, holdAlpha = lastha;
+
+    // 後片付け
+    invalidate fillLayer;
+};
+/**
+ * piledCopyのoperate版
+ * @param dleft
+ * @param dtop
+ * @param src
+ * @param sleft
+ * @param stop
+ * @param swidth
+ * @param sheight
+ * @param mode
+ * @param opa
+ */
+Layer.piledOperateRect = function (dleft, dtop, src, sleft, stop, swidth, sheight, mode=omAuto, opa=255)
+{
+	var tempLayer = new global.Layer(window, this);
+	with (tempLayer) {
+		.setImageSize(swidth, sheight);
+		.piledCopy(0, 0, src, sleft, stop, swidth, sheight);
+		global.Layer.operateRect(dleft, dtop, tempLayer, 0, 0, swidth, sheight, mode, opa);
+	}
+	invalidate tempLayer;
+};
+

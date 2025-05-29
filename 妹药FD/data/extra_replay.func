@@ -1,0 +1,62 @@
+func,cursor,	visible,false
+file,stand,
+func,stand,	visible,false
+func,item0,	sename,item,	exp,Current.cmd("select/0"),	target,*view,	name,item0
+func,item1,	sename,item,	exp,Current.cmd("select/1"),	target,*view,	name,item1
+func,item2,	sename,item,	exp,Current.cmd("select/2"),	target,*view,	name,item2
+func,item5,	sename,item,	exp,Current.cmd("select/3"),	target,*view,	name,item3
+func,item6,	sename,item,	exp,Current.cmd("select/4"),	target,*view,	name,item4
+func,item7,	sename,item,	exp,Current.cmd("select/5"),	target,*view,	name,item5
+func,item10,	sename,item,	exp,Current.cmd("select/6"),	target,*view,	name,item6
+func,item11,	sename,item,	exp,Current.cmd("select/7"),	target,*view,	name,item7
+func,item12,	sename,item,	exp,Current.cmd("select/8"),	target,*view,	name,item8
+func,item15,	sename,item,	exp,Current.cmd("select/9"),	target,*view,	name,item9
+func,item16,	sename,item,	exp,Current.cmd("select/10"),	target,*view,	name,item10
+func,item17,	sename,item,	exp,Current.cmd("select/11"),	target,*view,	name,item11
+#
+func,item0,	onenter,Current.cmd("enter/0"),		onleave,Current.cmd("leave/0")
+func,item1,	onenter,Current.cmd("enter/1"),		onleave,Current.cmd("leave/1")
+func,item2,	onenter,Current.cmd("enter/2"),		onleave,Current.cmd("leave/2")
+func,item5,	onenter,Current.cmd("enter/3"),		onleave,Current.cmd("leave/3")
+func,item6,	onenter,Current.cmd("enter/4"),		onleave,Current.cmd("leave/4")
+func,item7,	onenter,Current.cmd("enter/5"),		onleave,Current.cmd("leave/5")
+func,item10,	onenter,Current.cmd("enter/6"),		onleave,Current.cmd("leave/6")
+func,item11,	onenter,Current.cmd("enter/7"),		onleave,Current.cmd("leave/7")
+func,item12,	onenter,Current.cmd("enter/8"),		onleave,Current.cmd("leave/8")
+func,item15,	onenter,Current.cmd("enter/9"),		onleave,Current.cmd("leave/9")
+func,item16,	onenter,Current.cmd("enter/10"),	onleave,Current.cmd("leave/10")
+func,item17,	onenter,Current.cmd("enter/11"),	onleave,Current.cmd("leave/11")
+#
+# [XXX] ページ別位置調整
+eval,-cursor,	exp,this.y+=.Current.page?61:0
+eval,-item0,	exp,this.y+=.Current.page?61:0
+eval,-item1,	exp,this.y+=.Current.page?61:0
+eval,-item2,	exp,this.y+=.Current.page?61:0
+eval,-item3,	exp,this.y+=.Current.page?61:0
+eval,-item4,	exp,this.y+=.Current.page?61:0
+eval,-item5,	exp,this.y+=.Current.page?61:0
+eval,-item6,	exp,this.y+=.Current.page?61:0
+eval,-item7,	exp,this.y+=.Current.page?61:0
+eval,-item8,	exp,this.y+=.Current.page?61:0
+#eval,-item9,	exp,this.y+=.Current.page?61:0
+#eval,-item10,	exp,this.y+=.Current.page?61:0
+#eval,-item11,	exp,this.y+=.Current.page?61:0
+#
+cref,allpages,page0,page1,
+rgrp,allpages,page0,page1,
+func,page0,	sename,page,	exp,Current.page=0,	target,*page
+func,page1,	sename,page,	exp,Current.page=1,	target,*page
+#
+cref,allsys,tab_graphic,tab_stand,tab_sound,tab_replay,back
+rgrp,allsys,tab_graphic,tab_stand,tab_sound,tab_replay
+func,tab_graphic,	sename,sysbtn,	target,*cgmode
+func,tab_stand,		sename,sysbtn,	target,*standmode,	storage,custom.ks
+func,tab_sound,		sename,sysbtn,	target,*soundmode
+func,tab_replay,	sename,sysbtn,	target,*scenemode
+eval,tab_replay,exp,toggle=true
+func,back,	target,*back
+cref,allpages,
+func,caption,
+func,base,
+#
+eval,names,call,uiloadSysSE,scenemode

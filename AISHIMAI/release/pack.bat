@@ -1,0 +1,1 @@
+chs_pack pack CPK AI5WIN_CHS.CPK AISHIMAI

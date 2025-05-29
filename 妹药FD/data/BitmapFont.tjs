@@ -1,0 +1,107 @@
+class BitmapFont {
+
+	var dic;   // 文字列情報マップ(infoから生成)
+	var layer; // 展開済み画像レイヤ
+	var tmplayer; // 画像表示用テンポラリレイヤ
+	var size;  // 基本フォントサイズ
+	var cw;  // セルサイズ横幅
+	var ch;  // セルサイズ縦幅
+	var name;
+	var owner;
+
+	/**
+	 * コンストラクタ
+	 * @param window ウインドウ
+	 * @param name フォント名
+	 */
+	function BitmapFont(window) {
+		owner = window;
+		layer = new Layer(window, window.primaryLayer);
+		layer.name = "ビットマップフォント用データ";
+		tmplayer = new Layer(window, window.primaryLayer);
+		tmplayer.name = "ビットマップフォント用作業レイヤ";
+	}
+
+	function finalize() {
+		invalidate layer;
+		invalidate tmplayer;
+	}
+
+	// 情報読み込み
+	function load(name) {
+		this.name = name;
+		var lines = [];
+		lines.load(name + "_lst.txt");
+		var line = lines[0].split("\t");
+		size = +line[0];
+		cw   = +line[1];
+		ch   = +line[2];
+		dic = %[];
+		var cnt = lines.count;
+		for (var i=1;i<cnt;i++) {
+			var line = lines[i].split("\t");
+			if (line.count > 1) {
+				var n = i-1;
+				var cx = n % 32;
+				var cy = n \ 32;
+				dic[line[0]] = %[x:cx*cw, y:cy*ch, wx:+line[1]];
+				//dm("load %d:%s:%s".sprintf(i,line[0],line[1]));
+			}
+		}
+		layer.loadImages(name + "_img");
+		layer.setSizeToImageSize();
+		tmplayer.setSize(cw,ch);
+	}
+
+	// -----------------------------------------------------------
+	// 描画処理
+	// -----------------------------------------------------------
+
+	function copyOne            (x,y,w,h)         {       tmplayer  .copyRect(0,0,layer,x,y,w,h); }
+	function copyOneAlpha       (x,y,w,h,dw,dh,s) { with (tmplayer) .copyRect(0,0,layer,x,y,w,h), .colorRect(0,0,w,h,0,s); }
+	function copyOneShrink      (x,y,w,h,dw,dh)   {       tmplayer  .shrinkCopy(0,0,dw,dh,layer,x,y,w,h); }
+	function copyOneShrinkAlpha (x,y,w,h,dw,dh,s) { with (tmplayer) .shrinkCopy(0,0,dw,dh,layer,x,y,w,h), .colorRect(0,0,dw,dh,0,s); }
+	function copyOneStretch     (x,y,w,h,dw,dh)   {       tmplayer  .stretchCopy(0,0,dw,dh,layer,x,y,w,h,stCubic); }
+	function copyOneStretchAlpha(x,y,w,h,dw,dh,s) { with (tmplayer) .stretchCopy(0,0,dw,dh,layer,x,y,w,h,stCubic), .colorRect(0,0,dw,dh,0,s); }
+	var copyOneList = [
+		copyOne,      copyOneShrink,      copyOneStretch,
+		copyOneAlpha, copyOneShrinkAlpha, copyOneStretchAlpha ];
+
+	function drawTextToLayer(lay, x, y, text, color, alpha = 255) {
+		if (text == "") return;
+		var dsize = Math.abs(lay.font.height);
+		var w = cw-1, h = ch-1, z = dsize / size;
+		var dw = w*z, dh = h*z, idw = (int)Math.ceil(dw), idh = (int)Math.ceil(dh);
+		with (tmplayer) {
+			if (idw != .imageWidth || idh != .imageHeight) {
+				.setImageSize(idw, idh);
+				.holdAlpha = false, .face = dfAlpha;
+				.fillRect(0,0,idw,idh,0);
+			}
+		}
+		color &= 0xFFFFFF;
+		alpha &= 0xFF;
+		alpha -= 255;
+		var err, cp = copyOneList[(alpha<0?3:0) + ((dsize==size) ? 0 : (z<=0.5) ? 1 : 2)];
+		for (var i=0,len=text.length; i<len; i++) {
+			var c = text.charAt(i), info = dic[c];
+			if (info !== void) with (tmplayer) {
+				try {
+					.holdAlpha = false, .face = dfAlpha;
+					cp(info.x, info.y, w, h, dw, dh, alpha); 
+					.holdAlpha = true, .face = dfOpaque;
+					.fillRect( 0,0,idw,idh,color);
+					lay.operateRect(x,y,tmplayer,0,0,idw,idh);
+				} catch(e) {
+					Debug.message(e.message);
+					err += c;
+				}
+				x += info.wx * z;
+			} else err += c;
+		}
+		if (err != "") {
+			var func = typeof owner.errorCmd == "Object" ? owner.errorCmd : Debug.message;
+			func("BitmapFont/undefined font: " + err);
+		}
+	}
+};

@@ -1,0 +1,2689 @@
+// ラスタースクロール処理用プラグイン
+if (typeof global.Layer.copyRaster == "undefined") {
+	try {
+		Plugins.link("layerExRaster.dll");
+	} catch(e) {
+	}
+}
+
+// ベクター処理用プラグイン
+if (typeof global.Layer.drawImage == "undefined") {
+	try {
+		Plugins.link("layerExDraw.dll");
+	} catch(e) {
+	}
+}
+
+// --------------------------------------------------------------------------
+
+// 解像度情報
+var affineResolutions = %[];
+
+// 基本解像度。この解像度なら等倍扱いとする。void の場合は無効
+var affineBaseResolution = void;
+
+/**
+ * 解像度情報の読み込み
+ */
+function loadResolutionInfo(filename)
+{
+	(Dictionary.clear incontextof affineResolutions)();
+	var temp = [];
+	var sep = (Storages.extractStorageExt(filename).toLowerCase() == ".txt") ? "\t" : ",";
+	temp.load(filename);
+	for (var i = 0; i < temp.count; i++) {
+		var line = [];
+		line.split(sep, temp[i]);
+		if (line.count >= 2 && line[0].charAt(0) != '#') {
+			//dm("解像度登録:" + line[0] + ":" + line[1]);
+			var res = %[x:+line[1]];
+			if (line.count >= 3) {
+				res.y = +line[2];
+			}
+			affineResolutions[line[0].toLowerCase()] = res;
+		}
+	}
+}
+
+if (Storages.isExistentStorage("resolutions.txt")) {
+	loadResolutionInfo("resolutions.txt");
+} else if (Storages.isExistentStorage("resolutions.csv")) {
+	loadResolutionInfo("resolutions.csv");
+}
+
+// --------------------------------------------------------------------------
+
+/**
+ * アフィンコピーもと情報共通部
+ */
+class AffineSourceLayer {
+
+	var _initOpacity; ///< 標準のopacity
+	var _initType;    ///< 標準のtype
+	var _resolutionx; ///< 内部画像表示解像度
+	var _resolutiony; ///< 内部画像表示解像度
+	var _afn_offx; ///< アフィン変換中心座標X
+	var _afn_offy; ///< アフィン変換中心座標Y
+	var _clearRegion; //< 前回描画時の消去領域
+	
+	function AffineSourceLayer() {
+		_resolutionx = 100;
+		_resolutiony = 100;
+		_afn_offx = AffineLayer.AFFINEOFFSET_DEFAULT;
+		_afn_offy = AffineLayer.AFFINEOFFSET_DEFAULT;
+		_clearRegion = new UpdateRegion();
+	}
+
+	function cloneInfo(src) {
+		_initOpacity = src._initOpacity;
+		_initType    = src._initType;
+		_resolutionx = src._resolutionx;
+		_resolutiony = src._resolutiony;
+		_afn_offx    = src._afn_offx;
+		_afn_offy    = src._afn_offy;
+	}
+
+	/**
+	 * 解像度の設定
+	 * @param image 画像名
+	 * @param resox 画像で指定されてる解像度X
+	 * @param resoy 画像で指定されてる解像度Y
+	 */
+	function setResolution(image, reso_x, reso_y) {
+		var imgname = Storages.chopStorageExt(image);
+		//dm("画像ロード確認:" + imgname);
+		var res = affineResolutions[imgname.toLowerCase()];
+		if (res !== void) {
+			_resolutionx = res.x;
+			_resolutiony = res.y !== void ? res.y : _resolutionx;
+		} else if (affineBaseResolution !== void && reso_x !== void) {
+			// 画像に解像度情報があった場合
+			// 吉里吉里側で作業が必要だけど一応実装しておく
+			_resolutionx = (int)(reso_x + 0.5) * 100 / affineBaseResolution;
+			if (reso_y !== void) {
+				_resolutiony = (int)(reso_y + 0.5) * 100 / affineBaseResolution;
+			} else {
+				_resolutiony = resolutionx;
+			}
+		} else {
+			_resolutionx = 100;
+			_resolutiony = 100;
+		}
+	}
+
+	property afx {
+		setter(v) {
+			if (typeof v == "String") {
+				if (v == "default" || v == "void") {
+					_afn_offx = AffineLayer.AFFINEOFFSET_DEFAULT;
+				} else if (v == "center") {
+					_afn_offx = AffineLayer.AFFINEOFFSET_CENTER;
+				} else if (v == "left" || v == "top") {
+					_afn_offx = AffineLayer.AFFINEOFFSET_LEFT;
+				} else if (v == "right" || v == "bottom") {
+					_afn_offx = AffineLayer.AFFINEOFFSET_RIGHT;
+				} else {
+					v = v.replace(/center/, (string)(int)(width/2));
+					v = v.replace(/left|top/, "0");
+					v = v.replace(/right|bottom/, (string)width);
+					_afn_offx = Scripts.eval(v) * _resolutionx / 100;
+				}
+			} else if (typeof v == "void") {
+				_afn_offx = AffineLayer.AFFINEOFFSET_DEFAULT;
+			} else {
+				_afn_offx = (+v) * _resolutionx / 100;
+			}
+		}
+		getter() {
+			switch (_afn_offx) {
+			case AffineLayer.AFFINEOFFSET_CENTER: return (int)(width/2);
+			case AffineLayer.AFFINEOFFSET_DEFAULT:
+			case AffineLayer.AFFINEOFFSET_LEFT:   return 0;
+			case AffineLayer.AFFINEOFFSET_RIGHT:  return width;
+			default:                              return _afn_offx * 100 / _resolutionx;
+			}
+		}
+	}
+
+    property afy {
+        setter(v) {
+			if (typeof v == "String") {
+				if (v == "default" || v == "void") {
+					_afn_offy = AffineLayer.AFFINEOFFSET_DEFAULT;
+				} else if (v == "center") {
+					_afn_offy = AffineLayer.AFFINEOFFSET_CENTER;
+				} else if (v == "left" || v == "top") {
+					_afn_offy = AffineLayer.AFFINEOFFSET_LEFT;
+				} else if (v == "right" || v == "bottom") {
+					_afn_offy = AffineLayer.AFFINEOFFSET_RIGHT;
+				} else {
+					v = v.replace(/center/, (string)(int)(height/2));
+					v = v.replace(/left|top/, "0");
+					v = v.replace(/right|bottom/, (string)height);
+					_afn_offy = Scripts.eval(v) * _resolutiony / 100;
+                }
+			} else if (typeof v == "void") {
+				_afn_offy = AffineLayer.AFFINEOFFSET_DEFAULT;
+			} else {
+				_afn_offy = (+v) * _resolutiony / 100;
+			}
+		}
+        getter() {
+			switch (_afn_offy) {
+			case AffineLayer.AFFINEOFFSET_CENTER: return (int)(height/2);
+			case AffineLayer.AFFINEOFFSET_DEFAULT:
+			case AffineLayer.AFFINEOFFSET_TOP:    return 0;
+			case AffineLayer.AFFINEOFFSET_BOTTOM: return height;
+			default:                              return _afn_offy * 100 / _resolutiony;
+			}
+		}
+	}
+
+	property width {
+		setter(v) {
+		}
+		getter() {
+			return 0;
+		}
+    }
+	
+    property height {
+		setter(v) {
+		}
+		getter() {
+			return 0;
+		}
+    }
+
+	/**
+	 * サイズの指定
+	 * @param w 横幅
+	 * @param h 縦幅
+	 */
+	function setSize(w, h) {
+		// nothing todo
+	}
+
+	/**
+	 * サイズをイメージにあわせる
+	 */
+	function setSizeToImageSize() {
+		// nothing todo
+    }
+
+	property imageLeft {
+		setter(v) {
+		}
+		getter() {
+			return 0;
+        }
+    }
+
+    property imageTop {
+        setter(v) {
+		}
+        getter() {
+			return 0;
+        }
+    }
+
+    property imageWidth {
+        getter() {
+			return 1;
+		}
+    }
+    
+	property imageHeight {
+		getter() {
+			return 1;
+        }
+    }
+
+	/**
+	 * 配置位置指定
+	 */
+    function setImagePos(l, t, w, h) {
+	}
+	
+    /**
+     * サイズの指定(Layerの機能をオーバライド)
+     * @param w 横幅
+     * @param h 縦幅
+	 */
+    function setImageSize(w, h) {
+	}
+
+
+	// -----------------------------------------------
+
+	// 描画領域更新(サイズ指定)
+	function updateRegion(l,t,w,h) {
+		_clearRegion.update(l,t,w,h);
+	}
+
+	// 描画領域更新(座標指定)
+	function updateRect(l,t,r,b) {
+		_clearRegion.update2(l,t,r,b);
+	}
+
+	// -----------------------------------------------
+
+	// 画像付加情報設定
+	function setLoadOptions(elm) {
+	}
+
+	// -----------------------------------------------
+
+	function calcMatrix(layer) {
+		
+		// アフィン計算
+		var mtx = [1,0,0,1];
+
+		// flip 処理
+		if (layer._flipx) {
+			mtx[0] = - mtx[0];
+			mtx[1] = - mtx[1];
+		}
+		if (layer._flipy) {
+			mtx[2] = - mtx[2];
+			mtx[3] = - mtx[3];
+		}
+
+		// slant処理
+		if (layer._slantx != 0 || layer._slanty != 0) {
+			var m0 = mtx[0] + layer._slantx * mtx[2];
+			var m1 = mtx[1] + layer._slantx * mtx[3];
+			var m2 = layer._slanty * mtx[0] + mtx[2];
+			var m3 = layer._slanty * mtx[1] + mtx[3];
+			mtx[0] = m0;
+			mtx[1] = m1;
+			mtx[2] = m2;
+			mtx[3] = m3;
+		}
+
+		// zoom処理
+		if (layer._zoomx != 1 || layer._zoomy != 1) {
+			mtx[0] *= layer._zoomx;
+			mtx[1] *= layer._zoomx;
+			mtx[2] *= layer._zoomy;
+			mtx[3] *= layer._zoomy;
+        }
+
+		// rotate処理
+		if (layer._rotate != 0) {
+			var angle = -layer._rotate * Math.PI * 2 / 360;
+			var s = Math.sin(angle);
+			var c = Math.cos(angle);
+			var m0 = c * mtx[0] + -s * mtx[2];        
+			var m1 = c * mtx[1] + -s * mtx[3];
+			var m2 = s * mtx[0] + c * mtx[2];
+			var m3 = s * mtx[1] + c * mtx[3];
+			mtx[0] = m0;
+			mtx[1] = m1;
+			mtx[2] = m2;
+			mtx[3] = m3;
+		}
+		return mtx;
+	}
+}
+
+class BitmapAffineSourceLayer extends AffineSourceLayer {
+	
+	var _image;	// 画像保存用
+	var _parent;
+	var _psdlayer; // 元PSDレイヤファイル
+
+	// 画像加工処理用
+	var _redrawFunction;
+
+	/**
+	 * コンストラクタ
+	 * @param parent 親レイヤ
+	 */
+	function BitmapAffineSourceLayer(parent) {
+		super.AffineSourceLayer();
+		_parent = parent;
+		// KAGLayerにしとかないとプリレダリングフォントが使えない
+		_image = new global.KAGLayer(parent.window, parent);
+	}
+
+	/**
+	 * ファイナライザ
+	 */
+	function finalize() {
+		invalidate _image;
+		if (_psdlayer !== void) {
+			invalidate _psdlayer;
+			_psdlayer = void;
+		}
+	}
+
+	/**
+	 * 複製を返す
+	 * @param newparent 新しい親(情報を移す必要があるため)
+	 */
+	function clone(newparent) {
+		var ret = new global.BitmapAffineSourceLayer(newparent);
+		ret.cloneInfo(this);
+		ret._image.assignImages(_image);
+		ret._image.width  = _image.width;
+		ret._image.height = _image.height;
+		ret._psdlayer = _psdlayer;
+		ret._redrawFunction = _redrawFunction;
+		return ret;
+	}
+	
+	property name {
+		setter(v) {
+			_image.name = v;
+		}
+		getter() {
+			return _image.name;
+		}
+	}
+	
+	property width {
+		setter(v) {
+			_image.width = v * _resolutionx / 100;
+		}
+		getter() {
+			return _image.width * 100 / _resolutionx;
+		}
+    }
+	
+    property height {
+		setter(v) {
+			_image.height = v * _resolutiony / 100;
+		}
+		getter() {
+			return _image.height * 100 / _resolutiony;
+		}
+    }
+
+	/**
+	 * サイズの指定(Layerの機能をオーバライド)
+	 * @param w 横幅
+	 * @param h 縦幅
+     */
+	function setSize(w, h) {
+		_image.setSize(w * _resolutionx / 100,
+					   h * _resolutiony / 100);
+    }
+
+    /**
+     * サイズをイメージにあわせる(Layerの機能をオーバライド)
+     */
+	function setSizeToImageSize() {
+		_image.setSizeToImageSize();
+    }
+	
+
+    property imageLeft {
+		setter(v) {
+			_image.imageLeft = v * _resolutionx / 100;
+		}
+		getter() {
+			return _image.imageLeft * 100 / _resolutionx;
+        }
+    }
+    
+    property imageTop {
+        setter(v) {
+			_image.imageTop = v * _resolutiony / 100;
+        }
+        getter() {
+			return _image.imageTop * 100 / _resolutiony;
+        }
+    }
+
+    property imageWidth {
+        setter(v) {
+			_image.imageWidth = v * _resolutionx / 100;
+        }
+        getter() {
+			return _image.imageWidth *100 / _resolutionx;
+        }
+    }
+    
+	property imageHeight {
+		setter(v) {
+			_image.imageHeight = v * _resolutiony / 100;
+		}
+		getter() {
+			return _image.imageHeight * 100 / _resolutiony;
+        }
+    }
+
+    /**
+     * 配置位置指定
+     */
+    function setImagePos(l, t, w, h) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.setImagePos(...);
+		} else {
+			_image.setImagePos(l * _resolutionx / 100,
+							   t * _resolutiony / 100,
+							   w * _resolutionx / 100,
+							   h * _resolutiony / 100);
+		}
+    }
+
+    /**
+     * サイズの指定(Layerの機能をオーバライド)
+     * @param w 横幅
+     * @param h 縦幅
+     */
+    function setImageSize(w, h) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.setImageSize(...);
+		} else {
+			_image.setImageSize(w * _resolutionx / 100,
+								h * _resolutiony / 100);
+		}
+    }
+    
+	// ----------------------------------------------------------------------
+
+	/**
+	 * 画像のロード
+	 */
+	function loadImages(storage) {
+		_psdlayer = void;
+		var ret = _image.loadImages(...);
+		_image.setSizeToImageSize();
+		if (_redrawFunction !== void) {
+			_redrawFunction(_image);
+		}
+		if (ret != null) {
+			_initType    = ret.mode !== void ? global.imageTagLayerType[ret.mode].type : ltAlpha;
+			_initOpacity = ret.opacity !== void ? ret.opacity : 255;
+			setResolution(storage, ret.reso_x, ret.reso_y);
+		} else {
+			_initType    = ltAlpha;
+			_initOpacity = 255;
+			setResolution(storage);
+		}
+		return ret;
+	}
+
+	function assignImages(src) {
+		_image.assignImages(src);
+		_image.setSizeToImageSize();
+		if (_redrawFunction !== void) {
+			_redrawFunction(_image);
+		}
+		_initOpacity  = void;
+		_initType     = void;
+		_resolutionx  = 100;
+		_resolutiony  = 100;
+		if (src instanceof "PSDLayer") {
+			_psdlayer = src.clone();
+			_psdlayer.name += "_表示用";
+		}
+	}
+
+	/**
+	 * 設定されてるPSDの部分更新対応
+	 * @return 更新された領域の座標情報
+	 */
+	function updatePSD(src) {
+		if (_psdlayer) {
+			_psdlayer.copyVisible(src);
+			var update = _psdlayer.updateImage();
+			if (update !== void) {
+				// XXX 領域限定できるはずではあるけど追加してる加工系命令がクリップ対応できてないので暫定このまま
+				_image.assignImages(_psdlayer);
+				_image.setSizeToImageSize();
+				if (_redrawFunction !== void) {
+					_redrawFunction(_image);
+				}
+				//dm(@"updatePSD:${update.left},${update.top},${update.width},${update.height}");
+				return [update.left * 100 / _resolutionx,
+						update.top  * 100 / _resolutiony,
+						update.width * 100 / _resolutionx,
+						update.height * 100 / _resolutiony];
+			}
+		}
+	}
+
+	// ---------------------------------------------------------------
+
+	// アフィン描画
+	function drawAffine(target, src, region) {
+
+		// 旧領域の消去
+		if (region === void) {
+			_clearRegion.clearTarget(target);
+			_clearRegion.clear();
+		}
+		
+		var left = src._affineleft;
+		var top  = src._affinetop;
+		var mtx  = calcMatrix(src);
+		var type = src._completionType;
+
+		// 元素材の領域を更新
+		if (_psdlayer !== void && isvalid _psdlayer) {
+			var r = void;
+			// XXX
+			if (false && _psdlayer.hasDisp()) {
+				// ベース画像
+				var sw = *(&global.Layer.width incontextof _parent) + 20;
+				var sh = *(&global.Layer.height incontextof _parent) + 20;
+				var lx = -(left + 10);
+				var ly = -(top + 10);
+				var rx = sw + lx;
+				var ry = sh + ly;
+				r = %[];
+				
+				if (mtx[0] == 1 &&
+					mtx[1] == 0 &&
+					mtx[2] == 0 &&
+					mtx[3] == 1) {
+					
+					r.top    = ly + afy;
+					r.bottom = ry + afy;
+					
+				} else {
+					
+					// 逆行列
+					var a   = mtx[0] * mtx[3] - mtx[2] * mtx[1];
+					var dxh = mtx[3]/a;
+					var dxv = -mtx[1]/a;
+					var dyh = -mtx[2]/a;
+					var dyv = mtx[0]/a;
+					
+					//dm("マトリックス:(%d,%d,%d,%d)".sprintf(mtx[0],mtx[1],mtx[2],mtx[3]));
+					//dm("反転マトリックス:(%d,%d,%d,%d)".sprintf(dxh, dxv, dyh, dyv));
+					//dm("座標:%d,%d".sprintf(left, top));
+					//dm("表示領域座標:%d,%d,%d,%d".sprintf(lx, ly, rx, ry));
+					
+					// 更新エリア4隅のY座標を求める
+					var y = [];
+					y.add(lx*dyh+ly*dyv);
+					y.add(rx*dyh+ly*dyv);
+					y.add(lx*dyh+ry*dyv);
+					y.add(rx*dyh+ry*dyv);
+					y.sort();
+					
+					r.top    = y[0] + afy;
+					r.bottom = y[3] + afy;
+				}
+				
+				r.top    *= _resolutiony / 100;
+				r.bottom *= _resolutiony / 100;
+				//dm("画像更新対象領域:(%d,%d,%d,%d)".sprintf(r.left, r.top, r.width, r.height));
+			}
+			var update = _psdlayer.updateImage(r);
+			if (update !== void) {
+				_image.assignImages(_psdlayer);
+				_image.setSizeToImageSize();
+				if (_redrawFunction !== void) {
+					_redrawFunction(_image);
+				}
+			}
+		}
+		
+		var l = left - afx;
+		var t = top  - afy;
+
+		// 変形無し＆ドットバイドット
+		if (mtx[0] == 1 &&
+			mtx[1] == 0 &&
+			mtx[2] == 0 &&
+			mtx[3] == 1 &&
+			l == (int)l &&
+			t == (int)t &&
+			_resolutionx == 100 &&
+			_resolutiony == 100) {
+
+			// クリッピング領域
+			if (region !== void) {
+				var sl = region.left;
+				var st = region.top;
+				var sw = region.width;
+				var sh = region.height;
+				//dm(@"変形無し更新:${name}:${l},${t},${sl},${st},${sw},${sh}");
+				(global.Layer.copyRect incontextof target)(l + sl, t + st, _image, sl -_image.imageLeft, st -_image.imageTop, sw, sh);
+			} else {
+				if (l == 0 && t ==0 && _image.imageLeft == 0 && _image.imageTop == 0 &&
+					*(&global.Layer.imageWidth incontextof target)== _image.imageWidth &&
+					*(&global.Layer.imageHeight incontextof target)== _image.imageHeight) {
+					//dm(@"変形無しassign:${name}:${l},${t},${_image.width},${_image.height}");
+					(global.Layer.assignImages incontextof target)(_image);
+				} else {
+					//dm(@"変形無し描画:${name}:${l},${t},${_image.width},${_image.height}");
+					(global.Layer.copyRect incontextof target)(l, t, _image, -_image.imageLeft, -_image.imageTop, _image.width, _image.height);
+				}
+				updateRegion(l, t, _image.width, _image.height);
+			}
+			return;
+		}
+
+		var w = _image.width  * 100 / _resolutionx;
+		var h = _image.height * 100 / _resolutiony;
+
+		//dm("call affineCopy");
+		var dxh = mtx[0];
+		var dxv = mtx[1];
+		var dyh = mtx[2];
+		var dyv = mtx[3];
+		
+		var lx = l - left;
+		var ly = t - top;
+		var rx = lx + w;
+		var ry = ly + h;
+		
+		// 更新エリア4隅の座標を求める
+		var x = [];
+		var y = [];
+		x.add(left + lx*dxh+ly*dxv);
+		y.add(top  + lx*dyh+ly*dyv);
+		x.add(left + rx*dxh+ly*dxv);
+		y.add(top  + rx*dyh+ly*dyv);
+		x.add(left + lx*dxh+ry*dxv);
+		y.add(top  + lx*dyh+ry*dyv);
+		x.add(left + rx*dxh+ry*dxv);
+		y.add(top  + rx*dyh+ry*dyv);
+
+		if (region !== void) {
+			// 更新処理
+			var clx = -afx + region.left;
+			var cly = -afy + region.top;
+			var crx = clx + region.width;
+			var cry = cly + region.height;
+			var cx = [];
+			var cy = [];
+			cx.add(left + clx*dxh+cly*dxv);
+			cy.add(top  + clx*dyh+cly*dyv);
+			cx.add(left + crx*dxh+cly*dxv);
+			cy.add(top  + crx*dyh+cly*dyv);
+			cx.add(left + clx*dxh+cry*dxv);
+			cy.add(top  + clx*dyh+cry*dyv);
+			cx.add(left + crx*dxh+cry*dxv);
+			cy.add(top  + crx*dyh+cry*dyv);
+			cx.sort();
+			cy.sort();
+			var cl = cx[0];
+			var ct = cy[0];
+			var cw = cx[3] - cl + 1;
+			var ch = cy[3] - ct + 1;
+			//dm(@"更新描画:${name}:${cl},${ct},${cw},${ch} pos:${left},${top} af:${afx},${afy}");
+			//dm(@"mtx:${mtx[0]},${mtx[1]},${mtx[2]},${mtx[3]}");
+			// クリップしてからアフィン描画
+			(global.Layer.setClip incontextof target)(cl, ct, cw, ch);
+			(global.Layer.affineCopy incontextof target)(_image,
+														 - _image.imageLeft,
+														 - _image.imageTop,
+														 _image.width,
+														 _image.height,
+														 false,
+														 x[0]-0.5,y[0]-0.5,
+														 x[1]-0.5,y[1]-0.5,
+														 x[2]-0.5,y[2]-0.5,
+														 type|stRefNoClip,false);
+		} else {
+			//dm(@"通常描画:${name}:${w},${h} pos:${left},${top} af:${afx},${afy}");
+			//dm(@"mtx:${mtx[0]},${mtx[1]},${mtx[2]},${mtx[3]}");
+			// アフィン描画
+			(global.Layer.setClip incontextof target)();
+			(global.Layer.affineCopy incontextof target)(_image,
+														 -_image.imageLeft,
+														 -_image.imageTop,
+														 _image.width,
+														 _image.height,
+														 false,
+														 x[0]-0.5,y[0]-0.5,
+														 x[1]-0.5,y[1]-0.5,
+														 x[2]-0.5,y[2]-0.5,
+														 type|stRefNoClip,false);
+			// 描画領域の保存
+			x.sort();
+			y.sort();
+			updateRect(x[0], y[0], x[3], y[3]);
+		}
+	}
+	
+	// ---------------------------------------------------------------
+	// 以下ビットマップに対してのみ意味のあるインターフェース
+	// ---------------------------------------------------------------
+
+	function adjustGamma(rgamma=1.0, rfloor=0, rceil=255, ggamma=1.0, gfloor=0, gceil=255, bgamma=1.0, bfloor=0, bceil=255) {
+		_image.adjustGamma(...);
+    }
+	
+	function affineBlend(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, opa=255, type=stNearest) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.affineBlend(...);
+		} else {
+			_image.affineBlend(src, sleft, stop, swidth, sheight, affine,
+							   A * _resolutionx / 100,
+							   B * _resolutiony / 100,
+							   C * _resolutionx / 100,
+							   D * _resolutiony / 100,
+							   E * _resolutionx / 100,
+							   F * _resolutiony / 100,
+							   opa, type);
+		}
+	}
+
+    function affineCopy(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, type=stNearest, clear=false) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.affineCopy(...);
+		} else {
+			_image.affineCopy(src, sleft, stop, swidth, sheight, affine,
+							  A * _resolutionx / 100,
+							  B * _resolutiony / 100,
+							  C * _resolutionx / 100,
+							  D * _resolutiony / 100,
+							  E * _resolutionx / 100,
+							  F * _resolutiony / 100,
+							  type, clear);
+		}
+    }
+
+    function affinePile(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, opa=255, type=stNearest) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.affinePile(...);
+		} else {
+			_image.affinePile(src, sleft, stop, swidth, sheight, affine,
+							  A * _resolutionx / 100,
+							  B * _resolutiony / 100,
+							  C * _resolutionx / 100,
+							  D * _resolutiony / 100,
+							  E * _resolutionx / 100,
+							  F * _resolutiony / 100,
+							  opa, type);
+		}
+    }
+
+    function blendRect(dleft, dtop, src, sleft, stop, swidth, sheight, opa=255) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.blendRect(...);
+		} else {
+			_image.stretchBlend(dleft * _resolutionx / 100,
+								dtop  * _resolutiony / 100,
+								swidth * _resolutionx / 100,
+								sheight * _resolutiony / 100,
+								src, sleft, stop, swidth, sheight, opa);
+		}
+    }
+
+    function colorRect(left, top, width, height, value, opa=255) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.colorRect(...);
+		} else {
+			_image.colorRect(left * _resolutionx / 100,
+							 top  * _resolutiony / 100,
+							 width * _resolutionx / 100,
+							 height * _resolutiony / 100,
+							 value, opa);
+		}
+    }
+
+    function copyRect(dleft, dtop, src, sleft, stop, swidth, sheight) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.copyRect(...);
+		} else {
+			_image.stretchCopy(dleft * _resolutionx / 100,
+							   dtop  * _resolutiony / 100,
+							   swidth * _resolutionx / 100,
+							   sheight * _resolutiony / 100,
+							   src, sleft, stop, swidth, sheight);
+		}
+    }
+
+    function doBoxBlur(xblur=1, yblur=1) {
+		_image.doBoxBlur(...);
+	}
+
+    function doGrayScale() {
+        _image.doGrayScale();
+    }
+    
+	function drawText(x, y, text, color, opa=255, aa=true, shadowlevel=0, shadowcolor=0x000000, shadowwidth=0, shadowofsx=0, shadowofsy=0) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.drawText(...);
+		} else {
+			_image.drawText(x * _resolutionx / 100,
+							y * _resolutiony / 100,
+							text, color, opa, aa, shadowlevel, shadowcolor, shadowwidth, shadowofsx, shadowofsy);
+		}
+    }
+
+	function fillRect(left, top, width, height, value) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.fillRect(...);
+		} else {
+			_image.fillRect(left * _resolutionx / 100,
+							top  * _resolutiony / 100,
+							width * _resolutionx / 100,
+							height * _resolutiony / 100,
+							value);
+		}
+    }
+
+    function flipLR() {
+		_image.flipLR();
+    }
+
+    function flipUD() {
+		_image.flipUD();
+    }
+
+    function independMainImage() {
+		_image.independMainImage();
+    }
+
+    function independProvinceImage() {
+        _image.independProvinceImage();
+    }
+    
+    function operateAffine(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, mode=omAuto, opa=255, type=stNearest) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.operateAffine(...);
+		} else {
+			_image.operateAffine(src, stop, swidth, sheight, affine,
+								 A * _resolutionx / 100,
+								 B * _resolutiony / 100,
+								 C * _resolutionx / 100,
+								 D * _resolutiony / 100,
+								 E * _resolutionx / 100,
+								 F * _resolutiony / 100,
+								 mode, opa, type);
+		}
+    }
+    
+	function operateRect(dleft, dtop, src, sleft, stop, swidth, sheight, mode=omAuto, opa=255) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.operateRect(...);
+		} else {
+			_image.operateStretch(dleft * _resolutionx / 100,
+								  dtop  * _resolutiony / 100,
+								  swidth * _resolutionx / 100,
+								  sheight * _resolutiony / 100,
+								  src, sleft, stop, swidth, sheight, mode, opa);
+		}
+	}
+
+	function operateStretch(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, mode=omAuto, opa=255, type=stNearest) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.operateStretch(...);
+		}else {
+			_image.operateStretch(dleft * _resolutionx / 100,
+								  dtop  * _resolutiony / 100,
+								  dwidth * _resolutionx / 100,
+								  dheight * _resolutiony / 100,
+								  src, sleft, stop, swidth, sheight, mode, opa, type);
+		}
+    }
+
+    function pileRect(dleft, dtop, src, sleft, stop, swidth, sheight, opa=255) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.pileRect(...);
+		} else {
+			_image.stretchPile(dleft * _resolutionx / 100,
+							   dtop  * _resolutiony / 100,
+							   swidth * _resolutionx / 100,
+							   sheight * _resolutiony / 100,
+							   src, sleft, stop, swidth, sheight, opa);
+		}
+    }
+
+	function piledCopy(dleft, dtop, src, sleft, stop, swidth, sheight) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.piledCopy(...);
+		} else {
+			_image.stretchPile(dleft * _resolutionx / 100,
+							   dtop  * _resolutiony / 100,
+							   swidth * _resolutionx / 100,
+							   sheight * _resolutiony / 100,
+							   src, sleft, stop, swidth, sheight);
+		}
+    }
+
+	function stretchBlend(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, opa=255, type=stNearest) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.stretchBlend(...);
+		} else {
+			_image.stretchBlend(dleft * _resolutionx / 100,
+								dtop  * _resolutiony / 100,
+								dwidth * _resolutionx / 100,
+								dheight * _resolutiony / 100,
+								src, sleft, stop, swidth, sheight, opa, type);
+
+		}
+    }
+
+    function stretchCopy(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, type=stNearest) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.stretchCopy(...);
+		} else {
+			_image.stretchCopy(dleft * _resolutionx / 100,
+							   dtop  * _resolutiony / 100,
+							   dwidth * _resolutionx / 100,
+							   dheight * _resolutiony / 100,
+							   src, sleft, stop, swidth, sheight, type);
+		}
+    }
+
+    function stretchPile(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, opa=255, type=stNearest) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.stretchPile(...);
+		} else {
+			_image.stretchPile(dleft * _resolutionx / 100,
+							   dtop  * _resolutiony / 100,
+							   dwidth * _resolutionx / 100,
+							   dheight * _resolutiony / 100,
+							   src, sleft, stop, swidth, sheight, opa, type);
+		}
+    }
+
+	property face {
+		setter(v) {
+			_image.face = v;
+        }
+        getter() {
+            return _image.face;
+        }
+    }
+
+    property font {
+        setter(v) {
+            _image.font = v;
+		}
+        getter() {
+            return _image.font;
+        }
+    }
+
+    property holdAlpha {
+        setter(v) {
+			_image.holdAlpha = v;
+        }
+        getter() {
+            return _image.holdAlpha;
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // LayerEx 対応
+
+    function light(brightness, contrast) {
+        _image.light(...);
+    }
+
+	function colorize(hue, sat, blend) {
+        _image.colorize(...);
+    }
+    
+    function noise(level) {
+        _image.noise(...);
+    }
+
+	function modulate(hue, saturation, luminance) {
+		_image.modulate(...);
+    }
+	
+    function doDropShadow(dx=10, dy=10, blur=3, shadowColor=0x000000, shadowOpacity=200) {
+        _image.doDropShadow(...);
+    }
+
+	function doBlurLight(blur=10, blurOpacity=128, lightOpacity=200, lightType=ltPsHardLight) {
+        _image.doBlurLight(...);
+    }
+
+    function tileRect(left, top, width, height, tile, x=0, y=0) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.tileRect(...);
+		} else {
+			_image.tileRect(left * _resolutionx / 100,
+							top  * _resolutiony / 100,
+							width * _resolutionx / 100,
+							height * _resolutiony / 100,
+							tile,
+							x * _resolutionx / 100,
+							y * _resolutiony / 100);
+		}
+	}
+
+    function fillOperateRect(left, top, width, height, color, mode) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.fillOperateRect(...);
+		} else {
+			_image.fillOperateRect(left * _resolutionx / 100,
+								   top  * _resolutiony / 100,
+								   width * _resolutionx / 100,
+								   height * _resolutiony / 100,
+								   color, mode);
+		}
+    }
+
+    // ----------------------------------------------------------------
+    // LayerEx 対応
+
+	function shrinkCopy(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight) {
+		if (_resolutionx == 100 && _resolutiony == 100) {
+			_image.shrinkCopy(...);
+		} else {
+			_image.shrinkCopy(dleft * _resolutionx / 100,
+							  dtop  * _resolutiony / 100,
+							  dwidth * _resolutionx / 100,
+							  dheight * _resolutiony / 100,
+							  src, sleft, stop, swidth, sheight);
+		}
+    }
+
+
+    // ----------------------------------------------------------------
+	// layerExBtoA 対応
+
+	function clipAlphaRect() {
+		// resolution指定無効
+		_image.clipAlphaRect(...);
+	}
+
+};
+
+/**
+ * アフィン変形表示用のレイヤ
+ * ベクタ画像用
+ */
+class VectorAffineSourceLayer extends AffineSourceLayer {
+
+	var _image;  // 画像保存用
+
+	var _imageX;      // 画像の描画領域X
+	var _imageY;      // 画像の描画領域Y
+	var _imageWidth;  // 画像の描画領域Width
+	var _imageHeight; // 画像の描画領域Height
+
+	var _imageLeft;
+	var _imageTop;
+	var _width;
+	var _height;
+	
+	/**
+	 * コンストラクタ
+	 * @param parent 親レイヤ
+	 */
+	function VectorAffineSourceLayer(parent) {
+		super.AffineSourceLayer();
+		_image = new global.GdiPlus.Image();
+	}
+
+	/**
+	 * ファイナライザ
+	 */
+	function finalize() {
+		invalidate _image;
+	}
+
+	/**
+	 * 複製を返す
+	 */
+	function clone(newparent) {
+		var ret = new global.VectorAffineSourceLayer(newparent);
+		ret.cloneInfo(this);
+		ret._imageX       = _imageX;
+		ret._imageY       = _imageY;
+		ret._imageWidth   = _imageWidth;
+		ret._imageHeight  = _imageHeight;
+		ret._imageLeft    = _imageLeft;
+		ret._imageTop     = _imageTop;
+		ret._width        = _width;
+		ret._height       = _height;
+		ret._image        = _image.Clone();
+		return ret;
+	}
+
+	property name {
+		setter(v) { // なにもしない
+		}
+	}
+
+	property afx {
+		setter(v) {
+			super.afx = v;
+		}
+		getter() {
+			switch (_afn_offx) {
+			case AffineLayer.AFFINEOFFSET_DEFAULT: return 0;
+			case AffineLayer.AFFINEOFFSET_CENTER: return imageX + width/2;
+			case AffineLayer.AFFINEOFFSET_LEFT:   return imageX;
+			case AffineLayer.AFFINEOFFSET_RIGHT:  return imageX + width;
+			default:                              return _afn_offx * 100 / _resolutionx;
+			}
+		}
+	}
+
+	property afy {
+		setter(v) {
+			super.afy = v;
+		}
+		getter() {
+			switch (_afn_offy) {
+			case AffineLayer.AFFINEOFFSET_DEFAULT: return 0;
+			case AffineLayer.AFFINEOFFSET_CENTER: return imageY + height/2;
+			case AffineLayer.AFFINEOFFSET_TOP:    return imageY;
+			case AffineLayer.AFFINEOFFSET_BOTTOM: return imageY + height;
+			default:                              return _afn_offy * 100 / _resolutiony;
+			}
+		}
+	}
+
+	property width {
+		setter(v) {
+			_width = v * _resolutionx / 100;
+		}
+		getter() {
+			return _width * 100 / _resolutionx;
+		}
+    }
+	
+    property height {
+		setter(v) {
+			_height = v * _resolutiony / 100;
+		}
+		getter() {
+			return _height * 100 / _resolutiony;
+		}
+    }
+
+	/**
+	 * サイズの指定(Layerの機能をオーバライド)
+	 * @param w 横幅
+	 * @param h 縦幅
+     */
+	function setSize(w, h) {
+		width  = w;
+		height = h;
+    }
+
+	/**
+     * サイズをイメージにあわせる(Layerの機能をオーバライド)
+	 */
+	function setSizeToImageSize() {
+		_imageLeft = 0;
+		_imageTop  = 0;
+		_width     = _imageWidth;
+		_height    = _imageHeight;
+    }
+
+    property imageX {
+		getter() {
+			return _imageX * 100 / _resolutionx;
+        }
+    }
+
+    property imageY {
+		getter() {
+			return _imageY * 100 / _resolutiony;
+        }
+    }
+	
+    property imageLeft {
+		setter(v) {
+			_imageLeft = v * _resolutionx / 100;
+		}
+		getter() {
+			return _imageLeft * 100 / _resolutionx;
+        }
+    }
+
+    property imageTop {
+        setter(v) {
+			_imageTop = v * _resolutiony / 100;
+        }
+        getter() {
+			return _imageTop * 100 / _resolutiony;
+        }
+    }
+
+    property imageWidth {
+        getter() {
+			return _imageWidth * 100 / _resolutionx;
+		}
+    }
+    
+	property imageHeight {
+		getter() {
+			return _imageHeight * 100 / _resolutiony;
+        }
+    }
+
+	// ----------------------------------------------------------------------
+	
+	/**
+	 * 画像のロード
+	 */
+	function loadImages(storage) {
+		_image.load(storage);
+		var bounds = _image.GetBounds();
+		_imageX = bounds.x;
+		_imageY = bounds.y;
+		_imageWidth  = bounds.width;
+		_imageHeight = bounds.height;
+		_initType    = ltAlpha;
+		_initOpacity = 255;
+		setResolution(storage, _image.GetHorizontalResolution(), _image.GetVerticalResolution());
+		setSizeToImageSize();
+	}
+
+	// ---------------------------------------------------------------
+
+	function drawAffine(target, src) {
+
+		// 旧領域の消去
+		_clearRegion.clearTarget(target);
+		_clearRegion.clear();
+		
+		var left = src._affineleft;
+		var top  = src._affinetop;
+		var mtx  = calcMatrix(src);
+		//var type = src._completionType;
+
+		if (mtx[0] == 1 &&
+			mtx[1] == 0 &&
+			mtx[2] == 0 &&
+			mtx[3] == 1) {
+			var l = left + imageX - afx;
+			var t = top  + imageY - afy;
+			(global.Layer.drawImageStretch incontextof target)(l, t, width, height,
+															   _image,
+															   _imageX - _imageLeft,
+															   _imageY - _imageTop,
+															   _width, _height);
+			updateRegion(l, t, width, height);
+		} else {
+			var dxh = mtx[0];
+			var dxv = mtx[1];
+			var dyh = mtx[2];
+			var dyv = mtx[3];
+			
+			var lx = imageX - afx;
+			var ly = imageY - afy;
+			var rx = lx + width;
+			var ry = ly + height;
+			
+			// 更新エリア4隅の座標を求める
+			var x = [];
+			var y = [];
+			x.add(left + lx*dxh+ly*dxv);
+			y.add(top  + lx*dyh+ly*dyv);
+			x.add(left + rx*dxh+ly*dxv);
+			y.add(top  + rx*dyh+ly*dyv);
+			x.add(left + lx*dxh+ry*dxv);
+			y.add(top  + lx*dyh+ry*dyv);
+			x.add(left + rx*dxh+ry*dxv);
+			y.add(top  + rx*dyh+ry*dyv);
+
+			// アフィン変形して描画
+			(global.Layer.drawImageAffine incontextof target)(_image,
+															  _imageX - _imageLeft,
+															  _imageY - _imageTop,
+															  _width, _height,
+															  false,
+															  x[0]-0.5,y[0]-0.5,
+															  x[1]-0.5,y[1]-0.5,
+															  x[2]-0.5,y[2]-0.5);
+			// 描画領域の保存
+			x.sort();
+			y.sort();
+			updateRect(x[0], y[0], x[3], y[3]);
+		}
+	}
+};
+
+/**
+ * アフィン変形表示用のレイヤ
+ * モーション用
+ * 1. psbを画像として指定して読み込み
+ * 2. オプションとして以下を指定
+ * chara/stealthchara, motion/stealthmotion, tickcount, speed
+ */
+class MotionAffineSourceLayer extends AffineSourceLayer {
+
+	var _parent;   // 描画ターゲット
+	var _separate; // セパレートタイプ
+	var _player;   // モーションプレイヤー
+	var _storage;  // 今読み込んでる画像
+	var _lastTick; // 前回の更新時刻
+	var _interval; // 経過時間
+
+	var _lastPlaying; // 前回の再生状態
+	var _playing = false; // 再生状態
+	var _actionCount = 0;
+
+	/**
+	 * コンストラクタ
+	 * @param parent 親レイヤ
+	 */
+	function MotionAffineSourceLayer(parent, separate) {
+		super.AffineSourceLayer();
+		_parent = parent;
+		if (separate) {
+			_separate = new Motion.SeparateLayerAdaptor(_parent);
+		}
+		_player = new Motion.Player(_parent.window.motion_manager.resourceManager);
+		_player.onAction = this.onAction;
+		System.addContinuousHandler(onMotionUpdate);
+	}
+
+	/**
+	 * ファイナライザ
+	 */
+	function finalize() {
+		System.removeContinuousHandler(onMotionUpdate);
+		_player.stop();
+		onMotionStop();
+		if (_storage !== void) {
+			_parent.window.motion_manager.unload(_storage);
+		}
+		if (_separate !== void) {
+			invalidate _separate;
+		}
+		invalidate _player;
+	}
+	
+	/**
+	 * 複製を返す
+	 */
+	function clone(newparent) {
+		var separate = _separate !== void;
+		var ret = new global.MotionAffineSourceLayer(newparent, separate);
+		if (_storage !== void) {
+			ret.loadImages(_storage);
+			ret._player.chara     = _player.chara;
+			ret._player.motion    = _player.motion;
+			ret._player.tickCount = _player.tickCount;
+			ret._player.speed     = _player.speed;
+			if (separate) {
+				ret._separate.assign(_separate);
+			}
+		}
+		ret.cloneInfo(this);
+		if (ret._player.playing) {
+			ret.onMotionStart();
+		}
+		return ret;
+	}
+
+	// モーション更新処理
+	function onMotionUpdate(tick) {
+		if (_lastTick === void) {
+			_lastTick = tick;
+		}
+		_interval = tick - _lastTick;
+		if (_player.playing) {
+			_parent.calcAffine();
+		} else {
+			// 再生停止
+			if (_lastPlaying) {
+				_parent.calcAffine();
+				onMotionStop();
+			}
+		}
+		_lastPlaying = _player.playing;
+		_lastTick = tick;
+	}
+
+	function onMotionStart() {
+		if (!_playing) {
+			_playing = true;
+			_parent.window.onMotionStart(this);
+		}
+		// タグ設定
+		var tags = _player.tags;
+		if (tags !== void && typeof tags == "Object") {
+			var n = 1;
+			for (var i=0;i<tags.count;i++) {
+				var content = tags[i].content;
+				if (content !== void && typeof content == "Object") {
+					var action = content.action;
+					if (action !== void && typeof action == "String") {
+						_parent.window.entryDelay(action);
+						_parent.window.entryDelay("ml" + n);
+						n++;
+					}
+				}
+			}
+		}
+		_actionCount = 0;
+	}
+
+	function onMotionStop() {
+		if (_playing) {
+			_playing = false;
+			_parent.window.onMotionStop(_parent);
+		}
+	}
+	
+	// モーション再生中かどうか
+	property playing {
+		getter() {
+			return _playing;
+		}
+	}
+
+	property name {
+		setter(v) { // なにもしない
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
+	function onAction(layer, action) {
+		//dm("motion onAction:" + action);
+		_actionCount++;
+		_parent.window.extractDelay(action);
+		_parent.window.extractDelay("ml" + _actionCount);
+	}
+	
+	// ----------------------------------------------------------------------
+
+	// モーション停止
+	function stop() {
+		_player.skipToSync();
+		_player.progress(0);
+		_player.stop();
+	}
+	
+	/**
+	 * 画像のロード
+	 */
+	function loadImages(storage) {
+		if (_storage != storage) {
+			if (_storage !== void) {
+				_parent.window.motion_manager.unload(_storage);
+			}
+			_parent.window.motion_manager.load(storage);
+			_storage = storage;
+		}
+		_initType    = _separate !== void ? ltBinder : ltAlpha;
+		_initOpacity = 255;
+		setSizeToImageSize();
+	}
+
+	// ---------------------------------------------------------------
+
+	// 画面描画
+	function drawAffine(target, src) {
+		var neutralColor = target.neutralColor;
+		if (target == _parent && _separate !== void) {
+			target = _separate;
+		}
+		_player.clear(target, neutralColor);
+		_player.setCoord(src._affineleft, src._affinetop);
+		_player.setFlip(src._flipx, src._flipy);
+		_player.setSlant(src._slantx, src._slanty);
+		_player.setZoom(src._zoomx, src._zoomy);
+		_player.angleDeg = -src._rotate;
+		_player.completionType = src._completionType;
+		_player.progress(_interval);
+		_player.draw(target);
+	}
+
+	// 画像付加情報設定
+	function setLoadOptions(elm) {
+		if (elm.stealthchara !== void) {
+			_player.stealthChara = elm.stealthchara;
+		} else if (elm.chara !== void) {
+			_player.chara = elm.chara;
+		}
+		if (elm.stealthmotion !== void) {
+			_player.stealthMotion = elm.stealthmotion;
+		} else if (elm.motion !== void) {
+			_player.play(elm.motion, elm.flags !== void ? +elm.flags : Motion.PlayFlagForce);
+		}
+		if (elm.tickcount !== void) {
+			_player.tickCount = +elm.tickcount;
+		}
+		if (elm.speed !== void) {
+			_player.speed = +elm.speed;
+		}
+		if (_player.playing) {
+			onMotionStart();
+		}
+	}
+};
+
+/* ---------------------------------------------------------------
+ * アフィン状態を保持できるレイヤ
+ * loadImages または assignImages で割り当てた画像を回転・拡大指定して表示できる。
+ * 回転・拡大指定を行なった場合、ぼかしなどの他の画像面の操作は
+ * キャンセルされるので注意が必要である。
+ *
+ * 以下の操作は読み込まれている内部画像に対して作用する
+ *
+ * adjustGamma()
+ * affineBlend()
+ * affineCopy()
+ * affinePile()
+ * assignImages()
+ * blendRect()
+ * colorRect()
+ * copyRect()
+ * doBoxBlur()
+ * doGrayScale()
+ * drawText()
+ * fillRect()
+ * flipLR()
+ * flipUD()
+ * independMainImage()
+ * independProvinceImage()
+ * loadImages()
+ * operateRect();
+ * operateStretch();
+ * setPos();
+ * setSize();
+ * setSizeToImageSize();
+ * setImageSize();
+ * setImagePos();
+ *
+ * 以下のプロパティも内部画像に対して作用する
+ * face
+ * font
+ * holdAlpha
+ */
+class AffineLayer extends KAGLayer {
+
+	var _image;    ///< イメージ画像ロード用
+	var _flipx;    ///< 左右反転
+	var _flipy;    ///< 上下反転
+	var _rotate;   ///< 回転角度
+	var _zoomx;    ///< X方向ズーム値
+	var _zoomy;    ///< Y方向ズーム値
+	var _slantx;   ///< X方向slant値
+	var _slanty;   ///< Y方向slant値
+
+	var _completionType; ///< 描画補間種別
+
+	var _doAffine; ///< アフィン変換実行
+	var _doUpdateRegion; ///< アフィン時更新領域
+
+	var defaultAfx = "left";
+	var defaultAfy = "top";
+
+	var _clipImage; ///< クリッピング用
+	var _clipImageLeft;
+	var _clipImageTop;
+
+	// 描画領域をクリアする
+	function clearAll() {
+		if (hasImage && super.type != ltBinder) {
+			(global.Layer.fillRect incontextof this)(0, 0, super.width, super.height, neutralColor);
+		}
+	}
+	
+	// ビットマップがどうかの判定
+	function isBitmap() {
+		return _image instanceof "BitmapAffineSourceLayer";
+	}
+	
+	// ビットマップ画像用に初期化
+	function _initBitmap() {
+		if (!(_image instanceof "BitmapAffineSourceLayer")) {
+			invalidate _image;
+			super.type = ltAlpha if super.type == ltBinder;
+			_image = new global.BitmapAffineSourceLayer(this);
+			clearAll();
+		}
+	}
+
+	// ベクタ画像用に初期化
+	function _initVector() {
+		if (!(_image instanceof "VectorAffineSourceLayer")) {
+			invalidate _image;
+			super.type = ltAlpha if super.type == ltBinder;
+			_image = new global.VectorAffineSourceLayer(this);
+			clearAll();
+		}
+	}
+
+	// ベクタ画像用に初期化
+	function _initMotion(separate) {
+		if (!(_image instanceof "MotionAffineSourceLayer")) {
+			invalidate _image;
+			if (separate) {
+				super.type = ltBinder;
+			} else {
+				super.type = ltAlpha if super.type == ltBinder;
+			}
+			_image = new global.MotionAffineSourceLayer(this, separate);
+			clearAll();
+		}
+	}
+
+	// モーション待ち可能か
+	property motionPlaying {
+		getter() {
+			return _image instanceof "MotionAffineSourceLayer" && _image.playing;
+		}
+	}
+	
+	// モーション停止
+	function stopMotion() {
+		if (_image instanceof "MotionAffineSourceLayer") {
+			_image.stop();
+		}
+	}
+	
+	function AffineLayer(win,par=null) {
+		super.KAGLayer(win,par);
+		_image = new global.BitmapAffineSourceLayer(this);
+		_flipx = false;
+		_flipy = false;
+		_rotate = 0;
+		_zoomx  = 1.0;
+		_zoomy  = 1.0;
+		_slantx = 0;
+		_slantx = 0;
+		_completionType = stFastLinear;
+		_doAffine = false;
+		_doUpdateRegion = void;
+		_clipImage = void;
+		_clipImageLeft = 0;
+		_clipImageTop  = 0;
+		super.setPos(0, 0, par.width, par.height);
+	}
+
+	// クリップ画像読み込み
+	function loadClipImage(name) {
+		if (_clipImage === void) {
+			_clipImage = new global.Layer(window, this);
+		}
+		_clipImage.loadImages(name);
+		calcAffine();
+	}
+	
+	// クリップ画像消去
+	function clearClipImage() {
+		if (_clipImage !== void) {
+			invalidate _clipImage;
+			_clipImage = void;
+			_clipImageLeft = 0;
+			_clipImageTop = 0;
+			calcAffine();
+		}
+	}
+
+    /**
+     * ファイナライザのっとり
+     */
+    function finalize() {
+		raster = 0;
+		super.finalize();
+		// 最後まで残しておかないと他のメソッドをよばれた時に困る
+		invalidate _image;
+		if (_clipImage !== void) {
+			invalidate _clipImage;
+		}
+    }
+
+	property name {
+		getter() {
+			return super.name;
+		}
+		setter(n) {
+			super.name = n;
+			_image.name = "src_" + n;
+		}
+	}
+
+	
+	/**
+	 * アフィンの再計算指示
+	 */
+	function calcAffine() {
+		_doAffine = true;
+		_doUpdateRegion = void;
+		update(0,0,1,1);
+	}
+
+	/**
+	 * データ更新指示
+	 */
+	function calcUpdate(l=0,t=0,w,h) {
+		if (!_doAffine) {
+			w = width if w === void;
+			h = height if h === void;
+			_doUpdateRegion = new UpdateRegion() if _doUpdateRegion === void;
+			_doUpdateRegion.update(l,t,w,h);
+			update(0,0,1,1);
+		}
+	}
+
+	// ----------------------------------------------
+	
+	/**
+	 * レゾリューション指定
+	 */
+	property resolutionx {
+		setter(v) {
+			if (_image._resolutionx != v) {
+				_image._resolutionx = v;
+				calcAffine();
+			}
+		}
+		getter() {
+			return _image._resolutionx;
+		}
+	}
+
+	/**
+	 * レゾリューション指定
+	 */
+	property resolutiony {
+		setter(v) {
+			if (_image._resolutiony != v) {
+				_image._resolutiony = v;
+				calcAffine();
+			}
+		}
+		getter() {
+			return _image._resolutiony;
+		}
+	}
+
+	/**
+	 * レゾリューション指定
+	 */
+	property resolution {
+		setter(v) {
+			if (_image._resolutionx != v || _image._resolutiony != v) {
+				_image._resolutionx = v;
+				_image._resolutiony = v;
+				calcAffine();
+			}
+		}
+		getter() {
+			return _image._resolutionx;
+		}
+	}
+
+	// ----------------------------------------------
+
+	property opacity {
+		getter() {
+			return super.opacity;
+		}
+		setter(v) {
+			if (v === void) {
+				super.opacity = defaultOpacity;
+			} else {
+				super.opacity = v;
+			}
+		}
+	}
+
+	property defaultOpacity {
+		getter() {
+			return _image._initOpacity !== void ? _image._initOpacity : 255;
+		}
+	}
+
+	// リセット時に戻す先のtype
+	var defaultType = ltAlpha;
+
+	property type {
+		getter() {
+			return super.type;
+		}
+		setter(v) {
+			if (v === void) {
+				v = _image._initType !== void ? _image._initType : defaultType;
+			}
+			if (v != super.type) {
+				// type が変わると透明色が変わるので一度全部塗りつぶす
+				super.type = v;
+				clearAll();
+				calcAffine();
+			}
+		}
+	}
+	
+	property completionType {
+		getter() {
+			return _completionType;
+		}
+		setter(v) {
+			if (v === void) {
+				v = stFastLinear;
+			}
+			if (v != _completionType) {
+				_completionType = v;
+				calcAffine();
+			}
+		}
+	}
+	
+	// ----------------------------------------------
+	
+	/**
+	 * 初期化処理
+     * 登録済み画像の状態に戻す
+     */
+	function reset() {
+		type     = void;
+		opacity  = void;
+		flipx    = false;
+		flipy    = false;
+		rotate   = 0;
+		zoom     = 100;
+		slantx   = 0;
+		slanty   = 0;
+		raster   = 0;
+		afx      = defaultAfx;
+		afy      = defaultAfy;
+    }
+
+	/**
+	 * 中性色で消去
+	 */
+	function clearNeutralColor() {
+		switch (type) {
+		case ltAlpha:
+		case ltBinder:
+			// 何もしない
+			break;
+		case ltOpaque:
+			setPos(-1000, -1000, 1, 1); // 画面外に
+			break;
+		default:
+			setPos(-1000, -1000, 1, 1); // 画面外に
+			clearAll();
+			break;
+		}
+	}
+
+	/**
+	 * 描画処理呼び出し
+	 * @param target 描画対象
+	 */
+	function drawAffine(target) {
+		if (_doAffine || _doUpdateRegion !== void) {
+			//dm(name + ":全更新");
+			_image.drawAffine(target, this, _doUpdateRegion);
+			_doAffine = false;
+			_doUpdateRegion = void;
+		}
+	};
+	
+	// ------------------------------------------------------------------
+	
+	/**
+     * ペイント前処理
+     */
+	function onPaint() {
+		if (_rasterStart !== void) {
+			// ラスター処理が必要な場合
+			if (_rasterLayer === void) {
+				_rasterLayer = new global.Layer(window, this);
+				_rasterLayer.setSize(super.width, super.height);
+			}
+			drawAffine(_rasterLayer);
+			super.copyRaster(_rasterLayer, _raster, _rasterLines, _rasterCycle, _rasterTime);
+		} else {
+			drawAffine(this);
+		}
+		if (_clipImage !== void) {
+			super.clipAlphaRect(_clipImageLeft, _clipImageTop, _clipImage,0,0,_clipImage.imageWidth,_clipImage.imageHeight,0);
+		}
+		super.onPaint(...);
+	}
+
+	property clipImageLeft {
+		setter(v) {
+			if (v != _clipImageLeft) {
+				_clipImageLeft = v;
+				if (_clipImage !== void) {
+					calcAffine();
+				}
+			}
+		}
+		getter() {
+			return _clipImageLeft;
+		}
+	}
+
+	property clipImageTop {
+		setter(v) {
+			if (v != _clipImageTop) {
+				_clipImageTop = v;
+				if (_clipImage !== void) {
+					calcAffine();
+				}
+			}
+		}
+		getter() {
+			return _clipImageTop;
+		}
+    }
+	
+	/// flipx
+    property flipx {
+        setter(v) {
+			if (_flipx != v) {
+				_flipx = v;
+				calcAffine();
+			}
+        }
+        getter() {
+            return _flipx;
+        }
+    }
+    
+	/// flipy
+    property flipy {
+        setter(v) {
+			if (_flipy != v) {
+				_flipy = v;
+				calcAffine();
+			}
+        }
+        getter() {
+            return _flipy;
+        }
+    }
+
+	/// 回転量（度）
+	property rotate {
+        setter(v) {
+			if (_rotate != v) {
+				_rotate = v;
+				calcAffine();
+			}
+        }
+        getter() {
+            return _rotate;
+        }
+    }
+    
+    /// ズームX（％指定）
+    property zoomx {
+		setter(v) {
+			v /= 100.0;
+			if (_zoomx != v) {
+				_zoomx = v;
+				calcAffine();
+			}
+        }
+        getter() {
+			return _zoomx * 100.0;
+        }
+    }
+    
+    /// ズームY（％指定）
+    property zoomy {
+        setter(v) {
+			v /= 100.0;
+			if (_zoomy != v) {
+				_zoomy = v;
+				calcAffine();
+			}
+        }
+        getter() {
+            return _zoomy * 100.0;
+        }
+    }
+    
+    // ズーム（％指定）
+    property zoom {
+		setter(v) {
+			v /= 100.0;
+			if (_zoomx != v || _zoomy != v) {
+				_zoomx = v;
+				_zoomy = v;
+				calcAffine();
+			}
+		}
+		getter() {
+			return _zoomx * 100.0;
+		}
+    }
+
+    /**
+     * ズーム量を指定する
+     * @param zx 横ズーム
+     * @parma zy 縦ズーム。省略すると横と同じ値
+     */
+    function setZoom(zx, zy=void) {
+        //Debug.message("setZoom:" + zx + ":" + zy);
+        if (zy == void) {
+            zy = zx;
+        }
+		_zoomx = zx / 100.0;
+		_zoomy = zy / 100.0;
+		calcAffine();
+    }
+
+	/// slantx(％指定）
+    property slantx {
+		setter(v) {
+			v /= 100.0;
+			if (_slantx != v) {
+				_slantx = v;
+				calcAffine();
+			}
+        }
+        getter() {
+            return _slantx * 100.0;
+        }
+    }
+    
+	/// slanty
+    property slanty {
+		setter(v) {
+			v /= 100.0;
+			if (_slanty != v) {
+				_slanty = v;
+				calcAffine();
+			}
+        }
+        getter() {
+			return _slanty * 100.0;
+        }
+    }
+	
+	// ---------------------------------------------------------
+	
+	property afx {
+		setter(v) {
+			_image.afx = v === void ? defaultAfx : v;
+			calcAffine();
+		}
+		getter() {
+			return _image.afx;
+        }
+    }
+
+	property afy {
+		setter(v) {
+			_image.afy = v === void ? defaultAfy :  v;
+			calcAffine();
+        }
+        getter() {
+			return _image.afy;
+		}
+    }
+    
+    /**
+     * アフィン変換のオフセット基準を指定
+	 * @param x オフセット位置X
+	 * @param y オフセット位置Y
+	 * AFFINEOFFSET_DEFAULT/CENTER/TOP/BOTTOM/RIGHT/LEFT が指定可能。デフォルトは AFFINEOFFSET_DEFAULT
+     */
+    function setAffineOffset(x,y) {
+        afx = x;
+        afy = y;
+    }
+
+	// ------------------------------------------------------------------------
+
+	var _affineleft = 0;
+	property left {
+		setter(v) {
+			_affineleft = v;
+			calcAffine();
+		}
+		getter() {
+			return _affineleft;
+		}
+    }
+
+	var _affinetop = 0;
+	property top {
+		setter(v) {
+			_affinetop = v;
+			calcAffine();
+		}
+		getter() {
+			return _affinetop;
+        }
+    }
+
+    /**
+     * 配置位置指定
+     */
+    function setPos(l, t, w, h) {
+		_affineleft = l;
+		_affinetop  = t;
+		if (w !== void && h !== void) {
+			_image.setSize(w, h);
+		}
+		calcAffine();
+    }
+	
+	property width {
+		setter(v) {
+			if (_image.width != v) {
+				_image.width = v;
+				calcAffine();
+			}
+		}
+		getter() {
+			return _image.width;
+		}
+    }
+	
+    property height {
+		setter(v) {
+			if (_image.height != v) {
+				_image.height = v;
+				calcAffine();
+			}
+		}
+		getter() {
+			return _image.height;
+		}
+    }
+
+    /**
+     * サイズの指定(Layerの機能をオーバライド)
+     * @param w 横幅
+     * @param h 縦幅
+     */
+	function setSize(w, h) {
+		if (_image.width != w || _image.height != h) {
+			_image.setSize(w, h);
+			calcAffine();
+		}
+    }
+
+    /**
+     * サイズをイメージにあわせる(Layerの機能をオーバライド)
+     */
+    function setSizeToImageSize() {
+		if (_image.imageWidth != _image.width || _image.imageHeight != _image.height) {
+			_image.setSizeToImageSize();
+			calcAffine();
+		}
+    }
+	
+    property imageLeft {
+        setter(v) {
+			_image.imageLeft = v;
+			calcAffine();
+		}
+		getter() {
+			return _image.imageLeft;
+        }
+    }
+    
+    property imageTop {
+        setter(v) {
+			_image.imageTop = v;
+			calcAffine();
+        }
+        getter() {
+			return _image.imageTop;
+        }
+    }
+
+    /**
+     * 配置位置指定
+     */
+	function setImagePos(l, t, w, h) {
+		if (w !== void && h !== void) {
+			_image.setImagePos(l, t);
+			_image.setImageSize(w, h);
+		} else {
+			_image.setImagePos(l, t);
+		}
+		calcAffine();
+    }
+	
+    property imageWidth {
+        setter(v) {
+			_image.imageWidth = v;
+			calcAffine();
+        }
+        getter() {
+			return _image.imageWidth;
+        }
+    }
+    
+	property imageHeight {
+		setter(v) {
+			_image.imageHeight = v;
+			calcAffine();
+		}
+		getter() {
+			return _image.imageHeight;
+        }
+    }
+	
+    /**
+     * サイズの指定(Layerの機能をオーバライド)
+     * @param w 横幅
+     * @param h 縦幅
+     */
+    function setImageSize(w, h) {
+		_image.setImageSize(...);
+		calcAffine();
+    }
+    
+	// ------------------------------------------------------------------------
+
+    /**
+	 * 画像の読み込み(Layerの機能をオーバライド)
+	 * @param image 読み込む画像ストレージ
+	 * @param colorKey 読み込む画像のカラーキー
+	 * @param options 付加情報
+	 * @return タグ情報の辞書配列
+	 */
+	function loadImages(image,colorKey=clNone,options=void) {
+		var ret;
+		var ext = Storages.extractStorageExt(image).toUpperCase();
+		if (ext == ".EMF" || ext == ".WMF") {
+			_initVector();
+			ret = _image.loadImages(...);
+		} else if (ext == ".PSB") {
+			if (typeof window.motion_manager == "undefined") {
+				throw new Exception("motion module not loaded");
+			}
+			var separate = options === void || +options.noseparate == 0;
+			_initMotion(separate);
+			ret = _image.loadImages(...);
+		} else {
+			_initBitmap();
+			ret = _image.loadImages(...);
+		}
+		if (options !== void) {
+			setLoadOptions(options);
+		}
+		calcAffine();
+		return ret;
+    }
+
+	// ロード時画像付加情報追加
+	function setLoadOptions(elm) {
+		_image.setLoadOptions(elm);
+	}
+
+	// レイヤオプション指定
+	function setOptions(elm) {
+		setLoadOptions(elm);
+		super.setOptions(elm);
+	}
+	
+    /**
+     * 画像のコピー(Layerの機能をオーバライド)
+     * @param src コピー元のレイヤ
+     */
+	function assignImages(src, redraw) {
+		if (src instanceof "AffineLayer") {
+			stopRaster();
+			var old =_image;
+			_image  = src._image.clone(this);
+			invalidate old if (old && isvalid old);
+			defaultAfx = src.defaultAfx;
+			defaultAfy = src.defaultAfy;
+			_flipx = src._flipx;
+			_flipy = src._flipy;
+			_rotate = src._rotate;
+			_zoomx  = src._zoomx;
+			_zoomy  = src._zoomy;
+			_slantx = src._slantx;
+			_slanty = src._slanty;
+			_rasterLines = src._rasterLines;
+			_rasterCycle = src._rasterCycle;
+			_raster      = src._raster;
+			if (typeof src._rasterStart != "undefined" && src._rasterStart !== void) {
+				_rasterStart = src._rasterStart;
+				System.addContinuousHandler(onFlipRaster);
+			}
+			if (src._clipImage !== void) {
+				if (_clipImage === void) {
+					_clipImage = new global.Layer(window, this);
+				}
+				_clipImage.assignImages(src._clipImage);
+			}
+			_clipImageLeft = src._clipImageLeft;
+			_clipImageTop  = src._clipImageTop;
+			calcAffine();
+		} else {
+			_initBitmap();
+			if (!redraw && src instanceof "PSDLayer" &&
+				isvalid _image._psdlayer &&_image._psdlayer !== void && _image._psdlayer.psdinfo === src.psdinfo) {
+				// 今表示されてるものと元PSDが同じなら差分更新する
+				//dm("PSD差分更新実行");
+				var update = _image.updatePSD(src);
+				if (update !== void) {
+					calcUpdate(update*);
+				} else {
+					calcAffine();
+				}
+			} else {
+				_image.assignImages(src);
+				calcAffine();
+			}
+		}
+	}
+
+	// 描画後加工処理割り込み用
+	function setRedrawFunction(func) {
+		if (_image instanceof "BitmapAffineSourceLayer") {
+			_image._redrawFunction = func;
+		}
+	}
+	
+    function loadProvinceImage() {
+		onPaint();
+		super.loadProvinceImage(...);
+    }
+	
+	// ------------------------------------------------------------------------
+	
+	function adjustGamma(rgamma=1.0, rfloor=0, rceil=255, ggamma=1.0, gfloor=0, gceil=255, bgamma=1.0, bfloor=0, bceil=255) {
+		_initBitmap();
+		_image.adjustGamma(...);
+		calcUpdate();
+    }
+
+	function affineBlend(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, opa=255, type=stNearest) {
+		_initBitmap();
+		_image.affineBlend(...);
+		calcUpdate();
+    }
+
+    function affineCopy(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, type=stNearest, clear=false) {
+		_initBitmap();
+		_image.affineCopy(...);
+		calcUpdate();
+    }
+
+    function affinePile(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, opa=255, type=stNearest) {
+		_initBitmap();
+		_image.affinePile(...);
+		calcUpdate();
+    }
+
+    function blendRect(dleft, dtop, src, sleft, stop, swidth, sheight, opa=255) {
+		_initBitmap();
+		_image.blendRect(...);
+		calcUpdate(dleft, dtop, swidth, sheight);
+    }
+    
+    function colorRect(left, top, width, height, value, opa=255) {
+		_initBitmap();
+		_image.colorRect(...);
+		calcUpdate(left, top, width, height);
+    }
+
+    function copyRect(dleft, dtop, src, sleft, stop, swidth, sheight) {
+		_initBitmap();
+		_image.copyRect(...);
+		calcUpdate(dleft, dtop, swidth, sheight);
+    }
+
+    function doBoxBlur(xblur=1, yblur=1) {
+		_initBitmap();
+		_image.doBoxBlur(...);
+		calcUpdate();
+    }
+
+    function doGrayScale() {
+		_initBitmap();
+        _image.doGrayScale();
+		calcUpdate();
+    }
+    
+	function drawText(x, y, text, color, opa=255, aa=true, shadowlevel=0, shadowcolor=0x000000, shadowwidth=0, shadowofsx=0, shadowofsy=0) {
+		_initBitmap();
+		_image.drawText(...);
+		calcUpdate();
+    }
+
+	function fillRect(left, top, width, height, value) {
+		_initBitmap();
+		_image.fillRect(...);
+		calcUpdate(left, top, width, height);
+    }
+
+    function flipLR() {
+		_initBitmap();
+        _image.flipLR();
+		calcUpdate();
+    }
+
+    function flipUD() {
+		_initBitmap();
+        _image.flipUD();
+		calcUpdate();
+    }
+
+    function independMainImage() {
+		_initBitmap();
+        _image.independMainImage();
+    }
+
+    function independProvinceImage() {
+		_initBitmap();
+        _image.independProvinceImage();
+    }
+    
+    function operateAffine(src, sleft, stop, swidth, sheight, affine, A, B, C, D, E, F, mode=omAuto, opa=255, type=stNearest) {
+		_initBitmap();
+		_image.operateAffine(...);
+		calcUpdate();
+    }
+    
+	function operateRect(dleft, dtop, src, sleft, stop, swidth, sheight, mode=omAuto, opa=255) {
+		_initBitmap();
+		_image.operateRect(...);
+		calcUpdate(dleft, dtop, swidth, sheight);
+	}
+
+	function operateStretch(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, mode=omAuto, opa=255, type=stNearest) {
+		_initBitmap();
+		_image.operateStretch(...);
+		calcUpdate(dleft, dtop, dwidth, dheight);
+    }
+
+    function pileRect(dleft, dtop, src, sleft, stop, swidth, sheight, opa=255) {
+		_initBitmap();
+		_image.pileRect(...);
+		calcUpdate(dleft, dtop, swidth, sheight);
+    }
+
+	function piledCopy(dleft, dtop, src, sleft, stop, swidth, sheight) {
+		_initBitmap();
+		_image.piledCopy(...);
+		calcUpdate(dleft, dtop, swidth, sheight);
+    }
+
+	function stretchBlend(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, opa=255, type=stNearest) {
+		_initBitmap();
+		_image.stretchBlend(...);
+		calcUpdate(dleft, dtop, dwidth, dheight);
+    }
+
+    function stretchCopy(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, type=stNearest) {
+		_initBitmap();
+		_image.stretchCopy(...);
+		calcUpdate(dleft, dtop, dwidth, dheight);
+    }
+
+    function stretchPile(dleft, dtop, dwidth, dheight, src, sleft, stop, swidth, sheight, opa=255, type=stNearest) {
+		_initBitmap();
+		_image.stretchPile(...);
+		calcUpdate(dleft, dtop, dwidth, dheight);
+    }
+
+    property face {
+        setter(v) {
+			_initBitmap();
+			_image.face = v;
+        }
+        getter() {
+			_initBitmap();
+			return _image.face;
+        }
+    }
+
+    property font {
+        setter(v) {
+			_initBitmap();
+            _image.font = v;
+		}
+        getter() {
+			_initBitmap(); 
+           return _image.font;
+        }
+    }
+
+	property holdAlpha {
+		setter(v) {
+			_initBitmap();
+			_image.holdAlpha = v;
+		}
+		getter() {
+			_initBitmap();
+			return _image.holdAlpha;
+		}
+    }
+
+    // ----------------------------------------------------------------
+    // LayerEx 対応
+
+    function light(brightness, contrast) {
+		_initBitmap();
+        _image.light(...);
+		calcUpdate();
+    }
+
+	function colorize(hue, sat, blend) {
+		_initBitmap();
+        _image.colorize(...);
+		calcUpdate();
+    }
+    
+    function noise(level) {
+		_initBitmap();
+        _image.noise(...);
+		calcUpdate();
+    }
+
+	function modulate(hue, saturation, luminance) {
+		_initBitmap();
+        _image.modulate(...);
+		calcUpdate();
+    }
+    
+    function doDropShadow(dx=10, dy=10, blur=3, shadowColor=0x000000, shadowOpacity=200) {
+		_initBitmap();
+        _image.doDropShadow(...);
+		calcUpdate();
+    }
+
+	function doBlurLight(blur=10, blurOpacity=128, lightOpacity=200, lightType=ltPsHardLight) {
+		_initBitmap();
+        _image.doBlurLight(...);
+		calcUpdate();
+    }
+
+    function tileRect(left, top, width, height, tile, x=0, y=0) {
+		_initBitmap();
+		_image.tileRect(...);
+		calcUpdate(left, top, width, height);
+    }
+
+    function fillOperateRect(left, top, width, height, color, mode) {
+		_initBitmap();
+		_image.fillOperateRect(...);
+		calcUpdate(left, top, width, height);
+	}
+
+	// --------------------------------------
+	// ラスター処理用
+	// --------------------------------------
+
+	var _rasterLayer;
+	var _rasterStart;
+	var _rasterTime;
+
+	function onFlipRaster(tick) {
+		_rasterTime = tick - _rasterStart;
+		update();
+	}
+	
+	/**
+	 * ラスタ処理を停止する
+	 */
+	function stopRaster() {
+		if (_rasterLayer !== void) {
+			invalidate _rasterLayer;
+			_rasterLayer = void;
+		}
+		if (_rasterStart !== void) {
+			System.removeContinuousHandler(onFlipRaster);
+			_rasterStart = void;
+			calcAffine(); // 再表示用
+		}
+	}
+
+	var _raster;
+	property raster {
+		setter(v) {
+			_raster  = v;
+			if (v <= 0) {
+				if (_rasterStart !== void) {
+					stopRaster();
+				}
+			} else {
+				if (_rasterStart === void) {
+					if (typeof global.Layer.copyRaster == "undefined") {
+						throw new Exception("layerExRaster plugin not loaded");
+					}
+					_rasterStart = System.getTickCount();
+					System.addContinuousHandler(onFlipRaster);
+					calcAffine(); // 再表示用
+				}
+			}
+		}
+		getter() {
+			return _raster;
+		}
+	}
+
+	var _rasterLines = 100;
+	property rasterLines {
+		setter(v) {
+			_rasterLines = v;
+		}
+		getter() {
+			return _rasterLines;
+		}
+	}
+
+	var _rasterCycle = 1000;
+	property rasterCycle {
+		setter(v) {
+			_rasterCycle = v;
+		}
+		getter() {
+			return _rasterCycle;
+		}
+	}
+
+	// --------------------------------------
+	// layerExBtoA 対応
+	// --------------------------------------
+
+	function clipAlphaRect() {
+		_initBitmap();
+		_image.clipAlphaRect(...);
+		calcAffine();
+	}
+
+};
+
+// 定数定義
+AffineLayer.AFFINEOFFSET_CENTER = -100000;
+AffineLayer.AFFINEOFFSET_TOP    = -100001;
+AffineLayer.AFFINEOFFSET_BOTTOM = -100002;
+AffineLayer.AFFINEOFFSET_LEFT   = -100001;
+AffineLayer.AFFINEOFFSET_RIGHT  = -100002;
+AffineLayer.AFFINEOFFSET_DEFAULT= -100003;

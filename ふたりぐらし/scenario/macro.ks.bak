@@ -1,0 +1,1492 @@
+[macro name="firstHensu"]
+
+[iscript]
+tf.sunday='<span style="color:#E16871">' + '日' + '</span>';
+[endscript]
+
+[eval exp="f.daylist=['土',tf.sunday,'月','火','水','木','金'] "]
+[eval exp="f.miotachie=['suwari','ryouri','nesoberi']"]
+[eval exp="f.morningScenarioDayList =[3,4,8,9,11]"]
+
+[iscript]
+//日にちをリストで管理して該当日数の場合テキスト表示を行う
+f.morningScenarioDayList = [3,4,8,9,11];
+f.homingScenarioDayList = [3,6];
+f.arrivalScenarioDayList = [11];
+f.nightScenarioDayList = [3,4,14];
+f.sleepScenarioDayList = [3];
+
+f.day= 1;
+f.senbei=0;
+f.pudding= 0;
+f.daifuku=0;
+f.potato= 1;
+f.coffee= 1;
+f.tea= 0;
+f.greentea= 0;
+f.herbtea= 0;
+f.condom = 1;
+f.cloth= "schoolwear1";
+f.HP = 50;
+f.cntDrink = 0;
+f.isTakeBath = 0;
+f.hours = 0;
+f.minutes = "00";
+f.dayOfWeek = 0;
+tf.strDay= f.day + "(" +f.daylist[f.dayOfWeek]  +")";
+tf.strDate=f.hours +":" +f.minutes ;
+tf.strHP=f.HP;
+f.cntDrink = 0;
+f.suyasuya = 30;
+f.love = 0;
+f.strLove="低";
+f.nyoui = 0;
+f.fullness = 0;
+f.mioHealth = 100;
+f.muramura = 0;
+f.beforeMioStand = 'nothing';
+//部位開発度
+f.mouse = 0;
+f.bust = 0;
+f.clitoris = 0;
+f.cunt = 0;
+f.hip = 0;
+f.anus = 0;
+//部位絶頂数(一日ごとのカウント)
+f.mouseOrgasm = 0;
+f.bustOrgasm = 0;
+f.clitorisOrgasm = 0;
+f.cuntOrgasm = 0;
+f.hipOrgasm = 0;
+f.anusOrgasm = 0;
+//部位総絶頂数
+f.mouseTotalOrgasm = 0;
+f.bustTotalOrgasm = 0;
+f.clitorisTotalOrgasm = 0;
+f.cuntTotalOrgasm = 0;
+f.hipTotalOrgasm = 0;
+f.anusTotalOrgasm = 0;
+
+f.kiss =0;
+f.sperm =0;
+f.masturbation=0;
+f.fellatio=0;
+f.masochism=0;
+f.sex=0;
+f.analsex=0;
+f.malerape=0;
+f.creampie=0;
+//コマンド選択回数変数
+f.ohanashi = 0;
+f.hizamakura = 0;
+f.dakko = 0;
+f.bed = 0;
+f.game = 0;
+f.movie = 0;
+f.stroll = 0;
+f.eatPotato = 0;
+f.eatPudding =0;
+f.eatDaifuku =0;
+f.eatSenbei =0;
+tf.strSuyasuya="すやすやポイント(仮):" +f.suyasuya;
+tf.strLove="好感度:"+f.love;
+f.schoolUniform = "schoolwear1";
+f.pajama = "roomwear1";
+f.cloth= "schoolwear1";
+f.mataFlag = false;
+f.fureaiFlag = false;
+f.asobuFlag = false;
+f.keisyokuFlag = false;
+f.ofuroFlag = false;
+f.yasumuFlag = false;
+f.isFirstAwake = true;
+
+[endscript]
+
+[endmacro]
+
+[macro name="resetDayHensu"]
+[iscript]
+f.day += 1;
+if(f.dayOfWeek == 6){
+f.dayOfWeek = 0;
+} else{
+f.dayOfWeek+=1;
+}
+f.hours = 6;
+f.minutes = "00";
+tf.strDay= f.day + "(" +f.daylist[f.dayOfWeek]  +")";
+tf.strDate=f.hours +":" +f.minutes ;
+f.isTakeBath = 0;
+
+f.cloth= f.schoolUniform;
+f.cntDrink = 0;
+f.isTakeBath = 0;
+
+tf.strDay= f.day + "(" +f.daylist[f.dayOfWeek]  +")";
+tf.strDate=f.hours +":" +f.minutes ;
+tf.strHP=f.HP;
+f.cntDrink = 0;
+f.suyasuyaDefault = 30;
+f.suyasuya = f.suyasuyaDefault;
+
+f.nyoui = 0;
+f.fullness = 0;
+f.mioHealth = 100;
+f.muramura = 0;
+f.beforeMioStand = 'nothing';
+
+//部位絶頂数(一日ごとのカウント)
+f.mouseOrgasm = 0;
+f.bustOrgasm = 0;
+f.clitorisOrgasm = 0;
+f.cuntOrgasm = 0;
+f.hipOrgasm = 0;
+f.anusOrgasm = 0;
+
+//コマンド選択回数変数
+
+
+[endscript]
+
+[endmacro]
+
+[macro  name="setTime"  ]
+[iscript]
+//時刻計算関数
+f.addTime = function addTime(hours,minutes){
+  　var dt = new Date();
+	dt.setHours(hours);
+	dt.setMinutes(minutes);
+	f.hours = dt.getHours();
+	f.minutes = dt.getMinutes();
+    if(f.minutes == 0){
+        f.minutes = "00";
+    }
+	tf.strDate=f.hours +':' +f.minutes;
+	return tf.strDate;
+};
+[endscript]
+[ptext  text=&f.addTime(mp.hours,mp.minutes) layer="2" x="210"  y="30"  size="32"  time="500" name="dateText" overwrite="true" color="white" edge="0x000000" face="DSEG14ModernMini-Regular" ]
+[endmacro]
+
+
+[macro  name="addTime"  ]
+[iscript]
+//時刻計算関数
+f.addTime = function addTime(passMinutes){
+  　var dt = new Date();
+	dt.setHours(f.hours);
+	dt.setMinutes(f.minutes);
+    dt.setMinutes(f.minutes + parseInt(passMinutes));
+	f.hours = dt.getHours();
+	f.minutes = dt.getMinutes();
+    if(f.minutes == 0){
+        f.minutes = "00";
+    }
+	tf.strDate=f.hours +':' +f.minutes;
+	return tf.strDate;
+};
+[endscript]
+[ptext  text=&f.addTime(mp.minutes) layer="2" x="210"  y="30"  size="32"  time="500" name="dateText" overwrite="true" color="white" edge="0x000000" face="DSEG14ModernMini-Regular" ]
+[endmacro]
+
+[macro  name="plusTimeInOsawari"  ]
+[iscript]
+//時刻計算関数
+f.addTime = function addTime(passMinutes){
+  　var dt = new Date();
+	dt.setHours(f.hours);
+	dt.setMinutes(f.minutes);
+    dt.setMinutes(f.minutes + parseInt(passMinutes));
+	f.hours = dt.getHours();
+	f.minutes = dt.getMinutes();
+    if(f.minutes == 0){
+        f.minutes = "00";
+    }
+	tf.strDate=f.hours +':' +f.minutes;
+	return tf.strDate;
+};
+[endscript]
+[ptext  text=&f.addTime(mp.minutes) layer="2" x="15"  y="30"  size="32"  time="500" name="dateText" overwrite="true" color="white" edge="0x000000" face="DSEG14ModernMini-Regular" ]
+[endmacro]
+
+
+[macro name="mioHyoujou"]
+[iscript]
+var time   = mp.time  || '1000' ;
+tf.time = Number(time);
+tf.strMioFace = "chara/" +f.cloth + "/" + mp.hyoujou;
+[endscript]
+[chara_show name="mio2" time=&tf.time storage=&tf.strMioFace width="600"  height="1078"  left="365"  top="105"  reflect="false"]
+[endmacro]
+
+[macro name="mioHyoujouSabun"]
+[iscript]
+var time   = mp.time  || '0' ;
+tf.time = Number(time);
+tf.strMioFace = "chara/" +f.cloth + "/" + mp.hyoujou;
+[endscript]
+[chara_mod  name="mio2" time=&tf.time storage=&tf.strMioFace reflect="false" cross="false"]
+[endmacro]
+
+[macro name="mioShow"]
+[eval exp = "tf.strFacial = 'chara/suwari/' "]
+[eval exp = "tf.strFacial = tf.strFacial + f.cloth +'/' +'hutuu_kutitake.png'" ]
+[chara_show  name="suwari"  time="500"  wait="true"  storage=&tf.strFacial  width="215"  height="236"  left="730"  top="375"  reflect="false"  ]
+[eval exp="f.beforeMioStand = 'suwari'"]
+[endmacro]
+
+
+[macro name="mioSabun"]
+[eval exp = "tf.strFacial = 'chara/suwari/' "]
+[eval exp = "tf.strFacial = tf.strFacial + f.cloth +'/' +mp.facial +'.png' " ]
+[chara_mod  name="suwari"  time="2"  cross="true"  storage=&tf.strFacial  ]
+[endmacro]
+
+[macro name="osawariMioShow"]
+[eval exp = "tf.osawariFolder = 'osawari/mio/aomuke/' "]
+[iscript]
+tf.part = mp.part + '/' || 'hyoujyou/';
+[endscript]
+[eval exp = "tf.osawariFolder = tf.osawariFolder + tf.part + mp.image" ]
+[chara_show  name="osawari"  time="0"  wait="false"  storage=&tf.strFacial   left="0"  top="0"  reflect="false"  ]
+[endmacro]
+
+[macro name="mioCloth"]
+[eval exp="f.cloth = mp.cloth"]
+[endmacro]
+
+[macro name="shopNotBuy"]
+;共通購入不可テキスト表示
+これはもう家にいっぱいあるな……
+みおに振る舞ったりして、減ったらの補充にしよう。
+
+[jump  target=%target  storage="command.ks"  ]
+[endmacro]
+
+;丸アイコン表示マクロ
+[macro name ="setButton"]
+[clearfix  name="myButton"  ]
+
+[if exp="f.day >= 4"]
+
+
+[button name="myButton" fix="true" role="window" enterimg="maruicon/wkesu_on.png"  graphic="maruicon/wkesu.png"  width="38"  height="38"  x="871"  y="15" ]
+[button name="myButton" fix="true" role="backlog" enterimg="maruicon/log_on.png"  graphic="maruicon/log.png"  width="38"  height="38"  x="913"  y="15"  ]
+[button name="myButton" fix="true" role="skip" enterimg="maruicon/skip_on.png"  graphic="maruicon/skip.png"  width="38"  height="38"  x="955"  y="15"  ]
+[button name="myButton" fix="true" role="sleepgame" storage="status.ks" enterimg="maruicon/status_on.png"  graphic="maruicon/status.png"  width="38"  height="38"  x="997"  y="15" ]
+[button name="myButton" fix="true" role="menu" enterimg="maruicon/kigae_on.png"  graphic="maruicon/kigae.png"  width="38"  height="38"  x="1039"  y="15"]
+[button name="myButton" fix="true" role="sleepgame" storage="shop.ks" enterimg="maruicon/kaimono_on.png"  graphic="maruicon/kaimono.png"  width="38"  height="38"  x="1081"  y="15" ]
+[button name="myButton" fix="true" role="save" savesnap="true" enterimg="maruicon/save_on.png"  graphic="maruicon/save.png"  width="38"  height="38"  x="1123"  y="15" ]
+[button name="myButton" fix="true" role="load" enterimg="maruicon/load_on.png"  graphic="maruicon/load.png"  width="38"  height="38"  x="1165"  y="15"]
+[button name="myButton" fix="true" role="sleepgame" storage="../others/plugin/theme_kopanda_bth_01/config.ks" enterimg="maruicon/config_on.png"  graphic="maruicon/config.png"  width="38"  height="38"  x="1207"  y="15"  ]
+
+[else]
+[button name="myButton" fix="true" role="window" enterimg="maruicon/wkesu_on.png"  graphic="maruicon/wkesu.png"  width="38"  height="38"  x="871"  y="15" ]
+[button name="myButton" fix="true" role="backlog" enterimg="maruicon/log_on.png"  graphic="maruicon/log.png"  width="38"  height="38"  x="913"  y="15"  ]
+[button name="myButton" fix="true" role="skip" enterimg="maruicon/skip_on.png"  graphic="maruicon/skip.png"  width="38"  height="38"  x="955"  y="15"  ]
+[button name="myButton" fix="true" role="sleepgame" storage="status.ks" enterimg="maruicon/status_on.png"  graphic="maruicon/status.png"  width="38"  height="38"  x="997"  y="15" ]
+[button name="myButton" fix="true" role="menu" enterimg="maruicon/kigae_on.png"  graphic="maruicon/kigae.png"  width="38"  height="38"  x="1039"  y="15"]
+[button name="myButton" fix="true" role="save" savesnap="true" enterimg="maruicon/save_on.png"  graphic="maruicon/save.png"  width="38"  height="38"  x="1081"  y="15" ]
+[button name="myButton" fix="true" role="load" enterimg="maruicon/load_on.png"  graphic="maruicon/load.png"  width="38"  height="38"  x="1123"  y="15"]
+[button name="myButton" fix="true" role="sleepgame" storage="../others/plugin/theme_kopanda_bth_01/config.ks" enterimg="maruicon/config_on.png"  graphic="maruicon/config.png"  width="38"  height="38"  x="1165"  y="15"  ]
+
+
+[endif]
+
+
+[endmacro]
+
+;会話時の丸アイコン表示マクロ
+[macro name ="setButtonInTalk"]
+[clearfix  name="myButton"  ]
+[button name="myButton" fix="true" role="window" enterimg="maruicon/wkesu_on.png"  graphic="maruicon/wkesu.png"  width="38"  height="38"  x="997"  y="15" ]
+[button name="myButton" fix="true" role="backlog" enterimg="maruicon/log_on.png"  graphic="maruicon/log.png"  width="38"  height="38"  x="1039"  y="15"]
+[button name="myButton" fix="true" role="skip" enterimg="maruicon/skip_on.png"  graphic="maruicon/skip.png"  width="38"  height="38"  x="1081"  y="15"  ]
+[button name="myButton" fix="true" role="save" savesnap="true" enterimg="maruicon/save_on.png"  graphic="maruicon/save.png"  width="38"  height="38"  x="1123"  y="15"]
+[button name="myButton" fix="true" role="load" enterimg="maruicon/load_on.png"  graphic="maruicon/load.png"  width="38"  height="38"  x="1165"  y="15"  ]
+[button name="myButton" fix="true" role="sleepgame" storage="../others/plugin/theme_kopanda_bth_01/config.ks" enterimg="maruicon/config_on.png"  graphic="maruicon/config.png"  width="38"  height="38"  x="1207"  y="15"  ]
+[endmacro]
+
+[macro name = setHP]
+;使い方 :体力の増減がある所で[HPcalc HP=5]や[HPcalc HP=-10]などと記載する
+[eval exp="tf.HP=mp.HP"]
+[iscript]
+f.HP = f.HP+parseInt(tf.HP);
+
+
+
+;HPがマイナスの時0とする
+if(f.HP<0){
+	f.HP = 0;
+}
+;HPの最大値を1000とする
+if(f.HP>1000){
+	f.HP = 1000;
+}
+
+if(parseInt(tf.HP) >= 0){
+	tf.strPlusHP = "+" +tf.HP;
+} else{
+  	tf.strPlusHP = tf.HP;
+	}
+
+tf.strHP=f.HP;
+[endscript]
+;体力表示の更新
+[ptext  text=&tf.strHP layer="2"  x="75"  y="85"  size="32"  time="500" name="HPText" overwrite="true" color="white" edge="0x000000" ]
+[endmacro]
+
+[macro name = calcHP]
+;使い方 :体力の増減がある所で[HPcalc HP=5]や[HPcalc HP=-10]などと記載する
+[eval exp="tf.HP=mp.HP"]
+[iscript]
+f.HP = f.HP+parseInt(tf.HP);
+
+var minHP = mp.minHP || "0"
+minHP = Number(minHP)
+
+
+;HPがマイナスの時0とする
+if(f.HP<0){
+	f.HP = 0;
+}
+
+if(f.HP < minHP ){
+  f.HP = minHP;
+}
+
+;HPの最大値を1000とする
+if(f.HP>1000){
+	f.HP = 1000;
+}
+
+if(parseInt(tf.HP) >= 0){
+	tf.strPlusHP = "+" +tf.HP;
+} else{
+  	tf.strPlusHP = tf.HP;
+	}
+
+tf.strHP=f.HP;
+[endscript]
+;体力表示の更新
+[ptext  text=&tf.strHP layer="2"  x="75"  y="85"  size="32"  time="500" name="HPText" overwrite="true" color="white" edge="0x000000" ]
+[mtext layer="2" x="170"  y="85"  text=&tf.strPlusHP  size="20"  fadeout="true"  in_effect="fadeIn"  out_effect="fadeOut" edge="0x000000" wait="false" in_delay="20"  out_delay="20" time="300"  ]
+[endmacro]
+
+[macro name = calcSuyasuya]
+;使い方 :すやすやポイントの増減がある所で[HPcalc HP=5]や[HPcalc HP=-10]などと記載する
+[eval exp="tf.suyasuya=mp.suyasuya"]
+[iscript]
+f.suyasuya = f.suyasuya+parseInt(tf.suyasuya);
+
+
+; 最低値、最大値はいったん無しとする
+;すやすやポイントがマイナスの時0とする
+;if(f.suyasuya<0){
+;	f.suyasuya = 0;
+;}
+;すやすやポイントの最大値を1000とする
+;if(f.suyasuya>1000){
+;	f.suyasuya = 1000;
+;}
+
+
+if(parseInt(tf.suyasuya) >= 0){
+	tf.strPlusSuyasuya = "+" +tf.suyasuya;
+} else{
+  	tf.strPlusSuyasuya = tf.suyasuya;
+	}
+
+
+tf.strSuyasuya="すやすやポイント(仮):" +f.suyasuya;
+[endscript]
+
+;体力表示の更新
+;すやすやポイントの更新 ※デバッグ用のためリリース時は非表示とします
+[ptext  text=&tf.strSuyasuya layer="2"  x="5"  y="152"  size="32"  time="500" name="SuyasuyaText" overwrite="true" color="white" edge="0x000000" ]
+[mtext  x="380"  y="152"  text=&tf.strPlusSuyasuya  size="20"  fadeout="true"  in_effect="fadeIn"  out_effect="fadeOut" edge="0x000000" wait="false" in_delay="20"  out_delay="20" time="300"  ]
+[endmacro]
+
+
+; 使い方 [calcLove plusLove = "XXX"]
+;plusLoveで指定した数値(整数)を好感度に増減させます
+[macro name = calcLove]
+
+[eval exp="tf.love=mp.plusLove"]
+[iscript]
+f.love = f.love+parseInt(tf.love);
+
+if(f.love>= 0 && 50 > f.love){
+  f.strLove = "低";
+} else if (f.love >= 50 && 100 > f.love) {
+  f.strLove = "中";
+} else if (f.love >= 100) {
+  f.strLove = "高";
+} else {
+  f.strLove = "嫌";
+}
+
+
+//最低値、最大値はいったん無しとする
+//好感度の最低値を-100とする
+if(f.love<-100){
+	f.love = -100;
+}
+//好感度の最大値を1000とする
+if(f.love>1000){
+	f.love = 1000;
+}
+
+
+if(parseInt(tf.love) >= 0){
+	tf.strPlusLove = "+" +tf.love;
+} else{
+  	tf.strPlusLove = tf.love;
+	}
+
+
+tf.strLove="好感度:" +f.love;
+[endscript]
+;好感度表示の更新
+[ptext  text=&tf.strLove layer="2"  x="5"  y="202"  size="32"  time="500" name="loveText" overwrite="true" color="white" edge="0x000000" ]
+[mtext  x="380"  y="202"  text=&tf.strPlusLove  size="20"  fadeout="true"  in_effect="fadeIn"  out_effect="fadeOut" edge="0x000000" wait="false" in_delay="20"  out_delay="20" time="300"  ]
+[endmacro]
+
+
+[macro name="startFukidashi"]
+[set_custom_fuki *]
+[nolog]
+[tb_fuki_start]
+[tb_start_text mode=1 ]
+[font color="black" edge="none" ]
+[endmacro]
+
+[macro name="endFukidashi"]
+[reset_custom_fuki]
+[endnolog]
+[tb_fuki_stop  ]
+[resetfont  ]
+#
+[_tb_end_text]
+[endmacro]
+
+; ----------------------------------------------------------
+; みお立ち絵表示変更マクロ
+; ----------------------------------------------------------
+[macro name="mioImageChange"]
+
+;switch文のように引数のパラメータによって立ち絵を表示する
+;前回のみおの立ち位置と同じ場合(f.beforeMioStand)、ちらつき防止のため立ち絵更新処理は行わない
+[if exp="mp.mio=='suwari'"]
+[if exp="f.isTakeBath"]
+
+[eval exp="f.cloth = f.pajama"]
+
+[else]
+
+[eval exp="f.cloth = f.schoolUniform"]
+
+[endif]
+[trace exp="f.beforeMioStand'"]
+[if exp="f.beforeMioStand != 'suwari'"]
+[chara_hide_all  wait="true"  time="100"  ]
+[eval exp = "tf.strFacial = 'chara/suwari/' + f.cloth +'/' +'hutuu_kutitake.png'" ]
+[trace exp="tf.strFacial"]
+[chara_show  name="suwari"  time="500"  wait="true"  storage=&tf.strFacial  width="215"  height="236"  left="730"  top="375"  reflect="false"  ]
+[endif]
+
+[clickable  width="76"  height="78"  x="824"  y="371"  storage="command.ks"  target="clickAtama"  _clickable_img=""  ]
+[clickable  storage="command.ks"  x="811"  y="454"  width="83"  height="49"  target="clickMune"  _clickable_img=""  ]
+[clickable  storage="command.ks"  x="811"  y="525"  width="79"  height="55"  target="clickMata"  _clickable_img=""  ]
+
+
+[elsif exp="mp.mio=='ryouri'"]
+[eval exp="f.cloth = 's1apron'"]
+
+[trace exp="f.beforeMioStand != 'ryouri'"]
+[if exp="f.beforeMioStand != 'ryouri'"]
+[chara_hide_all  wait="true"  time="100"  ]
+[chara_show  name="ryouri"  time="300"  wait="true"  storage="chara/3/s_f_1.png"  width="397"  height="720"  left="-8"  top="28"  reflect="false"  ]
+[endif]
+
+[clickable  width="76"  height="78"  x="165"  y="132"  storage="command.ks"  target="clickAtama"  _clickable_img=""  ]
+;[clickable  storage="command.ks"  x="156"  y="265"  width="83"  height="49"  target="clickMune"  _clickable_img=""  ]
+[clickable  storage="command.ks"  x="160"  y="366"  width="108"  height="80"  target="clickMata"  _clickable_img=""  ]
+
+[elsif exp="mp.mio=='nesoberi'"]
+
+[trace exp="f.beforeMioStand != 'nesoberi'"]
+
+[if exp="f.beforeMioStand != 'nesoberi'"]
+
+[chara_hide_all  wait="true"  time="100"  ]
+[chara_show  name="nesoberi"  time="300"  wait="true"  storage="chara/5/nesoberi1.png"  width="295"  height="178"  left="970"  top="360"  reflect="false"  ]
+[endif]
+
+[clickable  width="65"  height="63"  x="991"  y="378"  storage="command.ks"  target="clickAtama"  _clickable_img="C3_n_c_lit.png"  ]
+;[clickable  storage="command.ks"  x="1086"  y="414"  width="53"  height="51"  target="clickMune"  _clickable_img="C3_n_c_lit.png"  ]
+[clickable  storage="command.ks"  x="1119"  y="405"  width="79"  height="80"  target="clickMata"  _clickable_img="C3_n_c_lit.png"  ]
+
+[endif]
+[eval exp="f.beforeMioStand = mp.mio"]
+[endmacro]
+; ----------------------------------------------------------
+; 乱数マクロ
+; ----------------------------------------------------------
+
+
+
+
+
+
+; [getrand var="XXX" min="XXX" max="XXX"]
+; 一時変数 tf.rand に min 以上 max 以下の乱数(整数)をセットするマクロです。
+; var には変数の名前を指定できます（var="f.a"のように）。
+; 指定すると、tf.rand の内容をその変数にコピーします。
+[macro name="getrand"]
+  [iscript]
+  var max = mp.max || '10'
+  var min = mp.min || '1'
+  max = Number(max)
+  min = Number(min)
+  tf.rand = min + Math.floor(Math.random() * (max - min + 1))
+  if (mp['var']) eval(mp['var'] + ' = ' + tf.rand)
+  [endscript]
+[endmacro]
+
+
+
+; [getrandname var="XXX" name="XXX" min="XXX" max="XXX"]
+; 文字列 name の{R}部分を「min 以上 max 以下のランダムな整数」で置き換えた文字列を生成し、
+; 一時変数 tf.randname にセットします。
+; var には変数の名前を指定できます（var="f.a"のように）。
+; 指定すると、tf.randname の内容をその変数にコピーします。
+[macro name="getrandname"]
+  [iscript]
+  var name  = mp.name || '*Label{R}'
+  var max   = mp.max  || '10'
+  var min   = mp.min  || '1'
+  max = Number(max)
+  min = Number(min)
+  var rand    = min + Math.floor(Math.random() * (max - min + 1))
+  tf.randname = name.replace('{R}', rand)
+  if (mp['var']) eval(mp['var'] + ' = "' + tf.randname + '"')
+  [endscript]
+[endmacro]
+
+[macro name="fukidashiName"]
+
+[if exp="f.beforeMioStand == 'suwari'"]
+#suwari
+[elsif exp="f.beforeMioStand == 'ryouri'"]
+#ryouri
+
+[elsif exp="f.beforeMioStand == 'nesoberi' "]
+#nesoberi
+
+[else]
+#suwari
+[endif]
+
+[endmacro]
+
+[macro name="bgcheck"]
+[if exp="f.hours >= 6 && f.hours < 16"]
+[if exp="f.beforeBG != 'morning'"]
+[bg2  storage="C1_m_o.png"  left="-110"  top=""  width="1475"  height="720"  ]
+[eval exp="f.beforeBG = 'morning'"]
+[endif]
+[elsif exp="f.hours >= 16 && f.hours < 18"]
+[if exp="f.beforeBG != 'evening'"]
+[bg2  storage="C2_e_o.png"  left="-110"  top=""  width="1475"  height="720"  ]
+[eval exp="f.beforeBG = 'evening'"]
+[endif]
+[elsif exp="f.hours >= 18"]
+[if exp="f.beforeBG != 'night'"]
+[bg2  storage="C3_n_c_lit.png"  left="-110"  top=""  width="1475"  height="720"  ]
+[eval exp="f.beforeBG = 'night'"]
+[endif]
+[endif]
+[endmacro]
+
+[macro name="setPotato"]
+[iscript]
+tf.potatoX=600;
+tf.potatoY=450;
+[endscript]
+[if exp="mp.flag == 'true'"]
+[image name="potato"  layer=1 page=fore visible=true storage="komono/potato.png" left=&tf.potatoX  top=&tf.potatoY  ]
+
+
+[else]
+[free layer="1" name="potato"]
+[endif]
+[endmacro]
+
+[macro name="setMug"]
+[iscript]
+tf.mugX=730;
+tf.mugY=420;
+
+[endscript]
+
+[if exp="mp.flag == 'true'"]
+[image name="mug" layer=1 page=fore visible=true storage="komono/mug.png" left=&tf.mugX  top=&tf.mugY  ]
+;[tb_image_show  time="2"  storage="default/mugcup.png"  width="1280"  height="720"  name="img_213"  ]
+
+[else]
+[free name="mug" layer="1"]
+[endif]
+[endmacro]
+
+[macro name="setOsawariIcon"]
+[button graphic="osawari/icon/eye.png" name="eye" storage="osawari.ks" target="*setEye" x="10" y="600" width="72"  height="72" fix="false" enterimg="osawari/icon/eye_on.png"]
+[button graphic="osawari/icon/hand.png" name="hand" storage="osawari.ks" target="*setHand" x="90" y="600" width="72"  height="72" fix="false" enterimg="osawari/icon/hand_on.png"]
+[button graphic="osawari/icon/lip.png" name="lip" storage="osawari.ks" target="*setLip" x="170" y="600" width="72"  height="72" fix="false" enterimg="osawari/icon/lip_on.png"]
+[button graphic="osawari/icon/kinoko.png" name="kinoko" storage="osawari.ks" target="*setKinoko" x="250" y="600" width="72"  height="72" fix="false" enterimg="osawari/icon/kinoko_on.png"]
+
+[endmacro]
+
+[macro name="banOsawari"]
+[iscript]
+tf.banIcon = mp.banIcon;
+tf.x ="";
+tf.y = 600;
+tf.target = "*banIcon";
+//tf.clickse = "se/s_cancel.mp3";
+tf.clickse = "";
+
+if(tf.banIcon == "hand"){
+  tf.x = 90;
+  tf.graphic = "osawari/icon/hand_NG.png";
+} else if(tf.banIcon == "lip"){
+  tf.x = 170;
+  tf.graphic = "osawari/icon/lip_NG.png";
+} else if(tf.banIcon == "kinoko"){
+  tf.x = 250;
+  tf.graphic = "osawari/icon/kinoko_NG.png";
+}
+[endscript]
+
+[if exp="tf.x != ''"]
+[clearfix name=&tf.banIcon]
+[button graphic=&tf.graphic name=&tf.banIcon storage="osawari.ks" target=&tf.target x=&tf.x y=&tf.y width="72"  height="72" fix="false" clickse=&tf.clickse]
+
+[endif]
+
+[endmacro]
+
+[macro name="calcSuyasuyaGauge"]
+[iscript]
+f.suyasuyaGauge = f.suyasuyaGauge + parseInt(mp.gauge);
+if(mp.gauge == -500){
+  f.suyasuyaLimit = 0;
+}
+tf.isHyoujouFlag = false;
+if(f.suyasuyaGauge <= f.suyasuyaLimit){
+f.suyasuyaGauge = f.suyasuyaLimit;
+tf.isHyoujouFlag = true;
+if(f.suyasuyaLimit == f.SUYASUYA_LIMIT_FIRST){
+  f.suyasuyaLimit = f.SUYASUYA_LIMIT_SECOND;
+} else if(f.suyasuyaLimit == f.SUYASUYA_LIMIT_SECOND){
+  f.suyasuyaLimit = f.SUYASUYA_LIMIT_THIRD;
+} else if (f.suyasuyaLimit == f.SUYASUYA_LIMIT_THIRD){
+  f.suyasuyaLimit = 0;
+}
+
+}
+
+
+
+if(f.suyasuyaGauge < 0){
+  f.suyasuyaGauge = 0;
+}
+[endscript]
+;[anim name="suyasuyaGauge" width="&f.suyasuyaGauge" height="20" time=200]
+[if exp="f.suyasuyaGauge == 0"]
+[eval exp="f.isAwake = true"]
+[if exp="f.isFirstAwake == true"]
+
+[eval exp="f.isFirstAwake = false"]
+[eval exp="f.isAwake = true"]
+[call storage="osawari_text.ks" target="*first_okita"]
+
+[endif]
+[endif]
+
+[setOsawariHyoujouLimit]
+[endmacro]
+
+[macro name="calcSyaseiGauge"]
+[iscript]
+tf.plusSyasei = parseInt(mp.gauge);
+
+if(f.HP >= 200){
+  tf.bairitsu = 1;
+} else if (f.HP > 150) {
+  tf.bairitsu = 0.9;
+} else if(f.HP > 100){
+  tf.bairitsu = 0.8;
+} else if(f.HP > 50){
+  tf.bairitsu = 0.7;
+} else if (f.HP > 30) {
+  tf.bairitsu = 0.6;
+} else {
+  tf.bairitsu = 0.4;
+}
+
+tf.plusSyasei = tf.plusSyasei * tf.bairitsu;
+tf.plusSyasei = Math.floor(tf.plusSyasei);
+if(tf.plusSyasei < 3){
+  tf.plusSyasei = 3;
+  f.beforePenisCommand = "manko";
+}
+f.syaseiGauge = f.syaseiGauge + tf.plusSyasei;
+[endscript]
+
+[if exp="f.syaseiGauge >= 250"]
+[wait_cancel]
+
+[if exp="f.beforePenisCommand == 'mune'"]
+[image layer="1" name="siru"  storage="osawari/siru/mune1.png" folder="image"]
+[eval exp="f.isSiru = true"]
+
+[elsif exp="f.beforePenisCommand == 'manko'"]
+[image layer="1" name="siru" storage="osawari/siru/manko1.png" folder="image"]
+[eval exp="f.isSiru = true"]
+
+[elsif exp="f.beforePenisCommand == 'kao'"]
+[image layer="1" name="siru" storage="osawari/siru/kao1.png" folder="image"]
+[eval exp="f.isSiru = true"]
+
+[elsif exp="f.beforePenisCommand == 'kuti'"]
+[image layer="1" name="siru" storage="osawari/siru/kuti1.png" folder="image"]
+[eval exp="f.isSiru = true"]
+
+[elsif exp="f.beforePenisCommand == 'sumata'"]
+[image layer="1" name="siru" storage="osawari/siru/sumata1.png" folder="image"]
+[eval exp="f.isSiru = true"]
+
+[endif]
+
+[eval exp="f.syaseiGauge = 250"]
+[anim name="syaseiGauge" width="&f.syaseiGauge" height="20" time=1500 effect="easeOutQuad"]
+[mtext x="600" y="80" edge="white" color="black" text="射精ゲージMAX" fadeout="true" wait="true" out_delay="100" in_sync="true" time="100"  out_sync="true"]
+[calcHP HP=-40]
+[eval exp="f.syaseiGauge = 1"]
+
+[iscript]
+max = Number(2);
+min = Number(1);
+tf.rand = min + Math.floor(Math.random() * (max - min + 1));
+tf.syaseiSE ="se/" +"syasei" +tf.rand +".mp3";
+[endscript]
+[playse storage=&tf.syaseiSE buf="1"]
+[endif]
+
+
+[anim name="syaseiGauge"  layer="message2" width="&f.syaseiGauge" height="20" time=1500 effect="easeOutQuad"]
+
+
+
+[endmacro]
+
+[macro name="calcZettyouGauge"]
+[iscript]
+f.zettyouGauge = f.zettyouGauge + parseInt(mp.gauge);
+[endscript]
+
+[if exp="f.zettyouGauge >= 150 && f.isSekimen == false "]
+
+[eval exp="f.isSekimen = true"]
+
+
+[endif]
+
+[if exp="f.zettyouGauge >= 250"]
+[if exp="f.isAwake"]
+[playse storage="vo_bgv/FT_m001_bgs0012.mp3" buf="2" loop="false" sprite_time="0-6000"]
+[else]
+[playse storage="vo_bgv/FT_m001_bgs0027.mp3" buf="2" loop="false" sprite_time="0-6000"]
+[endif]
+[eval exp="f.zettyouGauge = 250"]
+[anim name="zettyouGauge" width="&f.zettyouGauge" height="20" time=1500 effect="easeOutQuad"]
+[mtext x="400" y="80" edge="white" color="black" text="絶頂ゲージMAX" fadeout="true" wait="true" out_delay="100" in_sync="true" time="100"  out_sync="true"]
+[eval exp="f.zettyouGauge = 1"]
+[endif]
+
+
+[anim name="zettyouGauge" layer="message2" width="&f.zettyouGauge" height="20" time=1500 effect="easeOutQuad"]
+
+[endmacro]
+
+[macro name="osawariCommon"]
+[mask  time="100"  effect="fadeIn"  color="0x000000"  ]
+;おさわりパート共通処理マクロ
+[call  storage="macro.ks"  target=""  ]
+;[layopt layer="message0" visible="false"]
+;[position  frame="frame_message_toumei.png"  ]
+[frameSetForOsawari]
+[layopt layer="message0" visible="true"]
+;[position layer=message0 margint="0" marginl="240" marginr="210" marginb="20"]
+[clearfix]
+[stop_keyconfig]
+[free_layermode time="0" wait="true"]
+
+[RESET_CAMERA time="100" wait="true"]
+
+[iscript]
+$(".layer_camera").empty();
+$("#bgmovie").remove();
+[endscript]
+;[hidemenubutton]
+[cursor storage="osawari/cursor/eye.png"]
+[eval exp="f.cursor = './data/image/osawari/cursor/eye_on.png'"]
+[eval exp="f.nowCursor = 'eye'"]
+[eval exp="f.isPink = false"]
+[eval exp="f.isNight = false"]
+;[clickable target="clickAtama" storage="osawari.ks" width="250" height="220" x="470" y="50" cursor=&f.cursor]
+
+
+[bg2 storage="../image/osawari/mio/aomuke/bg_bed.png" time="0" ]
+[if exp="f.hours > 20"]
+[LAYERMODE time="0" graphic="osawari/mio/aomuke/kage_yoru.png" name="kage_yoru" mode="multiply" opacity="230" ]
+[LAYERMODE time="0" graphic="osawari/fg_purple.png" name="fg_purple" mode="multiply" opacity="230" ]
+[else]
+[LAYERMODE  time="0" graphic="osawari/mio/aomuke/kage_hiru.png" name="kage_hiru" mode="multiply" opacity="230" ]
+[LAYERMODE time="0" graphic="osawari/fg_orange.png" name="fg_orange" mode="multiply" opacity="230" ]
+[endif]
+;[LAYERMODE graphic="osawari/fg_orange.png" mode="overlay" ]
+;[chara_new name="osawari" storage="../image/osawari/mio/aomuke/body.png" jname="osawari"  ]
+;[chara_layer name="osawari" part="asi" id="ryoutoji" storage="../image/osawari/mio/aomuke/asi/asi1_ryoutoji.png" zindex="2" ]
+;[chara_layer name="osawari" part="ude" id="ryoutoji" storage="../image/osawari/mio/aomuke/ude/ude1_ryoutoji.png" zindex="3"]
+;[chara_layer name="osawari" part="pantu" id="pantuA1"  storage="../image/osawari/mio/aomuke/pantu/pantuA1.png" zindex="4"]
+;[chara_layer name="osawari" part="hyoujyou" id="neteru" storage="../image/osawari/mio/aomuke/hyoujyou/1neteru.png" zindex="5"]
+;[chara_layer name="osawari" part="cloth" id="pajama1_1"  storage="../image/osawari/mio/aomuke/cloth/pajama1/1_1_mekure.png" zindex="6"]
+;[chara_show name="osawari" left="0" top="0" time="0" wait="false"  storage="../image/osawari/mio/aomuke/body.png" zindex="1"   ]
+[eval exp="f.suyasuyaGauge = 0"]
+[if exp="f.isAwake == true"]
+[chara_part name="osawari" hyoujyou="okita" cloth="none" pantu="pantuA_kaikyaku_zurasi" asi="kaikyaku" ude="hidaritoji" tikubi="tikubi"]
+[chara_show name="osawari" left="0" top="0" storage="../image/osawari/mio/aomuke/body.png" time="0" ]
+[setOsawariClickable ude='hidaritoji' asi='kaikyaku' pantu='ari_kaikyaku' fuku='nugi']
+[else]
+[if exp="f.day == 1"]
+[eval exp="f.suyasuyaGauge += 50"]
+[else]
+[eval exp="f.suyasuyaGauge += 500"]
+[endif]
+
+[chara_part name="osawari" hyoujyou="neteru1" tikubi="tikubi"]
+[chara_show name="osawari" left="0" top="0" storage="../image/osawari/mio/aomuke/body.png" time="0"  ]
+[setOsawariClickable]
+[endif]
+[mask_off  time="1000"  effect="fadeOut"  ]
+[image storage="../image/osawari/osawarigauge.png" layer="message2" time="1000" wait="false" visible="true"  zindex="100"]
+[setOsawariIcon]
+
+[setButtonInTalk]
+
+[eval exp="f.zettyouGauge = 1"]
+[eval exp="f.syaseiGauge = 1"]
+
+
+[iscript]
+if(f.minutes == 0 ){
+  f.minutes ="00";
+}
+tf.strDate=f.hours +":" +f.minutes ;
+tf.strHP=f.HP;
+[endscript]
+[position layer="message2" left="0" top="0"  width="1200" height="200" frame="frame_message_toumei.png" opacity="255" visible="true"]
+[layopt layer="message2" visible="true"]
+
+;[image layer="message2"  storage="../bgimage/bk100.jpg" x="10" y="25" width="131" height="41" zindex="100"]
+[image layer="message2"  time="1000"  storage="default/tairyoku.png"  width="151"  height="41"  x="10"  y="81" zindex="100"  ]
+[mtext layer="message2" in_sync="true" fadeout="false" wait="false" text=&tf.strDate x="15"  y="30"  size="32"  time="100" name="dateText" overwrite="true" color="white" edge="0x000000" face="DSEG14ModernMini-Regular" time="1000"]
+[mtext layer="message2" in_sync="true" fadeout="false" wait="false" text=&tf.strHP  x="75"  y="85"  size="32"  time="100" name="HPText" overwrite="true" color="white" edge="0x000000"  time="1000"]
+[image layer="message2" storage="gauge/base.png"  x=320 y=20 width=250 height=20 visible=true zindex="100"]
+[image layer="message2" wait="false" storage="gauge/zettyou.png"  x=320 y=20 width="&f.zettyouGauge" height=20 name="zettyouGauge" visible=true zindex="100" time="1000"]
+[image layer="message2" storage="gauge/base.png"  x=589 y=20 width=250 height=20 visible=true zindex="100"]
+[image layer="message2" wait="false" storage="gauge/syasei.png"  x=589 y=20 width="&f.syaseiGauge" height=20 name="syaseiGauge" visible=true zindex="100" time="1000"]
+[endmacro]
+
+[macro name="osawariEndCheck"]
+[if exp="f.HP == 0"]
+[position  frame="../others/plugin/theme_kopanda_bth_01/image/frame_message.png"  ]
+体力0の為強制終了（仮）[p]
+[jump target="back" storage="osawari.ks"]
+
+[endif]
+
+[if exp="f.hours >= 1 && f.hours < 5"]
+[position  frame="../others/plugin/theme_kopanda_bth_01/image/frame_message.png"  ]
+強制終了時刻（仮）[p]
+[jump target="back" storage="osawari.ks"]
+
+[endif]
+[endmacro]
+
+[macro name="frameSetForOsawari"]
+[iscript]
+
+// 初期化
+mp.font_color      = mp.font_color      || "0xDDDDDD"; // テキストの色
+mp.edge_color      = mp.edge_color      || "0x2E0000"; // テキストの縁取りの色
+mp.name_color      = mp.name_color      || "0xDDDDDD"; // 発言者名の色
+mp.name_edge_color = mp.name_edge_color || "0x2E0000"; // 発言者名の縁取りの色
+mp.frame_opacity   = mp.frame_opacity   || "255";			 // メッセージウィンドウの不透明度
+mp.font_color2     = mp.font_color2     || "0xDDDDDD"; // 既読テキストの色（変更なし）
+mp.glyph           = mp.glyph           || "off";      // クリック待ちグリフをプラグイン専用のデザインに差し替えるか（def=off）
+
+[endscript]
+
+[position layer="message0" frame="frame_message_toumei.png" margint="50" marginl="440" marginr="340" opacity="&mp.frame_opacity" page="fore" ]
+;[ptext name="chara_name_area" layer="message0" edge="&mp.name_edge_color" color="&mp.name_color" size="24" x="450" y="515" width="340" overwrite="true"]
+;[chara_config ptext="chara_name_area"]
+[endmacro]
+
+[macro name="frameReset"]
+  [iscript]
+
+	// 初期化
+	mp.font_color      = mp.font_color      || "0xDDDDDD"; // テキストの色
+	mp.edge_color      = mp.edge_color      || "0x2E0000"; // テキストの縁取りの色
+	mp.name_color      = mp.name_color      || "0xDDDDDD"; // 発言者名の色
+	mp.name_edge_color = mp.name_edge_color || "0x2E0000"; // 発言者名の縁取りの色
+	mp.frame_opacity   = mp.frame_opacity   || "255";			 // メッセージウィンドウの不透明度
+	mp.font_color2     = mp.font_color2     || "0xDDDDDD"; // 既読テキストの色（変更なし）
+	mp.glyph           = mp.glyph           || "off";      // クリック待ちグリフをプラグイン専用のデザインに差し替えるか（def=off）
+
+	[endscript]
+;	メッセージウィンドウの設定
+  	[position layer="message0" width="1280" height="232" top="488" left="0"]
+  	[position layer="message0" frame="../others/plugin/theme_kopanda_bth_01/image/frame_message.png" margint="50" marginl="240" marginr="220" opacity="&mp.frame_opacity" page="fore" ]
+
+
+;	名前枠の設定
+;;	[ptext name="chara_name_area" layer="message0" edge="&mp.name_edge_color" color="&mp.name_color" size="24" x="250" y="515" width="340" overwrite="true"]
+;	[chara_config ptext="chara_name_area"]
+  [endmacro]
+
+[macro name="setOsawariClickable"]
+
+
+[iscript]
+
+tf.ude = mp.ude || "ryoutoji"; //ryoutoji,hidaritoji,migitoji,ake
+tf.asi = mp.asi || "ryoutoji"; //ryoutoji,hidaritoji,migitoji,kaikyaku
+tf.pantsu = mp.pantsu || "ari"; //ari_toji:着衣、脚閉じ ari_kaikyaku:着衣、開脚 ari_kaikyaku_zurasi:着衣、開脚、パンツずらし nugi:無し
+tf.fuku = mp.fuku || "ari"; //ari:通常着衣 ari_mekure:服めくれ nugi:裸
+[endscript]
+
+;クリッカブル
+;デバッグ用に色分け
+;腕-黄色
+;胸-青色
+;パンツ-黒色
+;股-赤色
+;足-紫色
+;服-白色
+
+
+
+[clickable target="click_atama" storage="osawari.ks" width="250" height="120" x="470" y="50" color="green" cursor=&f.cursor]
+[clickable target="click_kao" storage="osawari.ks" width="200" height="100" x="500" y="170" color="green" cursor=&f.cursor]
+
+[if exp="f.cursor != './data/image/osawari/cursor/lip_on.png' && f.cursor != './data/image/osawari/cursor/kinoko_on.png'"]
+
+[if exp="f.positionFuku.includes('none') == false "]
+[clickable target="click_fuku" storage="osawari.ks" width="250" height="150" x="470" y="410" color="orange" cursor=&f.cursor]
+[endif]
+
+[endif]
+
+[if exp="f.cursor != './data/image/osawari/cursor/eye_on.png' && f.cursor != './data/image/osawari/cursor/lip_on.png' "]
+
+[if exp="f.positionUde == 'ryoutoji'"]
+
+[clickable target="click_ude_hidari" storage="osawari.ks" width="140" height="40" x="480" y="450" color="yellow" cursor=&f.cursor]
+[clickable target="click_ude_migi" storage="osawari.ks" width="70" height="40" x="570" y="530" color="yellow" cursor=&f.cursor]
+[clickable target="click_ude_migi" storage="osawari.ks" width="100" height="30" x="640" y="510" color="yellow" cursor=&f.cursor]
+
+[elsif exp="f.positionUde == 'hidaritoji'"]
+[clickable target="click_ude_hidari" storage="osawari.ks" width="140" height="40" x="480" y="450" color="yellow" cursor=&f.cursor]
+[clickable target="click_ude_migi" storage="osawari.ks" width="50" height="220" x="760" y="440" color="yellow" cursor=&f.cursor]
+
+[elsif exp="f.positionUde == 'migitoji'"]
+[clickable target="click_ude_hidari" storage="osawari.ks" width="70" height="250" x="430" y="240" color="yellow" cursor=&f.cursor]
+[clickable target="click_ude_migi" storage="osawari.ks" width="70" height="40" x="570" y="530" color="yellow" cursor=&f.cursor]
+[clickable target="click_ude_migi" storage="osawari.ks" width="100" height="30" x="640" y="510" color="yellow" cursor=&f.cursor]
+
+[elsif exp="f.positionUde == 'ake' "]
+[clickable target="click_ude_hidari" storage="osawari.ks" width="70" height="250" x="430" y="240" color="yellow" cursor=&f.cursor]
+[clickable target="click_ude_migi" storage="osawari.ks" width="50" height="220" x="760" y="440" color="yellow" cursor=&f.cursor]
+
+[endif]
+
+[endif]
+
+[clickable target="click_mune_hidari"  storage="osawari.ks" width="80" height="100" x="510" y="330" color="blue" cursor=&f.cursor]
+[clickable target="click_mune_migi"  storage="osawari.ks" width="90" height="100" x="610" y="340" color="blue" cursor=&f.cursor]
+
+;足クリッカブル
+[if exp="f.cursor == './data/image/osawari/cursor/hand_on.png'"]
+
+[if exp="f.positionAsi == 'ryoutoji'"]
+[clickable target="click_asi_hidari" storage="osawari.ks" width="120" height="80" x="470" y="640" color="purple" cursor=&f.cursor]
+[clickable target="click_asi_migi" storage="osawari.ks" width="120" height="80" x="610" y="640" color="purple" cursor=&f.cursor]
+[elsif exp="f.positionAsi == 'hidaritoji'"]
+[clickable target="click_asi_hidari" storage="osawari.ks" width="120" height="80" x="470" y="640" color="purple" cursor=&f.cursor]
+[clickable target="click_asi_migi" storage="osawari.ks" width="120" height="80" x="610" y="640" color="purple" cursor=&f.cursor]
+
+[elsif exp="f.positionAsi == 'migitoji'"]
+[clickable target="click_asi_hidari" storage="osawari.ks" width="180" height="120" x="380" y="570" color="purple" cursor=&f.cursor]
+[clickable target="click_asi_hidari" storage="osawari.ks" width="60" height="160" x="330" y="560" color="purple" cursor=&f.cursor]
+[clickable target="click_asi_migi" storage="osawari.ks" width="120" height="80" x="610" y="640" color="purple" cursor=&f.cursor]
+[elsif exp="f.positionAsi == 'kaikyaku'"]
+[clickable target="click_asi_hidari" storage="osawari.ks" width="180" height="120" x="380" y="570" color="purple" cursor=&f.cursor]
+[clickable target="click_asi_hidari" storage="osawari.ks" width="60" height="160" x="330" y="560" color="purple" cursor=&f.cursor]
+[clickable target="click_asi_migi" storage="osawari.ks" width="120" height="80" x="620" y="640" color="purple" cursor=&f.cursor]
+[endif]
+
+[endif]
+
+[if exp="f.positionPantu.includes('ryoutoji')"]
+[clickable target="click_pantu" storage="osawari.ks" width="200" height="40" x="510" y="590" color="black" cursor=&f.cursor]
+[clickable target="click_pantu" storage="osawari.ks" width="60" height="50" x="570" y="630" color="black" cursor=&f.cursor]
+[elsif exp="f.positionPantu.includes('hidaritoji')"]
+[clickable target="click_pantu" storage="osawari.ks" width="200" height="40" x="510" y="590" color="black" cursor=&f.cursor]
+[clickable target="click_pantu" storage="osawari.ks" width="60" height="50" x="570" y="630" color="black" cursor=&f.cursor]
+
+[elsif exp="f.positionPantu.includes('migitoji')"]
+[clickable target="click_pantu" storage="osawari.ks" width="200" height="40" x="510" y="590" color="black" cursor=&f.cursor]
+[clickable target="click_pantu" storage="osawari.ks" width="60" height="50" x="570" y="630" color="black" cursor=&f.cursor]
+
+[elsif exp="f.positionPantu.includes('kaikyaku')"]
+[clickable target="click_pantu" storage="osawari.ks" width="200" height="40" x="510" y="590" color="black" cursor=&f.cursor]
+[clickable target="click_pantu" storage="osawari.ks" width="60" height="50" x="570" y="630" color="black" cursor=&f.cursor]
+[endif]
+
+
+[clickable target="click_mata" storage="osawari.ks" width="40" height="60" x="570" y="610" color="red" cursor=&f.cursor]
+
+[clickable target="click_curi" storage="osawari.ks" width="40" height="20" x="570" y="590" color="pink" cursor=&f.cursor]
+
+[if exp="f.cursor != './data/image/osawari/cursor/lip_on.png' && f.cursor != './data/image/osawari/cursor/kinoko_on.png'"]
+
+[if exp="f.positionFuku.includes('none') == false "]
+[if exp="f.positionFuku.includes('mekure') == true "]
+[clickable target="click_fuku_mekure" storage="osawari.ks" width="130" height="30" x="630" y="580" color="white" cursor=&f.cursor]
+[else]
+[clickable target="click_fuku_mekure" storage="osawari.ks" width="130" height="30" x="630" y="650" color="white" cursor=&f.cursor]
+[endif]
+[endif]
+
+[endif]
+
+
+
+[endmacro]
+
+[macro name="setAwakeCommand"]
+[glink target="*plusZettyouGauge" size="20" text="絶頂+50" x="10" y="220" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*plusSyaseiGauge" size="20" text="射精+" x="10" y="290" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*plusTime" size="20" text="時間+30分" x="10" y="360" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*plusTairyoku" size="20" text="体力+20" x="10" y="430" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*minusTairyoku" size="20" text="体力-20" x="10" y="500" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*insert" size="20" text="挿入ON/OFF" x="200" y="150" width="150" color="btn_05_black" enterse="nothing" ]
+
+[if exp="f.positionFuku.includes('none') == true "]
+[glink target="*fuku_kiseru" size="20" text="服を着せる" x="1095" y="220" width="150" color="btn_05_black" enterse="nothing" ]
+[endif]
+
+
+
+[if exp="f.isPantuNugi == true"]
+[glink target="*hakaseru" size="20" text="パンツを穿かせる" x="1095" y="330" width="150" color="btn_05_black" enterse="nothing" ]
+[endif]
+
+[if exp="f.syaseiGauge >= 200 "]
+[glink target="*syasei" size="20" text="射精する" x="1095" y="500" width="150" color="btn_05_black"  enterse="nothing" ]
+[endif]
+[glink target="*sigoku" size="20" text="自分でしごく" x="1095" y="430" width="150" color="btn_05_black" enterse="nothing"  ]
+[button graphic="osawari/modoru.png" storage="osawari.ks" target="*back" name="" fix="false" x="1145" y="600" enterimg="osawari/modoru_2.png"]
+;[call target="*sub_gauge" storage="osawari.ks"]
+[endmacro]
+
+[macro name="setSleepCommand"]
+[glink target="*reduceSuyasuyaGauge" size="20"  text="すやすや-50" x="10" y="150" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*plusZettyouGauge" size="20" text="絶頂+50" x="10" y="220" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*plusSyaseiGauge" size="20" text="射精+" x="10" y="290" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*plusTime" size="20" text="時間+30分" x="10" y="360" width="150" color="btn_05_black"  enterse="nothing"]
+[glink target="*plusTairyoku" size="20" text="体力+20" x="10" y="430" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*minusTairyoku" size="20" text="体力-20" x="10" y="500" width="150" color="btn_05_black" enterse="nothing" ]
+[glink target="*insert" size="20" text="挿入ON/OFF" x="200" y="150" width="150" color="btn_05_black" enterse="nothing" ]
+
+[if exp="f.positionFuku.includes('none') == true "]
+[glink target="*fuku_kiseru" size="20" text="服を着せる" x="1095" y="220" width="150" color="btn_05_black" enterse="nothing" ]
+[endif]
+
+[if exp="f.isSiru"]
+[glink target="*seieki_nuguu" size="20" text="精液をぬぐう" x="1095" y="285" width="150" color="btn_05_black" enterse="nothing" ]
+[endif]
+
+[if exp="f.isPantuNugi == true"]
+[glink target="*hakaseru" size="20" text="パンツを穿かせる" x="1095" y="350" width="150" color="btn_05_black" enterse="nothing" ]
+[endif]
+[if exp="f.syaseiGauge >= 200 "]
+[glink target="*syasei" size="20" text="射精する" x="1095" y="500" width="150" color="btn_05_black" enterse="nothing" ]
+[endif]
+[glink target="*sigoku" size="20" text="自分でしごく" x="1095" y="430" width="150" color="btn_05_black" enterse="nothing" ]
+;[call target="*sub_gauge" storage="osawari.ks"]
+[button graphic="osawari/modoru.png" storage="osawari.ks" target="*back" name="" fix="false" x="1145" y="600" enterimg="osawari/modoru_2.png"]
+
+[endmacro]
+
+[macro name="osawariPoseCheck"]
+[if exp="f.isTikubi"]
+[if exp="!f.positionFuku.includes('none')"]
+[image storage="osawari/mio/aomuke/cloth/pajama1/tikubi.png" folder="image" layer="1" name="tikubi"]
+[else]
+[free layer="1" name="tikubi"]
+
+[endif]
+[else]
+
+[endif]
+[endmacro]
+
+[macro name="setPantuPosition"]
+[iscript]
+if(!f.positionPantu.includes("none")){
+  if(f.positionAsi == "kaikyaku" && f.isPantuZurasi == true){
+    f.positionPantu = f.positionAsi;
+    f.positionPantu = f.pantu + "_" +f.positionPantu + "_zurasi";
+    if(!f.positionPantu.includes("nure") && f.isNure){
+        f.positionPantu += "_nure"
+    }
+  } else{
+
+  f.positionPantu = f.positionAsi;
+  f.positionPantu = f.pantu + "_" +f.positionPantu;
+  if(!f.positionPantu.includes("nure") && f.isNure){
+      f.positionPantu += "_nure"
+  }
+  if(!f.positionPantu.includes("curi") && f.isCuri){
+      f.positionPantu += "_curi"
+  }
+}
+}
+[endscript]
+[endmacro]
+
+[macro name="setFukuPosition"]
+[iscript]
+if(!f.positionFuku.includes("none")){
+  f.positionFuku = "pajama_" +"asi_" +f.positionAsi + "_ude_" +f.positionUde;
+  if(f.isMekure == true){
+    f.positionFuku = f.positionFuku+"_mekure";
+  }
+}
+[endscript]
+[endmacro]
+
+[macro name="loopVoice"]
+[iscript]
+tf.voiceFolder = "vo_bgv/";
+if(!f.isAwake){
+  if(f.zettyouGauge >= 200){
+  tf.loopVoice = "FT_m001_bgs0003.mp3";
+  } else if(f.zettyouGauge >= 100) {
+  tf.loopVoice = "FT_m001_bgs0002.mp3";
+  } else{
+  tf.loopVoice = "FT_m001_bgs0001.mp3";
+  }
+}
+
+if(f.beforePenisCommand.includes("kao")){
+  if(f.isAwake){
+    tf.loopVoice = "FT_m001_bgs0035.mp3";
+  } else {
+    tf.loopVoice = "FT_m001_bgs0041.mp3";
+  }
+
+} else if(f.beforePenisCommand.includes("manko")){
+  if(f.isAwake){
+    tf.loopVoice = "FT_m001_bgs0008.mp3";
+  } else{
+    tf.loopVoice = "FT_m001_bgs0023.mp3";
+  }
+
+} else if(f.beforePenisCommand.includes("ude")){
+  if(f.isAwake){
+    tf.loopVoice = "FT_m001_bgs0028.mp3";
+  } else{
+    tf.loopVoice = "FT_m001_bgs0029.mp3";
+  }
+}
+
+[endscript]
+[if exp="f.loopVoice != tf.loopVoice"]
+[eval exp="f.loopVoice = tf.loopVoice"]
+[playse storage=&tf.voiceFolder+tf.loopVoice loop="true" buf="2"]
+
+[endif]
+[endmacro]
+
+[macro name="setHyoujou"]
+[if exp="f.isAwake"]
+[eval exp="f.hyoujyou = 'okita'"]
+[else]
+[iscript]
+switch (f.suyasuyaLimit) {
+  case f.SUYASUYA_LIMIT_FIRST:
+    f.hyoujyou = "neteru1";
+    break;
+    case f.SUYASUYA_LIMIT_SECOND:
+      f.hyoujyou = "neteru1";
+      break;
+      case f.SUYASUYA_LIMIT_THIRD:
+        if(f.suyasuyaGauge <= f.SUYASUYA_LIMIT_THIRD){
+          f.hyoujyou = "neboke1";
+        }
+        break;
+        case 0:
+          f.hyoujyou = "neboke1";
+          break;
+  default:
+
+}
+
+
+[endscript]
+[endif]
+
+[if exp="f.isSekimen"]
+
+[eval exp="f.hyoujyou += '_red'"]
+[endif]
+[chara_part name="osawari" hyoujyou=&f.hyoujyou]
+[endmacro]
+
+[macro name="debugSuyasuyaGauge"]
+[iscript]
+tf.suyasuyaGaugeDebug = "すやすや:" +(f.suyasuyaGauge / 5) +"%";
+[endscript]
+[ptext layer="message2" text=&tf.suyasuyaGaugeDebug x="10" y="150" name="suyasuyaDebug" overwrite="true"]
+[endmacro]
+
+
+[macro name="firstOsawariCheck"]
+
+[if exp="f.isFirstOsawari"]
+[iscript]
+if(!f.isAwake){
+if((f.suyasuyaGauge / 5 ) > 30 ){
+  if(!f.isSekimen){
+    f.hyoujyou = "neteru2";
+  } else {
+    f.hyoujyou = "neteru2_red";
+  }
+  if((f.suyasuyaGauge <= f.SUYASUYA_LIMIT_FIRST) && (f.suyasuyaGauge > f.SUYASUYA_LIMIT_SECOND) ){
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke1";
+  } else {
+    f.hyoujyou = "neboke1_red";
+  }
+}else if((f.suyasuyaGauge <= f.SUYASUYA_LIMIT_SECOND )&& (f.suyasuyaGauge > f.SUYASUYA_LIMIT_THIRD)){
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke2";
+  }else {
+    f.hyoujyou = "neboke3_red";
+  }
+
+}else if(f.suyasuyaGauge <= f.SUYASUYA_LIMIT_THIRD){
+    if(!f.isSekimen){
+      f.hyoujyou = "neboke4";
+    } else {
+      f.hyoujyou = "neboke5_red";
+    }
+  }
+} else {
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke6";
+  }else {
+    f.hyoujyou = "neboke6_red";
+  }
+}
+
+} else {
+  if(!f.isSekimen){
+    f.hyoujyou = "okita";
+  }else {
+    f.hyoujyou = "okita_red";
+  }
+}
+f.isFirstOsawari = false;
+[endscript]
+[chara_part name="osawari" hyoujyou=&f.hyoujyou]
+[wait time="600"]
+[iscript]
+if(!f.isAwake){
+if((f.suyasuyaGauge / 5) > 30){
+  if(!f.isSekimen){
+    f.hyoujyou = "neteru1";
+  } else {
+    f.hyoujyou = "neteru1_red";
+  }
+}else {
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke1";
+  } else {
+    f.hyoujyou = "neboke1_red";
+  }
+}
+} else {
+  if(!f.isSekimen){
+    f.hyoujyou = "okita";
+  } else {
+    f.hyoujyou = "okita_red";
+  }
+}
+[endscript]
+[chara_part name="osawari" hyoujyou=&f.hyoujyou]
+[endif]
+
+[endmacro]
+
+[macro name="setOsawariHyoujou"]
+[iscript]
+if(!f.isAwake){
+if((f.suyasuyaGauge / 5) > 30){
+  if(!f.isSekimen){
+    f.hyoujyou = "neteru2";
+  } else {
+    f.hyoujyou = "neteru2_red";
+  }
+}else {
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke6";
+  } else {
+    f.hyoujyou = "neboke1_red";
+  }
+}
+}
+[endscript]
+
+[chara_part name="osawari" hyoujyou=&f.hyoujyou ]
+
+[if exp="!f.isAwake"]
+[wait time="600"]
+[endif]
+[iscript]
+if(!f.isAwake){
+if((f.suyasuyaGauge / 5) > 30){
+  if(!f.isSekimen){
+    f.hyoujyou = "neteru1";
+  } else {
+    f.hyoujyou = "neteru1_red";
+  }
+}else {
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke1";
+  } else {
+    f.hyoujyou = "neboke1_red";
+  }
+}
+}
+[endscript]
+[chara_part name="osawari" hyoujyou=&f.hyoujyou]
+
+[endmacro]
+
+[macro name="setOsawariHyoujouLimit"]
+[iscript]
+if(!f.isAwake){
+if((f.suyasuyaGauge / 5) == 70){
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke1";
+  } else {
+    f.hyoujyou = "neboke1_red";
+  }
+}else if((f.suyasuyaGauge / 5) == 50) {
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke2";
+  } else {
+    f.hyoujyou = "neboke3_red";
+  }
+}else if((f.suyasuyaGauge / 5) == 30){
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke4";
+  } else {
+    f.hyoujyou = "neboke5_red";
+  }
+}
+} else {
+  if(!f.isSekimen){
+    f.hyoujyou = "okita";
+  } else {
+    f.hyoujyou = "okita_red";
+  }
+}
+[endscript]
+
+[chara_part name="osawari" hyoujyou=&f.hyoujyou ]
+
+[if exp="!f.isAwake"]
+[wait time="600"]
+[endif]
+[iscript]
+if(!f.isAwake){
+if((f.suyasuyaGauge / 5) > 30){
+  if(!f.isSekimen){
+    f.hyoujyou = "neteru1";
+  } else {
+    f.hyoujyou = "neteru1_red";
+  }
+}else {
+  if(!f.isSekimen){
+    f.hyoujyou = "neboke1";
+  } else {
+    f.hyoujyou = "neboke1_red";
+  }
+}
+}
+[endscript]
+[chara_part name="osawari" hyoujyou=&f.hyoujyou]
+
+[endmacro]
+
+[macro name="checkFirstOsawari"]
+[if exp="f.isFirstOsawari"]
+[firstOsawariCheck]
+[endif]
+[endmacro]
+
+[macro name="checkChangeHyoujou"]
+[if exp="(f.suyasuyaGauge / 5) > 80" ]
+
+[if exp="f.osawariCount >= 3"]
+[setOsawariHyoujou]
+[eval exp="f.osawariCount = 0"]
+[else]
+[eval exp="f.osawariCount += 1"]
+[endif]
+[else]
+[setOsawariHyoujou]
+[endif]
+[endmacro]
+
+[macro name="checkOsawariFlag"]
+[iscript]
+if(f.osawariCount >= 3 || (f.suyasuyaGauge / 5) <= 80){
+  f.osawariFlag = true;
+}
+[endscript]
+[endmacro]
+
+[macro name="heart"]
+[graph storage="HeartTx001.png"]
+[endmacro]

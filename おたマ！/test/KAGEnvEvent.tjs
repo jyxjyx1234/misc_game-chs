@@ -1,0 +1,48 @@
+/**
+ * event 絵表示用レイヤ
+ * 全画像の上に表示されて背景指定と排他機能する
+ */
+class KAGEnvEvent extends KAGEnvLayer {
+
+    /**
+	 * コンストラクタ
+     * @param env 環境
+	 * @param name 環境のレイヤ名
+	 */
+	function KAGEnvEvent(env, name, absolute) {
+		super.KAGEnvLayer(env, name);
+		defaultAbsolute = absolute;
+		defaultNocameraMode = true;
+		defaultNoshiftMode  = true;
+	}
+
+	var layerCommands = %[
+	"delete" => function (param, elm) { disp = CLEAR; initImage(); } incontextof this, // delete指定されたら消すだけ
+		];
+	
+	/**
+	 * ファイル読み込み部差し替え
+	 */
+	function setLoadFile(file, elm) {
+		var info = env.getEventObject(file);
+		if (info !== void) {
+			if (typeof info == "Object") {
+				super.setLoadFile(file, elm, info.xoff, info.yoff);
+				setAutoTrans([info.trans, env.envinfo.eventTrans, env.envinfo.envTrans], elm);
+			} else {
+				super.setLoadFile(info, elm);
+				setAutoTrans([env.envinfo.eventTrans, env.envinfo.envTrans], elm);
+			}
+		} else {
+			super.setLoadFile(file, elm);
+			setAutoTrans([env.envinfo.eventTrans, env.envinfo.envTrans], elm);
+		}
+	}
+
+	/**
+	 * 表示処理用の自動トランジションの指定
+	 */
+	function setDispAutoTrans(elm) {
+		setAutoTrans([env.envinfo.eventDispTrans, env.envinfo.eventTrans, env.envinfo.envTrans], elm);
+	}
+}

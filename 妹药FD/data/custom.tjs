@@ -1,0 +1,3688 @@
+// ゲームタイトル依存の特殊処理等
+
+var IsTrial = false;
+
+KAGLoadScript("KAGEnvCharacterEx.tjs") if (Storages.isExistentStorage("charinit.csv"));
+
+KAGLoadScript("mahjongpai.tjs");
+
+KAGLoadScript("chrsel.tjs");
+
+KAGLoadScript("mahjongctl.tjs");
+
+KAGLoadScript("exroll.tjs");
+
+KAGLoadScript("movieqsel.tjs");
+with (MovieQualitySelectConfig) {
+	.sd.suffix = "1024576";
+	.hd.suffix = "1280720";
+}
+
+with (aboutDialogConfig) {
+	.face = global.SystemDefaultFontFace;
+	.shadow = false;
+	.edge = false;
+	.color = 0;
+	.linespacing=4;
+	.top += 12; //20;
+	.versionstring = "${global.System.title}\nversion ${global.software_version}";
+}
+
+//--------------------------------------------------------------
+// 組み込みフォント
+KAGLoadScript("PreRenderFontEx.tjs");
+
+with (SystemConfig) {
+//	.PreRenderFontTag = "";
+//	.PreRenderFontSelectOnly = true;
+//	.FontDialogHeight = 190;
+}
+try {
+	var add = PreRenderFontEx.AddFont;
+	var list = [
+		"ハミング" => "font1",
+		"マティス" => "font2",
+		"スーラ"   => "font3",
+		];
+	var sizes = [ 36, 24, 10 ];
+	var opt = %[ comment:"フォントワークス提供の組み込みフォントです" ];
+	global.SystemDefaultFontFace = list[0];
+	for (var i = 0; i < list.count; i+=2) {
+		var name = list[i], base = list[i+1];
+		if (name == "" ||   base == "") continue;
+		for (var j = 0; j < sizes.count; j++) {
+			var size = sizes[j];
+			if (size <= 0) continue;
+			var file = @"${base}_${size}.tft";
+			add(name, size, file, opt);
+		}
+	}
+	// デバッグ時には自動でlayerExDrawがリンクされてしまうので破棄
+	if (typeof Layer.drawPathString == "Object") {
+//		/**/   Layer.drawPathString_orig = Layer.drawPathString;
+		delete Layer.drawPathString;
+	}
+} catch(e) {
+	System.inform(e.message);
+}
+
+//--------------------------------------------------------------
+// メッセージ窓
+
+KAGLoadScript("msghack.tjs");
+function dispNameFilter(name) { return name; }
+
+//CustomMessageLayer.getFrameOpacity = function  { return 192; }; // [XXX]
+@if (DEBUG)
+addAfterInitCallback(function {
+	if (sf.windowOpac === void)
+		sf.windowOpac = 192;
+} incontextof global);
+@endif
+
+// PageBreak/LineBreakでglyphFixedPositionを差し替える
+objectHookInjection(%[ target:MessageLayer, method:"showLineBreakGlyph", func:function(orig,*) { glyphFixedPosition = false; return orig(*); } ]);
+objectHookInjection(%[ target:MessageLayer, method:"showPageBreakGlyph", func:function(orig,*) { glyphFixedPosition = true;  return orig(*); } ]);
+
+
+//--------------------------------------------------------------
+// アイコンフェード
+
+SystemConfig.iconFaderHoldInitialState = true;
+SystemConfig.iconFaderList = [
+	"auto", "skip", "vreplay", "hide", /*|*/ "save", "load", "option", "scnsel", "log", "lock", "prev"
+	];
+
+class        IconAutoFader {
+	function IconAutoFader(kag) {
+		this.kag = kag;
+		with (kag) {
+			.add(this);
+			.addPlugin(this);
+			.addHook("mouseMove", onMouseMove);
+			.addHook("onResetModeChanged", reset);
+			.addHook("onModeChangeHookEx", this.onModeChanged);
+		}
+	}
+	property hold {
+		getter {
+			var r = kag.scflags.IconFaderHold;
+			if (r === void) r = !!SystemConfig.iconFaderHoldInitialState;
+			return r;
+		}
+		setter (v) {
+			var old = !!(this.hold);
+			var cur = kag.scflags.IconFaderHold = !!v;
+			kag.setMenuAccessibleAll();
+			if (old != cur) checkEnter(true);
+		}
+	}
+	function onModeChanged(prop, kag, auto, skip, canauto, canskip, ss, modal, cr) {
+		prop.checkToggleChanged("lock", "iconHold", hold);
+	}
+
+	var _iconList = SystemConfig.iconFaderList;
+	var kag, _enter, _fade;
+	function setOne(names, opac, ds*) {
+		var dsopac = (int)+sf.windowOpac;
+		for (var i  = _iconList.count-1; i >= 0; i--) {
+			var tag = _iconList[i];
+			if (names[tag] !== void) {
+				names[tag].opacity = ds[i] ? dsopac : opac;
+			}
+		}
+	}
+	function set(*) {
+		try { setOne(kag.fore.messages[0].buttons, *); } catch {}
+		try { setOne(kag.back.messages[0].buttons, *); } catch {}
+	}
+	function update(opac = _fade) {
+		set(opac); //, kag.autoMode, !!kag.skipMode);
+	}
+	property fade {
+		getter { return _fade; }
+		setter(v) {
+			v = (int)+v;
+			var upd = (_fade !== v);
+			_fade = v;
+			update() if (upd);
+		}
+	}
+	function setEnter(ent, force) {
+		if (_enter !== ent || force) {
+			_enter  =  ent;
+			var cur = _fade, val = ent ? 255 : hold ? (int)+sf.windowOpac : 0;
+			kag.stopAction(this);
+			_fade = void;
+			if (cur === void || val === cur) {
+				fade = val;
+			} else {
+				kag.beginAction(this, %[ fade:%[ handler:MoveAction, start:(fade = cur), value:val, time:200 ] ],, true);
+			}
+		}
+	}
+	function checkEnter(force) {
+		var lay = kag.fore.messages[0].buttons.attention;
+		if (lay !== void) with (lay) {
+			var cx = .cursorX, cy = .cursorY, enter = false;
+			if (cx >= 0 && cy >= 0 && cx < .width && cy < .height) {
+				enter = true; //.getMaskPixel(cx, cy) > 0;
+			}
+			setEnter(enter, force);
+		}
+	}
+	function onMouseMove(x, y) {
+		checkEnter() if (inGameState(kag) && kag.current === kag.fore.messages[0]);
+	}
+	function reset() {
+		_enter = _fade = void;
+		checkEnter(true) if (inGameState(kag));
+	}
+}
+addAfterInitCallback(function() {
+	kag.iconFader = new IconAutoFader(kag);
+} incontextof global);
+function ToggleSysButtonHold { try { with (kag.iconFader) .hold = !.hold; } catch {} }
+
+//--------------------------------------------------------------
+// ダイアログ画面
+
+class CustomYesNoDialog extends MyYesNoDialogLayer {
+	function finalize()          { super.finalize(...); }
+	function CustomYesNoDialog() { super.MyYesNoDialogLayer(...); }
+	function uiload(elm) {
+		var msg = (elm.partexcept.indexOf("Done") == 0) ? "notify" : "confirm";
+		msg <-> elm.partexcept;
+		
+		var r = super.uiload(...);
+		var rect  = uiloadGetRect("base.text", r);
+
+		msg = replace[msg] if (replace[msg] != "");
+		with (font) {
+			.height = fontsize;
+			.face   = fontface;
+		}
+		var x, y, lst = msg.split("\n"), lines = lst.count;
+		with (rect) x = .x + .w\2, y = .y + .h\2;
+
+		// 文末の空行を削除
+		while (lines > 0) if (lst[lines-1] != "") break; else lines--;
+		if (lines <= 0) return r;
+
+		// トータルの縦幅を計算
+		var lh = fontsize + linespace;
+		var h = lh * (lines-1) + font.getTextHeight(lst[lines-1]);
+		y -= h\2;
+
+		// 文字描画
+		for (var i = 0, opt = drawoptions; i < lines; i++, y+= lh)
+			drawText(x - font.getTextWidth(lst[i])\2, y, lst[i], opt*);
+
+		return r;
+	}
+	property fontface { getter { return kag.chDefaultFace; } }
+//	var fontface  = "ハミング"; //ＭＳ Ｐゴシック";
+	var fontsize  = 24;
+	var linespace = 5;
+	var drawoptions = [ 0xFFFFFF, 255, true, 255, 0, 0, 2, 1 ];
+	var replace = %[
+	AskTitle:     "タイトルへ戻ります",
+	AskExit:      "終了します",
+	AskInit:      "初期化します",
+	AskLoad:      "ロードします",
+	AskSave:      "セーブします",
+	AskOverwrite: "上書きします",
+	AskQSave:     "クイックセーブします",
+	AskQLoad:     "クイックロードします",
+	AskBackTo:    "前の選択肢へ戻ります",
+	AskNext:      "次の選択肢へ進みます",
+	AskJump:      "ジャンプします",
+	AskQuitReplay:"回想を中断します",
+	AskDelete:    "削除します",
+	AskCopy:      "コピーします",
+	AskMove:      "移動します",
+//	AskTagInit:   "付箋を全て初期化します",
+//	DoneQSave:    "クイックセーブしました。",
+		];
+}
+
+with (MyYesNoDialog) {
+	.dialogLayer = CustomYesNoDialog;
+	var inst = .instance;
+	with (inst) {
+		.yesnoMap["セーブしてよろしいですか？"] = "AskSave";
+		with (.defaultFocusItem) {
+			.AskJump = .AskNext = .AskBackTo = "yes";
+			.AskLoad = .AskSave = .AskQLoad = .AskQSave = "yes";
+			.DoneQSave = "ok";
+		}
+		.getMessageMap = function(m) {
+			return (yesnoMap[m] != "") ? yesnoMap[m] : m;
+		} incontextof inst;
+	}
+
+	// 麻雀中はウィンドウのダイアログを使用する
+	objectHookInjection(%[ target:inst, method:"useWindowDialog", func:function(orig) {
+		dm("useWindowDialog");
+
+		//if (mjshow) return true;
+
+		return orig();
+	} ]);
+}
+
+//--------------------------------------------------------------
+// アル先生のレッスン教材
+
+class CustomMapSelectLayer        extends MyMapSelectLayer {
+	function CustomMapSelectLayer { super.MyMapSelectLayer(...); }
+	function finalize {
+		stopVoice();
+		invalidate voiceTrack if voiceTrack;
+		/**/       voiceTrack = void;
+		super.finalize(...);
+	}
+	var _storage = "lesson";
+//	property msgoff { getter { return false; } }
+
+	function isSystemButton(name) { return name == "play"; }
+
+	function createIcon {}
+	function clear() {
+		stopVoice();
+		return super.clear(...);
+	}
+
+	var voiceList, voiceTrack, voiceLoop;
+	function setup(file = "al_lesson.csv", vname = "アル") {
+		if (voiceList !== void) return;
+		/**/voiceList = [];
+		/**/voiceTrack = new VoiceTrack(this);
+		/**/voiceTrack.voiceName = vname;
+		var list = [];
+		list.load(file);
+		for (var i = 0, cnt = list.count; i < cnt; i++) {
+			var item = ((string)list[i]).trim();
+			if (item == "" || item.charAt(0) == "#") continue;
+			var comma = item.indexOf(",");
+			if (comma > 0) item = item.substr(0, comma);
+			voiceList.add(item) if (item != "");
+		}
+	}
+	function onSysButton(name, button) {
+		playRandomVoice();
+	}
+
+	function playRandomVoice(loop = true) {
+		setup();
+		voiceLoop = loop;
+		if (voiceTrack !== void) with (voiceTrack) {
+			var rnd = voiceList[(int)(defaultRandomGenerator.random() * voiceList.count)];
+			var storage = getExistFileNameAutoExtFill(rnd, "ogg", "wav");
+			if (storage != "") {
+				.volume2 = window.getVoiceVolume(.voiceName) * 1000;
+				.open(storage);
+				.play();
+			} else {
+				window.errorSound("ボイスファイルがありません:"+rnd);
+			}
+		}
+	}
+	function onStartVoice() {}
+	function onStopVoice() {
+		if (voiceLoop) playRandomVoice();
+	}
+	function stopVoice() {
+		voiceLoop = false;
+		voiceTrack.stop() if voiceTrack;
+	}
+
+}
+global.MapSelectLayer = CustomMapSelectLayer;
+
+
+
+//--------------------------------------------------------------
+// タイトル画面
+
+var BirthDayMap = %[
+	// メイン:ms
+	"0201" => 1, // ユキ
+	"1231" => 1, // アル
+	"1214" => 1, // 真央
+	"0908" => 1, // 心音
+
+	// メイン:cn
+	"0115" => 2, // クシミ ＆ タマ
+	"0111" => 1, // 莉都
+	"1009" => 1, // 星華
+	"0918" => 2, // 和奏 ＆ 椎堂小太郎
+	"0213" => 1, // 白雪
+	"0715" => 1, // 小夜璃
+
+	// メイン:sin
+	"0707" => 1, // 春奈
+	"0517" => 1, // さくや
+	"0903" => 1, // 翔子
+	"0706" => 1, // いろは
+	"1111" => 1, // 銀子
+	"0704" => 1, // 沙智子
+	"0315" => 1, // 朱音
+	"0828" => 1, // 美里
+
+	// サブ:ms
+	"0811" => 1, // 式澤一真
+	"0719" => 1, // 笹原真菜美
+	"1220" => 1, // 椋木優子
+	"0605" => 1, // 加藤鈴
+	"0226" => 1, // 速見礼次
+
+	// サブ:cn
+	"0624" => 1, // 寺内陽太
+	"0206" => 1, // 上杉慶一
+//	"0918" => 2, // 和奏 ＆ 椎堂小太郎
+	"1123" => 1, // クラウス＝シュルツ＝長嶺
+	"0510" => 1, // 南条麻里香
+	"0321" => 1, // 斎宮媛子
+	"1030" => 1, // 天野深弥
+	"0109" => 1, // 神無月朱美
+
+	// サブ:sin
+	"0626" => 1, // 岩永皐月
+
+	// 主人公
+	"0812" => 1, // 椋木悠斗 (vo.ユキ)
+	"0425" => 1, // 倉上進矢 (vo.莉都)
+	"0320" => 1, // 皆神孝介 (vo.さくや)
+	];
+function IsBirthDayChanged(last) {
+	var birth = (CustomTitle.getBirthDay incontextof CustomTitle)();
+	return birth !== last;
+}
+class CustomTitle {
+	var allclear, isbirthday, birthsel, bgmloop, btngrp;
+	function CustomTitle() {
+		allclear = tf.allseen || sf.allclear;
+
+		bgmloop = true; //!sf.movie_ruitomo_fd_op800_h;
+
+		birthsel = -1;
+		isbirthday = getBirthDay();
+		if (isbirthday != "") {
+			var max = BirthDayMap[isbirthday];
+			if (max > 1) birthsel = makeRandom(max);
+		}
+
+		init();
+	}
+	function finalize() {
+		cancelDelay();
+		resetBGMLoopFlag();
+	}
+	function cancelDelay  { try { kag.cancelDelay();     } catch {} }
+	function bgm_setLoop  { try { kag.bgm.setLoop(...);  } catch {} }
+	function clearBgmStop { try { kag.clearBgmStop();    } catch {} }
+
+	function setBGMLoopFlag(lp) { bgm_setLoop(lp); }
+	function resetBGMLoopFlag   { setBGMLoopFlag(true); clearBgmStop(); }
+	function updateBGMLoopFlag  { setBGMLoopFlag(btngrp ? true : bgmloop); }
+
+	function changeButton(part) {
+		if (typeof part == "Object") part = part.part;
+		btngrp = parts.find(part);
+		resetBGMLoopFlag();
+	}
+	function getUiPart { return parts[+btngrp]; }
+
+	var parts   = [ "main", "exsel", "gsel" ];
+
+	var bgfile;
+	function init(elm) {
+		if (isbirthday != "") {
+			bgfile = "hb_"+isbirthday + (birthsel >= 0 ? $(#'a' + birthsel) : "");
+		} else {
+			var type = GetCharaGameType();
+			bgfile = "title_bg_" + (type != "" ? type : "sin");
+		}
+	}
+
+	function onFirst {}
+	function onWait {
+		updateBGMLoopFlag();
+		tf.last_birth = isbirthday;
+		tf.title_no_reload = (isbirthday == "");
+	}
+
+	function loadBG() {
+		var add = kag.addTag;
+		add("title_base", %[ file:bgfile ]) if (bgfile != "");
+	}
+	function loadChara(elm) {
+		var hasvoice = !!+elm.voice;
+		if (isbirthday != "") {
+			if (hasvoice) {
+				// [XXX] 定数埋め込み
+				var rnd = makeRandom(2);
+				if (birthsel >= 0) rnd += 2*birthsel;
+				tf.titlecall = @"*hb${isbirthday}_${'%02d'.sprintf(rnd+1)}";
+				conductorCall("custom.ks", "*title_char_common");
+			}
+		} else {
+			var rnd  = getRandomVoice();
+			if (rnd != "") {
+				tf.titlecall = "*tc"+rnd;
+				conductorCall("custom.ks", "*title_char_" + (hasvoice ? "withvoice" : "withoutvoice"));
+			}
+		}
+	}
+	function conductorCall(storage, label) {
+		var conductor = kag.conductor;
+		conductor.callLabel("");
+		conductor.loadScenario(storage);
+		conductor.goToLabel(label);
+	}
+	function onUiload(elm) {
+		elm.partexcept+=",trial" if (IsTrial);
+		elm.partremove = "logo" if (isbirthday != "");
+		dm("onUiload", elm, elm.partexcept);
+		elm.transparent = true;
+	}
+
+	//時間に合わせて台詞を決定
+	//朝セリフ    6：00～10：59 : 0
+	//昼セリフ   11：00～16：59 : 1
+	//夕方セリフ 17：00～18：59 : 2
+	//夜セリフ   19：00～22：59 : 3
+	//深夜セリフ 23：00～ 5：59 : 4
+	function getZone(date) {
+		var h = operateDate(date, function(date) { return date.getHours(); });
+		if (h <  6) return 4;
+		if (h < 11) return 0;
+		if (h < 17) return 1;
+		if (h < 19) return 2;
+		if (h < 23) return 3;
+		/**/        return 4;
+	}
+	function operateDate(date, callback) {
+		var c = (date === void);
+		if (c) {
+			date = new Date();
+			@if (DEBUG)
+			var opt = System.getArgument("-debugforcetitledate");
+			if (opt != "") {
+				switch (opt.charAt(0)) {
+				case "t":
+					date.setHours((int)+opt.substr(1));
+					break;
+				case "d":
+					var m = opt.substr(1,2);
+					var d = opt.substr(3,2);
+					if (m.charAt(0) == "0") m = m.substr(1);
+					if (d.charAt(0) == "0") d = d.substr(1);
+					date.setMonth(((int)+m) - 1);
+					date.setDate ( (int)+d);
+					break;
+				}
+			}
+			@endif
+		}
+		var r = callback(date);
+		invalidate date if c;
+		return r;
+	}
+
+	function makeRandom(max) {
+		return (int)(defaultRandomGenerator.random() * max);
+	}
+
+	function getRandomVoice(chara, zone) {
+		var format = GetCharaGameType(chara, "voice");
+		if (format != "") {
+			zone = getZone() if (zone === void);
+			// [XXX] 定数埋め込み
+			var rnd = makeRandom(3);
+			return format.sprintf(1 + zone*3 + rnd);
+		}
+	}
+	function playRandomVoice(zone) {
+		var chr = sf.chselect;
+		if (chr == "") return kag.errorCmd("キャラ指定が不正です");
+		var file = getRandomVoice(chr, zone);
+		if (file == "") return kag.errorSound("ボイスファイルが不明です");
+		var unk = kag.forEachFunctionHook;
+		unk("onUnknown", "env", %[ stopallvoice:true ]);
+		unk("onUnknown",  chr,  %[ playvoice:file, sync:true ]);
+	}
+
+	function getBirthDay(date) {
+		var date = operateDate(date, function(date) {
+			return "%02d%02d".sprintf(date.getMonth() + 1,
+									  date.getDate());
+		});
+		return BirthDayMap[date] ? date : void;
+	}
+}
+SystemHook.add("scenemode.view.done", function { tf.title_no_reload = false; } incontextof global);
+SystemHook.add("scnsel.jump.go",      function { tf.title_no_reload = false; } incontextof global);
+
+
+Dialog.add(%[ name:"title", start:CustomTitle, storage:"title", layer:"message0" ]);
+@if (DEBUG)
+{
+	SystemArgumentInfo.debugforcetitledate = %[ type:"String" ];
+	addKagHookCallback("onKAGSetupMenu", function(kag) {
+		createMenuFromList(this, debugMenu, [
+			getSysArgRadioMenu( "debugForceTitleDateMenuItem", "タイトルで日付・時間帯を強制指定", "debugforcetitledate", true, [
+				"*none : なし",
+				"-",
+				"t7    : 朝に固定",
+				"t12   : 昼に固定",
+				"t18   : 夕方に固定",
+				"t20   : 夜に固定",
+				"t0    : 深夜に固定",
+				"-",
+				"d0109 : 01月09日 (神無月朱美)",
+				"d0111 : 01月11日 (神凪莉都)",
+				"d0115 : 01月15日 (奇御魂 / タマ)",
+				"d0201 : 02月01日 (ユキ)",
+				"d0206 : 02月06日 (上杉慶一)",
+				"d0213 : 02月13日 (東条白雪)",
+				"d0226 : 02月26日 (速見礼次)",
+				"d0315 : 03月15日 (南戸朱音)",
+				"d0320 : 03月20日 (皆神孝介)",
+				"d0321 : 03月21日 (斎宮媛子)",
+				"d0425 : 04月25日 (倉上進矢)",
+				"d0510 : 05月10日 (南条麻里香)",
+				"d0517 : 05月17日 (皆神さくや)",
+				"d0605 : 06月05日 (加藤鈴)",
+				"d0624 : 06月24日 (寺内陽太)",
+				"d0626 : 06月26日 (岩永皐月)",
+				"d0704 : 07月04日 (高見沙智子)",
+				"d0706 : 07月06日 (春日いろは)",
+				"d0707 : 07月07日 (春奈)",
+				"d0715 : 07月15日 (夕月小夜璃)",
+				"d0719 : 07月19日 (笹原真菜美)",
+				"d0811 : 08月11日 (式澤一真)",
+				"d0812 : 08月12日 (椋木悠斗)",
+				"d0828 : 08月28日 (稲垣美里)",
+				"d0903 : 09月03日 (岩永翔子)",
+				"d0908 : 09月08日 (清川心音)",
+				"d0918 : 09月18日 (今里和奏 / 椎堂小太郎)",
+				"d1009 : 10月09日 (名凪星華)",
+				"d1030 : 10月30日 (天野深弥)",
+				"d1111 : 11月11日 (銀子)",
+				"d1123 : 11月23日 (クラウス＝シュルツ＝長嶺)",
+				"d1214 : 12月14日 (羽二生真央)",
+				"d1220 : 12月20日 (椋木優子)",
+				"d1231 : 12月31日 (アル)",
+				]),
+			]);
+	}, true);
+	
+}
+@endif
+
+//--------------------------------------------------------------
+// ショートカット
+
+addKagHookCallback("onModeChangeHookEx", function(prop, kag, am, sm, ca, cs, ss, modal, cr) {
+	helpShortCutMenuItem.enabled = canConfig(kag, modal);
+}, true);
+addKagHookCallback("onKAGSetupMenu", function(kag) {
+	var item = "helpShortCutMenuItem";
+	createMenuFromList(kag, kag.helpMenu, [
+		%[  name:item, caption:"ショートカット一覧(&S)",  exp:startShortCutHelp ]
+		]);
+	updateCaptionMenusMap.keyhelp = item;
+
+	var kb = kagCustomizedKeys;
+	kb[ "!keyhelp" ] = startShortCutHelp;
+	kb[VK_F1 ] = "keyhelp";							// F1: ショートカット表示
+	kb[VK_F2 ] = "screen";							// F2: 画面モード切替
+	kb[VK_F3 ] = "option";							// F3: コンフィグ
+	kb[VK_F4 ] = "save";							// F4: セーブ
+	kb[VK_F5 ] = "load";							// F5: ロード
+	kb[VK_F6 ] = "auto";							// F6: オート
+	kb[VK_F7 ] = "skip";							// F7: スキップ
+	kb[VK_F8 ] = "next";							// F8: 次の選択肢
+	kb[VK_F9 ] = "prev";							// F9: 前の選択肢
+	kb[VK_F11] = "scnsel";							// F11:シナリオ選択
+	kb[VK_F12] = "backlog";							// F12:バックログ
+	kb[VK_SPACE] = "hide";							// SPACE:窓を隠す
+
+	kb["S_" + #'S'] = "qsave";						// Shift+S: クイックセーブ
+	kb["S_" + #'L'] = "qload";						// Shift++: クイックロード
+}, false);
+
+class ShortCutHelpPanel extends PanelLayer {
+	var  hs = false;
+	function finalize() {
+		window.historyEnabled = hs;
+		super.finalize(...);
+	}
+	function ShortCutHelpPanel() {
+		super.PanelLayer(...);
+		uiload( %[ storage: "shortcuthelp", bgopacity:192, bgcolor:0xC0C0FF ]);
+		hs = window.historyEnabled;
+		/**/ window.historyEnabled = false;
+		focusable = true;
+	}
+	function onOpen() {
+		var r = super.onOpen(...);
+		showHideFade(true);
+		return r;
+	}
+	var _closefade;
+	function close {
+		if (_closefade) return;
+		/**/_closefade = true;
+		playSysSE("cancel");
+		showHideFade(false);
+	}
+	function  onShowHideFadeDone(vis, en) {
+		super.onShowHideFadeDone(...);
+		if (!vis) super.close();
+	}
+	function onMouseUp() { super.onMouseUp(...); close(); }
+	function onKeyDown() { super.onKeyDown(...); close(); }
+	function checkFocus { return -1; }
+}
+function startShortCutHelp() {
+	startSubSystem(true, "schelp") if (canConfig(kag, kag.currentDialog||kag.panelModal));
+}
+
+//------------------------------
+with (SystemConfig) {
+	.toggleSave   = true;
+	.toggleLoad   = true;
+	.toggleOption = true;
+
+	.notifyQSave = .notifyQLoad = false;
+
+	.askLoad  = createPropertyProxy("confirmLoad", "true",, "!!");
+	.askSave  = createPropertyProxy("confirmSave", "true",, "!!");
+	.askQLoad = &.askLoad;
+	.askQSave = &.askSave;
+}
+
+addKagHandler("callextraconductor", function(elm) {
+	callExtraConductor(elm.storage, elm.target, processGo);
+	return -1;
+}, true);
+
+//--------------------------------------------------------------
+// コンフィグ画面
+
+OptionBase.voiceNames = SystemConfig.voiceNames;
+class CustomOption extends OptionBase {
+	var testvoice, vcnt;
+	function finalize()     {
+		invalidate testvoice if (testvoice !== void);
+		super.finalize(...);
+	}
+	function CustomOption() {
+		super.OptionBase(...);
+		addOnOffItem("confirmSave",  "cfsave",  void, "SystemConfig.askSave");
+		addOnOffItem("confirmLoad",  "cfload",  void, "SystemConfig.askLoad");
+
+		addOnOffItem("flowPopup",  "flowpop",  void, "SystemConfig.scnUpdatePopupEnabled");
+		addOnOffItem("fragPopup",  "frgpop",   void, "SystemConfig.scnFragmentPopupEnabled");
+
+		addUpdate("updateWindowOpac", updateWindowOpac);
+		addUpdate("updatePageToggle", updatePageToggle);
+		addUpdate("updateMahjongMode", updateMahjongMode);
+
+		_page = (int)+sf.systemPage;
+
+		vcnt = _voiceNames.count;
+		testvoice = new VoiceTrack(this);
+		testvoice.voiceName = "";
+	}
+
+	var storages = [ "config_system", "config_voice" ];
+	property storage { getter { return storages[+page] != "" ? storages[+page] : storages[0]; } }
+	var _page;
+	property page {
+		getter { return _page; }
+		setter(v) {
+			var p = (int)v;
+			if      (p < 0) p = 1;
+			else if (p > 1) p = 0;
+			sf.systemPage = _page = p;
+		}
+	}
+
+	function getEffectSpeedItem(speed) { /*dm("efs", speed);*/ return (speed <= 0) ? "effect_on" : "effect_off"; }
+	function getEffectSpeedValue(name) { /*dm("efv", name); */ return (name == "effect_on") ? 0 : 1; }
+
+	function updateWindowOpac(sampleonly = false)     {
+		setItemProp("winopac",   "position",  windowOpac) if (!sampleonly);
+		setItemProp("winsample", "opacity",   windowOpac);
+	}
+	property windowOpac {
+		getter { return (int)+sf.windowOpac; }
+		setter(v) {           sf.windowOpac = (int)+v; updateWindowOpac(true); }
+	}
+
+	function initAndSave() {
+		currentVoiceChar = sf.systemVoiceTarget = void;
+		return super.initAndSave(...);
+	}
+
+	function update() {
+//		resetVoiceTarget();
+		return super.update(...);
+	}
+
+	var _ui;
+	function onUiload(elm) { elm.partremove = "remove"; }
+	function onUiloaded(elm, ui) {
+		_ui = ui;
+	}
+
+	function updatePageToggle() {
+		setItemProp("page"+page, "toggle", true);
+	}
+
+	var _inittag;
+	function init(tag) {
+		_inittag = tag;
+		setDefault(true, true);
+	}
+	function initialEnvironment() {
+		global.initialEnvironment(false, _inittag);
+	}
+
+	//==============
+	// 麻雀関連
+	function updateMahjongMode {
+		var exist = MahjongExeExists;
+		setItemProp("mjbattle_on",  "enabled", exist);
+		setItemProp("mjbattle_ask", "enabled", exist);
+		setItemProp("mjbattle_"+mjbattle, "toggle", true);
+	}
+	property mjbattle {
+		getter {
+			var mode = +sf.MahjongBattleMode;
+			return (mode < 0 || !MahjongExeExists) ? "off" : (mode > 0) ? "on" : "ask";
+		}
+		setter (mode) {
+			sf.MahjongBattleMode = (mode == "on") ? 1 : (mode == "off") ? -1 : "ask";
+		}
+	}
+
+
+	//==============
+	// キャラボイス関連
+	var currentVoiceChar;
+	function onCharVoiceChanged(value) {
+		kag.setVoiceVolume(currentVoiceChar, value) if (currentVoiceChar != "");
+		resetSampleVoiceVolume();
+	}
+	function setVoiceOnOff(value, tag) {
+		tag = currentVoiceChar if (tag == "");
+		value = !kag.getVoiceOn(tag) if (value == "toggle");
+		value = !!value;
+		kag.setVoiceOn(tag, value);
+		setVoiceTarget(tag, true, false);
+	}
+	function resetVoiceTarget() {
+		currentVoiceChar = sf.systemVoiceTarget;
+		currentVoiceChar = void if (currentVoiceChar == "" || _voiceNames.find(currentVoiceChar) < 0);
+	}
+	function setVoiceTarget(tag, notoggle = false, useindex = true) {
+		if (useindex) tag = _voiceNames[+tag];
+		stopSampleVoice();
+		setVoiceOnOff("toggle", tag) if (!notoggle && currentVoiceChar == tag && tag != "");
+		sf.systemVoiceTarget = currentVoiceChar = tag;
+		updateVoice();
+	}
+	function updateVoice() {
+		var hint = "もう一度クリックすると\nボイスのON/OFFを切り替えます";
+		var tag = currentVoiceChar, en = (tag != "");
+		var idx = -1;
+		for (var i = 0; i < _voiceNames.count; i++) {
+			var name = _voiceNames[i];
+			var on =  kag.getVoiceOn(name);
+			setItemProp("offlabel"+i, "absolute", 5000);
+			setItemProp("offlabel"+i, "visible", !on);
+//			setItemProp("von" +name, "toggle",  on);
+//			setItemProp("vof" +name, "toggle", !on);
+			setItemProp("ch"  +i,    "toggle",  name == tag);
+			setItemProp("ch"  +i,    "hint",    name == tag ? hint : "");
+			if (name == tag) idx = i;
+		}
+		var label = getItem("chname");
+		if (label !== void) with (label) {
+			.fillRect(0, 0, .width, .height, 0);
+			._copyButtonUIStates(0, _ui.chname, void, (string)idx);
+		}
+		var on = kag.getVoiceOn(tag);
+		setItemProp("von",  "enabled", en);
+		setItemProp("vof",  "enabled", en);
+		setItemProp("von",  "visible", en);
+		setItemProp("vof",  "visible", en);
+		setItemProp("von",  "toggle",  on && en);
+		setItemProp("vof",  "toggle", !on && en);
+		on &= en;
+		setItemProp("cvtest",    "enabled", on);
+		setItemProp("cvtest",    "visible", on);
+		setItemProp("cvvolume",  "enabled", on);
+		setItemProp("cvvolume",  "visible", on);
+		setItemProp("cvvolume", "position", kag.getVoiceVolume(tag, true)) if (tag != "");
+	}
+	function onStartVoice() {}
+	function onStopVoice() {}
+	function playSampleVoice() {
+		var name = currentVoiceChar;
+		playVoice("sample."+name, name) if (name != "");
+	}
+	function playVoice(tag = "sample.voice", name = "etc") {
+		var se = getSysSE(tag);
+		if (se === void || se.storage == "") return;
+		if (testvoice !== void) with (testvoice) {
+			var file = se.storage + ".ogg";
+			if (Storages.isExistentStorage(file)) {
+				.voiceName = name;
+				.volume2 = kag.getVoiceVolume(name) * 1000;
+				.open(file);
+				.play();
+			} else {
+				kag.errorSound("サンプルボイスファイルがありません:"+file);
+			}
+		}
+	}
+	function stopSampleVoice() {
+		testvoice.stop() if (testvoice !== void);
+	}
+	function resetSampleVoiceVolume() {
+		var tag = currentVoiceChar;
+		if (testvoice !== void && tag != "")
+			testvoice.volume2 = kag.getVoiceVolume(tag) * 1000;
+	}
+}
+Dialog.add(%[ name:"option", start:CustomOption ]);
+
+SystemHook.add("option.close.init", function() {
+	resetModeChanged();
+	kag.setMenuAccessibleAll();
+} incontextof global);
+
+
+//--------------------------------------------------------------
+// セーブロード
+
+class CustomSaveLoad extends SaveLoadBase {
+	property names   { getter { return global.kag.current.names; } }
+	property buttons { getter { return global.kag.current.buttons; } }
+
+	function finalize() {
+		super.finalize(...);
+	}
+	function CustomSaveLoad(elm) {
+		with (elm) {
+			.itemname=		"item";   // ボタンレイヤ名
+			.mask=			"thumb";   // 　マスク状態名
+			.disabled=		"normal"; // 　無効状態名
+			.rows=			4;
+			.columns=		2;
+			.pagecount=		13;
+			.ringpage=		true;
+			.askoverwrite=	SystemConfig.askSave;
+			.askload=		SystemConfig.askLoad;
+			.thumbopac=		[ 224,255,255 ];
+		}
+		super.SaveLoadBase(SaveDataButton, elm);
+
+		_view.drawDisabledItem = drawDisabledItem;
+
+		// ライトプロテクト
+		global.kag.scflags.bookMarkProtect = %[] if (typeof global.kag.scflags.bookMarkProtect == "undefined");
+	}
+	property protectMap { getter { return global.kag.scflags.bookMarkProtect; } }
+	function onUiload(elm) {
+		elm.partremove = (_issave ? "rm_save" : "rm_load") + (fromTitle ? "_t" : "");
+		super.onUiload(...);
+	}
+
+	var ncox, ncoy, dpos, tpos, npos;
+	var cursel, curofsx, curofsy;
+	function onUiloaded(elm, ui) {
+		super.onUiloaded(...);
+
+		with (uiloadGetRect( "new",      ui)) ncox  =.x, ncoy  =.y;
+		with (uiloadGetRect( _itemname,  ui)) ncox -=.x, ncoy -=.y;
+		npos = uiloadGetRect(_itemname+".num",  ui);
+		dpos = uiloadGetRect(_itemname+".date", ui);
+		tpos = uiloadGetRect(_itemname+".text", ui);
+
+//		with (uiloadGetRect(_itemname, ui)) curofsx =.x, curofsy =.y;
+//		with (uiloadGetRect("cursor", ui)) curofsx-=.x, curofsy-=.y;
+
+	}
+	function getSysButton(tag, ret) { return ((ret = buttons[tag]) !== void) ? ret : %[]; }
+	function getProtectButton(num)  { return getSysButton("pt" + num); }
+	function getCommentButton(num)  { return getSysButton("tx" + num); }
+	function getDeleteButton(num)   { return getSysButton("rm" + num); }
+	function getCopyButton(num)     { return getSysButton("cp" + num); }
+	function getMoveButton(num)     { return getSysButton("mv" + num); }
+	function setupSysButtons(elm, ui, tag, exec) {
+		for (var n = 0; n < _rowcol; n++) {
+			var uis = ui[tag + n];
+			if (uis !== void) with (uis) {
+				.exp     = @'Current.cmd("${exec}/${n}")';
+//				.onenter = @'Current.cmd("enter/${n}")';
+//				.onleave = @'Current.cmd("leave/${n}")';
+			}
+		}
+	}
+	function updateSysButtons(base, ui) {
+		foreach(base.buttons, function(k,v,d, ui){
+			if (v) with (v) {
+				.halftone=true; //(k.indexOf("pt")<0);
+				.absolute=1000;
+				.hitType = htMask;
+				.hitThreshold = 0;
+				var tag = "UpArrow";
+				var info = ui[k.replace(/[0-9]/g, "")+"0"];
+				if (info !== void && info.cursor != "") tag = info.cursor;
+				.cursor = getSystemMouseCursor(tag, .cursor);
+			}
+		}, ui);
+	}
+
+	function update() {
+		cursel = void;
+		showNewIcon(void);
+		super.update(...);
+		drawCopyModeState();
+		updateEditButton();
+	}
+	function showNewIcon(target, names = kag.current.names) {
+		var newicon = names.new;
+		if (newicon !== void) with (newicon) {
+			.setPos(target.left + ncox, target.top + ncoy) if (target);
+			.visible = !!target;
+		}
+		if (target === null) sf.lastsaved = void;
+	}
+
+	function updateEditButton(num) {
+		if (num === void) {
+			for (var i = 0; i < _rowcol; i++) updateEditButton(i);
+			return;
+		}
+
+		var pos = offset + num;
+		var btn = names["item" + num];
+		if (btn === void) return;
+		var wp  = protectMap[getDataNumber(pos)];
+
+		// ボタンが有効な場所のみ表示
+		// セーブ時はデータがない場所は表示しない
+		var vis = isExistData(pos);
+		var en = (_issave && !vis) || (_iscopy != "") ? false : isEnabled(pos) ;
+		setSystemButtonEnabled(getProtectButton (num), en, vis).toggle =  wp;
+		en &&= !wp;
+		setSystemButtonEnabled(getCommentButton (num), en, vis);
+		setSystemButtonEnabled(getDeleteButton  (num), en, vis);
+		var issrc = (_iscopy != "" && _copysrc == pos);
+		en ||= issrc;
+		setSystemButtonEnabled(getCopyButton(num), en, vis).toggle = issrc && (_iscopy == "copy");
+		setSystemButtonEnabled(getMoveButton(num), en, vis).toggle = issrc && (_iscopy == "move");
+	}
+	function setSystemButtonEnabled(btn, en, vis) {
+		with (btn) {
+			.visible = vis;
+			.hitThreshold = en ? 0 : 256;
+			.enabled = en;
+		}
+		return btn;
+	}
+	function protect(num) {
+		num = (int)num;
+		var pos = offset + num;
+		var idx = getDataNumber(pos);
+		var map = protectMap;
+		var wp  = map[idx] = !map[idx];
+
+		var btn = names["item" + num];
+		btn.enabled = isEnabled(pos) && !(_issave && wp);
+		updateEditButton(num);
+		kag.saveSystemVariables();
+	}
+	function comment(num) {
+		num = (int)num;
+		var pos = offset + num;
+		var info = getItemInfo(pos);
+		if (info !== void) {
+			var comment = info.comment != "" ? info.comment : info.lastText;
+			var text = EditSaveDataComment(getNumberText(pos)+"のコメントを編集", comment);
+			if (text !== void) {
+				dm("changeComment", text);
+				kag.writeBookMarkInfo(getDataNumber(pos), %[ comment:text ]);
+				forceRedrawItem(pos);
+			}
+		}
+	}
+	function forceRedrawItem(pos) {
+		super.forceRedrawItem(...);
+		updateEditButton(getItemPosition(pos));
+	}
+	function save(num) {
+		var r = super.save(...);
+		if (r) protectMap[getDataNumber(num)] = false;
+		return r;
+	}
+
+	var shortcutKeys = %[
+		VK_C => "cp",
+		VK_M => "mv",
+		VK_P => "pt",
+		VK_W => "tx",
+		VK_DELETE => "rm",
+		];
+	function onKeyDown(key, sft) {
+		if (!(sft & ssRepeat)) {
+			var tag = shortcutKeys[key];
+			if (tag !== void) with(kag.current) {
+				if (.keyLink >= 0 && .keyLink < .numLinks) {
+					var obj = .links[.keyLink].object;
+					if (obj !== void && obj.name != "" && obj.name.substr(0,4) == "item") {
+						var num = +obj.name.substr(4,1);
+						with (getSysButton(tag + num)) {
+							.onExecute(.width\2, .height\2, mbLeft, 0) if (.enabled && .visible);
+						}
+					}
+				}
+			}
+		}
+		return super.onKeyDown(...);
+	}
+
+	function drawDisabledItem(target, num) {
+		var _uiDisable = _view._uiDisable;
+		if (target !== void && _uiDisable !== void) {
+			target.loadUIInfo( _uiDisable);
+			target._copyButtonUIStates(0, _view._uiNormal, void, "number");
+			drawInfoText0(target, npos, "%03d".sprintf(num+1));
+		}
+	}
+	function isEnabled(num) {
+		return _iscopy != "" || super.isEnabled(num);
+	}
+
+	function drawItem(target, info, view, num) {
+//		target._copyButtonUIStates(0, view._uiNormal, void, "cover");
+		for (var i = 0; i < 3; i++)
+			target._copyButtonUIStates(i, view._uiNormal, void, "number");
+		drawInfoText0(target, npos, "%03d".sprintf(num+1));
+		if (info === void) return;
+		for (var i = 0; i < 3; i++)
+			target._copyButtonUIStates(i, view._uiNormal, void, "line");
+		
+		if (info.lastsaved) showNewIcon(target);
+		target.font.face = global.SystemDefaultFontFace; //kag.chDefaultFace;
+		with (info) {
+			drawInfoText1(target, dpos, .realdate);
+			var  comment  = .comment;
+			if ( comment != "") target.font.face = "マルベリ"; //"ＭＳ Ｐゴシック";
+			else comment  = .lastText;
+			drawInfoText2(target, tpos, comment, 3);
+		}
+		var wp = protectMap[getDataNumber(num)];
+		if (_iscopy != "") return (num != _copysrc) && !wp;
+		if (_issave && wp) return false;
+	}
+	var textprm = [255, true, 255, 0, 2, 1, 1];
+	function drawInfoText0(target, pos, text) {
+		with (target.font) {
+			.face = global.SystemDefaultFontFace; //"ＭＳ ゴシック";
+			.height = pos.h+1; //[XXX]
+		}
+		var ox = pos.ox, oy = pos.oy-2, step = pos.h-3; // [XXX]
+		drawButtonCaptionWithAlign(target, ox,   oy, 7, (string)text, 0xFFFFFF, textprm*);
+	}
+	function drawInfoText1(target, pos, text) {
+		var ox = pos.ox+(pos.w-target.width)\2, oy = pos.oy+1;
+		with (target.font) {
+			.face = "マルベリ";
+			.height = pos.h-2; // [XXX]
+		}
+		drawButtonCaptionWithAlign(target, ox, oy, 8, text, 0xFFFFFF, textprm*);
+	}
+	function drawInfoText2(target, pos, text, line) {
+		var w = target.width, h = pos.h\line, elm = %[
+		x:pos.ox+1, y:pos.oy+1, w:pos.w-2, h:pos.h,
+		maxline:line, linestep:h, fontheight:h-2,
+		color:0xFFFFFF, param:textprm ];
+		drawTextKinsokuRect(target, text, elm); elm.x += w;
+		drawTextKinsokuRect(target, text, elm); elm.x += w;
+		drawTextKinsokuRect(target, text, elm);
+	}
+
+	function remove(idx) {
+		var pos = offset + (int)+idx;
+		askYesNo("AskDelete", "確認", saveDataDelete, jumpToWait, pos);
+	}
+	function copymove(num, mode = "copy") {
+		if (_iscopy == mode) clearCopyMode(false);
+		else {
+			_copysrc = tf.CopyFileTarget = offset + (int)+num;
+			_iscopy  = tf.CopyFileMode   = mode;
+		}
+		update(true);
+		jumpToWait();
+	}
+	function copy(num) { copymove(num, "copy"); }
+	function move(num) { copymove(num, "move"); }
+	function saveDataDelete { onDelete(...); jumpToWait(); }
+	function onDelete(num) {
+		var info = getItemInfo(num);
+		if (info !== void && info.lastsaved) showNewIcon(null);
+		var r = super.onDelete(...);
+		forceUpdateEditButton(); //[XXX]
+		return r;
+	}
+	function jumpToWait() {
+		kag.process(_issave ? "save.ks" : "load.ks", "*wait");
+	}
+	function onSelect(num) {
+		var msg, action, cf;
+		switch (_iscopy) {
+		case "": case void:
+			//return super.onSelect(...);
+			_lastSelect = num;
+			var mes = _message;
+			if (_issave && !isExistData(num)) mes = "AskSave";
+			if (_ask) askYesNo(mes, "確認", _action, void, num);
+			else _action(num);
+			return;
+
+		default:
+		case "copy": msg = "AskCopy"; action = saveDataCopy; cf = "askSave"/*"askCopy"*/; break;
+		case "move": msg = "AskMove"; action = saveDataMove; cf = "askSave"/*"askMove"*/; break;
+		}
+		if (SystemConfig[cf]) askYesNo(isExistData(num) ? "AskOverwrite" : msg, "確認", action, void, num);
+		else action(num);
+	}
+	function drawCopyModeState() {
+		var en = (_iscopy != "");
+		if (en) {
+			var mode = _iscopy == "move" ? "移動" : "コピー";
+			drawHelpText(@"${getNumberText(_copysrc,true)}の${mode}先を選択します");
+
+			var item = getItemTarget(_copysrc);
+			if (item !== void) with (item) {
+				.copyRect(0, 0, item, .width*2, 0, .width, .height);
+			}
+		} else {
+			drawHelpText();
+		}
+		with (kag.current.names) {
+			.to_load.enabled = !en if (.to_load !== void);
+			.to_save.enabled = !en if (.to_save !== void);
+		}
+	}
+	function saveDataCopy(num) { onCopyMove(num, Storages.copyFile); }
+	function saveDataMove(num) { onCopyMove(num, Storages.moveFile); }
+	function onCopyMove(dstnum, opr) {
+		// [TODO] 動作が遅いので bookMarkIndex 関連の処理を最適化すること
+		var get    = kag.getBookMarkFileNameAtNum;
+		var srcnum = _copysrc;
+		var src    = getDataNumber(srcnum);
+		var dst    = getDataNumber(dstnum);
+		var from   = get(src);
+		var to     = get(dst);
+
+		playSysSE("save.commit");
+
+		// Newアイコンを消す
+		var info = getItemInfo(srcnum);
+		if (info.lastsaved) showNewIcon(null);
+		/**/info = getItemInfo(dstnum);
+		if (info !== void && info.lastsaved) showNewIcon(null);
+
+		kag.eraseBookMark(dst);
+		super.onDelete(dstnum);
+
+		opr(from, to, false);
+		clearFilePlaceCache();
+		clearCopyMode();
+		update(true);
+	}
+	function clearCopyMode(redraw = true) {
+		_iscopy = void;
+		delete tf.CopyFileMode;
+		delete tf.CopyFileTarget;
+		drawCopyModeState() if (redraw);
+	}
+
+	var _iscopy, _copysrc; //, _lastmove;
+	function onBack() {
+		var en = (_iscopy != "");
+		clearCopyMode(false);
+		if (en) {
+			playSysSE("cancel");
+			clearCopyMode();
+			kag.unlockMessageLayerSelProcess();
+			kag.current.focus();
+			update(true);
+			kag.process("", "*wait");
+		} else {
+			disableEditButton();
+		}
+	}
+	function getNumberText(num) { return "NO.%03d".sprintf(num+1); }
+
+	function forceUpdateEditButton() {
+		foreach(kag.current.buttons, function(k,v) {
+			v.update() if (v);
+		});
+	}
+	function disableEditButton() {
+		foreach(kag.current.buttons, function(k,v) {
+			v.enabled = false if (v);
+		});
+	}
+	function drawHelpText(text, lay) {
+		if (lay === void) try { lay = kag.current.names.help; } catch {}
+		if (lay === void) return;
+		if (lay.visible) with (lay) {
+			.fillRect(0, 0, .width, .height, 0);
+			if (text != "") drawTextKinsokuRect(
+				lay, text, %[ x:0, y:0, w:.width, h:.height, valign:0, halign:-1,
+							  /**/color:0xFFFFFF, fontface:global.SystemDefaultFontFace, //"ＭＳ Ｐゴシック",
+							  /**/fontheight:.height*4\5, param:textprm ]);
+		}
+	}
+}
+Dialog.add(%[ name:"save", start:CustomSaveLoad, storage:"saveload" ]);
+Dialog.add(%[ name:"load", start:CustomSaveLoad, storage:"saveload" ]);
+{
+	var reset = function { /*dm("!!!reset");*/ delete tf.CopyFileMode; } incontextof global;
+	SystemHook.add("title.logo",       reset);
+	SystemHook.add("loadinit.start",   reset);
+
+	var onback = function { Current.cmd("onBack"); } incontextof global;
+	SystemHook.add("save.back", onback);
+	SystemHook.add("load.back", onback);
+}
+// セーブデータコメントを編集
+function EditSaveDataComment(caption, text) {
+	var title = System.title;
+	if (typeof global.EditSaveDataCommentDialog == "undefined") {
+		try {
+			KAGLoadScript("win32dialog.tjs");
+			KAGLoadScript("editcomment.tjs");
+		} catch {
+			global.EditSaveDataCommentDialog = null;
+		}
+	}
+	if (typeof global.EditSaveDataCommentDialog == "Object" &&
+		/**/   global.EditSaveDataCommentDialog !== null) {
+		try {
+			var dialog = new EditSaveDataCommentDialog(title, caption, text);
+			var ret = dialog.open(kag);
+			invalidate dialog;
+			return ret;
+		} catch(e) {
+			dm(e.message);
+			global.EditSaveDataCommentDialog = null;
+		}
+	}
+	return System.inputString(title, caption, text);
+}
+
+with (SystemActionBase) {
+	// サムネ差し替え処理
+	._checkSaveThumbnail = function (img) {
+		var lg = (img != "") ? img.toLowerCase().indexOf("_large") : -1;
+		if (lg > 0) img = img.substr(0, lg);
+		return getExistImageName("thum_"+img);
+	} incontextof null;
+}
+
+
+
+class CustomSoundMode extends SoundGalleryMode {
+	var timer; // スペアナ用タイマ
+	var spopt; // スペアナ用オプション
+	function CustomSoundMode(elm) {
+		with (elm) {
+			.itemname = "";
+			.rows = 4;
+			.columns = 11;
+			.csv = "soundlist.csv";
+//			.hidedisableditem = true;
+//			.disabled = "unknown";
+			.drawtext = false;
+			//.lastplay = "bgm01";
+			.nostop = true;
+		}
+		updateCurrentPlayMode(true);
+		super.SoundGalleryMode(...);
+
+		var now = kagPlaying != "" ? storages.find(kagPlaying) : -1;
+		_page = (now >= 0) ? now\_rowcol : 0;
+
+		_view.clearNormalItem = function() {};
+		/*
+		_view.drawDisabledItem = function(lay) {
+			if (lay !== void) with (lay) {
+				.fillRect(0, 0, .imageWidth, .imageHeight, 0);
+				._copyButtonUIStates(0, _unknown,, "unknown");
+			}
+		} incontextof this;
+		 */
+		if (typeof global.drawFFTGraph == "undefined") {
+			try { Plugins.link("fftgraph.dll"); } catch {}
+		}
+		if (typeof global.drawFFTGraph != "undefined") {
+			setVisBuffer(true);
+			timer = new Timer(this, "onSpeana");
+			timer.interval = 1000\20;
+			timer.capacity = 1;
+			timer.enabled = false;
+			spopt = %[
+				type:     1,
+				division: 22,
+				thick:    3,
+				oncolor:  0xFFa9f3f9,
+				peakcolor:0x80a9f3f9,
+				offcolor: 0x20a9f3f9,
+				bgcolor:  0x20000000,
+				];
+		}
+	}
+	function onSpeana() {
+		if (!isvalid this || !isvalid global.kag) return;
+		var buf, lay = kag.current.names.speana;
+		if (lay === void) return;
+//		lay.type = ltPsMultiplicative;
+		with (kag.bgm) buf = (.buf2 !== void && .buf2.status == "playing") ? .buf2 : .buf1;
+		//dm("drawfft", lay);
+		global.drawFFTGraph(lay, buf, 1, 0, lay.width-1, lay.height, spopt);
+	}
+	function finalize() {
+		if (!isvalid this) return;
+		setVisBuffer(false);
+		invalidate timer if (timer !== void);
+		super.finalize(...);
+	}
+	function setVisBuffer(flg) {
+		kag.bgm.buf1.useVisBuffer = flg if kag.bgm.buf1 !== void;
+		kag.bgm.buf2.useVisBuffer = flg if kag.bgm.buf2 !== void;
+	}
+	function onUiload(elm) {
+		var rem = "item";
+		rem += ",speana" if (timer === void);
+		rem += ",rm_page"+(int)+page;
+		elm.partremove = rem;
+		return super.onUiload(...);
+	}
+//	var _unknown;
+	function onUiloaded(elm, ui) {
+		super.onUiloaded(...);
+		updateState("stop");
+		timer.enabled = true if (timer !== void);
+		updatePlayMode(mode);
+		updateLoopMode();
+
+		/*
+		try {
+			var dic = %[];
+			(Dictionary.assign incontextof dic)(ui.item.uistates.unknown);
+			_unknown = %[ width:ui.item.width, height:ui.item.height, uistates:%[ unknown:dic ] ];
+		} catch {}
+		 */
+	}
+
+	function setupItemState(elm, dic) {
+		for (var i = 0; i < _rowcol; i++) {
+			var ui = dic["item"+i], uis;
+			if (ui && (uis = ui.uistates) !== void) {
+				uis.normal = uis[@"p${+page}nm"];
+				uis.over   = uis[@"p${+page}ov"];
+				uis.on     = uis[@"p${+page}on"];
+			}
+		}
+	}
+	function doLine(columns, lineNo) {
+		return  (columns[0] == ":") ? renewItemPage() : super.doLine(...);
+	}
+	// 改ページ処理
+	function renewItemPage(force = false) {
+		var cnt = (_rowcol - (count % _rowcol)) % _rowcol;
+		if (!cnt && force) cnt = _rowcol;
+		dm("renewItemPage", cnt, count);
+		while (--cnt >= 0) {
+			items.add(void);
+			storages.add(void);
+		}
+	}
+
+
+	function updateState(name) {
+		var target = kag.current.names.playpause;
+		target.toggle = paused if (target !== void);
+	}
+	function playpause() {
+		if (isAnyPlaying) {
+			if (paused) resume();
+			else        pause();
+		}   else        play();
+	}
+	function play() {
+		changeVolume(currentVolume);
+		return super.play(...);
+	}
+	function stop() {
+		var f = paused;
+		resume() if f;
+		super.stop();
+		kag.bgm.stop() if f;
+	}
+	function pause()  { return kag.bgm.pause(); }
+	function resume() { return kag.bgm.resume(); }
+	property paused   { getter { return kag.bgm.buf1.paused; } }
+
+	// 曲終了時の動作
+	//function playNext() { stop(); }
+
+	function updateCurrentPlayMode(isFirst) {
+		var m = sf.musicplayer;
+		switch (m) {
+		case "non": case "one": case "all": case "rnd": break;
+		default: m = "one"; break;
+		}
+		if (isFirst) _mode = m;
+		else {   this.mode = m;
+			var target = updatePlayMode(m);
+			if (target !== void) try { kag.current.keyLink = target.linkNum; } catch {}
+		}
+	}
+	function updatePlayMode(m) {
+		try {
+			var names = kag.current.names;
+			with (names) {
+				if (.non !== void) .non.visible = (m == "non");
+				if (.one !== void) .one.visible = (m == "one");
+				if (.all !== void) .all.visible = (m == "all");
+				if (.rnd !== void) .rnd.visible = (m == "rnd");
+			}
+			return (m != "") ? names[m] : void;
+		} catch {}
+	}
+	function setPlayMode(tag) {
+		sf.musicplayer = tag;
+		kag.saveSystemVariables();
+		updateCurrentPlayMode();
+	}
+
+	function updateLoopMode() {
+		var cponly = !sf.musicallloop;
+		try {
+			var names = kag.current.names;
+			with (names) {
+				if (.selcur !== void) .selcur.visible =  cponly;
+				if (.selall !== void) .selall.visible = !cponly;
+				return cponly ? .selcur : .selall;
+			}
+		} catch {}
+	}
+	function setLoopMode(mode) {
+		sf.musicallloop = !!+mode;
+		kag.saveSystemVariables();
+		var target = updateLoopMode();
+		if (target !== void) try { kag.current.keyLink = target.linkNum; } catch {}
+	}
+	var _pageonly;
+	function getSidePos { _pageonly = !sf.musicallloop; var r = super.getSidePos(...); _pageonly = void; return r; }
+	function random     { _pageonly = !sf.musicallloop; var r = super.random    (...); _pageonly = void; return r; }
+
+	// 常に全ON?
+	function isSeen(num) {
+		if (items[num] === void) return false;
+		if (_pageonly) return (num \ _rowcol) == page;
+		return true;
+	}
+	function isEnabled(num) {
+		return (num >= 0 && num < count && items[num] !== void) ? isSeen(num) : null;
+	}
+
+	var ignoreChangeVolume = false;
+	property currentVolume {
+		getter {
+			var r = 100;
+			try { r = kag.bgmvolume; } catch {}
+			try { if (sf.musicvolume !== void) r = +sf.musicvolume; } catch {}
+			if    (r > 100) r = 100;
+			else if (r < 0) r = 0;
+			return r;
+		}
+		setter(v) {
+			try { sf.musicvolume = v; } catch {}
+		}
+	}
+	function changeVolume(pos, drag) {
+		if (ignoreChangeVolume) return;
+		try {
+			currentVolume = pos;
+			kag.bgm.restoreSystemState(%[ bgm: %[ globalVolume: pos * 1000 ] ]);
+		} catch {}
+	}
+	function update() {
+//		ignoreChangeVolume = true;
+		try { kag.current.names.volume.position = currentVolume; } catch {}
+//		ignoreChangeVolume = false;
+		var sel = storages.find(playing = kagPlaying);
+		if (sel >= 0) {
+			updateButton(sel, false);
+			setBgmCallback();
+		}
+		return super.update(...);
+	}
+
+	function onAutoPageChanged(newpage) {
+		page = newpage;
+		Current.uiload(%[ page:"fore" ]);
+		Current.action("update");
+	}
+
+
+}
+function ResetSoundModeBGMvolume() {
+	try { with (kag) .bgmvolume = .bgmvolume; } catch {}
+}
+addKagHandler("resetbgmvol", function(elm) {
+	ResetSoundModeBGMvolume();
+	return 0;
+}, true);
+SystemHook.add("soundmode.leave", ResetSoundModeBGMvolume);
+SystemHook.add("exit.end",        ResetSoundModeBGMvolume);
+Dialog.add(%[ name:"soundmode", start:CustomSoundMode, storage:"extra_sound" ]);
+
+
+//--------------------------------------------------------------
+// CGモード画面
+
+class CustomCgMode extends CgGalleryMode
+{
+	function CustomCgMode(elm) {
+		with (elm) {
+			.rows     = 5;
+			.columns  = 4;
+			.itemname = "item0";
+			.mask     = "thumb";
+			.disabled = "disabled";
+			.ringpage = true;
+//			.normalcolor = 0x30000000;
+			.oncolor     = 0x30FFFFFF;
+		}
+		super.CgGalleryMode(...);
+@if (0)
+{
+	var files = %[];
+	if (typeof global.dirFilesForeach != "undefined") KAGLoadScript("dirutil.tjs");
+	dirFilesForeach(function(f) {
+		f = Storages.chopStorageExt(Storages.extractStorageName(f));
+		if (f != "") this[f.toLowerCaase()] = true;
+	} incontextof files, System.exePath+"data/evimage", "png");
+	for (var i = 0; i < count; i++) {
+		if (items[i] === void) continue;
+		var list = items[i].list;
+		for (var j = 0; j < list.count; j++) {
+			var file = list[j].file.toLowerCase();
+			if (!Storages.isExistentStorage(file+".png")) {
+				dm("NotFound:"+file);
+			}
+			delete files[file];
+		}
+	}
+	dm("NoUsed:\n"+StructToString(files));
+}
+@endif
+	}
+	function finalize() {
+		super.finalize(...);
+	}
+	// itemを既にみているか？（大判も含む）
+	function isSeenItem(info) {
+		var     r = super.isSeenItem(info);
+		if (!r) r = super.isSeenItem(%[ flag:info.flag + "_large" ]);
+		return r;
+	}
+
+	var cursel, curofsx, curofsy;
+	function onUiloaded(elm, ui) {
+		super.onUiloaded(...);
+		with (uiloadGetRect("item0",  ui)) curofsx =.x, curofsy =.y;
+		with (uiloadGetRect("cursor", ui)) curofsx-=.x, curofsy-=.y;
+		cursel = void;
+	}
+
+	function onEnterLeave(pos, vis) {
+		var cur = kag.current.names.cursor;
+		var item = getItemTarget(pos, true);
+		if (cur !== void && item !== void && (vis || cursel == pos)) {
+			cur.setPos(item.left - curofsx, item.top - curofsy);
+			cur.visible = vis;
+		}
+		cursel = vis ? pos : void;
+	}
+	function enter(num) { onEnterLeave(+num, true); }
+	function leave(num) { onEnterLeave(+num, false); }
+}
+Dialog.add(%[ name:"cgmode", start:CustomCgMode, storage:"extra_graphic" ]);
+
+
+
+//--------------------------------------------------------------
+// シーンモード画面
+
+class CustomSceneMode extends SceneGalleryMode
+{
+	var chstand1, chstand2, chinfo;
+	function CustomSceneMode(elm) {
+		with (elm) {
+			.rows     = 3;
+			.columns  = 4;
+			.itemname = "item0";
+			.mask     = "thumb";
+			.disabled = "disabled";
+			.ringpage = true;
+//			.normalcolor = 0x30000000;
+			.oncolor     = 0x30FFFFFF;
+		}
+		super.SceneGalleryMode(...);
+	}
+	function finalize() {
+		if (chstand1 !== void) invalidate chstand1;
+		if (chstand2 !== void) invalidate chstand2;
+		super.finalize(...);
+	}
+
+	var cursel, curofsx, curofsy;
+	function onUiloaded(elm, ui) {
+		super.onUiloaded(...);
+		with (uiloadGetRect("item0",  ui)) curofsx =.x, curofsy =.y;
+		with (uiloadGetRect("cursor", ui)) curofsx-=.x, curofsy-=.y;
+		cursel = void;
+
+		chinfo = ui.stand.uistates;
+		var cur = kag.current;
+		chstand1 = createChStand(chstand1, "replay1", cur);
+		chstand2 = createChStand(chstand2, "replay2", cur);
+	}
+
+	function createChStand(old, name, par) {
+		if (old !== void) {
+			old.parent = par;
+			return old;
+		}
+		var r = new AffineLayer(par.window, par);
+		if (r !== void) with (r) {
+			.name = "ChStand:" + name;
+			.hitType = htMask;
+			.hitThreshold = 256;
+			.visible = false;
+		}
+		return r;
+	}
+	function stampChStand(chstand) {
+		try {
+			kag.stopAction(chstand);
+			with (chstand) if (.visible) .parent.operateRect(.left, .top, chstand, 0, 0, .width, .height, omAuto);
+		} catch {}
+	}
+	var sel = false;
+	function getChStand(toggle) {
+		if (toggle) sel = !sel;
+		return sel ? chstand1 : chstand2;
+	}
+
+	property standbase { getter { var r; try { r = kag.current.names.stand; } catch {} return r; } }
+
+	var firstUpdate = true;
+	function onPageChanged() {
+		if (firstUpdate) firstUpdate = false;
+		else try { standbase.visible = true; } catch {}
+		var chstand = getChStand(false);
+		if (chstand !== void) {
+			kag.stopAction(chstand);
+			chstand.visible = false;
+		}
+		dm("onPageChanged");
+	}
+
+	var _fadetime = 200, _slide = -5;
+	function onEnterLeave(pos, vis) {
+		var cur = kag.current.names.cursor;
+		var item = getItemTarget(pos, true);
+		if (cur !== void && item !== void && (vis || cursel === pos)) {
+			cur.setPos(item.left - curofsx, item.top - curofsy);
+			cur.visible = vis;
+			if (vis && cursel !== pos) {
+				var info, name;
+				try {
+					name = items[offset + (int)pos].comment.trim();
+					info = chinfo[name];
+				} catch {}
+				var chstand = getChStand(true);
+				if (info !== void && chstand !== void) with (chstand) {
+					kag.stopAction(chstand);
+					.absolute = 0;
+					.visible = true;
+					.loadImages(info.storage);
+					.setPos(info.ox - _slide, info.oy);
+					var stand = standbase;
+					if (stand !== void) {
+						stand.assignImages(._image._image); // [XXX]
+						stand.setSizeToImageSize();
+						stand.setPos(info.ox, info.oy);
+					}
+					kag.beginAction(chstand, %[ left:%[ handler:MoveAction, start:(info.ox-_slide), value:info.ox, accel:-1, time:_fadetime ],
+											opacity: %[ handler:MoveAction, start:(.opacity=0), value:255, accel:-1, time:_fadetime ] ],, true);
+				}
+			} else if (!vis) {
+				var chstand = getChStand(false);
+				if (chstand !== void && chstand.visible) with (chstand) {
+					var opac = .opacity, left = .left;
+					kag.stopAction(chstand);
+					.absolute = -1, .left = left;
+					var stand = standbase;
+					if (stand !== void) {
+						stand.setImageSize(1,1);
+						stand.fillRect(0, 0, 1, 1, 0);
+						stand.setPos(0, 0);
+					}
+					kag.beginAction(chstand, %[ opacity:%[ handler:MoveAction, start:(.opacity=opac), value:0, time:_fadetime ] ],
+									function { if (isvalid this) visible = false; } incontextof chstand, true);
+				}
+			}
+		}
+		cursel = vis ? pos : void;
+	}
+	function enter(num) { onEnterLeave(+num, true); }
+	function leave(num) { onEnterLeave(+num, false); }
+}
+Dialog.add(%[ name:"scenemode", start:CustomSceneMode, storage:"extra_replay" ]);
+SystemHook.add("loadinit.done", resetModeChanged); // （ロード兼）回想開始時に状態をリセット[Return]ボタンを有効に
+SystemHook.add("scenemode.start", resetModeChanged);
+SystemHook.add("scenemode.page.init", function { Current.action("onPageChanged"); } incontextof global);
+SystemHook.add("scenemode.leave",     function { Current.action("onPageChanged"); } incontextof global);
+
+
+//--------------------------------------------------------------
+// フロー関連ユーティリティ
+
+var _flowBlockCache;
+function getFlowBlockTable(clone = true, file = "flowblock.tjs") {
+	if (_flowBlockCache === void) {
+		_flowBlockCache = Scripts.evalStorage("flowblock.tjs");
+	}
+	var r;
+	if (clone) (Dictionary.assignStruct incontextof (r = %[]))(_flowBlockCache);
+	else r = _flowBlockCache;
+	return r;
+}
+function normalizeFlowBlockTag(tag) {
+	with (Storages) tag = .chopStorageExt(.extractStorageName(((string)tag).toLowerCase()));
+	if (tag == "") return;
+	var block = getFlowBlockTable(false), tmp;
+	if ((tmp = block.files[tag]) != "") tag = tmp;
+	if (       block.items[tag]  !== void) return tag;
+}
+function getFlowBlockInfo(tag, clone = false) {
+	tag = normalizeFlowBlockTag(tag);
+	if (tag != "") {
+		var block = getFlowBlockTable(false);
+		var info = block.items[tag];
+		if (!clone) return info;
+		var r = %[];
+		(Dictionary.assign incontextof r)(info);
+		return r;
+	}
+	return void;
+}
+
+class        FlowBlockHook {
+	function FlowBlockHook(kag) {
+		owner = kag;
+		kag.add(this);
+		kag.addPlugin(this);
+		objectHookInjection(%[ target:kag, method:"onConductorLabel", func:function(orig, label, page, *) {
+			if(!usingExtraConductor && page !== void) {
+				flowBlockHook.onConductorLabel(conductor.curStorage); // [XXX] instance固定
+			}
+			return orig(label, page, *);
+		} ]);
+		with (kag.tagHandlers) {
+			.flowblockopen = Tag_flowBlockOpen;
+			.endofblock    = Tag_endOfBlock;
+			.gotoflowchart = Tag_gotoFlowChart;
+			.checkcomplete = Tag_checkComplete;
+		}
+		trigger = new AsyncTrigger(this, 'onShowPopup');
+		with (trigger) .cached = true, .mode = atmAtIdle;
+	}
+	function finalize {}
+
+	var owner;
+	property sf { getter { return owner.sflags; } }
+	function getCurrentTag() { return normalizeFlowBlockTag(owner.currentStorage); }
+
+	function onNext(storage, target) {
+		Tag_endOfBlock();
+		var tag = normalizeFlowBlockTag(storage);
+		if (tag != "") addChain(tag);
+	}
+	function onConductorLabel(file) {
+		var tag = normalizeFlowBlockTag(file);
+		if (tag != "") {
+			if (!sf["fos_"+tag] && !sf["tch_"+tag]) updatePopup();
+			/**/ sf["fos_"+tag] = true;
+			addChain(tag);
+		}
+	}
+	function addChain(tag) { owner.flags["line_"+tag] = true; }
+	var _popupType, trigger;
+	function updatePopup(mode = 0) {
+		if (!SystemConfig.scnFragmentPopupEnabled) return;
+		if (_popupType === void || _popupType < mode)
+			_popupType = mode;
+		trigger.trigger();
+	}
+	function onShowPopup() {
+		if (!isvalid this) return;
+		var mes = _popupType ? "フラグメント追加" : "フローチャート更新";
+		ShowPopup(mes);
+		_popupType = void;
+	}
+
+	function Tag_flowBlockOpen(elm) {
+		var tag = normalizeFlowBlockTag(elm.tag);
+		if (tag != "") {
+			if (elm.force || (SystemConfig.scnFragmentPopupEnabled && !sf["tch_"+tag])) {
+				FragmentPopupNotifyer.Show(elm.tag);
+				var wait = elm.wait;
+				if (wait === void) wait = 1000; // [XXX] default
+				if (wait > 0) owner.insertTag("wait", %[ time:wait ]);
+			}
+			if (!sf["tch_"+tag]) updatePopup(tag.indexOf("frg") >= 0);
+			/**/ sf["tch_"+tag] = true; 
+		}
+		return 0;
+	}
+	function Tag_endOfBlock {
+		var tag = getCurrentTag();
+		if (tag != "") {
+			if (!sf["eos_"+tag] && !sf["tch_"+tag]) updatePopup();
+			/**/ sf["eos_"+tag] = true;
+		}
+		return 0;
+	}
+	function Tag_gotoFlowChart(elm) {
+		var focus = elm.focus;
+		var ret   = elm["return"];
+		if (!ret) {
+			var tag = getCurrentTag();
+			owner.flags.beforeFragment = %[ tag:tag, fromTitle:true ];
+		}
+		SystemAction._scnsel();
+		return owner.tagHandlers.s();
+	}
+
+	function Tag_checkComplete(elm) {
+		// キャラ選択オープンチェック
+		if(!sf.chsel_tama && sf.eos_cs03_e2) {
+			sf.chsel_tama = true;
+			ShowPopup("キャラクター選択に『奇御魂』追加！");
+		}
+		if(!sf.chsel_haru && sf.eos_af_ed) {
+			sf.chsel_haru = true;
+			ShowPopup("キャラクター選択に『春奈』追加！");
+		}
+
+		// ブロック枠チェック
+		var block = getFlowBlockTable(false);
+		if (block && block.map) {
+			var all = [], map = block.map;
+			for (var i = 0; i < map.count; i++) {
+				if (map[i].count > 0) all.push(map[i]*);
+			}
+			var last = all.pop(); // frg_33
+			//dm("checkcomplete", last);
+			if (!sf["tch_"+last]) {
+				var comp = true;
+				for (var i  = all.count-1; i >= 0; i--) {
+					var tag = all[i];
+					if (tag != "" && !sf["eos_"+tag]) {
+						comp = false;
+						break;
+					}
+				}
+				if (comp) return Tag_flowBlockOpen(%[ tag:last ]);
+			}
+		}
+		return 0;
+	}
+}
+addAfterInitCallback(function() {
+	kag.flowBlockHook = new FlowBlockHook(kag);
+} incontextof global);
+
+// cf. scnsel.ks*sysfrom_game
+addKagHandler("restore_before_fragment", function(elm) {
+	if (flags.beforeFragment !== void) with (flags.beforeFragment) {
+		tf.scnsel_focus = .tag;
+		if (.fromTitle) {
+			loadFunction("tflo");
+			return 0;
+		} else if (.core !== void && .user !== void) {
+			pcflags = .core;
+			pflags  = .user;
+			loadFunction("frag");
+			return 0;
+		}
+	}
+	return 0;
+}, true);
+with (loadTrigger.instance.loadHooks) {
+	.tflo = %[ callback:function {
+		tf.scnsel_focus = normalizeFlowBlockTag(kag.currentStorage);
+		kag.process("scnsel.ks", "*start_title_from_frag",, true);
+		return true;
+	} incontextof global ];
+	.frag = %[ callback:function {
+		(function {
+			restoreFlags();
+			processGo(true);
+			insertTag("flowfromfrag");
+		} incontextof kag)();
+		return true;
+	} incontextof global, noclearhist:true ];
+}
+addKagHandler("flowfromfrag", function(elm) {
+	stablePosibility = true;
+	notifyStable();
+	conductor.sleep();
+	conductor.interrupt();
+
+	SystemAction._scnsel();
+	onExtraConductorReturn = function {
+		//dm("onExtraConductorReturn");
+		notifyRun();
+		conductor.run();
+	} incontextof this;
+	return -1;
+}, true);
+
+
+
+
+
+//--------------------------------------------------------------
+// フローチャート画面
+
+KAGLoadScript("scnsel.tjs");
+
+class        ParentHackLayer extends Layer {
+	function ParentHackLayer(win,par,owner) {
+		super.Layer(win,par);
+		this.owner = owner;
+		name = "ParentHackLayer";
+//		hasImage = false;
+//		type = ltBinder;
+		hitType = htMask;
+		hitThreshold = 256;
+		Scripts.setCallMissing(this);
+	}
+	function finalize { super.finalize(...); }
+	var owner;
+	// 親の機能を呼び出す
+	function missing(set, name, value) {
+		//global.Debug.message("missing:" + set  + ":" + name);
+		var target = this.owner;
+		if (typeof        target[name] != "undefined") {
+			if (set)      target[name] = *value;
+			else *value = target[name];
+			return true;
+		}
+		return false;
+	}
+}
+class        ScrollBaseLayer extends Layer {
+	function ScrollBaseLayer(win, base, slider = "slider") {
+		super.Layer(win, base.parent);
+		with (base) {
+			name = "ScrollBaseLayer";
+			hasImage = false;
+			setPos(.left, .top, .width, .height);
+			absolute = .absolute;
+			visible  = true;
+		}
+		sliderName = slider;
+		targetLayer = new ParentHackLayer(win, this, parent);
+		with (targetLayer) {
+			.setPos(0, 0, width, height);
+			.visible = true;
+		}
+	}
+	function finalize {
+		if (targetLayer) invalidate targetLayer;
+		super.finalize(...);
+	}
+	var sliderName;
+	var targetLayer;
+	function addButton(btn) {
+		if (targetLayer) btn.parent = targetLayer;
+	}
+	function setScrollSize(h) {
+		if (targetLayer) targetLayer.height = h;
+		_max = (h - this.height);
+		var vis = _max > 0;
+		if (_max < 0) _max = 0;
+		propSetSlider("visible", vis);
+		propSetSlider("max",    _max);
+	}
+	var _ypos = 0, _max;
+	property ypos {
+		getter    { return _ypos; }
+		setter(v) {
+			_ypos = +v;
+			if (_ypos < 0) _ypos = 0;
+			if (_ypos > _max) _ypos = _max;
+			if (targetLayer)
+				targetLayer.top = -_ypos;
+			if(!_ignoreSliderChanged) {
+				_ignoreSliderChanged = true;
+				propSetSlider("position", _ypos);
+				_ignoreSliderChanged = false;
+			}
+		}
+	}
+	function fixScroll(y, h, center = false) {
+		if (!targetLayer) return;
+		if (!center) {
+			var max = ypos+height;
+			if (y < ypos) ypos = y;
+			else if (  y+h >= max)
+				ypos = y+h  - height;
+		} else {
+			ypos = y - h; // [XXX]
+		}
+		return ypos;
+	}
+	var _ignoreSliderChanged;
+	function onSliderChanged(pos, drag) {
+		if (_ignoreSliderChanged) return;
+		ypos = pos;
+	}
+	function getSlider() { return kag.current.names[sliderName]; }
+	function invokeSlider(method, *) {
+		var slider = getSlider();
+		return slider ? slider[method](*) : void;
+	}
+	function propSetSlider(prop, v) {
+		var slider = getSlider();
+		if (slider) slider[prop] = v;
+	}
+	function propGetSlider(prop) {
+		var slider = getSlider();
+		return slider ? slider[prop] : void;
+	}
+}
+//------------------------------
+
+addAfterInitCallback(function() {
+	for (var i = 0; i < 2; i++) {
+		objectHookInjection(%[ target:kag[i?"fore":"back"].messages[1],
+						   method:"getLinkHotSpot", func:function (orig, *) {
+							   var ovr = Current.propget("getLinkHotSpot");
+							   return ovr ? ovr(this, orig, *) : orig(*);
+						   } ]);
+	}
+} incontextof global);
+
+//==============================
+
+class        CustomScnSel extends ScenarioSelectBase {
+	function CustomScnSel { super.ScenarioSelectBase(...);
+		kag.addHook("keyDown", onKeyDown);
+		kag.addHook("keyUp",   onKeyUp  );
+		createLineLayers();
+	}
+	function finalize {
+		kag.removeHook("keyDown", onKeyDown);
+		kag.removeHook("keyUp",   onKeyUp  );
+		deleteSmallPlayer();
+		deleteScrollBase();
+		deleteLineLayers();
+		super.finalize(...);
+	}
+	function onKeyUp(key, shift) {
+		if (key == VK_CONTROL) onSmallPlayerSkip(false);
+	}
+	function onKeyDown(key, shift) {
+		if (!isvalid this || !isvalid global.kag) return;
+		with (kag) if (.currentDialog !== void || .panelShowing) return;
+		if (key == VK_CONTROL) onSmallPlayerSkip(true);
+	}
+
+	//------------------------------
+
+	var smallplayer, smptext;
+
+	function createSmallPlayer() {
+		if (smallplayer === void) {
+			KAGLoadScript("smallplayer.tjs") if (typeof global.SmallPlayerWindow == "undefined");
+			var interval = 0;
+			try { interval = (int)System.getArgument("-scnpreviewinterval"); } catch {}
+			if (interval < 100) interval = 100;
+			smallplayer = new SmallPlayerWindow(kag, this, interval);
+		}
+		return smallplayer;
+	}
+
+	function deleteSmallPlayer() {
+		if (           smallplayer !== void) {
+			try {      smallplayer.close(); } catch {}
+			invalidate smallplayer;
+		}
+		invalidate smptext if (smptext !== void);
+		smallplayer = smptext = void;
+	}
+
+	var smallPlayerTextFilter = /^[「『](.*)[」』]$/;
+	function onSmallPlayerShowText(text, name) {
+		if (text != "" && smallPlayerTextFilter) {
+			var m = smallPlayerTextFilter.match(text);
+			if (m.count > 0) text = m[1];
+		}
+		text = name+"\n"+text;
+		if (smptext === void) try {
+			var target = getSmallPlayLayer("text");
+			if (target !== void) {
+				smptext = new global.KAGLayer(kag, target.parent);
+				with (smptext) {
+					.name = "SmallPlayerText";
+					.visible = false;
+					.setPos(target.left-8, target.top-8, target.width+16, target.height+16);
+					.hitType = htMask;
+					.hitThreshold = 256;
+				}
+			}
+		} catch {
+			invalidate smptext if (smptext !== void);
+			smptext = void;
+		}
+		if (smptext) with (smptext) {
+			.visible = (text != "");
+			.parent = kag.current;
+			drawSmallPlayerText(smptext, text);
+		}
+	}
+	function drawSmallPlayerText(lay, text, maxline=4) {
+		if (lay) with (lay) {
+			var w = .width, h = .height;
+			.fillRect(0, 0, w, h, 0);
+			if (text != "") {
+				// [XXX]
+				var prm = [ 255, false, 2048, 0x00183C, 6, 0, 0 ];
+				var elm = %[
+				x:8, y:8, w:w-16, h:h-16, //valign:1,
+				fontface:"ＭＳ Ｐゴシック", fontheight:12, linestep:16, maxline:maxline,
+				color:0xFFFFFF, param:prm ];
+				drawTextKinsokuRect(lay, text, elm); prm[4] = 2; prm[2] = 4096;
+				drawTextKinsokuRect(lay, text, elm);
+			}
+		}
+	}
+	var _smallPlayLayers =
+		%[
+		screen:"preview",
+//		mask:  "scrmask",
+		title: "pvtitle",
+		text:  "pvtext",
+//		onoff: "replay",
+		on:    "preview_on",
+		off:   "preview_off",
+			];
+	function getSmallPlayLayer(tag) {
+		var name = _smallPlayLayers[tag];
+		var r = (name != "") ? kag.current.names[name] : void;
+		return (r && typeof r == "Object" && isvalid r) ? r : void;
+	}
+	function clipSmallView(target) {
+		var mask   = getSmallPlayLayer("mask");
+		if (mask !== void) with (target) {
+			.fillAlpha();
+			.clipAlphaRect(0, 0, mask, 0, 0, mask.width, mask.height, true) if (mask !== void && isvalid mask);
+		}
+	}
+	function onSmallPlayerCopyScreen(layer) {
+		var target = getSmallPlayLayer("screen");
+		if (target) with (target) {
+			.shrinkCopyFast(layer, 2); // [XXX]
+			.setSizeToImageSize();
+			clipSmallView(target);
+			.update(0, 0, .width, .height);
+		}
+	}
+	function onSmallPlayerSkip(en) {
+		smallplayer.setForceSkipState(en) if (smallplayer !== void);
+	}
+	var smallPlayed = void;
+	function startSmallPlayer(scn, title) {
+		if (!smallPlayFlag) return;
+		var file = scn;
+//		if      (Storages.isExistentStorage(scn+".ks" )) file += ".ks";
+//		else if (Storages.isExistentStorage(scn+".txt")) file += ".txt";
+		if (smallPlayed == file) return;
+		with (createSmallPlayer()) {
+			var target = getSmallPlayLayer("text");
+			/**/target.visible = false if (target !== void);
+			if (title != "") {
+				target = getSmallPlayLayer("title");
+				if (target !== void) {
+					drawSmallPlayerText(target, title); //, 1);
+					target.visible = true;
+				}
+			}
+			/**/target = getSmallPlayLayer("screen");
+			if (target) with (target) {
+				.fillRect(0, 0, .width, .height, 0xFF000000);
+				clipSmallView(target);
+				.window.beginAction(target);
+				.opacity = 0;
+				.visible = true;
+				.window.beginAction(target, %[ opacity:%[ handler:MoveAction, start:0, value:255, time:300 ] ],, true);
+			}
+			try {
+				.play(file);
+				smallPlayed = file;
+			} catch {
+				if (target) with (target) {
+					.window.beginAction(target);
+					.visible = false;
+				}
+				target = getSmallPlayLayer("title");
+				target.visible = false if (target !== void);
+				smallPlayed = void;
+			}
+		}
+	}
+	function stopSmallPlayer() {
+		if (smallplayer !== void && smallPlayed != "") with (smallplayer) {
+			try { .stop(); } catch {}
+			var target = getSmallPlayLayer("screen");
+			if (target) with (target) {
+				.window.beginAction(target);
+				.window.beginAction(target, %[ opacity:%[ handler:MoveAction, start:255, value:0, time:300 ] ],, true);
+			}
+			var target = getSmallPlayLayer("text");
+			/**/target.visible = false if (target !== void);
+			/**/target = getSmallPlayLayer("title");
+			/**/target.visible = false if (target !== void);
+		}
+		smallPlayed = void;
+	}
+	function toggleSmallPlay() { smallPlayFlag = !smallPlayFlag; }
+	function updateSmallPlay() {
+		var en = smallPlayFlag;
+		var btn = getSmallPlayLayer("onoff");
+		if (btn !== void) btn.toggle = en;
+		/**/btn = getSmallPlayLayer(en ? "on" : "off");
+		if (btn !== void) btn.toggle = true;
+		stopSmallPlayer();
+	}
+	property smallPlayFlag {
+		getter {    try { return !!SystemConfig.scnPreviewEnabled;       } catch {} }
+		setter(v) { try {          SystemConfig.scnPreviewEnabled = !!v; } catch {} updateSmallPlay(); }
+	}
+
+	//------------------------------
+
+	function onJump(pos) {
+		var tag = getItemInfo(pos, "tag");
+		if (((string)tag).indexOf("frg") == 0) with (kag) {
+			var backup = .flags.beforeFragment = %[ tag:tag, fromTitle:fromTitle ];
+			if (!fromTitle) {
+				(Dictionary.assignStruct incontextof (backup.core = %[]))(.pcflags, true);
+				(Dictionary.assignStruct incontextof (backup.user = %[]))(.pflags,  true);
+			}
+		}
+		return super.onJump(...);
+	}
+
+	function onItemEnterLeave(vis, pos) {
+		if (vis && getItemInfo(pos, "preview")) {
+			/**/startSmallPlayer(getJumpScenario(pos), getItemInfo(pos, "known") ? getItemInfo(pos, "caption") : "???");
+		} else  stopSmallPlayer();
+		if (vis && /*[XXX]*/pos != _prologueTag) {
+			var item = getItemTarget(pos);
+			if (item && scrollBase) with (item) scrollBase.fixScroll(.top, .height);
+		}
+		super.onItemEnterLeave(...);
+	}
+
+	var scnRevMap = %[], scnLineList, unknownBlock, blockRatio, pageSummary;
+	function loadScenarioInfo() {
+		var block = getFlowBlockTable();
+		var files, items, map;
+		with (block) files=.files, items=.items, map=.map, scnLineList=.lines, unknownBlock=.unknown, pageSummary=.summary;
+		var maxpage = map.count, per = -1;
+		for (var pg = 0; pg < maxpage; pg++) {
+			var cnt = map[pg].count;
+			if (per < cnt) per = cnt;
+		}
+		_itemList.clear();
+		(Dictionary.clear incontextof scnRevMap)();
+		var total = 0, seen = 0;
+		for (var pg = 0; pg < maxpage; pg++) {
+			var base = per * pg, list = map[pg];
+			var cnt = list.count;
+			for (var i = 0; i < cnt; i++) {
+				var name = list[i], cur, index = base + i;
+				var cur = _itemList[index] = makeItemState(i, name, items[name]);
+				scnRevMap[name    ] = index;
+				scnRevMap[cur.file] = index;
+				if (cur.canjump) seen++;
+				if (cur.preview) seen++;
+				total += 2;
+			}
+		}
+		blockRatio = total > 0 ? (int)(seen*100/total) : 0;
+		return %[ items_per_page:per, maxpage:maxpage, /*initialpage:0*/ ];
+	}
+	function getCurrentScenarioNumber() {
+		if (typeof    tf.scnsel_focus != "undefined") {
+			var sel = tf.scnsel_focus;
+			delete    tf.scnsel_focus;
+			if (sel != "" && scnRevMap[sel] !== void) return scnRevMap[sel];
+		}
+		if (!fromTitle) {
+			//[XXX]
+			var cur;
+			cur = kag.mainConductor.curStorage;
+			cur = kag.pcflags.currentStorage if (cur === void);
+			with (Storages) cur = .chopStorageExt(.extractStorageName((string)cur.toLowerCase()));
+			if (cur != "" && scnRevMap[cur] !== void) return scnRevMap[cur];
+		}
+		return -1;
+	}
+	function getPageEnabled(p) {
+		return true;
+	}
+	function getCommentLayer() { return kag.current.names.text; }
+	function clearCommentText() {
+		var text, summary = pageSummary[page];
+		switch (typeof summary) {
+		case "Object": text = summary.join("\n"); break;
+		default:       text = (string)summary;    break;
+		}
+		internalDrawCommentText(text);
+	}
+	function  drawCommentText(pos) {
+		internalDrawCommentText(getItemInfo(pos, "comment"));
+	}
+	function internalDrawCommentText(text) {
+		var target = getCommentLayer();
+		if (target !== void) with (target) {
+			.fillRect(0, 0, .width, .height, 0);
+			if (text != "") {
+				// [XXX]
+				drawTextKinsokuRect(target, text, %[
+				x:8, y:0, w:.width-16, h:.height, valign:0, halign:-1,
+				fontface:global.SystemDefaultFontFace, fontheight:18, linestep:30,
+				color:0xFFFFFF, param:[255, true] //, 255, 0, 2, 1, 1]
+					]);
+			}
+		}
+	}
+
+	// アイテムの表示状態を設定
+	function makeItemState(pos, tag, info) {
+		var r = %[];
+		(Dictionary.assign incontextof r)(info);
+		with (r) {
+			// 定義済みinfo
+			// .file   = シナリオファイル
+			// .page   = 表次ページ
+			// .button = ボタン画像ファイル
+			// .x, .y  = ボタン座標
+			// .mahjong = 麻雀対戦有無
+			.tag = tag;
+			var all = tf.allseen;
+			var get = this.getGlobalFlag;
+			.name    = "item"+pos; // ボタンレイヤ名
+			.visible = true;  // 表示有無
+			.canjump = (all || get("fos_"+tag) || get("tch_"+tag));  // ジャンプ可能有無
+			.known   = (all || get("eos_"+tag) || get("tch_"+tag));  // タイトル表示有無（ない場合は？？？ボタン）
+			.preview = (all || get("eos_"+tag)); // あらすじ・プレビュー有無
+			.newmark = .canjump && !.preview; // Newマーク有無
+
+			.comment = getCommentText(r); //マウスオーバー時コメントテキスト
+		}
+		return r;
+	}
+	function getGlobalFlag(tag) { return sf[tag]; }
+	function getGameFlag  (tag) { return  f[tag]; }
+	function getBranchFlag(name, tag) {
+		var flg = "jos_"+name+"_"+tag;
+		dm("getBranchFlag", flg, getGlobalFlag(flg));
+		return getGlobalFlag(flg);
+	}
+//	function getUnreadState(tbl, def) {}
+//	function getReachable(tbl) {}
+//	function getBranchOffset(tbl) {}
+	function getCommentText(dic) {
+		with (dic) {
+			if (!.canjump) return "未到達のシナリオです";
+			if (!.preview) return "未完了のシナリオです";
+			return .summary !== void && .summary.count > 0 ? .summary.join("\n") : "（あらすじ指定がありません）";
+		}
+	}
+
+	var _prologueTag = "prologue";
+	function prologue() { onSelect(_prologueTag); }
+	function onPrologueEnterLeave(vis) {
+		_curitem  = void;
+		onItemEnterLeave(!!vis, _prologueTag);
+	}
+	function getItemTarget(num) {
+		return (num == _prologueTag) ? kag.current.names[_prologueTag] // [XXX]
+			: super.getItemTarget(...);
+	}
+	function getJumpScenario(pos) {
+		if (pos == _prologueTag) return "総合プロローグ.txt"; // [XXX]
+		return getItemInfo(pos, "file") + ".txt";
+	}
+	function getItemInfo(pos, tag, def) {
+		if (pos == _prologueTag) {
+			dm("getItemInfo", tag);
+			// [XXX]
+			switch (tag) {
+			case "canjump":
+			case "preview":
+			case "known":
+				return true;
+			case "comment":
+				try { return pageSummary[6].join("\n"); } catch {}
+				break;
+			case "caption":
+				return "総合プロローグ";
+			}
+			return def;
+		}
+		return (items[pos] !== void &&
+				typeof items[pos][tag] != "undefined")
+			?          items[pos][tag] : def;
+	}
+
+	function internalToggleCurrentScenario(btn) {
+		with (btn) .toggle = true;
+	}
+	function update() {
+		var r = super.update(...);
+		if (scrollBase) {
+			var cur;
+			if ((cur = pageSliderPos[+page]) !== void) scrollBase.ypos = cur;
+			else if (nowScnNum >= 0 && (cur = getItemTarget(nowScnNum)) !== void)
+				with (cur) scrollBase.fixScroll(.top, .height, true);
+		}
+		return r;
+	}
+	function onCancel {
+		super.onCancel(...);
+		toggleCurrentScenario();
+	}
+	function drawItemView(target, pos) {
+		// [TODO]
+		var r = super.drawItemView(target, pos);
+		if (r) {
+			drawItemMark(target, "mahjong") if (getItemInfo(pos, "mahjong"));
+			drawItemMark(target, "new"    ) if (getItemInfo(pos, "newmark"));
+		}
+		return r;
+	}
+	function drawItemMark(lay, tag) {
+		if (!_uiMark) return;
+		for (var i = 0; i < 3; i++)
+			lay._copyButtonUIStates(i, _uiMark, void, tag);
+	}
+	var _uiMark;
+	function onUiloaded(elm, ui) {
+		updateSmallPlay();
+		clearCommentText();
+		createScrollBaseLayer(true);
+		replaceItemParent();
+		try { kag.current.addWheel(%[ func:"Current.func('onWheel')" ]); } catch {}
+		_uiMark = ui.mark;
+		var ratio = kag.current.names.ratio;
+		if (ratio) try {
+			var text = "%d%%".sprintf(blockRatio);
+			EdgeShadowDrawTextKinsokuRect(void, ratio, text, %[
+				x:0, y:0, w:ratio.width, h:ratio.height, halign:0, valign:0,
+				fontface: SystemDefaultFontFace,
+				fontheight: 20, // [XXX]
+				color:0xFFFFFF,
+				param: [ 255, true,
+						 // en  col       emp   ox,oy/ext
+						 false, 0,        0,    0,0,
+						 true,  0x102581, 1024,  2  ]
+				]);
+		} catch {}
+	}
+	function onUiload(elm) { elm.partremove="remove"; }
+
+	//------------------------------
+	var line_round, line_arrow;
+	function createLineLayers() {
+		line_round = createLayerWithImage("flowline_round");
+		line_arrow = createLayerWithImage("flowline_diamond");
+	}
+	function deleteLineLayers() {
+		invalidate line_round if (line_round);
+		invalidate line_arrow if (line_arrow);
+	}
+	function createLayerWithImage(file) {
+		var lay = new global.Layer(kag, kag.primaryLayer);
+		lay.loadImages(file);
+		lay.face = dfOpaque;
+		lay.currentColor = void;
+		return lay;
+	}
+	function stampMark(lay, x, y, col, opa, src, sx, sy, sw, sh) {
+		col &= 0xFFFFFF;
+		if (src.currentColor !== col) with (src) {
+			.colorRect(0, 0, .imageWidth, .imageHeight, col, 255);
+			.currentColor = col;
+		}
+		lay.fillRect(x, y, sw, sh, 0);
+		lay.operateRect(x, y, src, sx, sy, sw, sh, omAuto, opa);
+	}
+	// [XXX]
+	function stampArrow (lay, x,y, col, opa) { stampMark(lay, x-8, y-8, col, opa, line_arrow, 0,8,16,8); }
+	function stampRoundL(lay, x,y, col, opa) { stampMark(lay, x,   y,   col, opa, line_round, 0,0, 8,8); }
+	function stampRoundR(lay, x,y, col, opa) { stampMark(lay, x-8, y,   col, opa, line_round, 8,0, 8,8); }
+
+	var _lineWidth = 4, _space = 350, _lrpad = 44, _blockHeight = 55; // [XXX]
+	var _lineXPos  = [ _lrpad\2, _space\2, _space-_lrpad\2 ];
+	function drawLine(lay, from, to, color = 0x9ab3dd, opa = 128, ltype) { // [XXX]
+		if (from == "" || to == "") return;
+		var fitem = items[+scnRevMap[from]];
+		var titem = items[+scnRevMap[to  ]];
+		if (fitem === void || titem == void) return;
+		var fx = fitem.x, tx = titem.x;
+		var fy = fitem.y, ty = titem.y;
+		if (fy >= ty) throw new Exception(@"invalid line:${from}->${to}");
+		var fcol = (opa<<24 | color), lw = _lineWidth;
+		if (fx == tx) {
+			// 直線
+			var x = _lineXPos[fx], y = fy+_blockHeight;
+			lay.fillRect(x-lw\2, y, lw, ty - y, fcol);
+			stampArrow(lay, x, ty, color, opa);
+		} else {
+			// Ｌ字
+			var x = _lineXPos[tx], y = fy+_blockHeight\2;
+			lay.fillRect(x-lw\2, y, lw, ty - y, fcol);
+			stampArrow(lay, x, ty, color, opa);
+			var cx = _lineXPos[1];
+			var isR = cx < x;
+			x += isR ? lw\2 : -lw\2;
+			lay.fillRect(isR ? cx : x, y, (int)Math.abs(x-cx), lw, fcol);
+			if (isR) stampRoundR(lay, x,y, color, opa);
+			else     stampRoundL(lay, x,y, color, opa);
+		}
+	}
+
+	//==============================
+	var scrollBase;
+	function createScrollBaseLayer() {
+		deleteScrollBase(...);
+		var base = kag.current.names.scroll;
+		if (base === void) return;
+		scrollBase = new ScrollBaseLayer(base.window, base);
+	}
+	function deleteScrollBase(comp) {
+		if (scrollBase) with (scrollBase) {
+			var pile = kag.current;
+			if (comp) pile = pile.comp;
+			try {
+				var tmp = kag.temporaryLayer;
+				.hasImage = true;
+				tmp.setSize(.width, .height);
+				tmp.piledCopy(0, 0, scrollBase, 0, 0, .width, .height);
+				pile.operateRect(.left, .top, tmp, 0, 0, .width, .height, omAuto, .opacity);
+			} catch (e) {
+				dm(e.message);
+			}
+			invalidate scrollBase;
+		}
+	}
+	function onSetupFlowBlocks(names, dic, inspos) {
+		var ins = names.find(inspos) + 1;
+		var base = _rowcol * page;
+		for (var i = _rowcol-1; i >= 0; i--) {
+			var info = items[base + i];
+			if (info !== void) with (info) {
+				names.insert(ins, .name);
+				dic[.name] = %[ name:.name, graphic:(.known ? .button : unknownBlock), "class" => "button", trigger:true,
+								/**/exp:    @"Current.cmd('select/${i}')",
+								/**/onenter:@"Current.cmd('onItemEnter/${i}')",
+								/**/onleave:@"Current.cmd('onItemLeave/${i}')",
+								/**/x:.x * 45,
+								/**/y:.y,
+								];
+			}
+		}
+	}
+	function removeFlowBlockExp(names, dic) {
+		var base = _rowcol * page;
+		for (var i = _rowcol-1; i >= 0; i--) {
+			var info = items[base + i];
+			if (info !== void) with (info) {
+				if (!.canjump) with (dic[.name]) {
+					delete .exp;
+					delete .clickse;
+					delete .enterse;
+					delete .leavese;
+				}
+			}
+		}
+	}
+	function replaceItemParent() {
+		if (!scrollBase) return;
+		var names = kag.current.names, maxh = -1;
+		for (var i = 0; i < _rowcol; i++) {
+			var btn = names["item"+i];
+			if (btn === void) continue;
+			var h = btn.top + btn.height;
+			if (maxh < h) maxh = h;
+			scrollBase.addButton(btn);
+		}
+		scrollBase.setScrollSize(maxh);
+
+		var lines = scnLineList[page];
+		if (lines !== void) {
+			for (var i = 0; i < lines.count; i++) {
+				var pair = lines[i];
+				if (pair) {
+					// [XXX] [TODO]
+					var from = pair[0];
+					var to   = pair[1];
+					var vis  = tf.allseen || (getGlobalFlag("fos_"+from) && (getGlobalFlag("fos_"+to) || getGlobalFlag("tch_"+to)));
+					var opac = (getGameFlag("line_"+from) && getGameFlag("line_"+to)) ? 255 : void;
+					if (vis) drawLine(scrollBase.targetLayer, from, to,, opac);
+				}
+			}
+		}
+	}
+
+	var pageSliderPos = [];
+	function onPageChange {
+		if (scrollBase) {
+			pageSliderPos[+page] = scrollBase.ypos;
+			
+		}
+	}
+
+	function onSliderChanged(pos, drag) {
+		if (scrollBase)
+			scrollBase.onSliderChanged(...);
+	}
+	function onWheel(shift, delta, x, y) {
+		if (scrollBase)
+			scrollBase.ypos -= delta\4;
+	}
+	function getLinkHotSpot(mes, orig, linkn) {
+		if (scrollBase) {
+			var obj = linkn.object;
+			if (obj) with (obj) {
+				var name = (string)obj.name, tag = "item";
+				if (name.indexOf(tag) == 0) {
+					var pos = offset + (int)+name.substr(tag.length);
+					var y = scrollBase.fixScroll(.top, .height);
+					return %[ x:scrollBase.left + .left + .width\2, y:scrollBase.top + (.top - y) + .height\2 ];
+				}
+			}
+		}
+		return orig(linkn);
+	}
+}
+Dialog.add(%[ name:"scnsel", start:CustomScnSel, storage:"flowchart" ]);
+
+with (SystemConfig) {
+	.scnPreviewEnabled       = createPropertyProxy("scnPreviewEnabled",       "true",, "!!");
+	.scnUpdatePopupEnabled   = createPropertyProxy("scnUpdatePopupEnabled",   "true",, "!!");
+	.scnFragmentPopupEnabled = createPropertyProxy("scnFragmentPopupEnabled", "true",, "!!");
+}
+
+addKagHookCallback("onModeChangeHookEx", function(prop, kag, am, sm, ca, cs, ss, modal, cr) {
+	prop.checkEnableChanged("scnsel",  "canScn",  canConfig(kag, modal));
+}, true);
+
+@if (DEBUG)
+function MakeFlowInfo()
+{
+	var ystep = 68, yspace = 24;
+	var text = [];
+	var root = System.exePath;
+	text.load(root + "doc/＊フローチャート配置.ini");
+	var state = -1, page = -1, ypos;
+	var btns = Scripts.evalStorage(root + "setup/flowbuttons.tjs");
+	var idxs = Scripts.evalStorage(root + "setup/flowindex.tjs");
+	for (var i = 0; i < idxs.count; i++) idxs[i] = ((string)idxs[i]).toLowerCase();
+	var output = %[ map:[], items:%[], files:%[], unknown:btns["000"], lines:[] ];
+	for (var i = 0; i < text.count; i++) {
+		var line = text[i].split("\t");
+		var top = ((string)line[0]).charAt(0);
+		if (top == "#") continue;
+		switch (top) {
+		case "#": continue;
+		case "*": page = (int)+line[1]; ypos = state = 0; continue;
+		case ":":                              state = 1; continue;
+		}
+		switch (state) {
+		case 0:
+			var lf   = line[0];
+			var mf   = line[1];
+			var rf   = line[2];
+			var file = line[3];
+			var tag, cnt = 0, xpos = -1;
+			if (lf != "") tag = lf, cnt++, xpos=0;
+			if (mf != "") tag = mf, cnt++, xpos=1;
+			if (rf != "") tag = rf, cnt++, xpos=2;
+			if (cnt > 0) {
+				if (cnt > 1) throw new Exception(@"conflict block : ${text[i]}");
+				if (file == "") file = tag;
+				dm(tag, file);
+				file = file.toLowerCase();
+				var num = idxs.find(file);
+				if (num <= 0) throw new Exception(@"index not found : ${file}");
+				var btn = btns["%03d".sprintf(num)];
+				if (btn == "") throw new Exception(@"button not found : ${file}");
+				if (output.items[tag] !== void)
+					throw new Exception(@"conflict block : ${tag}");
+				var elm = output.items[tag] = %[ page:page, file:file, x:xpos, y:ypos, button:btn ];
+				output.files[file] = tag;
+				if (line[4] == "対戦") elm.mahjong = true;
+				if (output.map[page] === void)
+					output.map[page] = [];
+				/**/output.map[page].add(tag);
+				ypos+=ystep;
+			} else {
+				ypos+=yspace;
+			}
+			break;
+		case 1:
+			var ltype = line[0];
+			var from  = line[1];
+			if (from == "") break;
+			if (output.items[from] === void)
+				throw new Exception(@"unknown linet block : ${from}");
+			for (var i = 2, to; (to = line[i]) != ""; i++, from=to) {
+				if (output.items[to] === void)
+					throw new Exception(@"unknown linet block : ${to}");
+				var pair = [ from, to ];
+				if (ltype != "") pair.add(ltype);
+				if (output.lines[page] === void)
+					output.lines[page] = [];
+				/**/output.lines[page].add(pair);
+			}
+			break;
+		default:
+			dm(@"unknown state: ${state} : ${text[i]}");
+			break;
+		}
+	}
+	text.load(root + "doc/＊あらすじ一覧.txt");
+	state = 0;
+	var comment;
+	var donecomment = function(list) {
+		if (list === void) return;
+		for (var i = list.count-1; i >= 0; i--) {
+			if (list[i] == "") list.erase(i);
+			else break;
+		}
+	} incontextof global;
+	for (var i = 0; i < text.count; i++) {
+		var line = text[i];
+		switch (line.charAt(0)) {
+		case "#": break; // コメント行
+		case "▼":
+			donecomment(comment);
+			var page = (int)+line.charAt(1);
+			if (output.summary === void)
+				output.summary = [];
+			/**/output.summary[page] = comment = [];
+			state = 2;
+			break;
+		case "●":
+			donecomment(comment);
+			var div = line.split(":");
+			var tag = div.shift();
+			tag = tag.substr(1);
+			if (tag == "") throw new Exception("empty tag");
+			if (output.files[tag] != "")
+				tag  = output.files[tag];
+			var info = output.items[tag];
+			if (info === void) throw new Exception("tag not found:"+tag);
+			var title = "『"+div.pop()+"』";
+			if (div.count > 1) div = [ div.join("／") ];
+			div.push(title);
+			info.caption = div.join("\n");
+			info.summary = comment = [];
+			state = 1;
+			break;
+		default:
+			if (state > 0) {
+				if (comment &&
+					comment.count < 3)
+					comment.add(line);
+			}
+			break;
+		}
+	}
+	donecomment(comment);
+	makeDictionaryOutputTexts(
+		%[ target:output, indent:"\t", "const"=>true],
+		[ "// 自動生成ファイルです。直接編集しないでください！" ]
+		).save2(System.exePath+"data/main/flowblock.tjs");
+}
+function MakeScnTitles {
+	var block = getFlowBlockTable(false);
+	if (!block && !block.map) return;
+	var all = [], map = block.map;
+	for (var i = 0; i < map.count; i++) {
+		if (map[i].count > 0) all.push(map[i]*);
+	}
+	/*
+	var output = [];
+	for (var i  = 0; i < all.count; i++) {
+		var tag = all[i];
+		if (tag == "") continue;
+		var info = block.items[tag];
+		var name = info.button;
+		if (name.indexOf("マス_") == 0) name = name.substr(3);
+		name = name.replace(/_/g, ":");
+		output.add(@"●${info.file}:${name}");
+		output.add("");
+	}
+	output.save2(System.exePath+"doc/＊あらすじ一覧.txt");
+	 */
+
+	var replaceLabel = function(file, title) {
+		var pattern = /^(\*.*?\|)(.+)$/;
+		var pat2    = /^\t*[\[@]next.*storage=.*$/;
+		var cmcut   = /(^\t*;)(.*)$/;
+
+		var tmp = [], save = false;
+		if (!Storages.isExistentStorage(file)) {
+			dm("not found", file, title);
+			return;
+		}
+		tmp.load(file);
+		for (var ln = 0; ln < 30; ln++) {
+			var m = pattern.match((string)tmp[ln]);
+			//dm(tmp[ln], m.count);
+			if (m.count > 0) {
+				tmp[ln] = m[1] + title;
+				save = true;
+				break;
+			}
+		}
+		if (!save) {
+			kag.errorCmd("ラベルが見つかりませんでした"+ file);
+		}
+		dm("search", save, file, title);
+	@if (1)
+		// コメントを駆除する
+		for (var ln = tmp.count-1; ln >= 0; ln--) {
+			var m = cmcut.match((string)tmp[ln]);
+			if (m.count > 0) {
+				tmp[ln] = m[1];
+				save = true;
+			}
+		}
+	@endif
+		tmp.save2(Storages.getPlacedPath(file)) if (save);
+	} incontextof global;
+
+	for (var i = 0; i < all.count; i++) {
+		var tag = all[i];
+		if (tag == "") continue;
+		var info = block.items[tag];
+		if (info === void) continue;
+
+		var title = info.caption;
+		if (title == "") continue;
+
+		var div = title.split("\n");
+		div.unshift();
+		title = div.pop();
+		title += "／"+div.join("：") if (div.count > 0);
+
+		replaceLabel(info.file + ".txt", title);
+	}
+
+	replaceLabel("総合プロローグ.txt", "総合プロローグ");
+}
+
+@endif
+
+//--------------------------------------------------------------
+// ポップアップ
+
+KAGLoadScript("popup.tjs");
+SystemConfig.PopupDefaultBaseImage = "select_normal";
+
+with (SystemConfig.PopupDefaultConfig) {
+	.showposh = -1;
+	.showposv = -1;
+	.showoffx = 24;
+	.showoffy = 16;
+	.showstep = 80;
+	.stoptime = 1500;
+	.hastext = true;
+	.textpadh = 32;
+
+}
+with (SystemConfig.PopupDefaultTextParam) {
+	.halign = 1;
+	.fontface = SystemDefaultFontFace;
+	.fontheight = 24;
+	.param = [255, true, 255, 0, 2, 1, 1];
+}
+
+class        CustomPopupNotifyer extends PopupNotifyLayer {
+	function CustomPopupNotifyer(win, ofs) {
+		_yofs  = ofs;
+		super.PopupNotifyLayer(win);
+	}
+	function finalize { super.finalize(...); }
+	var SelfClass = global.CustomPopupNotifyer;
+	var _yofs;
+
+	function setupConfig {
+		var r = %[];
+		(Dictionary.assign incontextof r)(super.setupConfig(...));
+		r.showoffy += _yofs * r.showstep;
+		return r;
+	}
+	function show() {
+		if (super.show(...) && !window.skipNoDisp)
+			playSysSE("popup.open");
+	}
+	function         reparent(fore, idx) {
+		return super.reparent(fore, 1);
+	}
+}
+var CustomPopupInstances = [];
+function ShowPopup {
+	var  idx, Instances = CustomPopupInstances;
+	for (idx = 0; Instances[idx] !== void; idx++) {
+		var inst= Instances[idx];
+		if (inst && !inst._showing) break;
+	}
+	if (Instances[idx] === void) {
+		Instances[idx] = new CustomPopupNotifyer(kag, idx);
+	}
+	Instances[idx].show(...);
+}
+
+class        FragmentPopupNotifyer extends CustomPopupNotifyer {
+	function FragmentPopupNotifyer(win, ofs, img, newmark) {
+		_image = img, _new = newmark;
+		super .CustomPopupNotifyer(win, ofs);
+	}
+	function finalize { super.finalize(...); }
+	var SelfClass = global.FragmentPopupNotifyer;
+	var _image, _new;
+
+	function setupConfig() {
+		var r = %[];
+		(Dictionary.assign incontextof r)(SystemConfig.PopupDefaultConfig);
+		r.showposh = -r.showposh;
+		r.hastext = false;
+		r.showoffx = -r.showoffx;
+		r.stoptime = 3000;
+		r.showoffy = 64;
+		r.showstep = 60;
+		return super.setupConfig(r);
+	}
+	function  setupBaseImage {
+		super.setupBaseImage(_image);
+		width = imageWidth\3;
+		imageLeft = _new ? -width : 0;
+		if (_new) try {
+			var tmp = window.temporaryLayer;
+			tmp.loadImages("flowchart@mark%layer;new");
+			tmp.setSizeToImageSize();
+			with (tmp) operateRect(-imageLeft + width - .width, 0, tmp, 0, 0, .width, .height);
+		} catch {}
+	}
+	function moved() {
+		SelfClass.Hide(this);
+		invalidate this;
+	}
+}
+with       (FragmentPopupNotifyer) {
+	var c = FragmentPopupNotifyer;
+	.Instances = [];
+	.Show = function (tag) {
+//		if (!SystemConfig.systemPopupEnabled) return;
+		tag = normalizeFlowBlockTag(tag);
+		if (tag == "") return;
+		var img;
+		try {
+			var block = getFlowBlockInfo(tag);
+			if (block !== void) img = block.button;
+		} catch {}
+		if (img == "") return;
+		var idx = 0;
+		var newmark = !sf["eos_"+tag];
+		while (Instances[idx] !== void) idx++;
+		var inst = Instances[idx] = new this(kag, idx, img, newmark);
+		inst.show();
+	} incontextof c;
+	.Hide = function (inst) {
+		var idx = Instances.find(inst);
+		if (idx >= 0) Instances[idx] = void;
+	} incontextof c;
+}
+
+
+//--------------------------------------------------------------
+// 立ち絵モード画面
+
+@set (EXCHVIEW_GLOBALFLAG_IS_TF = 1)
+KAGLoadScript("exchview.tjs");
+with (SystemConfig) {
+	.ExChViewAskRClickBack = true;
+	.ExChViewCaptureFileBase = "applique_fd_capture";
+	.ExChViewCaptureCaption  = "Stand CG Mode 画面キャプチャ";
+	.ExChViewSelectPanel     = "CustomExChViewPanel"; // *changestage, *changetime 用パネルクラス
+	.ExChViewDefaultCharState.xpos += 69;
+	.ExChViewCharEmptyOnFirst = false;
+	.ExChViewRClickJumpTarget = "*askquit"; // *view, *back_rclick, *askquit のうちどれか
+
+}
+ExCVCharObject.updateLockMarks = function(names = kag.current.names) {
+	for (var list = getCharList(), i = list.count-1; i >= 0; i--) {
+		var name = list[i];
+		if (name != "") {
+			var btn = names["char"+i];
+			//dm("updateLockMarks", name, isLocked(name), curChar);
+			if (btn) {
+				var locked = isLocked(name), current = (name == curChar);
+				btn.toggle = locked || current;
+				btn.opacity = (locked && !current) ? 192 : 255;
+			}
+		}
+	}
+} incontextof null;
+
+class        CustomExtraCharaView extends ExtraCharaViewBase {
+	function CustomExtraCharaView { super.ExtraCharaViewBase(...);
+		initChGrp();
+		tf.title_no_reload <-> _titleCharDelete;
+		kag.addHook("keyDown", onKeyDown);
+	}
+	function finalize {
+		kag.removeHook("keyDown", onKeyDown);
+		super.finalize(...);
+	}
+
+	function onKeyDown(key, shift) {
+		with (kag) if (!.inStable || .currentDialog || .panelShowing) return false;
+		if (key == VK_SPACE && !shift) {
+			kag.process("exchview.ks", "*view");
+		}
+	}
+
+
+	var _titleCharDelete = false;
+	function onUiloaded(elm, ui) {
+		super.onUiloaded(...);
+		toggleText(false, kag.currentPage);
+		setupFaceButtons();
+	}
+
+	function updateButton() {
+		var names = kag.current.names;
+		redrawFaceButtons(names);
+		super.updateButton(...);
+		// [XXX] キャラグループ切り替え表示
+		var grp = 0;
+		for (var i = 0; i < 40; i++) {
+			if (i == _chgrpSwitch[grp]) grp++;
+			var btn = names["char"+i];
+			if (btn) btn.visible = (curChGrp == grp);
+		}
+		var grp = names["chgrp"+curChGrp];
+		if (grp) grp.toggle = true;
+		// [XXX] 巫女・裸の特殊対応
+		showExclusiveButton(names, "dress1", "dress4");
+		showExclusiveButton(names, "dress3", "dress5");
+	}
+	function showExclusiveButton(names, tag1, tag2) {
+		var btn1 = names[tag1];
+		var btn2 = names[tag2];
+		if ((btn1 === void || btn2 === void) ||
+			(btn1.enabled && btn2.enabled) ||
+			(!btn1.visible || !btn2.visible)) return;
+		var vis = !btn2.enabled;
+		btn1.visible =  vis;
+		btn2.visible = !vis;
+		//dm("showExclusiveButton", btn1.visible, btn2.visible);
+	}
+
+	var curChGrp = 0;
+	var _chgrpSwitch = [ 10, 26, 38 ];
+	function initChGrp() {
+		setChGrp(getGlobalFlag("ChGrp"), false);
+	}
+	function setChGrp(num, setflag = true) {
+		curChGrp = (int)+num;
+		if (curChGrp < 0 || curChGrp >= _chgrpSwitch.count) curChGrp = 0;
+		if (setflag) setGlobalFlag("ChGrp", curChGrp);
+	}
+
+	// [XXX]
+	var _facex = 8, _facey = 444;
+	var _facexstep = 86, _faceystep = 21;
+	var _facecmax = 7, _facebtnmax = _facecmax*4;
+
+	function setupFaceButtons() {
+		var current = kag.current;
+		var x = _facex, y = _facey, ycnt = 0, xcnt = 0;
+		var add = current.addButton, loc = current.locate;
+		for (var i=0; i<_facebtnmax; i++) {
+			loc(x, y);
+			var elm = %[  name:"face"+i, graphic: "stand_facebutton", group:"face", halftone:true,
+					  exp:@"playSysSE('exchview.face.click'),Current.cmd('setProp/ch.Face/${i}')", target:"*update" ];
+			elementSysSE(elm,         "exchview.face", ["enter","leave"]);
+			add(elm);
+			if (++ycnt < _facecmax) y += _faceystep;
+			else {
+				y = _facey, ycnt=0;
+				if (++xcnt == 2) x += 745+108, _facexstep=-_facexstep;//[XXX]
+				else x += _facexstep;
+			}
+		}
+		var nodrag = current.names.nodrag;
+		if (nodrag) with (nodrag) {
+			.absolute = 0;
+			try { .copyAlphaToProvince(); } catch {}
+		}
+	}
+	// 顔一覧の順序入れ替え
+	var _faceListCache = %[], _lastFaceListTag;
+	function reorderFaceList(obj, list) {
+		if (!list || !list.count) return;
+		var tag;
+		with (obj) tag = @"${.curChar}:${.curDress}:${.curDiff}";
+		if (_faceListCache[tag] === void) {
+			_faceListCache[tag] = makeFaceList(list);
+		}
+		var cache = _faceListCache[tag];
+		if (_lastFaceListTag != tag) {
+			_lastFaceListTag  = tag;
+			_redrawFaceList   = cache.names;
+		}
+		list.assign(cache.list);
+	}
+	function makeFaceList(list) {
+		var map = %[], rename = %[], rev = %[], names = [];
+		for (var i = list.count-1; i >= 0; i--) map[list[i]]++;
+		for (var i = 0; i < list.count; i++) {
+			var text = list[i], orig = text;
+			if (text != "") {
+				if (map[text+"２"]) text+="１"; // [XXX] 番号抜け対処
+//				if (text.indexOf("照れ") > 0)
+//					text = "照れ"+text.replace(/照れ/, ""); // [XXX] 照れ対処
+				if (text == "表情1") text = "無表情"; // [XXX] 強制rename
+			}
+			if (orig != text) {
+				rename[orig] = text;
+				if (map[text]) dm("! face name conflict", orig, text);
+			}
+			rev[text] = orig;
+			names.add(text);
+		}
+		if (names.count > 1) {
+			var top = names.shift();
+			names.sort();
+			names.unshift(top);
+		}
+		var r = [];
+		for (var i = names.count-1; i >= 0; i--) r[i] = rev[names[i]];
+		return %[ list:r, names:names ];
+	}
+
+	var _redrawFaceList;
+	function redrawFaceButtons(names) {
+		if (names.faceright !== void) {
+			var list = invoke("ch.getFaceList");
+			names.faceright.visible = list ? (list.count > _facecmax*2) : false;
+		}
+		if (_redrawFaceList === void) return;
+		var faces = _redrawFaceList;
+		/**/        _redrawFaceList = void;
+		for (var i=0; i<_facebtnmax; i++) {
+			var btn = names["face"+i];
+			if (btn !== void) {
+				btn.loadImages("stand_facebutton");
+				btn.makeToggle();
+				var text = faces[i];
+				if (text != "") drawFaceText(btn, text);
+			}
+		}
+	}
+	function drawFaceText(lay, text, size) {
+		var drawTextKinsokuRect = function (lay, text, elm) {
+			elm.param = [ 255, true,
+						  /*shadow*/0, 0, 0, 0, 0,
+						  /*edge*/  !!+elm.fontedge, (int)+elm.fontedgecolor, 2048, 2 ];
+			EdgeShadowDrawTextKinsokuRect(void, lay, text, elm);
+		} incontextof global;
+		with (lay) {
+			var sz = (size === void) ? (text.length > 8 ? 12 : 15) : size;
+			var elm = %[ x:0, y:0, w:.width, h:.height, maxline:1, valign:0, halign:0,
+					 fontface:global.SystemDefaultFontFace, fontheight:sz ];
+			with (elm) {
+				.color = 0x000000;
+				/*.x=0;*/ drawTextKinsokuRect(lay, text, elm);
+				.color = 0x008AEA; .fontedgecolor = 0xFFFFFF; .fontedge = true;
+				.x =.w*2; drawTextKinsokuRect(lay, text, elm);
+				.color = 0xFFFFFF; .fontedgecolor = 0x009EB5;
+				.x =.w*1; drawTextKinsokuRect(lay, text, elm);
+				.x =.w*3; drawTextKinsokuRect(lay, text, elm);
+			}
+		}
+	}
+
+	// [XXX] 場所・時間選択パネル
+	
+	var _panelbx, _panelby = 30, _panelsx= 138, _panelsy = 23;
+	function getPanelButtons(name) {
+		var ret = [];
+		var makebtn = function(x, y, text, exp, grp = "radio") {
+			var elm = %[ x:_panelbx+_panelsx*x, y:_panelby+y, group:grp, radio:1, exp:exp, name:text, target:"*panelupdate" ];
+			elementSysSE(elm, "svmode.panel", ["enter","leave"]);
+			return elm;
+		} incontextof this;
+		switch (name) {
+		case "stageselect":
+			_panelbx = 110;
+//			_panelby = 30;
+			_panelsy = 23;
+			var cmax   = invoke("bg.getSelectHead");
+			if (typeof cmax == "Object") cmax = cmax[0];
+			cmax = (int)+cmax;
+			var stages = invoke("bg.getSelectList"), now = getProp("bg.Stage");
+			dm("stageselect", stages, now);
+			if (stages) {
+				var pos = 0, btny = 0;
+				for (var i = 0, n = 0; i < stages.count; i++) {
+					var tag = stages[i];
+					if (tag == "") {
+						if (pos > 0) btny += _panelsy;
+						pos = 0;
+						btny += _panelsy\2;
+						continue;
+					}
+					var caption = (stageRename[tag] != "") ? stageRename[tag] : tag;
+					var btn = makebtn(pos, btny, caption, @"playSysSE('exchview.stage.click'),Current.cmd('setProp/bg.Stage/${n++}')");
+					btn.graphic = "stand_stagebutton";
+					btn.toggle = (tag == now);
+					ret.add(btn);
+					if (++pos >= cmax) {
+						pos = 0;
+						btny += _panelsy;
+					}
+				}
+			}
+			break;
+		case "timeselect":
+			_panelbx = 712;
+//			_panelby = 30;
+			_panelsy = 27;
+			var times = invoke("bg.getTimeList"), idx = invoke("bg.getTimeIndex");
+			if (times) {
+				var y = 0;
+				for (var i = 0; i < times.count; i++) {
+					var name = times[i], caption = name;
+					if (timeRename[name] != "") caption = timeRename[name];
+					var btn = makebtn(0, _panelsy*(y++), caption, @"playSysSE('exchview.time.click'),Current.cmd('setProp/bg.Time/${i}')");
+					btn.graphic = "stand_timebutton";
+					btn.toggle = (i == idx);
+					ret.add(btn);
+				}
+			}
+			break;
+		}
+		return ret;
+	}
+	//[XXX]
+	var stageRename = %[
+		"立ち絵鑑賞デフォルト背景" => "なし",
+		/**/"放送局"            => "放送局収録スタジオ",
+		/**/"銀子の家"          => "銀子さんの家：外観",
+		/**/"銀子の部屋"        => "銀子さんの家：部屋",
+		//  "決戦の場"          => "",
+		/**/"閉鎖研究所"        => "研究所跡：閉鎖地下",
+		
+		/**/"悠斗の家前"        => "悠斗の家：外観",
+		/**/"悠斗の家玄関"      => "悠斗の家：玄関内",
+		/**/"悠斗の家廊下"      => "悠斗の家：廊下",
+		/**/"リビング"          => "悠斗の家：リビング",
+		/**/"台所"              => "悠斗の家：キッチン",
+		/**/"悠斗の部屋"        => "悠斗の家：悠斗の部屋",
+		/**/"ユキの部屋"        => "悠斗の家：ユキの部屋",
+		/**/"優子の部屋"        => "悠斗の家：優子の部屋",
+		//  "公園入り口"        => "",
+		/**/"遊歩道"            => "遊歩道（桜並木）",
+		//  "公園中央"          => "",
+		/**/"デパート前"        => "駅前デパート：外観",
+		/**/"デパート内"        => "駅前デパート：内部",
+		/**/"商店街ｍｓ"        => "長浜商店街",
+		/**/"大学"              => "大学：外観",
+		/**/"事務所前"          => "式澤事務所：外観",
+		/**/"事務所内"          => "式澤事務所：内部",
+		/**/"廃墟前"            => "研究所跡：外観",
+		/**/"廃墟廊下１"        => "研究所跡：通路１",
+		/**/"廃墟廊下２"        => "研究所跡：通路２",
+		/**/"廃墟屋上"          => "研究所跡：屋上",
+		/**/"カプセル"          => "研究所跡：ユキの部屋",
+		/**/"喫茶店前"          => "ベル・カッツェ：外観",
+		/**/"喫茶店内"          => "ベル・カッツェ：内部",
+		//  "大通り"            => "",
+		/**/"あぜ道"            => "西のあぜ道",
+		
+		/**/"学園前"            => "学園：外観",
+		//  "学園前：学祭"      => "",
+		/**/"廊下ｃｏｎ"        => "学園：廊下",
+		//  "廊下ｃｏｎ・学祭"  => "",
+		/**/"教室ｃｏｎ"        => "学園：教室",
+		/**/"寮前"              => "月光寮：外観",
+		/**/"寮ラウンジ"        => "月光寮：ラウンジ１",
+		/**/"寮ラウンジ２"      => "月光寮：ラウンジ２",
+		/**/"莉都の部屋"        => "月光寮：莉都の部屋",
+		/**/"空き部屋"          => "月光寮：空き部屋",
+		/**/"進矢の部屋"        => "月光寮：進矢の部屋",
+		/**/"和奏の部屋"        => "月光寮：和奏の部屋",
+		/**/"小夜璃の部屋"      => "月光寮：小夜璃の部屋",
+		/**/"白雪の部屋"        => "月光寮：白雪の部屋",
+		/**/"星華の部屋"        => "月光寮：星華の部屋",
+		/**/"寮食堂"            => "月光寮：食堂",
+		/**/"寮廊下"            => "月光寮：廊下",
+		/**/"グラウンド"        => "学園：グラウンド",
+		/**/"中庭"              => "学園：中庭",
+		/**/"生徒会室"          => "学園：生徒会室",
+		/**/"学園屋上"          => "学園：屋上",
+		/**/"駅前ｃｏｎ"        => "御津上駅前",
+		/**/"アーケード"        => "アーケード街",
+		//  "住宅街"            => "",
+		//  "市民公園"          => "",
+		//  "坂道"              => "",
+		//  "山道"              => "",
+		//  "林の中"            => "",
+		//  "神社前"            => "",
+		//  "古井戸前"          => "",
+		////"洞窟"              => "",
+		//  "山道２"            => "",
+		//  "高級住宅街"        => "",
+		//  "ゲームセンター"    => "",
+		//  "ファンシーショップ"=> "",
+		////"祠"                => "",
+		
+		/**/"岩永家"            => "岩永家：外観",
+		/**/"玄関"              => "岩永家：玄関",
+		/**/"居間"              => "岩永家：居間",
+		/**/"孝介の部屋"        => "岩永家：孝介の部屋",
+		/**/"さくやの部屋"      => "岩永家：さくやの部屋",
+		////"さくやの部屋・特殊"=> "",
+		/**/"翔子の部屋"        => "岩永家：翔子の部屋",
+		/**/"神社の前"          => "春日神社：鳥居前",
+		/**/"境内"              => "春日神社：境内",
+		/**/"本堂"              => "春日神社：内部",
+		/**/"神社の裏"          => "春日神社：裏道",
+		//  "いろはの部屋"      => "",
+		/**/"湖"                => "天が淵",
+		/**/"農道"              => "村の道路",
+		/**/"駅前ｓｉｎ"        => "駅前",
+		/**/"商店街"            => "タカミ商店",
+		/**/"校門"              => "学園：外観",
+		/**/"森の中"            => "山：森の中",
+		/**/"神社の祭り"        => "春日神社：夏祭り",
+		/**/"川"                => "川：浅瀬",
+		/**/"川の上流"          => "川：上流",
+		/**/"吊り橋"            => "峡谷",
+		//  "集落"              => "",
+		/**/"教室ｓｉｎ"        => "学園：教室",
+		/**/"廊下ｓｉｎ"        => "学園：廊下",
+		/**/"ジャコス前"        => "ジャコス：外観",
+		/**/"ジャコス内"        => "ジャコス：内部",
+		/**/"蔵"                => "岩永家：蔵の中",
+		/**/"森の中２"          => "山：深い森",
+		
+		////"過去の御奈神村"    => "",
+		////"街全景"            => "",
+		////"村の全景"          => "",
+		
+		////"空ｍｓ"            => "",
+		////"空ｃｏｎ"          => "",
+		////"空ｓｉｎ"          => "",
+		];
+	var timeRename = %[
+//		"昼"         => "昼",
+		"夕方"       => "夕",
+		"夕方部屋"   => "夕",
+//		"曇"         => "曇",
+		"夜部屋"     => "夜",
+		"夜"         => "夜",
+		"夜街灯"     => "夜",
+		"夜・祭"     => "夜",
+		"消灯"       => "闇",
+		"消灯２"     => "闇",
+		"消灯３"     => "闇",
+		"施設消灯"   => "闇",
+		"施設消灯２" => "闇",
+		];
+
+	////////////////////////////////////////////////
+
+	function setSubDress(num) {
+		invoke("ch.setSubIndex", num);
+	}
+
+	function onPropChanged(obj, name, prop, val) {
+		//dm("onPropChanged", name, prop, val);
+		if (name == "ch" && prop == "Char" && lastname == "") lastname = void;
+	}
+
+	function onUpdateCurrentCharState(obj, faces) {
+		reorderFaceList(obj, faces);
+	}
+
+	function replaceCharRedraw(owner, name, elm) {
+	}
+
+	var curtext, lastname;
+	function editText() {
+		var name = lastname !== void ? lastname : getProp("ch.Char");
+		var r = EditStandMessage((string)name, curtext);
+		if (r !== void) with (kag.fore.messages[0]) try {
+			.visible = true;
+			try {
+				var face = kag.chDefaultFace;
+				var faces = global.PreRenderFontEx.PreRenderFontNames;
+				if (faces.find(face) >= 0) {
+					switch (face) {
+					case "マルベリ": case "シーダ": break;
+					default:
+						.userFace = "マルベリ"; //"ＭＳ ゴシック";
+						.resetNameLayerFont();
+						break;
+					}
+				}
+			} catch {}
+			.clear();
+			.setStyle(%[ linespacing: 10 ]); // [XXX]
+			.processName(lastname = (string)r.name);
+			var text = curtext = r.text;
+			for (var i = 0; i < text.length; i++) {
+				var ch = text.charAt(i), brk = false;
+				if (i == 0 && ch != "" && kag.autoIndentBeginCharacters.indexOf(ch) >= 0 &&
+					text.substr(1).indexOf(ch) < 0) .preIndent(ch);
+				if (ch == '\n') brk = .processReturn();
+				else brk = .processCh(ch);
+				if (brk) break;
+			}
+		} catch {}
+		toggleText(false);
+	}
+	function toggleText(tgl = true, isback = false) {
+		try {
+			var vis;
+			with (kag[isback ? "back" : "fore"].messages[0]) {
+				vis = .visible;
+				if (tgl) vis = !vis;
+				.visible = vis;
+				if (!vis) lastname = void;
+			}
+			kag.current.names.msgtgl.toggle = vis;
+		} catch {}
+	}
+
+	// ヘルプ
+	function onHelp() {
+		var text = [];
+		text.load("svmode_help.txt");
+
+		if (typeof    global.SvmodeHelpPad == "undefined") {
+			var pad = global.SvmodeHelpPad = new Pad();
+			with (pad) {
+				.color     = clWindow;
+				.fontColor = clWindowText;
+				.fontFace = "ＭＳ Ｐゴシック";
+				.fontHeight = 12;
+				.readOnly = true;
+				.wordWrap = true;
+				.showScrollBars = ssVertical;
+				.title = "Stand CG Mode ヘルプ";
+				.statusText = "";
+			}
+		}
+		if (typeof global.SvmodeHelpPad == "Object") {
+			with  (global.SvmodeHelpPad) {
+				SystemAction._window();
+				.visible = true;
+				.text = text.join("\n");
+			}
+		}
+	}
+}
+
+Dialog.add(%[   name:"exchview", start:CustomExtraCharaView, storage:"extra_stand" ]);
+
+// セーブデータコメントを編集
+function EditStandMessage(caption, text) {
+	var title = "テキスト窓の内容を編集"; //System.title;
+	if (typeof global.EditStandMessageDialog == "undefined") {
+		try {
+			KAGLoadScript("win32dialog.tjs");
+			KAGLoadScript("editcomment.tjs");
+		} catch {
+			global.EditStandMessageDialog = null;
+		}
+	}
+	if (typeof global.EditStandMessageDialog == "Object" &&
+		/**/   global.EditStandMessageDialog !== null) {
+		try {
+			var dialog = new EditStandMessageDialog(title, caption, text);
+			var ret = dialog.open(kag);
+			invalidate dialog;
+			return ret;
+		} catch(e) {
+			dm(e.message);
+			global.EditSaveDataCommentDialog = null;
+		}
+	}
+	var r = System.inputString(title, caption, text);
+	if (r !== void) {
+		return %[ name:caption, text:text ];
+	}
+	return void;
+}
+
+class        CustomExChViewPanel                 extends PanelLayer {
+	function CustomExChViewPanel(win, name, elm) { super.PanelLayer(...);
+		uiload( %[ storage: "extra_stand", func:"stand_"+elm.name, opacity:128, bgcolor:0 ]);
+//		setOption(%[ left:0, top:0, width:kag.scWidth, height:kag.scHeight, color:0x000000, opacity:128 ]);
+		var buttons = Current.cmd("getPanelButtons/"+elm.name);
+		if (buttons !== void) {
+			for (var i = 0; i < buttons.count; i++) {
+				var elm = buttons[i];
+				addButton(elm);
+				var obj = links[numLinks-1].object;
+				if (obj !== void) with (obj) {
+					CustomExtraCharaView.drawFaceText(obj, elm.name, 12);
+					.makeToggle();
+					.groupName = elm.group;
+					.toggle = true if (elm.toggle);
+
+					minx = .left         if (minx === void || minx > .left);
+					miny = .top          if (miny === void || miny > .top);
+					maxx = .left+.width  if (maxx === void || maxx < .left+.width );
+					maxy = .top +.height if (maxy === void || maxy < .top +.height);
+				}
+			}
+		}
+		if (minx !== void) {
+			var pad = 8;
+			minx -= pad;
+			miny -= pad;
+			maxx += pad;
+			maxy += pad;
+		}
+	}
+	var minx, miny, maxx, maxy;
+	function finalize() { super.finalize(...); }
+	function processLink(n)	{
+		// リンク番号 n を処理する
+		var ln = links[n];
+		if(ln !== void && ln.object !== void) with (ln.object) {
+			if (.groupName != "") {
+				.toggle = true;
+				for(var i = links.count-1; i>=0; i--) {
+					var l = links[i];
+					if (l.type == ltButton && l.object !== ln.object && l.object.groupName == .groupName) {
+						l.object.toggle = false;
+					}
+				}
+			}
+		}
+		return super.processLink(...);
+	}
+	function onMouseUp(x,y) {
+		super.onMouseUp(...);
+		if (x < minx || y < miny || x >= maxx || y >= maxy) close();
+	}
+	function close() {
+		if (_closed) return;
+		_closed = true;
+		enabled = false;
+		kag.process("", "*panelclose");
+	}
+}
+
+function CheckExChViewEnabled(elm) {
+	elm.enabled = !!(tf.allseen || sf.seira_clear);
+}
+

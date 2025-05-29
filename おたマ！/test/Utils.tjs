@@ -1,0 +1,637 @@
+// Utils.tjs - ユーティリティ関数
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+try { Plugins.link("scriptsEx.dll"); } catch {};
+
+property random
+{
+	getter { return Math.random(); }
+}
+
+function intrandom(min = 0, max = 0) 
+{
+	// min 以上 max 以下の整数の乱数を返す
+	// 引数が一個だけの場合は 0 ～ その数までの整数を返す
+	if(min>max) { min <-> max; }
+	return int(Math.random() * (max-min+1)) + min;
+}
+
+function str2num(str)
+{
+	// 文字列->数字 ( 全角対応 )
+	var res;
+	var i;
+	for(i=0; i<str.length; i++)
+	{
+		var ch = str[i];
+		switch(ch)
+		{
+		case "０": res+="0"; break;
+		case "１": res+="1"; break;
+		case "２": res+="2"; break;
+		case "３": res+="3"; break;
+		case "４": res+="4"; break;
+		case "５": res+="5"; break;
+		case "６": res+="6"; break;
+		case "７": res+="7"; break;
+		case "８": res+="8"; break;
+		case "９": res+="9"; break;
+		case "ｅ": res+="e"; break;
+		case "Ｅ": res+="E"; break;
+		case "。": res+="."; break;
+		case "．": res+="."; break;
+		case "－": res+="-"; break;
+		case "ー": res+="-"; break;
+		default: res+=ch; break;
+		}
+	}
+	return +res;
+}
+
+function str2escape(str)
+{
+	// 文字列->エスケープ文字
+	var r;
+	for (var i = 0; i < str.length; i++)
+		r += "\\x%X".sprintf(# str.charAt(i));
+	return r;
+}
+
+function han2zen(str)
+{
+	// 半角→全角 ( 英数・半角カナ対応 )
+	var zenkana = "。「」、・ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン゛゜";
+	var res;
+	var i;
+	for(i=0;i<str.length;i++)
+	{
+		var ch = str.charAt(i);
+		var num=#ch;
+		if      (num==0x0020)                res+="　"; // 0x3000
+		else if (num> 0x0020 && num<=0x007e) res+=$(0xff00+num-0x20); // UNICODE
+		else if (num>=0xff61 && num<=0xff9f) res+=zenkana[num-0xff61]; // 半角カナ⇒全角
+		else                                 res+=ch;
+	}
+	return res;
+}
+function zen2han(str)
+{
+	// 全角→半角（全角濁点カナも一応対応）
+	var zenkana1 = "。「」、・ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン゛゜";
+	var zenkana2 = "ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ";
+	var hankana2 = "ｶﾞｷﾞｸﾞｹﾞｺﾞｻﾞｼﾞｽﾞｾﾞｿﾞﾀﾞﾁﾞﾂﾞﾃﾞﾄﾞﾊﾞﾋﾞﾌﾞﾍﾞﾎﾞﾊﾟﾋﾟﾌﾟﾍﾟﾎﾟ";
+	var res;
+	var i;
+	for(i=0;i<str.length;i++)
+	{
+		var ch = str.charAt(i);
+		var num=#ch, x;
+		if      (num==0x3000)                res+=" "; // "　" -> 0x20
+		else if (num> 0xff00 && num<=0xff5e) res+=$(num+0x20-0xff00); // 英数記号
+		else if ((x=zenkana1.indexOf(ch))>=0)res+=$(x + 0xff61);
+		else if ((x=zenkana2.indexOf(ch))>=0)res+=hankana2.substr(x*2,2);
+		else res+=ch;
+	}
+	return res;
+}
+
+
+function kansuuji(
+	n,
+	digits = "〇一二三四五六七八九",
+	small_units = "　十百千",
+	large_units = "　万億兆京",
+	zero_expression = "ゼロ",
+	minus_expression = "マイナス"
+	)
+{
+	// n を一般的な漢数字表記にして返す
+	// TJS の整数型は 922京ほどまでなので京より上の桁の処理は必要ない
+
+	n = int n;
+	if(n == 0) return zero_expression;
+	var out = ""; // 出力文字列
+	if(n < 0) n = -n, out = minus_expression;
+	n = string n; // 文字列に変換
+
+	var n_len = n.length;
+	var n_pos = n_len - 1;
+	var nonzero = false;
+
+	for(var i = 0; i < n_len; i ++, n_pos --)
+	{
+		var small_unit = n_pos & 3;
+		var digit = +n[i];
+		switch(small_unit)
+		{
+		case 0: // 1 の桁
+			if(digit != 0) out += digits[digit], nonzero = true;
+			if(nonzero && n_pos) out += large_units[n_pos >> 2];
+			nonzero = false;
+			break;
+		case 1: // 十の桁
+		case 2: // 百の桁
+		case 3: // 千の桁
+			if(digit != 0)
+			{
+				/* 千の桁は 万以上の場合慣用的に 一千という。
+				   また、一百や一十とはいわない。 */
+				if(digit != 1 || (small_unit == 3 && n_pos > 4))
+					out += digits[digit] + small_units[small_unit];
+				else
+					out += small_units[small_unit];
+				nonzero = true;
+			}
+			break;
+		}
+	}
+
+	return out;
+}
+
+function kansuuji_simple(
+	n,
+	digits = "〇一二三四五六七八九",
+	point = "・",
+	minus = "マイナス")
+{
+	// n を漢数字表記にするが、桁単位はつけない
+
+	n = string n;
+	var n_len = n.length;
+	var out = "";
+	for(var i = 0; i < n_len; i++)
+	{
+		var digit = n[i];
+		if(digit == ".")
+			out += point;
+		else if(digit == "-")
+			out += minus;
+		else if(digit >= '0' && digit <= '9')
+			out += digits[+digit];
+		else
+			out += digit;
+	}
+	return out;
+}
+
+function number_format(n)
+{
+	// n を３桁ごとに カンマで区切った数値表現にする
+	n = string n;
+	var n_len = n.length;
+	var n_digits = 0;
+
+	// 数字の数を数える
+	for(var i = 0; i < n_len; i++)
+	{
+		var digit = n[i];
+		if(digit >= '0' && digit <= '9') n_digits ++;
+		else if(digit == '.' || digit == 'e') break;
+	}
+
+	var out = "";
+
+	// カンマを挿入
+	for(var i = 0; i < n_len; i++)
+	{
+		var digit = n[i];
+		if(digit >= '0' && digit <= '9')
+		{
+			n_digits --;
+			out += digit;
+			if(n_digits > 0 && n_digits % 3 == 0)
+				out += ",";
+		}
+		else
+		{
+			out += digit;
+		}
+	}
+
+	return out;
+}
+
+/**
+ * 辞書の総なめ処理
+ * @param dict 辞書
+ * @func 処理ファンクション func(name, value, dict);
+ */
+function foreach(dict, func, *) {
+	if (dict) {
+        var names = [];
+		names.assign(dict);
+		var count = names.count;
+		for (var i=0; i<count; i+= 2) {
+			func(names[i], names[i+1], dict, *);
+		}
+    }
+}
+
+/**
+ * 存在するファイルの拡張子を補完してファイル名を返す
+ * @param storage ファイル名（拡張子指定がない場合は exts* で補完）
+ * @param exts* 拡張子リスト（先に来た方が優先）
+ * @return 拡張子まで指定された画像ファイル名。存在しなければ void
+ */
+function getExistFileNameAutoExtFill(storage, exts*)
+{
+	with (Storages) if (!.isExistentStorage(storage)/*&& .extractStorageExt(storage) == ""*/) {
+		var chop = .chopStorageExt(storage) + ".";
+		storage = void;
+		for (var i = 0, test, cnt = exts.count; i < cnt; i++) {
+			test = chop + exts[i];
+			if (.isExistentStorage(test)) {
+				storage = test;
+				break;
+			}
+		}
+	}
+	return storage;
+}
+
+/**
+ * 指定した名前の画像ファイルが存在すればその名前を返す
+ * @return 拡張子まで指定された画像ファイル名。存在しなければ void
+ */
+global.Layer.SupportedExtensions = [ "png", "tlg", "tlg5", "tlg6", "jpeg", "jpg", "bmp" ];
+function getExistImageName(storage)
+{
+	return getExistFileNameAutoExtFill(storage, global.Layer.SupportedExtensions*);
+}
+
+/**
+ * 禁則処理つき矩形範囲文字描画
+ * @param layer 描画するレイヤ
+ * @param text  描画するテキスト
+ * @param elm   その他情報
+ *        %[ x, y, w, h, // 描画範囲
+ *           linestep, // 行間
+ *           maxline, // 最大行数
+ *           halign, valign, // -1or省略時:左/上寄せ，0:センタリング，1:右/下寄せ
+ *           fontface, fontheight, fontbold, fontitalic, fontangle, // フォント属性
+ *           color, param // 色, drawText残り引数の配列
+ *           wwfollowing, wwleading, // 禁則文字
+ *           conttext, // 続き表記文字(省略時:"…")
+ *           nodraw, //trueなら描画しない（配列のみ返す）
+ *           drawtext, // 描画メソッド上書き
+ *           gettextwidth, // サイズ取得メソッド上書き
+ *           chsep, // １文字ずつ描画
+ *           ];
+ * @return 分割したテキストのArray([ line1, line2, ... ])
+ */
+function drawTextKinsokuRect(layer, text, elm) {
+	if (text == "" || layer === void) return [];
+	var wwFollowing = "%),:;]}｡｣ﾞﾟ。，、．：；゛゜ヽヾゝゞ々’”）〕］｝〉》」』】°′″℃￠％‰　" +
+		/**/          "!.?､･ｧｨｩｪｫｬｭｮｯｰ・？！ーぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ";
+	var wwLeading   = "\\$([{｢‘“（〔［｛〈《「『【￥＄￡";
+
+	var font = layer.font;
+	var step, gtw = font.getTextWidth;
+	var w, h, cont = "…", maxline = 0;
+	with (elm) {
+		// 上書き
+		gtw = .gettextwidth if (typeof .gettextwidth == "Object");
+
+		// 禁則文字
+		wwFollowing = .wwfollowing if (.wwfollowing !== void);
+		wwLeading   = .wwleading   if (.wwleading   !== void);
+		cont        = .conttext    if (.conttext    !== void);
+
+		// フォント更新
+		font.face   = .fontface   if (.fontface   !== void);
+		font.height = .fontheight if (.fontheight !== void);
+		font.bold   = .fontbold   if (.fontbold   !== void);
+		font.italic = .fontitalic if (.fontitalic !== void);
+		font.angle  = .fontangle  if (.fontangle  !== void);
+
+		step = (.linestep !== void) ? +.linestep : font.height;
+		w = .w;
+		h = .h;
+		maxline = +.maxline if (.maxline !== void);
+	}
+
+	var cur = "", lines = [], len = text.length;
+	for (var ch, i = 0, y = 0; i <= len; i++) {
+		if (i == len || (ch = text.charAt(i)) == "\n" || gtw(cur + ch) >= w) {
+			var next = ch, cl;
+			if (next == "\n") next = "";
+			// 行末禁則チェック
+			else while ((cl = cur.length) > 0 &&
+						wwLeading.indexOf((ch = cur.charAt(cl-1))) >= 0) {
+				next = ch + next;
+				cur  = cur.substr(0, cl-1);
+			}
+			// 最後の行の処理
+			if (y+step >= h || (maxline > 0 && maxline == lines.count+1)) {
+				if (i < len) {
+					while ((cl = cur.length) > 0 && gtw(cur + cont) >= w)
+						cur = cur.substr(0, cl-1);
+					lines.add(cur + cont);
+				} else
+					lines.add(cur);
+				break;
+			}
+			// 行頭禁則チェック
+			if (i < len && next != "") {
+				while ((cl = cur.length) > 0 &&
+					   wwFollowing.indexOf(next.charAt(0)) >= 0) {
+					next = cur.charAt(cl-1) + next;
+					cur  = cur.substr(0, cl-1);
+				}
+			}
+			lines.add(cur);
+			cur = next;
+			y += step;
+		} else cur += ch;
+	}
+	var lc = lines.count;
+	if (!elm.nodraw && lc > 0) {
+		var x, y, dt, color, param, valign, halign;
+		with (elm) {
+			color = .color;
+			param = (typeof .param == "Object") ? .param : [];
+			dt    = (typeof .drawtext == "Object") ? .drawtext
+				: function(self, *) { return drawText(*); } incontextof layer;
+			x = .x;
+			y = .y;
+			halign = (.halign !== void) ? +.halign : -1;
+			valign = (.valign !== void) ? +.valign : -1;
+			var th = (lc-1) * step + font.height;
+			switch  (valign) {
+			case  0: y += (h - th)\2; break;
+			case  1: y += (h - th);   break;
+			}
+		}
+		for (var i = 0; i < lc; i++, y+=step) {
+			var text = lines[i], dx = x;
+			switch (halign) {
+			case  0: dx += (w - gtw(text))\2; break;
+			case  1: dx += (w - gtw(text));   break;
+			}
+			if (!elm.chsep) dt(layer, dx, y, text, color, param*);
+			else if (text != "") {
+				// １文字ずつ描画
+				for (var j = 0, len = text.length; j < len; j++) {
+					var ch = text.charAt(j);
+					dt(layer, dx, y, ch, color, param*);
+					dx += gtw(ch);
+				}
+			}
+		}
+	}
+	return lines;
+}
+
+
+/**
+ * ウィンドウの中央位置を取得（ダイアログ用）
+ * @param  win 中央指定する親ウィンドウ(Windowオブジェクト以外なら画面中央)
+ * @param  w   表示するウィンドウの幅
+ * @param  h   表示するウィンドウの高さ
+ * @return %[ x, y ]
+ */
+function getParentWindowCenterPos(win, w, h)
+{
+	var x, y, x1, y1, x2, y2, monitor;
+	var iswin = (win && typeof win == "Object" && isvalid win && win instanceof "Window");
+
+	if (typeof System.getMonitorInfo != "undefined" && iswin) try {
+		var info = System.getMonitorInfo(true, win);
+		monitor = info.work if (typeof info == "Object");
+	} catch {}
+	monitor = %[ x:0, y:0, w:System.screenWidth, h:System.screenHeight ] if (monitor === void);
+	with (monitor) x1=.x, y1=.y, x2=.w+x1, y2=.h+y1;
+
+	if (iswin) with (win) {
+		var rx = x = ((.width  - w)\2) + .left;
+		var ry = y = ((.height - h)\2) + .top;
+		if (typeof .getClientRect == "Object") try {
+			with ( .getClientRect()) {
+				x = ((.w - w)\2) + .x;
+				y = ((.h - h)\2) + .y;
+			} 
+		} catch { x=rx, y=ry; } // revert.
+	} else {
+		x =  (x1+x2   - w)\2;
+		y =  (y1+y2   - h)\2;
+	}
+	x = x2 - w if (x > x2 - w);
+	y = y2 - h if (y > y2 - h);
+	x = x1     if (x < x1);
+	y = y1     if (y < y1);
+	return %[ x:x, y:y ];
+}
+
+/**
+ * 環境変数を展開する
+ */
+function expandEnvironmentString(text) {
+	// プラグインで追加されていればそちらを使用（⇒windowEx.dll)
+	if (typeof System.expandEnvString == "Object") return System.expandEnvString(text);
+	// 自力で展開してみる（簡易実装）
+	var expand = function (self, str, map = %[]) {
+		return /%(.*?)%/g.replace(str, function(m) {
+			if (m[1] != "") {
+				var name = m[1].toLowerCase(), read = global.System.readRegValue, assign = global.Dictionary.assign;
+				switch (name) {
+				case "username":
+				case "userprofile":
+				case "homepath":
+				case "homedrive":
+				case "appdata":
+				case "localappdata":
+					return read("HKEY_CURRENT_USER\\Volatile Environment\\"+name);
+				case "systemroot":
+					return read("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRoot");
+				default:
+					var usr = "HKEY_CURRENT_USER\\Environment\\"+name;
+					var sys = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\\"+name;
+					if        (!this.map[usr] && (name = read(usr)) != "") {
+						var cmap = %[ usr => true ];
+						(assign incontextof cmap)(this.map, false);
+						return this.self(this.self, name, cmap);
+					} else if (!this.map[sys] && (name = read(sys)) != "") {
+						var cmap = %[ usr => true, sys => true ];
+						(assign incontextof cmap)(this.map, false);
+						return this.self(this.self, name, cmap);
+					}
+					break;
+				}
+			}
+			return m[0];
+		} incontextof %[ self:self, map:map ]);
+	};
+	try { text = expand(expand, text); } catch(e) { Debug.message(e.message); }
+	return text;
+}
+/**
+ * システムマウスカーソルを取得する
+ */
+function getSystemMouseCursor(tag, noValue) {
+	var reg = System.readRegValue("HKEY_CURRENT_USER\\Control Panel\\Cursors\\"+tag);
+	if (reg == "") return noValue;
+	reg = expandEnvironmentString(reg);
+	var file = Storages.getFullPath(reg);
+	return Storages.isExistentStorage(file) ? file : noValue;
+}
+
+/**
+ * 辞書や配列のテキスト出力用配列を作成する
+ * elm: %[ target:出力する辞書または配列, indent:インデント文字列, const:constを挿入するかどうか(default:false) ]
+ * output:出力用配列
+ */
+
+function       makeDictionaryOutputTexts(elm, output = []) {
+	var self = makeDictionaryOutputTexts;
+	var target = elm.target;
+	var level  = (int)elm.level, offset, cnst = elm["const"] ? "(const) " : "";
+	var indent = (typeof elm.indent == "String") ? elm.indent : " ";
+	var line   = offset = indent.repeat(level);
+
+	if (elm.key != "") line += '"'+elm.key.escape()+'" => ';
+	switch (typeof target) {
+	default: line += @"/* InvalidType:${typeof target} */void"; break;
+	case "void":    line += "void"; break;
+	case "Real":
+	case "Integer": line += (string)target; break;
+	case "String":  line += '"'+target.escape()+'"'; break;
+	case "Object":
+		if (target === null) line += "null";
+		else if (target instanceof "Dictionary") {
+			var items = [], keys = [];
+			items.assign(target);
+			for (var i = 0; i < items.count; i+=2) keys.add(items[i]) if (items[i] != "");
+			keys.sort();
+			line += cnst+"%[";
+			output.add(line);
+			for (var i = 0, cnt = keys.count; i < cnt; i++) {
+				var key = keys[i];
+				var subelm = %[ target:target[key], key:key, comma:(i<cnt-1), level:level+1, "const"=>elm["const"] ];
+				self(subelm, output);
+			}
+			line = offset+"]";
+		} else if (target instanceof "Array") {
+			line += cnst+"[";
+			output.add(line);
+			for (var i = 0, cnt = target.count; i < cnt; i++) {
+				var subelm = %[ target:target[i], comma:(i<cnt-1), level:level+1, "const"=>elm["const"] ];
+				self(subelm, output);
+			}
+			line = offset+"]";
+		} else line += "/* UnknownObject */void";
+		break;
+	}
+	if (elm.comma) line += ",";
+	output.add(line);
+	return output;
+}
+
+/**
+ * 既存のクラス関数またはプロパティに別の関数を後から差し込む
+ * @param elm 操作内容辞書 %[ target: 差し込み対象オブジェクト,
+ *                            method:差し込みメソッド名, func:置き換え関数,
+ *                            prop:差し込みプロパティ名, get:置き換えgetter, set:置き換えsetter ]
+ */
+function objectHookInjection(elm) {
+	var target = elm.target;
+	if (typeof target != "Object") throw new Exception("オブジェクトではありません");
+	if (elm.method == "" && elm.prop == "") throw new Exception("差し込み対象が不明です");
+
+	var name = "__InjectionTable", table;
+	if (typeof global[name] != "undefined") table = global[name];
+	else global[name] = table = %[];
+	var gettag = function(table, target, name, suffix = "_") {
+		var tag = (string)target +"::"+ name;
+		while (typeof table[tag] != "undefined") tag += suffix;
+		//dm("injection/tag:", tag);
+		return tag;
+	} incontextof global;
+
+	if (elm.method != "") {
+		var method = elm.method, tag = gettag(table, target, method, elm.suffix);
+		var old = typeof target[method] == "Object" ? (&target[method]) : function {}; // 無い場合はダミーで
+		if (!(old instanceof "Function")) throw new Exception("関数ではありません: "+method);
+
+		table[tag] = %[ ovr:elm.func, orig:old ];
+		target[method] = (@"function(*) { with (global.${name}['${tag}']) return (.ovr incontextof this)((.orig incontextof this), *); }")! incontextof null;
+	}
+	if (elm.prop != "") {
+		var prop = elm.prop, tag = gettag(table, target, prop, elm.suffix);
+		var get = elm.get, set = elm.set;
+		var  old, getprop = function(target, key) { return &target[key]; };
+		try { old = getprop(target, prop); } catch {}
+		if (old === void || !(old instanceof "Property")) throw new Exception("プロパティではありません: "+prop);
+		if (!get && !set) throw new Exception("getter/setterの指定がありません: "+prop);
+
+		table[tag] = %[ "getter" => get, "setter" => set, orig:old ];
+		var makeprop = function(tag, get, set, name) {
+			("property prop { " +
+			 (get ? @"getter    { with (global.${name}['${tag}']) return (.getter incontextof this)((\&.orig) incontextof this);    } " : "") +
+			 (set ? @"setter(v) { with (global.${name}['${tag}'])        (.setter incontextof this)((\&.orig) incontextof this, v); } " : "") +
+			 "}")!;
+			return &this.prop;
+		} incontextof %[];
+		(&target[prop]) = makeprop(tag, !!get, !!set, name) incontextof null;
+	}
+}
+
+
+/**
+ * 多重継承クラスを作るためのヘルパ関数
+ * @param name  作成するクラス名（文字列）
+ * @param prefix superクラスを保持する変数名のプレフィックス
+ * @param classes... 継承するクラスリスト（文字列）
+ * @return 作成したクラスオブジェクト
+ *
+ * ・継承するクラスは必ずglobal以下に存在し，コンストラクタ／ファイナライズメソッドが存在すること
+ * ・コンストラクタ引数は classes[0]のコンストラクタのへ渡す引数配列, classes[1]のコンストラクタのへ渡す引数配列, ... で渡す
+ * ・${prefix}super0, ${prefix}super1, ... で classesオブジェクトが参照できる
+ */
+function createMultipleInheritanceClass(name, prefix = name+"_", classes*) {
+	var supers = [], constructors = [], finalizes = [];
+	for (var i = classes.count-1; i >= 0; i--) {
+		var cl = classes[i];
+		supers      .unshift(@"var ${prefix}super${i} = global.${cl};");
+		constructors.unshift(@"if (typeof args[${i}] == 'Object') ${prefix}super${i}.${cl}(args[${i}]*); else ${prefix}super${i}.${cl}();");
+		finalizes   .push   (@"${prefix}super${i}.finalize();");
+	}
+	var exp = (@"
+class ${name} extends ${classes.join(', ')} {
+	${supers.join('\n\t')}
+	function ${name}(args*) {
+		${constructors.join('\n\t\t')}
+	}
+	function finalize {
+		if (!isvalid this) return;
+		${finalizes.join('\n\t\t')}
+	}
+}");
+	//Debug.message(exp);
+	exp!;
+	return global[name];
+}
+/**
+ * 別の辞書等を参照するProxyプロパティオブジェクトを作成するヘルパ関数
+ * @param tag プロパティ名
+ * @param defvalstr 未定義／エラー時のデフォルト値（文字列に変換され生成時に値が評価されることに注意）
+ * @param base 参照先オブジェクトのベース（ base.tag が参照先プロパティ）
+ */
+function createPropertyProxy(tag, defvalstr, base = "global.kag.scflags", prefix = "", context = %[]) {
+	var get = @"${prefix}(${base}.${tag})";
+	if (defvalstr == "") defvalstr = "void";
+	else get = @"(typeof ${base}.${tag} != 'undefined') ? ${get} : ${defvalstr}";
+	try { delete context[tag]; } catch {}
+	(function (exp) { exp!; } incontextof context)(@"
+property ${tag} {
+	setter(v) { try { ${base}.${tag} = ${prefix}(v); } catch {} }
+	getter    { try { return ${get}; } catch {} return ${defvalstr}; }
+}");
+	return &context[tag];
+}
+/**
+ */
+function applyInlineStringVariableExtract(str, context = null) {
+	var extractor = function (str) { return str!; };
+	return (extractor incontextof context)("@'"+str.escape()+"'");
+}

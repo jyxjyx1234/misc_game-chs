@@ -1,0 +1,156 @@
+/**
+ * KAG 前景レイヤのレベル制御用
+ */
+class KAGEnvLevelLayer {
+
+	/// 表示レベル
+	var _level;
+
+	property level {
+
+		getter() {
+			return _level;
+		}
+
+		/**
+		 * 指定したレイヤを指定したレベルに移動する
+		 */
+		setter(newlevel) {
+			//dm(name + ":レベル指定:" + newlevel);
+			var forelayers = env.getLevelLayers();
+			if (_level !== void) {
+				if (_level === newlevel) {
+					//dm("同一レベルなので処理しない");
+					return;
+				}
+				if (false) {
+					// もともといたレベルは触らない
+					var index = absolute;
+					// もともといたレベルの調整
+					for (var i = 0; i<forelayers.count; i++) {
+						var target = forelayers[i];
+						if (target !== this && target.level == _level) {
+							if (target.absolute > index) {
+								target.absolute -= 100;
+							}
+						}
+					}
+				}
+			}
+			// 新規レベルの一番上にもっていく
+			var newindex = (newlevel + 1) * 100000 + 200; // stage が 100
+			for (var i = 0; i<forelayers.count; i++) {
+				var target = forelayers[i];
+				if (target !== this && target.level == newlevel && target.absolute > newindex) {
+					newindex = target.absolute;
+				}
+			}
+			newindex += 100;
+			//dm(name + ":レベル設定:" + newlevel + ":" + newindex);
+			absolute = newindex;
+			_level    = newlevel;
+			redraw = true;
+		}
+	}
+	
+	/**
+	 * コンストラクタ
+	 */
+	function KAGEnvLevelLayer() {
+    }
+
+	function finalize() {
+	}
+
+	// 初期表示時にレベル初期化
+	property disp {
+		getter() {
+			return *(&global.KAGEnvImage.disp incontextof this);
+		}
+		setter(v) {
+			*(&global.KAGEnvImage.disp incontextof this) = v;
+			if (isShowBU() && level === void) {
+				// 立ち絵表示されるのにレベルが未指定ならデフォルトで初期化
+				level = env.defaultLevel;
+			}
+		}
+	}
+	
+    /**
+     * レベル内最前列
+     */
+	function toFront() {
+		var forelayers = env.getLevelLayers();
+		var index = absolute;
+		var maxindex = index;
+		for(var i = 0; i<forelayers.count; i++) {
+			var target = forelayers[i];
+			if (target !== this && /*target.isShowBU() &&*/ target.level === level) {
+				if (target.absolute > maxindex) {
+					maxindex = target.absolute;
+				}
+				if (target.absolute > index) {
+					target.absolute -= 100;
+				}
+			}
+		}
+		absolute = maxindex;
+    }
+
+    /**
+     * レベル内最後列
+     */
+	function toBack() {
+		var forelayers = env.getLevelLayers();
+		var index = absolute;
+		var minindex = index;
+		for(var i = 0; i<forelayers.count; i++) {
+			var target = forelayers[i];
+			if (target !== this && /*target.isShowBU() &&*/ target.level === level) {
+				if (target.absolute < minindex) {
+					minindex = target.absolute;
+				}
+				if (target.absolute < index) {
+					target.absolute += 100;
+				}
+			}
+		}
+		absolute = minindex;
+	}
+
+    /**
+     * レベル内最前列
+     */
+    function setFront() {
+		toFront();
+		updateFlag = true;
+    }
+
+    /**
+     * レベル内最後列
+     */
+    function setBack() {
+		toBack();
+		updateFlag = true;
+    }
+
+    /**
+     * レベルの指定
+     */
+	function setLevel(cmd, elm) {
+		if (level !== +cmd) {
+			level = +cmd;
+			redraw = true;
+		}
+    } 
+
+    function onStore(f) {
+		f.name  = name if initDisp;
+		f.level = level if level !== void;
+    }
+
+    function onRestore(f) {
+		name = f.name;
+		_level  = f.level;
+	}
+}

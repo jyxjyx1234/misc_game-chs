@@ -1,0 +1,289 @@
+// 日付表示処理用
+
+class ShowDateLayer extends RelativeLayer {
+	function finalize { super.finalize(...); }
+	function ShowDateLayer {
+		super.RelativeLayer(...);
+		hitType = htMask;
+		hitThreshold = 256;
+		name = "ShowDateLayer";
+	}
+	property absolute {
+		getter()  { return super.absolute; }
+		setter(v) {
+			var rel = true;
+			_noRelative <-> rel;
+			super.absolute = v;
+			_noRelative <-> rel;
+		}
+	}
+	property visible {
+		getter()  { return super.visible; }
+		setter(v) {
+			super.visible = v && sf.showdate && !kag.isRecollection;
+			_visible = v;
+		}
+	}
+	var _opacity, _opacity2 = 1;
+	property opacity  { getter() { return _opacity;  } setter(v) { _opacity  = v; updateOpacity(); } }
+	property opacity2 { getter() { return _opacity2; } setter(v) { _opacity2 = v; updateOpacity(); } }
+	function updateOpacity() {
+		var v = (_opacity/255) * _opacity2;
+		if (v < 0) v = 0;
+		else if (v > 1) v = 1;
+		super.opacity = (int)(v*255);
+	}
+
+	property baseLeft { getter { return owner.diffx; } }
+	property baseTop  { getter { return owner.diffy; } }
+
+	function assign(src) {
+		assignImages(src, true);
+	}
+	function load(info) {
+		with (info) {
+			if (getExistImageName(.storage) == "") {
+				window.errorImage(.storage+ ":日付絵画像がロードできません");
+				return;
+			}
+			loadImages(.storage);
+			setSizeToImageSize();
+			setPos(.x, .y);
+		}
+	}
+	function clear() {
+		setImageSize(1, 1);
+		fillRect(0, 0, 1, 1, 0);
+		visible = false;
+	}
+	function restore() {
+		_opacity2 = 1;
+		return super.restore(...);
+	}
+}
+
+class ShowDatePluginBase extends KAGPlugin
+{
+	var fore; // 前画面用
+	var back; // 後画面用
+
+	var ui; // ui parsed
+	var date = void;
+	var nowShow;
+
+	var doClear, doLoad, doShow;
+
+	// Configs
+	var storage = "date";
+	var baseui  = "date";
+	var defaultAbsolute = 6 * 100000 - 110;
+	var tagHandlerName = "date";
+	var fadeTime = 500;
+
+	var layerClass = global.ShowDateLayer;
+
+	function ShowDatePluginBase(kag, elm) {
+		super.KAGPlugin();
+
+		var abs = defaultAbsolute;
+		var name;
+		with (elm) {
+			storage  =  .storage  if (.storage != "");
+			baseui   =  .baseui   if (.baseui != "");
+			name     =  .name     if (.name != "");
+			abs      = +.absolute if (.absolute !== void);
+			fadeTime = +.fadetime if (.fadetime !== void);
+
+			tagHandlerName = .tagname if (.tagname != "");
+		}
+		var mes = (typeof global.SystemConfig == "Object"
+				   && SystemConfig.defaultMessageLayer != "") ?
+			/**/      SystemConfig.defaultMessageLayer : "message0";
+		var base = kag.getLayerFromElm(%[ layer:mes, page:"fore" ]);
+
+		// レイヤ生成
+		fore = createLayer(base,      name, abs);
+		back = createLayer(base.comp, name, abs);
+
+		ui = uiload; // dummy
+		ui = uiloadParse(%[ storage:storage ]);
+		ui = ui.result;
+	}
+	function finalize() {
+		if (isvalid this) {
+			removeLayer(fore);
+			removeLayer(back);
+		}
+		super.finalize(...);
+	}
+
+	function createLayer(base, name, absolute) {
+		var lay = new layerClass(base);
+		try {
+			base.subLayers = [] if (base.subLayers === void);
+			base.subLayers.add(lay);
+		} catch {}
+		lay.name = name if (name !== void);
+		lay.absolute = absolute if (absolute !== void);
+		return lay;
+	}
+	function removeLayer(lay) {
+		if (lay === void) return;
+		try { lay.owner.subLayers.remove(lay, true); } catch {}
+		invalidate lay;
+	}
+
+	// 環境用コマンド実行
+	function onEnvCommand(tagname, elm) {
+		if (tagname == tagHandlerName) {
+			command(elm);
+			return 0;
+		}
+	}
+
+	// 環境初期化時コールバック
+	function onEnvInit() {
+		reset();
+	}
+	function onEnvUpdate(isBack, isSkip) {
+		update(...);
+	}
+
+	// 栞保存callback
+	function onEnvStore(f, elm) {
+		f.showdate = %[
+		fore    : getFore().store(),
+		back    : getBack().store(),
+		nowShow : nowShow,
+		date    : date ];
+	}
+
+	// 栞読み出しcallback
+	function onEnvRestore(f, clear, elm) {
+		if (f.showdate !== void) with (f.showdate) {
+			stopAction();
+			getFore().restore(.fore) if (.fore !== void);
+			getBack().restore(.back) if (.back !== void);
+			nowShow = .nowShow;
+			date    = .date;
+			doLoad  = (date != "");
+			doClear = !doLoad;
+			doShow  = true;
+			update(false, true);
+		} else {
+			reset();
+		}
+	}
+	// リセット
+	function onResetAll() { reset(); }
+
+	function reset() {
+		stopAction();
+		nowShow = date = void;
+		clear();
+	}
+
+	function getUiStates(tag) {
+		var states, x, y;
+		try {
+			var base = ui[baseui];
+			x = base.x, y = base.y;
+			states = base.uistates[tag];
+		} catch {}
+		if (states === void) return;
+		with (states) return %[ x:x+.ox, y:y+.oy, storage:.storage ];
+	}
+
+	// 画像ロード
+	function load(storage, backOnly) {
+		if (typeof storage != "String" || storage =="") return;
+		var info = getUiStates(storage.trim());
+		if (info === void) return;
+		getFore().load(info) if (!backOnly);
+		getBack().load(info);
+	}
+	function clear(backOnly) {
+		getFore().clear() if (!backOnly);
+		getBack().clear();
+	}
+
+	function update(isBack, isSkip) {
+		if (doClear !== void) {
+			clear(isBack) if (doClear);
+			doClear = void;
+		}
+		if (doLoad !== void) {
+			load(date, isBack);
+			doLoad = void;
+		}
+		if (doShow !== void) {
+			var vis = nowShow;
+			stopAction();
+			getBack().visible = vis;
+			if (!isBack) {
+				var  lay = getFore();
+				var  fade = !isSkip && lay.owner.visible;
+				with (lay) {
+					.visible = fade ? true : vis;
+					if (fade) beginAction(lay, %[ opacity2: %[ handler:MoveAction, start:(.opacity2= vis?0:1), value:(vis?1:0), time:fadeTime ] ],
+										  vis ? function { if (isvalid this) { visible = true;  opacity2 = 1; } } incontextof lay
+											  : function { if (isvalid this) { visible = false; opacity2 = 1; } } incontextof lay, true);
+				}
+			}
+			doShow = void;
+		}
+	}
+	function onSync() {
+		var isSkip, isBack = (typeof global.world_object == "Object" && world_object.env.transMode);
+		with (kag)  isSkip = (.skipMode != SKIP_FORCE) && (.skipMode || (.noeffect && .noeffectEnabled));
+		update(isBack, isSkip);
+	}
+
+	function getFore() { return kag.fore.base === fore.owner.parent ? fore : back; }
+	function getBack() { return kag.back.base === back.owner.parent ? back : fore; }
+
+	function stopAction() {
+		kag.stopAction(fore);
+		kag.stopAction(back);
+	}
+	function beginAction() {
+		kag.beginAction(...);
+	}
+
+	function command(elm) {
+		var keys = [];
+		var show = void;
+		keys.assign(elm);
+		for (var i = 0; i < keys.count; i += 2) {
+			switch (keys[i]) {
+			case "show":    show = true;  break;
+			case "hide":    show = false; break;
+			case "visible": show = !!keys[i+1]; break;
+			case "clear":   doClear = true; doLoad = date = void; break;
+			case "backoff": /** obsolete */ break;
+			case "taglist": /** ignore   */ break;
+			case "tagname": /** ignore   */ break;
+			default:
+				doLoad  = date = keys[i];
+				doClear = void;
+				show = true if (show === void);
+				break;
+			}
+		}
+		if (show !== void && (!show != !nowShow)) {
+			nowShow = show;
+			doShow = true;
+		}
+		onSync() if (!kag.skipNoDisp);
+	}
+}
+
+var ShowDatePlugin = ShowDatePluginBase;
+
+addAfterInitCallback(function() {
+	if (SystemConfig.useShowDate != "") {
+		// SystemConfigに日付表示を使用するフラグが立っていた場合
+		// プラグインオブジェクトを作成し、登録する
+		kag.addPlugin(global.ShowDate = new ShowDatePlugin(kag, SystemConfig.useShowDate));
+	}
+} incontextof global);

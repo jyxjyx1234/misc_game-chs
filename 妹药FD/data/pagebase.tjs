@@ -1,0 +1,360 @@
+// ----------------------------------------------------------------------------
+
+// ページ切り替え式アイテムセレクタヘルパクラス
+// 数値は 0 からカウントするものとする
+class PageBase
+{
+	var _per = 0, _page = 0, _max = 0, _ring = false;
+	var _itemList = [];
+
+	function finalize()   {}
+	function PageBase() {}
+
+	function select(n) { return onSelect(offset + (int)n); }
+
+	function getItemPosition(num) {
+		var ret = num - offset;
+		return (ret >= 0 && ret < _per) ? ret : -1;
+	}
+
+	property ring   { getter() { return _ring; } setter(ring) { _ring = ring; }  } 	// ページ番号がリング状に周回するか (falseなら最大or最小で打ち止め）
+	property items  { getter() { return _itemList;       } }
+	property count  { getter() { return _itemList.count; } }
+	property offset { getter() { return _per*_page;      } }
+	property divcnt { getter() { return _per;            }
+		setter(per) {
+			_per  = (per > 0) ? per : 1;				// ページ内個数
+			_max  = (int)Math.ceil(count / _per);		// 全ページ枚数
+			_page = (_page >= _max) ? (_max-1) : (_page < 0) ? 0 : _page;
+		}
+	}
+	property page {
+		getter()  { return _page; }
+		setter(v) {
+			if (     v <     0) v = _ring ? _max-1 : 0;
+			else if (v >= _max) v = _ring ?      0 : _max-1;
+			if (_page !== v) {
+				onPageChange(_page, v);
+				_page <-> v;
+				onPageChanged(v, _page);
+			}
+		}
+	}
+
+	// virtual functions
+//	function update() {}						// 表示更新
+	function onPageChange( now,  next) {}		// ページ変更前に呼ばれる
+	function onPageChanged(prev, now)  {}		// ページ変更後に呼ばれる
+	function onSelect(item) {}					// 選択された
+}
+
+// ----------------------------------------------------------------------------
+// レイヤ名を決めうちしたページ表示
+/*
+ ページ番号表示用レイヤ名 : page
+ ページ直移動ボタンレイヤ : pageN (N=0-...)
+ ページ移動レイヤ名       : prev,next
+ アイテム表示用レイヤ名   : itemN (N=0-...)
+ */
+
+class PageSheet extends PageBase
+{
+	function PageSheet() {
+		super.PageBase();
+		// キーフックを登録
+		kag.keyDownHook.add(onKeyDown);
+	}
+	function finalize()  {
+		// キーフックを解除
+		kag.keyDownHook.remove(onKeyDown, true);
+		super.finalize(...);
+	}
+
+	function _selPageBtn(btn, add) {
+		if (btn !== void) return btn;
+		var n = (_page + add);
+		if (     n <     0) n = _ring ? _max-1 : 0;
+		else if (n >= _max) n = _ring ?      0 : _max-1;
+		return kag.current.names["page" + n];
+	}
+	// キーが押された(PAGE UP/DOWN でページめくり，数値でダイレクトページ移動に対応)
+	function onKeyDown(key, shift) {
+		var exec = void, rep = ssRepeat, chgpage = void;
+		var names = kag.current.names;
+		if ((shift & ssShiftCtrlAlt) == 0) with (names) switch (key) {
+		case VK_PRIOR: exec = _selPageBtn(.prev, -1); rep = 0; break;
+		case VK_NEXT:  exec = _selPageBtn(.next,  1); rep = 0; break;
+			// 0 = 10ページ目
+		case VK_0: case VK_NUMPAD0: chgpage = 9; break;
+			// それ以外は額面どおりのページ
+		case VK_1: case VK_2: case VK_3: case VK_4:
+		case VK_5: case VK_6: case VK_7: case VK_8: case VK_9:
+			chgpage = key - VK_1;
+			break;
+		case VK_NUMPAD1: case VK_NUMPAD2: case VK_NUMPAD3:
+		case VK_NUMPAD4: case VK_NUMPAD5: case VK_NUMPAD6:
+		case VK_NUMPAD7: case VK_NUMPAD8: case VK_NUMPAD9:
+			chgpage = key - VK_NUMPAD1;
+			break;
+		}
+		if (chgpage !== void && _page != chgpage && global.PageSheet.enableDirectShortcutKey) {
+			exec = names["page" + chgpage];
+		}
+		if (exec !== void && (shift & rep) == 0) {
+			execButton(exec, shift);
+			return true;
+		}
+		return false;
+	}
+	function execButton(exec, shift) {
+		with (kag) if (!.inStable || .currentDialog || .panelShowing) return;
+		if (exec !== void && exec.enabled && exec.visible) with (exec)
+			.onExecute(.left + .width\2, .top + .height\2, mbLeft, shift);
+	}
+
+	function updatePageView() {
+		var names = kag.current.names;
+		with (names) {
+			// 最大ページが１枚ならページ移動はなし
+			.next.visible = (_max > 1) if (.next !== void);
+			.prev.visible = (_max > 1) if (.prev !== void);
+			drawPageView(.page)        if (.page !== void);
+			// 非リング状であればページ番号により移動ボタンを抑制
+			if (!_ring &&    _max > 1) updatePageMoveEnabled();
+		}
+		var scut = names["page" + this.page];
+		updatePageShortcut(scut)  if (scut !== void);
+	}
+	function updatePageMoveEnabled(now = _page) {
+		with (kag.current.names) {
+			.prev.enabled = (now > 0)      if (.prev !== void);
+			.next.enabled = (now < _max-1) if (.next !== void);
+		}
+	}
+
+	function updateItemProperty(target, result) {
+		with (target) {
+			switch (result) {
+			case true:  .visible = true;  .enabled = true;  break;
+			case false: .visible = true;  .enabled = false; break;
+			default:    .visible = false; .enabled = false; break;
+			}
+		}
+	}
+
+	function getItemButton(num) { return kag.current.names["item" + num]; }
+	function updateItemView(n, redraw) {
+		var pos = offset + n;
+		var target = getItemButton(n);
+		if (target === void) return;
+		updateItemProperty(target, drawItemView(target, pos,, redraw));
+	}
+
+	function getItemTarget(num, isCurrentPageNum = false) {
+		var pos = isCurrentPageNum ? num : getItemPosition(num);
+		return (pos >= 0) ? getItemButton(pos) : void;
+	}
+
+	var _lastItem = void;
+	function select(num) {
+		_lastItem = "item" +  num;
+		super.select(num);
+	}
+	function nextPage() {
+		page++;
+		_lastItem = "next";
+	}
+	function prevPage() {
+		page--;
+		_lastItem = "prev";
+	}
+	// ページを切り替えたら _lastItem は無効
+	function onPageChange() {
+		_lastItem = void;
+		super.onPageChange(...);
+	}
+	// 最後に選択したボタンをフォーカス
+	function focusLastItem(force = false) {
+		if (_lastItem === void || !global.PageSheet.enableFocusLastItem) return;
+		var target = kag.current.names[_lastItem];
+		if (target !== void) {
+			var num = target.linkNum;
+			num = kag.current.checkFocus(num, 1) if (!force);
+			kag.current.setFocusToLink(num, true);
+		}
+	}
+	property lastItem {
+		getter()  { return _lastItem; }
+		setter(v) { _lastItem = v if (typeof v === "String"); }
+	}
+
+	function update(redraw) {
+		updatePageView();
+		for (var i = divcnt-1; i >= 0; i--) updateItemView(i, redraw);
+	}
+
+	// virtual functions
+	function drawPageView(target)      {}
+	function drawItemView(target, pos) {}
+	function updatePageShortcut(scut)  {}
+}
+// ダイレクトショートカットキーの有効・無効フラグ
+PageSheet.enableDirectShortcutKey = true;
+// focusLastItemを無効
+PageSheet.enableFocusLastItem = false;
+
+
+// ----------------------------------------------------------------------------
+// UIロードベースのページ表示
+
+class UiBasedPageSheet extends PageSheet
+{
+	var _view, _cvflag;
+	var _pagename, _pageui;
+	var _itemname, _itemui;
+	var _format, _rowcol;
+
+	function UiBasedPageSheet(view, elm) {
+		super.PageSheet();
+		if (elm === void) throw new Exception("UiBasedPageSheet: 引数がありません");
+		var name = (elm.name !== void) ? elm.name : "unknown";
+
+		_itemname = (elm.itemname !== void) ? elm.itemname : "item";
+		_pagename = (elm.pagename !== void) ? elm.pagename : "page";
+		_format =  (elm.format !== void) ? elm.format : "%d";
+
+		_cvflag = view instanceof "Class";
+		_view = _cvflag ? new view(this, elm) : view;
+
+		this.ring   = (elm.ringpage !== void) ? +elm.ringpage : false;
+		var rows    = (elm.rows     !== void) ? +elm.rows     : 1;
+		var columns = (elm.columns  !== void) ? +elm.columns  : 1;
+		_rowcol = rows * columns;
+	}
+	function finalize() {
+		invalidate _view if (_cvflag && isvalid _view);
+		super.finalize(...);
+	}
+
+	function onUiload(elm) {}
+	function onUiloaded(elm, ui) {
+		_pageui = ui[_pagename] if (_pagename != "");
+		if (_itemname != "") {
+			_itemui = ui[_itemname];
+			_view.setItemUi(_itemui, _itemname);
+		}
+	}
+
+	function init(pagenum = void) {
+		_page = pagenum if (pagenum !== void);
+		divcnt = _rowcol;
+	}
+
+	function drawItemView(target, pos, view = _view, redraw) {
+		var r = void, en = isEnabled(pos);
+		switch (en) {
+			case true:  r = view.drawNormalItem(  target, pos, redraw); break;
+			case false: r = view.drawDisabledItem(target, pos, redraw); break;
+			default:
+		}
+		return (r === void) ? en : r;
+	}
+
+	// ページ番号を表示
+	function drawPageView(target)      {
+		if (_pageui === void || _pageui.uistates === void) return;
+		_pageui.uistates.normal = _pageui.uistates[_format.sprintf(page + 1)];
+		target.loadUIInfo(_pageui);
+	}
+
+	// ページショートカット
+	function updatePageShortcut(target) {
+		target.toggle = true;
+	}
+
+	function readCsvDoLine(columns) {
+		if (columns              === void ||
+			columns.count        === 0    ||
+			columns[0].charAt(0) === '#') return;
+		this.doLine(...);
+	}
+	function readCsv() {
+		var csv = new CSVParser();
+		csv.doLine = this.readCsvDoLine;
+		csv.parseStorage(...);
+		invalidate csv;
+	}
+}
+
+
+// ----------------------------------------------------------------------------
+// ボタンデコレーションベース
+
+class DecorationButton {
+	var _owner;
+	var _mask = void;
+	var _mx, _my, _mw, _mh;
+	var _uiNormal = void, _uiDisable = void;
+	var _stateMask, _stateDisable;
+
+	function DecorationButton(owner, elm) {
+		_owner = (owner !== void) ? owner : this;
+		with (elm) {
+			_stateMask    = (.mask     != "") ? .mask     : "mask";
+			_stateDisable = (.disabled != "") ? .disabled : "disable";
+		}
+	}
+	function finalize() {
+		invalidate _mask if (_mask !== void);
+	}
+
+	function setMaskUi(ui, ms) {
+		_mask = new global.Layer(kag, kag.primaryLayer);
+		if (ms !== void) {
+			_mask.maskStorage = ms.storage;
+			_mask.loadMask = function() {
+				loadImages(maskStorage);
+				holdAlpha = true;
+				face = dfOpaque;
+			} incontextof _mask;
+
+			_mask.loadMask();
+			_mx = ms.ox;
+			_my = ms.oy;
+			_mw = _mask.imageWidth;  //ms.w
+			_mh = _mask.imageHeight; //ms.h
+		} else {
+			_mask.loadMask = function() {
+				holdAlpha = false;
+			} incontextof _mask;
+			_mx = _my = 0;
+			_mw = _uiNormal.width;
+			_mh = _uiNormal.height;
+			_mask.setImageSize(_mw, _mh);
+		}
+	}
+	function setDisabledUi(ui, ds) {
+		_uiDisable = %["class"=>ui.class, x:ui.x, y:ui.y, width:ui.width, height:ui.height, uistates:%[] ];
+		_uiDisable.uistates.normal = (ds !== void) ? ds : ui.uistates.normal;
+	}
+	function setItemUi(ui, name) {
+		if (ui === void || ui.uistates === void) throw new Exception("ui定義されていません: " + name);
+		_uiNormal = ui;
+		setDisabledUi(ui, ui.uistates[_stateDisable]);
+		setMaskUi(    ui, ui.uistates[_stateMask]);
+	}
+
+	// 通常ボタンクリア
+	function clearNormalItem(target, num) {
+		target.loadUIInfo(_uiNormal) if (target !== void && _uiNormal !== void);
+	}
+
+	// 無効ボタン表示
+	function drawDisabledItem(target, num) {
+		target.loadUIInfo(_uiDisable) if (target !== void && _uiDisable !== void);
+	}
+
+	// 通常ボタン表示
+	function drawNormalItem(target, num, redraw = false) {}
+
+}

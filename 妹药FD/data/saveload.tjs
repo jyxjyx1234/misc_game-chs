@@ -1,0 +1,225 @@
+// ----------------------------------------------------------------------------
+// セーブロード画面用クラス
+
+// システムメニューとして登録
+setSystemMenuStorage("save.ks");
+setSystemMenuStorage("load.ks");
+
+class SaveLoadBase extends UiBasedPageSheet
+{
+	var _count;
+	var _issave, _action, _ask, _message;
+	var _fromTitle, _lastSelect;
+	function SaveLoadBase(view, elm) {
+		super.UiBasedPageSheet(view, elm);
+		_issave = (elm.save !== void) ? +elm.save : (elm.load !== void) ? !+elm.load : false;
+		_fromTitle = (elm.fromtitle !== void) ? +elm.fromtitle : false;
+
+		var askOverwrite = (elm.askoverwrite !== void) ? +elm.askoverwrite : sf.saveOverwrite;
+		var askLoad      = (elm.askload      !== void) ? +elm.askload      : false;
+		_ask     = _issave ? askOverwrite : askLoad;
+		_message = _issave ? "上書きしてよろしいですか？" : "ロードしてよろしいですか？";
+		_action  = _issave ? onSave : onLoad;
+
+		_count   = this._rowcol * +elm.pagecount;
+
+		var page = (elm.page !== void) ? +elm.page : +sf.loadpage;
+		init(page);
+	}
+	function finalize() {
+		super.finalize(...);
+	}
+
+	function onPageChanged(old, now) {
+		super.onPageChanged(...);
+		sf.loadpage = now;
+	}
+
+	// override
+	property count  { getter() { return _count; } }
+
+	// タイトルから飛んできた判定用
+	property fromTitle { getter() { return _fromTitle; } }
+
+	// アイテム番号から実セーブデータ番号への変換
+	function getDataNumber(num) { return +num; }
+
+	// セーブファイルの情報を得る
+	function getItemInfo(num) {
+		if (!isExistData(num)) return void;
+
+		var datanum = getDataNumber(num);
+
+		checkReloadBookMarkInfo(num, datanum);
+
+		var time = kag.getBookMarkPlayTime(datanum);
+		var h = ((+time \ 1000) \ 60 ) \ 60;
+		var m = ((+time \ 1000) \ 60 ) % 60;
+
+		var info = kag.getBookMarkInfo(datanum);
+
+		var ret = %[]; // BookMarkInfoをretへコピー
+		(.Dictionary.assign incontextof ret)(info, true) if (info !== void);
+
+		ret.thumbnail = kag.getBookMarkFileNameAtNum(datanum);
+		ret.title     = kag.getBookMarkPageName(datanum);
+		ret.realdate  = kag.getBookMarkDate(datanum);
+		ret.playtime  = "%.2d時間%.2d分".sprintf(h, m);
+		ret.playtime_hour = h;
+		ret.playtime_min  = m;
+		ret.lastsaved = (sf.lastsaved === (int)datanum);
+
+		return ret;
+	}
+	function checkReloadBookMarkInfo(num, datanum) {
+		if (kag.isExistentBookMark(datanum)) return;
+		// セーブの情報がない場合は読み直し
+		kag.updateBookMarkInfo(datanum);
+		return true;
+	}
+
+
+	// セーブを実行
+	function onSave(num) {
+		if (!save(num) && onSaveFailed(num)) return;
+
+		sf.lastsaved = (int)getDataNumber(num);
+		forceRedrawItem(num);
+		return true;
+	}
+	function onDelete(num) {
+		var datanum = getDataNumber(num);
+		if (sf.lastsaved === (int)datanum) sf.lastsaved = void;
+		kag.eraseBookMark(datanum);
+		var fn = kag.getBookMarkFileNameAtNum(datanum);
+		if (fn != "") {
+			writeDummySaveData(fn);
+			Plugins.link("fstat.dll") if (typeof Storages.deleteFile != "Object");
+			Storages.deleteFile(fn);
+			clearFilePlaceCache();
+		}
+		forceRedrawItem(num);
+	}
+	function clearFilePlaceCache() {
+		try { [].save(kag.saveDataLocation + "/savecheck"); } catch {}
+	}
+	function writeDummySaveData(file) {
+		try {
+			var temp = kag.temporaryLayer;
+			temp.setImageSize(1,1);
+			temp.saveLayerImage(file, "bmp");
+		} catch {}
+	}
+
+	function forceRedrawItem(num) {
+		var target = getItemTarget(num);
+		if (target === void) return;
+		updateItemView(getItemPosition(num), true);
+	}
+	// セーブ失敗：trueを返すとボタンの更新をしない
+	function onSaveFailed(num) {}
+
+	// ロードを実行
+	function onLoad(num) {
+		_loadNumber = num;
+		disableClickable();
+		kag.process(,"*load"); 
+	}
+	var _loadNumber;
+	function invokeLoad() { load(_loadNumber); }
+
+	function load(num) { return (num !== void) ? global.loadFunction(getDataNumber(num)) : false; }
+	function save(num) { return (num !== void) ? global.saveFunction(getDataNumber(num)) : false; }
+
+	// セーブデータが存在するかどうか
+	function isExistData(num) {
+		return Storages.isExistentStorage(kag.getBookMarkFileNameAtNum(getDataNumber(num)));
+	}
+
+	// ボタンが有効か
+	function isEnabled(num) {
+		// if (pos < 0 && pos >= count) return null; // 範囲外は発生しない
+		return _issave || isExistData(num); // セーブなら常に有効，ロードならデータのある所のみ
+	}
+
+	// 選択された
+	function onSelect(num) {
+		_lastSelect = num;
+		if (_ask && isExistData(num)) askYesNo(_message, "確認", _action, void, num);
+		else _action(num);
+	}
+	function disableClickable() { SystemHook.disableClickable(); }
+
+	// stub
+	function setItemUi(ui, name) {}
+	function drawItem(target, info) {}
+}
+
+// ----------------------------------------------------------------------------
+// セーブデータボタン描画クラス
+class SaveDataButton extends DecorationButton
+{
+	var _thumbOperate, _thumbWidth, _thumbHeight;
+
+	function SaveDataButton(owner, elm) {
+		super.DecorationButton(...);
+		with (elm) {
+			_thumbWidth   = (.thumbwidth  !== void) ? +.thumbwidth  : void;
+			_thumbHeight  = (.thumbheight !== void) ? +.thumbheight : void;
+			thumbOpacs.assign(.thumbopac) if (.thumbopac !== void);
+		}
+		// サムネイルコピー・縮小メソッドを選択
+		_thumbOperate = (_thumbWidth !== void && _thumbHeight !== void) ? thumbStretch : thumbCopy;
+	}
+	function finalize() {
+		super.finalize(...);
+	}
+
+	// サムネイルコピー
+	function thumbCopy(   layer, w, h) { _mask.copyRect(   0, 0,                            layer, 0, 0, w, h); }
+	function thumbStretch(layer, w, h) { _mask.stretchCopy(0, 0, _thumbWidth, _thumbHeight, layer, 0, 0, w, h, stFastLinear); }
+
+	var thumbOpacs = [];
+	function thumbMerge(target) {
+		with (target) {
+			var tw = .width, th = .height;
+			.operateRect(0    +_mx,_my,_mask,0,0,_mw,_mh,omAlpha, thumbOpacs[0]); // normal
+			.operateRect(tw   +_mx,_my,_mask,0,0,_mw,_mh,omAlpha, thumbOpacs[1]); // on
+			.operateRect(tw+tw+_mx,_my,_mask,0,0,_mw,_mh,omAlpha, thumbOpacs[2]); // over
+			if (.toggleButton) { // トグル用（特殊系）
+				var n = .Butt_showFocusImage ? 4 : 3;
+				.operateRect(tw*(n+0)+_mx,_my,_mask,0,0,_mw,_mh,omAlpha, thumbOpacs[3]); // normal
+				.operateRect(tw*(n+1)+_mx,_my,_mask,0,0,_mw,_mh,omAlpha, thumbOpacs[4]); // on
+				.operateRect(tw*(n+2)+_mx,_my,_mask,0,0,_mw,_mh,omAlpha, thumbOpacs[5]); // over
+			}
+		}
+	}
+
+	// 通常ボタン表示
+	function drawNormalItem(target, num, redraw = false) {
+		clearNormalItem(target, num) if (redraw && _uiNormal !== void);
+
+		var info = _owner.getItemInfo(num);
+
+		var loaded = false;
+		if (info !== void) {
+			// サムネイル読み込み
+			var layer = kag.temporaryLayer;
+			try {
+				layer.loadImages(info.thumbnail);
+				with (layer) _thumbOperate(layer, .imageWidth, .imageHeight);
+				loaded = true;
+			} catch() {}
+			_mask.loadMask() if (!loaded);
+
+			thumbMerge(target);
+		}
+		return _owner.drawItem(target, info, this, num);
+	}
+
+	// owner先のmethod
+	function getItemInfo(num) {}
+	function drawItem(target, info, btn) {}
+}
+
+

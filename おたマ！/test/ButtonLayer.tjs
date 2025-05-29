@@ -1,0 +1,583 @@
+// ButtonLayer.tjs - ボタンレイヤ
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+/*
+ボタンとして動作するレイヤです。
+押し込まれた時の画像、マウスカーソルがレイヤ内にあるときの画像、通常の画像
+をそれぞれ変えることができます。
+
+書式  new ButtonLayer(<window>, <parent>)
+
+<window> : このレイヤを作成するウィンドウ
+<parent> : 親レイヤ
+
+*/
+
+
+class ButtonLayer extends AnimKAGLayer
+{
+	var toggleButton; // トグルボタンとして初期化されてる
+	var _toggle;      // トグル状態
+
+	var groupName;    // ラジオボタンの場合のグループ指定
+	var halftone;     // disable 時に半透明にする
+
+	property toggle {
+		getter() { return _toggle; }
+		setter(v) {
+			_toggle = v;
+			update();
+		}
+	}
+
+    var Butt_imageLoaded = false; // 画像が読み込まれたか
+	var Butt_mouseOn = false; // レイヤ内にマウスがあるか
+	var Butt_mouseDown = false; // マウスボタンが押されているか
+	var Butt_color = clNone;
+    var Butt_oncolor = clNone;
+	var Butt_caption = ''; // ボタンのキャプション
+	var Butt_captionColor = 0x000000; // キャプションの色
+	var Butt_keyPressed = false;
+	var Butt_showFocusImage = false;
+
+	function ButtonLayer(win, par, toggle=false)
+	{
+		super.AnimKAGLayer(win, par);
+
+		if(typeof win.cursorPointed !== "undefined")
+			cursor = win.cursorPointed;
+
+		hitType = htMask;
+		hitThreshold = 0;
+		focusable = true; // フォーカスを得られる
+		toggleButton = toggle; // トグルボタンかどうか
+	}
+
+	function finalize()
+	{
+		super.finalize(...);
+	}
+
+	function assign(src)
+	{
+		// src の情報をこのボタンレイヤにコピー
+		assignImages(src, true);
+		Butt_imageLoaded = src.Butt_imageLoaded;
+		Butt_color = src.Butt_color;
+		Butt_oncolor = src.Butt_oncolor;
+		Butt_caption = src.Butt_caption;
+		Butt_captionColor = src.Butt_captionColor;
+		hitThreshold = src.hitThreshold;
+		toggleButton = src.toggleButton;
+		toggle = src.toggle;
+		groupName = src.groupName;
+		halftone = src.halftone;
+		update();
+	}
+
+	function drawState(s)
+	{
+		// 状態 s に対応する画像を描画
+		// s :  0 : 普通の状態
+		//      1 : ボタンが押された状態
+		//      2 : ボタンの上にマウスカーソルがある状態
+		//     (3): フォーカスがある場合
+		if(!enabled)
+		{
+			s = 0; // 無効状態
+		}
+
+		if(Butt_imageLoaded)
+		{
+			if (halftone) {
+				opacity = enabled ? 255 : 128;
+			}
+			// ボタンイメージが読み込まれている
+			// TODO: keyboard focus
+			try { imageLeft = -s * width - (toggle ? imageWidth / 2: 0); }
+			catch (e) { throw new Exception(@"ボタン名'${name}'で${e.message}"); }
+		}
+		else
+		{
+			// 枠とキャプションを描画
+			// クリア
+			face = dfAlpha;
+			colorRect(0, 0, width, height, 0, -255);
+
+			// 下地を塗る
+			if (toggle) {
+				if(Butt_oncolor != clNone)
+					colorRect(0, 0, width, height, Butt_oncolor, 128);
+				else
+					colorRect(0, 0, width, height, 0xff0000, 128);
+			} else {
+				if(Butt_color != clNone)
+					colorRect(0, 0, width, height, Butt_color, 128);
+			}
+
+			// 文字のサイズを得る
+			var tw, th;
+			tw = font.getTextWidth(Butt_caption);
+			th = font.getTextHeight(Butt_caption);
+			if(s == 0 || s == 2)
+			{
+				// 通常あるいはマウスが上にある
+				colorRect(0, 0, width, 1, 0xffffff, 128);
+				colorRect(0, 1, 1, height-2, 0xffffff, 128);
+				colorRect(width-1, 1, 1, height-1, 0x000000, 128);
+				colorRect(1, height-1, width-2, 1, 0x000000, 128);
+				drawText((width-tw)>>1, (height-th)>>1, 
+					Butt_caption, Butt_captionColor, nodeEnabled?255:128);
+			}
+			else
+			{
+				// 押されている
+				colorRect(0, 0, width, 1, 0x000000, 128);
+				colorRect(0, 1, 1, height-2, 0x000000, 128);
+				colorRect(width-1, 1, 1, height-1, 0xffffff, 128);
+				colorRect(1, height-1, width-2, 1, 0xffffff, 128);
+				drawText(((width-tw)>>1) +1, ((height-th)>>1) +1, 
+					Butt_caption, Butt_captionColor, nodeEnabled?255:128);
+			}
+
+			if(s != 0)
+				colorRect(2, 2, width-4, height-4, clHighlight, 64); // ハイライトする
+
+			if(focused)
+			{
+				// フォーカスがあるのでハイライトする
+				colorRect(2, 2, width-4, 1, clHighlight, 128);
+				colorRect(2, 3, 1, height-5, clHighlight, 128);
+				colorRect(3, height-3, width-5, 1, clHighlight, 128);
+				colorRect(width-3, 3, 1, height-6, clHighlight, 128);
+			}
+		}
+	}
+
+    function getTemporary() {
+        if (typeof window.temporaryLayer == "undefined") {
+            window.temporaryLayer = new global.KAGLayer(window, window.primaryLayer);
+            window.add(window.temporaryLayer);
+        }
+        return window.temporaryLayer;
+    }
+    
+    function loadImages(storage, key, count, time, toggle=false)
+	{
+        if (toggle) {
+            toggleButton = true;
+            var temp = getTemporary();
+            temp.loadImages(storage, key);
+            var w = temp.imageWidth;
+            super.width  = w \ (Butt_showFocusImage ? 4 : 3);
+            imageWidth   = w * 2;
+            copyRect(w, 0, temp, 0, 0, temp.imageWidth, temp.imageHeight);
+        } else {
+            super.loadImages(storage, key);
+            super.width = imageWidth \ (Butt_showFocusImage ? 4 : 3);
+        }
+        callOnPaint = true;
+        Butt_imageLoaded = true;
+        if (time > 0) {
+            animStart(count, time);
+        }
+    }
+	function makeToggle() {
+		var w = width, h = imageHeight;
+		var base = w * (Butt_showFocusImage ? 4 : 3);
+		imageWidth *= 2;
+		copyRect(base + 0,   0, this, w,   0, w, h);
+		copyRect(base + w,   0, this, 0,   0, w, h);
+		copyRect(base + w+w, 0, this, w+w, 0, w, h);
+		copyRect(base + w*3, 0, this, w*3, 0, w, h) if Butt_showFocusImage;
+		toggleButton = true;
+	}
+
+	// offsを考慮してボタンをコピーする
+	function _copyButton(w, h, num, temp, info) {
+		var ox = 0, oy = 0, cw = temp.imageWidth, ch = temp.imageHeight;
+		// oFFs チャンクがあればずらす
+		if (sf && sf.offsetimage && info) {
+			if (info.offs_x !== void) ox = (int)info.offs_x;
+			if (info.offs_y !== void) oy = (int)info.offs_y;
+		}
+		// 隣にハミ出さないように調整
+		if (ox + cw > w) cw = w - ox;
+		if (oy + ch > h) ch = h - oy;
+		// コピーする
+		copyRect(w*num + ox, oy, temp, 0, 0, cw, ch);
+	}
+
+    /**
+     * 分離ボタン画像の読み込み
+     */
+	function loadButtons(normal, over, on, focus, count, time, toggle=false) {
+		
+		var temp = getTemporary();
+		
+		if (toggle) {
+			toggleButton = true;
+		}
+		
+		showFocusImage = (focus !== void);
+
+		var info = temp.loadImages(normal);
+		var w = temp.imageWidth;
+		var h = temp.imageHeight;
+		// vpAg チャンクがあればそちらが真のサイズ
+		if (sf && sf.offsetimage && info) {
+			if (info.vpag_w !== void) w = (int)info.vpag_w;
+			if (info.vpag_h !== void) h = (int)info.vpag_h;
+		}
+		super.width  = w;
+		super.height = h;
+		imageWidth  = w * (Butt_showFocusImage ? 4 : 3) * (toggleButton ? 2:1);
+		imageHeight = h;
+		callOnPaint = true;
+		Butt_imageLoaded = true;
+		var base = toggleButton ? (Butt_showFocusImage ? 4 : 3) : 0;
+
+		fillRect(0, 0, imageWidth, imageHeight, 0);
+		_copyButton(w, h, base + 0, temp, info);
+		
+		info = temp.loadImages(over) if (over !== void);
+		_copyButton(w, h, base + 2, temp, info);
+
+		info = temp.loadImages(on) if (on !== void);
+		_copyButton(w, h, base + 1, temp, info);
+
+		if (Butt_showFocusImage) {
+			info = temp.loadImages(focus);
+			_copyButton(w, h, base + 3, temp, info);
+		}
+		if (time > 0) {
+			animStart(count, time);
+		}
+	}
+
+	// offsを考慮してボタンをコピーする
+	function _copyButton2(w, h, num, temp, ox, oy, cx = 0, cy = 0, cw, ch) {
+		cw = temp.imageWidth  if (cw === void);
+		ch = temp.imageHeight if (ch === void);
+		// 隣にハミ出さないように調整
+		if (ox + cw > w) cw = w - ox;
+		if (oy + ch > h) ch = h - oy;
+		// コピーする
+		operateRect(w*num + ox, oy, temp, cx, cy, cw, ch);
+	}
+
+	// uistatesを取得しつつボタンコピーをする
+	function _copyButtonUIStates(num, uiinfo, nomatch, list*) {
+		var match = nomatch;
+		with (uiinfo) {
+			// マッチする state を取得
+			for (var s, i = 0; i < list.count; i++)
+				if ((s = .uistates[list[i]]) !== void) { match = s; break; }
+
+			// ボタン画像があればコピーする
+			if (match !== void && match.storage != "") {
+				var temp = window.temporaryLayer;
+				temp.loadImages(match.storage);
+				_copyButton2(.width, .height, num, temp, match.ox, match.oy,
+							 match.cx, match.cy, match.cw, match.ch);
+			}
+		}
+		return match;
+	}
+
+	/**
+	 * ボタン画像UI情報の読み込み
+	 */
+	function loadUIInfo(uiinfo, noclear = false) {
+		var states = uiinfo.uistates;
+		
+		if (states === void) {
+			throw new Exception("画像情報が不正です:" + uiinfo.name);
+		}
+		
+		// トグルボタン用
+		if (uiinfo.class == "toggle" || uiinfo.groupName != "") {
+            toggleButton = true;
+		}
+		
+		// ラジオボタン用
+		groupName = uiinfo.groupName;
+		
+		showFocusImage = (states.focus !== void);
+
+
+		var w = uiinfo.width;
+		var h = uiinfo.height;
+		super.width  = w;
+		super.height = h;
+		imageWidth  = w * (Butt_showFocusImage ? 4 : 3) *( toggleButton ? 2: 1);
+		imageHeight = h;
+		callOnPaint = true;
+		Butt_imageLoaded = true;
+		fillRect(0, 0, imageWidth, imageHeight, 0) if (!noclear);
+
+		// ボタン画像をコピーする
+		var normal, over;
+		normal = _copyButtonUIStates(0, uiinfo, void, "off", "normal_off", "normal");
+		over   = _copyButtonUIStates(2, uiinfo, normal,        "over_off", "over");
+		/*     */_copyButtonUIStates(1, uiinfo, over,            "on_off", "on");
+		if (Butt_showFocusImage)
+			/* */_copyButtonUIStates(3, uiinfo, over,         "focus_off", "focus");
+
+		// トグルボタン用
+		if (toggleButton) {
+			var base = Butt_showFocusImage ? 4 : 3;
+			normal = _copyButtonUIStates(base+0, uiinfo, void, "normal_on", "on", "over", "normal");
+			over   = _copyButtonUIStates(base+2, uiinfo, normal, "over_on", "over");
+			/*     */_copyButtonUIStates(base+1, uiinfo, over,     "on_on", "on");
+			if (Butt_showFocusImage)
+				/* */_copyButtonUIStates(base+3, uiinfo, over,  "focus_on", "focus");
+		}
+
+		if (uiinfo.time > 0) {
+			animStart(uiinfo.count, uiinfo.time);
+		}
+	}
+
+	function discardImage()
+	{
+		// 画像を破棄し、文字ボタンレイヤとして動作するようにする
+		Butt_imageLoaded = false;
+		imageLeft = imageTop = 0;
+		animStop();
+		update();
+	}
+
+	function onExecute(x, y, button, shift)
+	{
+		// マウスボタンが押されて、放されたときに呼ばれる
+		// 何かこのボタンが押されたことによりコマンドなどを実装したい場合は
+		// onMouseUp や onClick をオーバーライドするよりも
+		// このメソッドをオーバーライドすることを推奨する
+	}
+    
+	function onMouseDown(x, y, button)
+	{
+		// onMouseDown イベントハンドラ
+		if (button == mbLeft) {
+			Butt_mouseDown = true;
+			focus();
+			update();
+		}
+		super.onMouseDown(...);
+	}
+
+	function onMouseUp()
+	{
+		// onMouseUp イベントハンドラ
+		if ( isvalid this && Butt_mouseDown) onExecute(...);
+		if (!isvalid this) return;
+		Butt_mouseDown = false;
+		update();
+		super.onMouseUp(...);
+	}
+
+	function onClick()
+	{
+		// onClick イベントハンドラ
+		super.onClick(...);
+	}
+
+	function draw()
+	{
+		// 現在の状態にあわせて描画を行う
+		if(Butt_mouseDown || Butt_keyPressed) drawState(1);
+		else if(Butt_mouseOn) drawState(2);
+		else if(Butt_showFocusImage && focused) drawState(3);
+		else drawState(0);
+	}
+
+	function onPaint()
+	{
+		// 描画の直前に呼ばれる
+		super.onPaint(...);
+		draw();
+	}
+
+	function onMouseEnter()
+	{
+		// マウスがレイヤ領域内に入った
+		update();
+		Butt_mouseOn = true;
+		super.onMouseEnter(...);
+	}
+
+	function onMouseLeave()
+	{
+		// マウスがレイヤ領域から出ていった
+		update();
+		Butt_mouseOn = false;
+		Butt_mouseDown = false;
+		super.onMouseLeave(...);
+	}
+
+	function onNodeDisabled()
+	{
+		// レイヤのノードが不可になった
+		super.onNodeDisabled(...);
+		Butt_mouseDown = false;
+		update();
+	}
+
+	function onNodeEnabled()
+	{
+		// レイヤのノードが有効になった
+		super.onNodeEnabled(...);
+		update();
+	}
+
+	function onFocus()
+	{
+		// フォーカスを得た
+		super.onFocus(...);
+		update();
+	}
+
+	function onBlur()
+	{
+		// フォーカスを失った
+		super.onBlur(...);
+		Butt_mouseDown = false;
+		update();
+	}
+
+	function onKeyDown(key, shift, process)
+	{
+		// キーが押された
+		if(process && (key == VK_RETURN || key == VK_SPACE))
+		{
+			// スペースキーまたはエンターキーで他で処理されてない(process!=false)場合
+			Butt_keyPressed = true;
+			update();
+			super.onKeyDown(key, shift, false); // 処理をしたのでprocessにfalseを渡す
+		}
+		else
+		{
+			// process が false の場合は処理は行わない
+			super.onKeyDown(...);
+		}
+	}
+
+	function onKeyUp(key, shift, process)
+	{
+		// キーが離された
+		if(process && (key == VK_RETURN || key == VK_SPACE)) 
+		{
+			// スペースキーまたはエンターキーで他で処理されてない(process!=false)場合
+			var flag = Butt_keyPressed;
+			Butt_keyPressed = false;
+			update();
+			super.onKeyUp(key, shift, false);
+			if(flag) onClick(width \ 2, height \ 2); // クリック動作
+		}
+		else
+		{
+			super.onKeyUp(...);
+		}
+	}
+
+	function onKeyPress(key, shift)
+	{
+		super.onKeyPress(...);
+	}
+
+
+	property width
+	{
+		setter(x)
+		{
+			super.width = x;
+			imageWidth = x;
+			discardImage();
+		}
+		getter
+		{
+			return super.width;
+		}
+	}
+
+	property height
+	{
+		setter(x)
+		{
+			super.height = x;
+			imageHeight = x;
+			discardImage();
+		}
+		getter
+		{
+			return super.height;
+		}
+	}
+
+	function setSize(w, h)
+	{
+		super.setSize(w, h);
+		setImageSize(w, h);
+		discardImage();
+	}
+
+	property caption
+	{
+		setter(x)
+		{
+			Butt_caption = x;
+			update();
+		}
+		getter
+		{
+			return Butt_caption;
+		}
+	}
+
+	property color
+	{
+		setter(x)
+		{
+			Butt_color = int x;
+			update();
+		}
+		getter
+		{
+			return Butt_color;
+		}
+	}
+
+	property oncolor
+	{
+		setter(x)
+		{
+			Butt_oncolor = int x;
+			update();
+		}
+		getter
+		{
+			return Butt_oncolor;
+		}
+	}
+    
+	property captionColor
+	{
+		setter(x)
+		{
+			Butt_captionColor = int x;
+			update();
+		}
+		getter
+		{
+			return Butt_captionColor;
+		}
+	}
+
+	property showFocusImage
+	{
+		setter(x) { Butt_showFocusImage = x; }
+		getter { return Butt_showFocusImage; }
+	}
+}
+

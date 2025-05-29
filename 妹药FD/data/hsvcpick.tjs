@@ -1,0 +1,495 @@
+/*
+ * HSV円環式カラーピッカー
+ *
+ * ※要 layerExDraw.dll
+ */
+class HSVColorPicker extends Layer
+{
+	var owner; // イベントを投げるオブジェクト
+	var size;  // レイヤのサイズ（常に正方形）
+	var csiz;  // ピック円の半径
+	var piew;  // 円環の幅
+	var epad;  // フチの余白サイズ
+	var tpad;  // 円環と三角形の余白サイズ
+	var edge;  // フチ描画太さ
+	var edgeColor = 0x80000000; // フチ色
+
+	var center; // 中央位置(size/2)
+	var radius; // 円環半径
+	var trirds; // 三角半径
+
+	var cpad = 2; 
+	var pdiv = 360; // 円環の分解能
+	var hueColors = []; // Hue色リスト
+	var hueCircle = []; // 円環座標
+
+	var layPieCol; // 円環色
+	var layPieCur; // 円環選択
+	var layTriCol; // 三角色
+	var layTriCur; // 三角選択
+	var laySample; // サンプルカラー
+	var _hue, _sat, _val; // 現在の選択
+	var _sampleOpac = 0; // サンプル表示透明度
+
+	var mcurDefault = crArrow;
+	var mcurClick   = crHandPoint;
+	var mcurDrag    = crUpArrow;
+
+	function finalize() {
+		invalidate laySample if (laySample !== void);
+		invalidate layPieCol if (layPieCol !== void);
+		invalidate layTriCol if (layTriCol !== void);
+		invalidate layPieCur if (layPieCur !== void);
+		invalidate layTriCur if (layTriCur !== void);
+		super.finalize(...);
+	}
+	function HSVColorPicker(win, par, elm) {
+		super.Layer(win, par);
+		var vis;
+
+		// 初期化パラメータ取得
+		elm = %[] if (elm === void);
+		with (elm) {
+			name  = (.name != "") ? .name : "HSVColorPicker";
+			if (typeof global.GdiPlus == "undefined")
+				throw new Exception(@"${name}: layerExDrawが必要です");
+
+			owner = (.owner !== void) ? .owner : this;
+			vis   = (.visible !== void) ? !!.visible : true;
+			size  = .size;
+			size  = Math.min(par.width, par.height) if (size === void && !!par);
+			size  = (size > 0) ? (int)size : 256;
+			csiz  = (.csiz !== void && .csiz >  0) ? +.csiz : (size\32);
+			piew  = (.piew !== void && .piew >  0) ? +.piew : (size\8);
+			epad  = (.epad !== void && .epad >= 0) ? +.epad : csiz;
+			tpad  = (.tpad !== void && .tpad >= 0) ? +.tpad : csiz;
+			edge  = (.edge !== void && .edge >= 0) ? +.edge : 1;
+			if (.edgecolor !== void) {
+				edgeColor  = +.edgecolor;
+				edgeColor |= 0xFF000000 if (edgeColor & 0xFF000000 == 0);
+			}
+			if (.sampleopac !== void) {
+				_sampleOpac = +.sampleopac;
+				_sampleOpac = 0   if (_sampleOpac < 0);
+				_sampleOpac = 255 if (_sampleOpac > 255);
+			}
+			if (size < (piew + epad + tpad))
+				throw new Exception(@"${name}: パラメータが不正です");
+
+			center = size/2;
+			radius = center - epad;
+			trirds = radius - piew - tpad;
+
+			if (.color !== void) with (col2hsv(+.color)) _hue=.h, _sat=.s, _val=.v;
+			else {
+				_hue = (.hue !== void) ? +.hue : 0;
+				_sat = (.sat !== void) ? +.sat : 1.0;
+				_val = (.val !== void) ? +.val : 1.0;
+			}
+			normalizeHSV();
+		}
+		hasImage = false;
+		setSize(size, size);
+		hitType = htMask;
+		hitThreshold = 0;
+
+		// 色・座標リスト生成
+		with (Math) {
+			var cr = radius + cpad, rad = 2*.PI/pdiv, cel = 360/pdiv;
+			for (var i = 0; i < pdiv; i++) {
+				hueColors.add(hsv2col(cel*i, 1.0, 1.0) | 0xFF000000);
+				hueCircle.add([ .cos(rad*i)*cr + center, -.sin(rad*i)*cr + center ]);
+			}
+		}
+
+		// サブレイヤ作成
+		laySample = createLayer(size, "sample");
+		layPieCol = createLayer(size, "colorCircle");
+		layTriCol = createLayer(size, "colorTriangle");
+		layPieCur = createLayer(csiz*2+6, "hueCursor");
+		layTriCur = createLayer(csiz*2+6, "svCursor");
+
+		redrawSample();
+		redrawColorCircle();
+		redrawCursor();
+		updateHSV(false);
+		visible = vis;
+	}
+
+	function sendEvent(tag, *) {
+		owner[tag](this, *) if (isvalid owner && typeof owner[tag] == "Object");
+	}
+
+	property sampleOpac {
+		getter { return _sampleOpac; }
+		setter(v) {
+			_sampleOpac = v;
+			laySample.opacity = v if (laySample !== void);
+		}
+	}
+
+	/// クリックに反応しないレイヤを生成
+	function createLayer(sz, tag) {
+		var lay = new global.Layer(window, this);
+		with (lay) {
+			.name = tag;
+			.setImageSize(sz, sz);
+			.setSizeToImageSize();
+			.clear(0);
+			.hitType = htProvince;
+			.visible = true;
+		}
+		return lay;
+	}
+
+	/// HSV更新
+	function updateHSV() {
+		redrawColorTriangle();
+		resetCursorPos(...);
+	}
+
+	/// hSV正規化
+	function normalizeHSV(mask = 7) {
+		if (mask & 1) {
+			var div = (int)Math.floor(_hue/360);
+			_hue -= div*360 if (div != 0);
+		}
+		if (mask & 2) {
+			if (     _sat < 0.0) _sat = 0.0;
+			else if (_sat > 1.0) _sat = 1.0;
+		}
+		if (mask & 4) {
+			if (     _val < 0.0) _val = 0.0;
+			else if (_val > 1.0) _val = 1.0;
+		}
+	}
+
+	/// 各種プロパティ
+	property color {
+		getter { normalizeHSV(); return hsv2col(_hue, _sat, _val); }
+		setter(col) {
+			var h = _hue, s = _sat, v = _val;
+			with (col2hsv(+col)) _hue=.h, _sat=.s, _val=.v;
+			normalizeHSV();
+			updateHSV() if (h != _hue || s != _sat || v != _val);
+		}
+	}
+	property hue {
+		getter { return _hue; }
+		setter(v) {
+			(v = +v), (v <-> _hue);
+			normalizeHSV(1);
+			updateHSV() if (v != _hue);
+		}
+	}
+	property sat {
+		getter { return _sat; }
+		setter(v) {
+			(v = +v), (v <-> _sat);
+			normalizeHSV(2);
+			resetCursorPos() if (v != _sat);
+		}
+	}
+	property val {
+		getter { return _val; }
+		setter(v) {
+			(v = +v), (v <-> _val);
+			normalizeHSV(4);
+			resetCursorPos() if (v != _val);
+		}
+	}
+
+	function resetCursorPos(ev = true) {
+		if (layPieCur !== void) with (layPieCur) {
+			var pos = getCirclePos(_hue, radius - piew/2);
+			var x = pos[0], y = pos[1], ofs = .width/2;
+			.setPos(Math.round(x - ofs), Math.round(y - ofs));
+		}
+		if (layTriCur !== void) with (layTriCur) {
+			var tri = triPoly, ofs = .width/2;
+			var x = tri[0][0]*_sat*_val + tri[1][0]*(1-_sat)*_val + tri[2][0]*(1-_val);
+			var y = tri[0][1]*_sat*_val + tri[1][1]*(1-_sat)*_val + tri[2][1]*(1-_val);
+			.setPos(Math.round(x - ofs), Math.round(y - ofs));
+		}
+		var col = this.color;
+		if (laySample !== void) with (laySample) .fillRect(0, 0, .imageWidth, .imageHeight, col);
+		sendEvent("onColorChanged", col) if (ev);
+	}
+
+	function checkHit(x, y) {
+		x -= center, y -= center;
+		var r = Math.sqrt(x*x + y*y);
+		if (r <= trirds + cpad/2) return 1;
+		if (r <= radius + epad)   return -1;
+		return 0;
+	}
+
+	/// 座標から H を逆算して設定
+	function setHueFromPos(x, y) {
+		if (x == center && y == center) return;
+		var t = Math.atan2(x-center, y-center);
+		var old = _hue;
+		_hue = (360-90) + 360 * t / (Math.PI * 2);
+		normalizeHSV(1);
+		updateHSV() if (old != _hue);
+	}
+
+	/// 座標から SV を逆算して設定
+	var vecfuncs;
+	function setSatValFromPos(x, y) {
+		if (vecfuncs === void) vecfuncs = new VectorFuncs();
+
+		// かなり無駄が多い計算だが，まあ動けばヨシ
+		var pt, tri = triPoly, pos = [ +x, +y ], cen = [ +center, +center ];
+		with (vecfuncs) {
+			// 三角形外なら内側に強制移動
+			if      (.isCross(tri[0],tri[1], pos, cen)) pos = .getLinePos(tri[0], tri[1], pos);
+			else if (.isCross(tri[1],tri[2], pos, cen)) pos = .getLinePos(tri[1], tri[2], pos);
+			else if (.isCross(tri[2],tri[0], pos, cen)) pos = .getLinePos(tri[2], tri[0], pos);
+
+			// tri[0] = 色, tri[1] = 白, tri[2] = 黒
+			_val  = .getDistance(pos, tri[2], tri[0], tri[1]);
+			var c = .getDistance(pos, tri[0], tri[1], tri[2]);
+//			var w = .getDistance(pos, tri[1], tri[2], tri[0]);
+			var t = 1/1024; // 閾値
+			_sat = (_val > t) ? ((1-c) / _val) : 1.0;
+			_sat = 0.0 if (_sat < t);
+		}
+		normalizeHSV(6);
+		resetCursorPos();
+	}
+	/// 手抜きベクタ計算
+	class VectorFuncs {
+		var zero = 1e-10;
+		function bSZero (sc)     { return sc < zero && sc > -zero; }
+		function bVZero (v)      { return bSZero(sVAbs(v)); }
+		function bVEq   (v1, v2) { return bVZero(vSub(v1, v2)); }
+
+		function sVAbs  (v)      { return Math.sqrt(sVAbsP2(v)); }
+		function sVAbsP2(v)      { return (v [0]*v [0] +v [1]*v [1]);  }
+		function sVInner(v1, v2) { return (v1[0]*v2[0] +v1[1]*v2[1]);  }
+		function sVOuter(v1, v2) { return (v1[0]*v2[1] -v1[1]*v2[0]);  }
+	
+		function vAdd   (v1, v2) { return [v1[0]+v2[0], v1[1]+v2[1]]; }
+		function vSub   (v1, v2) { return [v1[0]-v2[0], v1[1]-v2[1]]; }
+		function vMul   (sc, v ) { return [v [0]*sc,    v [1]*sc   ]; }
+
+		function getLinePos(p1,p2, q) {
+			if (sVInner(vSub(p2,p1), vSub(q,p1)) < zero) return p1;
+			if (sVInner(vSub(p1,p2), vSub(q,p2)) < zero) return p2;
+			var v = vSub(p2,p1), n = sVAbsP2(v);
+			return !n ? p1 : vAdd(vMul(sVInner(vSub(q,p1), v) / n, vSub(p2,p1)), p1);
+		}
+		function isCross (p1,p2, q1,q2) {
+			return (( sVOuter(vSub(p2,p1), vSub(q1,p1)) * sVOuter(vSub(p2,p1), vSub(q2,p1)) ) < zero &&
+					( sVOuter(vSub(q2,q1), vSub(p1,q1)) * sVOuter(vSub(q2,q1), vSub(p2,q1)) ) < zero);
+		}
+		function getCross(p1,p2, q1,q2) {
+			var t1, t2;
+			if ((     sVOuter(vSub(p2,p1), vSub(q1,p1))  *     sVOuter(vSub(p2,p1), vSub(q2,p1))  ) >= zero ||
+				( (t1=sVOuter(vSub(q2,q1), vSub(p1,q1))) * (t2=sVOuter(vSub(q2,q1), vSub(p2,q1))) ) >= zero)
+				return void;
+			t1 = Math.abs(t1);
+			t2 = Math.abs(t2);
+			return vAdd(vMul(t1/(t1+t2), vSub(p2,p1)), p1);
+		}
+		function getDistance(p2,p1, q1,q2) {
+			if (bVEq(p1, p2)) return 0;
+			var c;
+			try { // p2p1 と q1q2の交点
+				var v1 = vSub(p2, p1), v2 = vSub(q2, q1);
+				c = vAdd(p1, vMul( sVOuter(v2,vSub(q1,p1)) / sVOuter(v2,v1), v1));
+			} catch { return 0; }
+			return sVAbs(vSub(p2,p1)) / sVAbs(vSub(c,p1));
+		}
+	}
+
+	/// マウス操作
+	var dragging;
+	function onMouseDown(x, y, btn) {
+		var hit;
+		if (btn == mbLeft && (hit = checkHit(x, y)) != 0) {
+			dragging = hit;
+			onMouseDrag(x, y, true);
+		}
+		if (btn == mbRight) sendEvent("onColorRightClick", x, y);
+		return super.onMouseDown(...);
+	}
+	function onMouseMove(x, y) {
+		if (dragging) onMouseDrag(x, y);
+		else cursor = checkHit(x, y) ? mcurClick : mcurDefault;
+		return super.onMouseMove(...);
+	}
+	function onMouseUp(x, y, btn) {
+		if (dragging != 0 && btn == mbLeft) {
+			onMouseDrag(x, y);
+			dragging = 0;
+			cursor = checkHit(x, y) ? mcurClick : mcurDefault;
+		}
+		return super.onMouseUp(...);
+	}
+	function onMouseDrag(x, y) {
+		cursor = mcurDrag;
+		switch (dragging) {
+		case -1: setHueFromPos(x, y); break;
+		case  1: setSatValFromPos(x, y); break;
+		}
+	}
+
+	/// サンプルを描画
+	function redrawSample() {
+		if (laySample === void) return;
+		var app;
+		with (GdiPlus) {
+			app = new .Appearance();
+			app.addPen(color | 0xFF000000, tpad, 0, 0);
+		}
+		with (laySample) {
+			var w = trirds + tpad/2;
+			var pos = center - w;
+			var sz = w * 2;
+			.clear(0);
+			.drawEllipse(app, pos, pos, sz, sz);
+			.holdAlpha = true;
+			.face = dfMain;
+		}
+		invalidate app;
+		sampleOpac = _sampleOpac;
+	}
+
+	/// カーソルを描画
+	function redrawCursor() {
+		if (layPieCur === void || layTriCur === void) return;
+		var app;
+		with (GdiPlus) {
+			app = new .Appearance();
+			app.addPen(0xFF000000, 4, 0, 0);
+			app.addPen(0xFFFFFFFF, 2, 0, 0);
+		}
+		with (layPieCur) {
+			.clear(0);
+			.drawEllipse(app, 2, 2, csiz*2, csiz*2);
+		}
+		layTriCur.assignImages(layPieCur);
+		invalidate app;
+	}
+
+	/// 円環を描画
+	function redrawColorCircle() {
+		if (layPieCol === void) return;
+		var app;
+		with (GdiPlus) {
+			app = new .Appearance();
+			app.addPen(edgeColor, piew+edge, 0, 0) if (edge > 0);
+			app.addPen(
+				%[  type: .BrushTypePathGradient, 
+				points:         hueCircle,
+				surroundColors: hueColors,
+				centerPoint:  [ center, center ],
+				centerColor:    0xFF808080,
+				wrapMode:      .WrapModeClamp
+					], piew, 0, 0);
+		}
+		with (layPieCol) {
+			var w = radius - piew / 2;
+			var pos = center - w;
+			var sz = w * 2;
+			.clear(0);
+			.drawEllipse(app, pos, pos, sz, sz);
+		}
+		invalidate app;
+	}
+
+	/// 三角形を描画
+	var triPoly;
+	function redrawColorTriangle() {
+		if (layTriCol === void) return;
+		var pos = getTrianglePos(_hue, trirds+cpad);
+		triPoly = getTrianglePos(_hue, trirds,    );
+		var app;
+		with (GdiPlus) {
+			var col = hsv2col(_hue, 1.0, 1.0)|0xFF000000;
+			app = new .Appearance();
+			app.addPen(edgeColor, edge, 0, 0) if (edge > 0);
+			app.addBrush(
+				%[  type: .BrushTypePathGradient, 
+				points:         pos,
+				surroundColors: [ col, 0xFFFFFFFF, 0xFF000000 ],
+				centerPoint:  [ pos[0][0], pos[0][1] ],
+				centerColor:    col,
+				wrapMode:      .WrapModeClamp
+					], 0, 0);
+		}
+		with (layTriCol) {
+			.clear(0);
+			.drawPolygon(app, triPoly);
+		}
+		invalidate app;
+	}
+
+	/// 円上の座標を取得
+	function getCirclePos(cel, rds, cen = center) { with (Math) {
+		var rad = cel * .PI*2/360;
+		return [ .cos(rad)*rds + cen, -.sin(rad)*rds + cen ];
+	} }
+	/// 三角形の座標を取得
+	function getTrianglePos(cel, *) {
+		return [ getCirclePos(cel,     *),
+				 getCirclePos(cel+120, *),
+				 getCirclePos(cel+240, *) ];
+	}
+
+	/// 色変換： RGB->HSV
+	function col2hsv(col) {
+		var r = ((col & 0xFF0000) >> 16) / 255;
+		var g = ((col & 0x00FF00) >>  8) / 255;
+		var b = ((col & 0x0000FF)      ) / 255;
+		var h = 60, s, v, z, y;
+		with (Math) v=.max(r,g,b), z=.min(r,g,b);
+		var selR = (v==r), selG = (v==g);
+		y = v - z;
+		s = (v > 0) ? y/v : 0.0;
+		if (y > 0) {
+			r = (v - r) / y;
+			g = (v - g) / y;
+			b = (v - b) / y;
+		} else r=g=b=0;
+		h *= selR ? (b-g) : selG ? (2+r-b) : (4+g-r);
+		h += 360 if (h < 0);
+		return %[ h:h, s:s, v:v ];
+	}
+	/// 色変換： HSV->RGB
+	function hsv2col(h, s, v) {
+		var r, g, b;
+		var sel = (int)Math.floor(h/60);
+		var f = (h/60) - sel;
+		f = 1-f if (!(sel&1));
+		var m = v * (1.0 - s);
+		var n = v * (1.0 - s * f);
+		switch (sel){
+		case 0: r = v; g = n; b = m; break;
+		case 1: r = n; g = v; b = m; break;
+		case 2: r = m; g = v; b = n; break;
+		case 3: r = m; g = n; b = v; break;
+		case 4: r = n; g = m; b = v; break;
+		case 5: r = v; g = m; b = n; break;
+		}
+		return (((int)Math.round(255*r) << 16) |
+				((int)Math.round(255*g) <<  8) |
+				((int)Math.round(255*b)      ));
+		
+	}
+
+	/// ノード有効状況に応じてカーソルを表示・非表示
+	function onNodeDisabled() { setCursorVisible(false); }
+	function onNodeEnabled()  { setCursorVisible(true);  }
+	function setCursorVisible(vis) {
+		layPieCur.visible = vis if (layPieCur !== void);
+		layTriCur.visible = vis if (layTriCur !== void);
+		hitThreshold = vis ? 0 : 255;
+		opacity = vis ? 255 : 128;
+	}
+
+}
+
+

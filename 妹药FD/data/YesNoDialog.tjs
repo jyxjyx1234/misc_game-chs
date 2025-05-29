@@ -1,0 +1,192 @@
+// YesNoDialog.tjs - はい/いいえを選択するダイアログボックス
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+class YesNoDialogWindow extends Window
+{
+	var yesButton; // [はい] ボタン
+	var noButton; // [いいえ] ボタン
+
+	var result = false; // no:false yes:true
+	var _activate, _defaultFocus;
+
+	function YesNoDialogWindow(message, cap, df)
+	{
+		super.Window();
+
+		_defaultFocus = df;
+
+		// メインウィンドウから cursor**** の情報をとってくる
+		var mainWin = global.Window.mainWindow;
+		if (mainWin) {
+			this.cursorDefault = mainWin.cursorDefault if (typeof mainWin.cursorDefault != "undefined");
+			this.cursorPointed = mainWin.cursorPointed if (typeof mainWin.cursorPointed != "undefined");
+		}
+
+		// 外見の調整
+		borderStyle = bsDialog;
+		innerSunken = false;
+		caption = cap;
+		showScrollBars = false;
+
+		// プライマリレイヤの作成
+		add(new Layer(this, null));
+
+		// プライマリのマウスカーソルを設定
+		if(typeof this.cursorDefault !== "undefined")
+			primaryLayer.cursor = cursorDefault;
+
+		// サイズを決定
+		var tw = primaryLayer.font.getTextWidth(message);
+		var th = primaryLayer.font.getTextHeight(message);
+
+		var w = tw + 40;
+		if(w<200) w = 200;
+		var h = th*2 + 60;
+
+		// 拡大率の設定
+		if (mainWin) with (mainWin) {
+			if (.fullScreen) {
+				if (.innerWidth/.pxWidth < .innerHeight/.pxHeight)
+					setZoom(.innerWidth, .pxWidth);
+				else
+					setZoom(.innerHeight, .pxHeight);
+			} else {
+				setZoom(.zoomNumer, .zoomDenom);
+			}
+		}
+		// サイズを決定
+		setInnerSize(w * zoomNumer / zoomDenom,
+			 h * zoomNumer / zoomDenom);
+
+		// プライマリレイヤのサイズを設定
+		primaryLayer.width = w;
+		primaryLayer.height = h;
+		primaryLayer.colorRect(0, 0, w, h, clBtnFace, 255);
+
+		// ウィンドウ位置の調整
+		var center = getParentWindowCenterPos(mainWin, width, height);
+		if (center !== void) setPos(center.x, center.y);
+
+		// メッセージの描画
+		primaryLayer.drawText((w - tw)>>1, 14, message, clBtnText);
+
+		// Yesボタン
+		add(yesButton = createButton("はい",    (w - (70*2 + 10) >>1),           th + 35));
+
+		// Noボタン
+		add(noButton =  createButton("いいえ", ((w - (70*2 + 10))>>1) + 70 + 10, th + 35));
+	}
+
+	function createButton(caption, x, y, w = 70, h = 25)
+	{
+		var btn = new ButtonLayer(this, primaryLayer);
+		with (btn) {
+			.caption = caption;
+			.captionColor = clBtnText;
+			.width = w;
+			.height = h;
+			.top = y;
+			.left = x;
+			.visible = true;
+		}
+		return btn;
+	}
+
+	function finalize()
+	{
+		super.finalize(...);
+	}
+
+	function action(ev)
+	{
+		// action
+		if(ev.type == "onClick")
+		{
+			if(ev.target == yesButton)
+			{
+				result = true;
+				close();
+			}
+			else if(ev.target == noButton)
+			{
+				result = false;
+				close();
+			}
+		}
+		else if(ev.type == "onKeyDown" && ev.target === this)
+		{
+			// パッド入力に対応する処理
+			switch(ev.key)
+			{
+			case VK_PADLEFT:
+				yesButton.focus();
+				break;
+			case VK_PADRIGHT:
+				noButton.focus();
+				break;
+			case VK_PAD1:
+				if(focusedLayer == yesButton)
+				{
+					result = true;
+					close();
+				}
+				else if(focusedLayer == noButton)
+				{
+					result = false;
+					close();
+				}
+				break;
+			case VK_PAD2:
+				result = false;
+				close();
+				break;
+			}
+		}
+		else if (ev.type == "onActivate" && !_activate)
+		{
+			_activate = true;
+			var btn = _defaultFocus + "Button";
+			if (typeof this[btn] == "Object") {
+				btn =  this[btn];
+				btn.focus();
+//				if (System.getArgument("-curmove") != "no")
+//					with (btn) .setCursorPos(.width\2, .height\2);
+			}
+		}
+	}
+
+	function onKeyDown(key, shift)
+	{
+		super.onKeyDown(...);
+		if(key == VK_ESCAPE)
+		{
+			// ESC キーが押された
+			// 「いいえ」として処理
+			result = false;
+			close();
+		}
+	}
+}
+
+// Yes か No かはっきりさせる関数
+function askYesNo(message, caption = "確認", yesFunc=void, noFunc=void, param=void, doneFunc=void, defaultFocus)
+{
+	var win = new YesNoDialogWindow(message, caption, defaultFocus);
+	win.showModal();
+	var res = win.result;
+	invalidate win;
+
+    if (res) {
+        if (yesFunc !== void) {
+            yesFunc(param);
+        }
+    } else {
+        if (noFunc !== void) {
+            noFunc(param);
+        }
+    }
+
+    if (doneFunc !== void) {
+        doneFunc(param);
+    }
+}

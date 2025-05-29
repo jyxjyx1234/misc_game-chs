@@ -1,0 +1,939 @@
+// --------------------------------------------------------
+// CGモード用処理
+// --------------------------------------------------------
+
+// システムメニューとして登録
+setSystemMenuStorage("cgmode.ks");
+
+/**
+ * CGモード表示用専用レイヤ
+ * スクロール処理に対応しています
+ */
+class CgViewLayer extends AnimKAGLayer {
+
+	var _owner, _action; // イベント送信先ターゲット
+	var _namebase; // 名前ベース
+	var scrollConfig =
+		%[
+		wheel:true,     // ホイールスクロール有効・無効
+		wheelcoef:0.25, // ホイールスクロール係数
+		mouse:"move",   // マウス操作モード(none:なし, move:マウス移動追従, drag:ドラッグ操作（ドラッグ無かった場合にクリックで次）, dragex:ドラッグ操作（クリックで次なし）
+		key:true,       // カーソルキー操作によるスクロールの有効・無効
+		keystep:32,     // カーソルキー操作時の移動ピクセル数
+		spacedrag:false, // スペースキーによるドラッグの有効・無効
+			];
+	/**
+	 * コンストラクタ
+	 * @param parentLayer 親レイヤ
+	 * @param owner       オーナー(CgGalleryMode class) / void時は自分自身
+	 * @param action      sendMessageによるowner通知メソッド名（void/""時はowner自身へ送られる）
+	 */
+	function CgViewLayer(parentLayer, owner = void, action = "action") {
+		_owner = (owner !== void) ? owner : this;
+		_action = (typeof action === "String") ? action : "";
+		super.AnimKAGLayer(parentLayer.window, parentLayer);
+		with (getParentSize()) setSize(.width, .height);
+		hitType      = htMask;
+		hitThreshold = 0;
+		focusable    = true;
+		cursor       = _defaultMouseCursor = window.cursorDefault;
+		absolute     = 4000000;
+		name         = _namebase = "CG View Layer";
+		//enterFocus();
+	}
+	function getParentSize() {
+		with (parent) return %[ width:.width, height:.height ];
+	}
+
+	function finalize() {
+		super.finalize(...);
+	}
+
+	var fcol = 0, coef = 1, canScroll = 0, lessSize = 0;
+
+	// スクロール位置用プロパティ
+	property scrollLeft { getter { return -imageLeft; } setter(v) { try { imageLeft = -(int)Math.round(v); onScrolled(); } catch {} } }
+	property scrollTop  { getter { return -imageTop;  } setter(v) { try { imageTop  = -(int)Math.round(v); onScrolled(); } catch {} } }
+	property scrollMinLeft { getter { return 0; } }
+	property scrollMinTop  { getter { return 0; } }
+	property scrollMaxLeft { getter { return imageWidth  - width;  } }
+	property scrollMaxTop  { getter { return imageHeight - height; } }
+
+	// 0～1に正規化したスクロールプロパティ
+	function convertPosToRange(pos, min, max) { if (pos < min) pos = min; else if (pos > max) pos = max; return (pos-min)/(max-min); }
+	function convertRangeToPos(rng, min, max) { if (rng < 0  ) rng = 0;   else if (rng > 1  ) rng = 1;   return rng*(max-min) + min; }
+	property scrollHorz { getter { return convertPosToRange(scrollLeft, scrollMinLeft, scrollMaxLeft); } setter(v) { scrollLeft = convertRangeToPos(v, scrollMinLeft, scrollMaxLeft); } }
+	property scrollVert { getter { return convertPosToRange(scrollTop,  scrollMinTop,  scrollMaxTop ); } setter(v) { scrollTop  = convertRangeToPos(v, scrollMinTop,  scrollMaxTop ); } }
+
+	function onScrolled() {}
+
+	// スクロール画像サイズ参照用プロパティ
+	property scrollWidth  { getter { return imageWidth;  } }
+	property scrollHeight { getter { return imageHeight; } }
+		
+	function assignScroll(src) {
+		if (scrollWidth  == src.scrollWidth ) scrollLeft = src.scrollLeft;
+		if (scrollHeight == src.scrollHeight) scrollTop  = src.scrollTop ;
+	}
+
+	function superLoadImages { return super.loadImages(...); }
+	function loadImages(name) {
+		superLoadImages(name);
+		setSizeToImageSize();
+		afterLoadImages(name);
+	}
+	function afterLoadImages(name) {
+		this.name = _namebase + " : " + name;
+		checkScrollable();
+		setupInitialImage();
+		if (typeof _owner.setCgViewScrollConfig == "Object")
+			/**/   _owner.setCgViewScrollConfig(this, scrollConfig, canScroll, name);
+		updateMouseCursor();
+	}
+	var _defaultMouseCursor;
+	var _scrollableCursorMap = [ crCross, crSizeWE, crSizeNS, crSizeAll ];
+	function updateMouseCursor() {
+		if (!canScroll) {
+			cursor = _defaultMouseCursor;
+		} else {
+			var idx = (canDragOnClick() && !inDragging) ? 0 : canScroll;
+			var cur = _scrollableCursorMap[idx];
+			if (cur === void) cur = _defaultMouseCursor;
+			cursor = cur;
+		}
+	}
+
+	function setupInitialImage(rx=0.5, ry=0.5) {
+		var pw, ph;
+		with (getParentSize()) pw=.width, ph=.height;
+		if (canScroll & 1) {
+			width  = pw;
+			scrollHorz = rx;
+		}
+		if (lessSize & 1) {
+			// 横方向センタリング
+			var w = imageWidth;
+			width = imageWidth = pw;
+			var sw = pw-w, ih = imageHeight;
+			fillRect(w, 0, sw, ih, fcol);
+			copyRect(sw\2, 0, this, 0, 0, w, ih);
+			fillRect(0, 0, sw\2,  ih, fcol);
+		}
+		if (canScroll & 2) {
+			height = ph;
+			scrollVert = ry;
+		}
+		if (lessSize & 2) {
+			// 縦方向センタリング
+			var h  = imageHeight;
+			height = imageHeight = ph;
+			var sh = ph-h, iw = imageWidth;
+			fillRect(0, h, iw, sh, fcol);
+			copyRect(0, sh\2, this, 0, 0, iw, h);
+			fillRect(0, 0, iw, sh\2, fcol);
+		}
+	}
+	function checkScrollable(w = this.width, h = this.height) {
+		_dragmoved = _dragging = 0;
+		prevx = prevy = void;
+		coef = 1, canScroll = lessSize = 0;
+
+		var pw, ph;
+		with (getParentSize()) pw=.width, ph=.height;
+		if (w == pw && h == ph) return;
+		if      (w < pw) lessSize  |= 1;
+		else if (w > pw) canScroll |= 1, coef = w \ pw;
+		if      (h < ph) lessSize  |= 2;
+		else if (h > ph) {
+			canScroll |= 2;
+			var nc = h \ ph;
+			coef = nc if (nc > coef);
+		}
+	}
+
+	// stub
+	function action(message) {}
+
+	function sendMessage(mes) {
+		if (_action == "") _owner(mes);
+		else _owner[_action](mes);
+	}
+	function quit(continuous = true) {
+		sendMessage(continuous ? "next" : "break");
+	}
+
+	// 左クリック後にquit(true)するかどうか
+	function canQuitOnClick() {
+		switch (scrollConfig.mouse) {
+		case "drag":   return !_dragmoved;
+		case "dragex": return false;
+		default: break;
+		}
+		return true;
+	}
+	// 左クリックでドラッグするかどうか
+	function canDragOnClick() {
+		switch (scrollConfig.mouse) {
+		case "drag": case "dragex": return true;
+		default: break;
+		}
+		return false;
+	}
+	// マウス移動でスクロールするかどうか
+	function canScrollOnMove() {
+		if (canScroll) {
+			if (_dragging)  return true;
+			switch (scrollConfig.mouse) {
+			case "move": return true;
+			}
+		}
+		return false;
+	}
+
+
+	var prevx, prevy;
+	var scrollable = false; // CgGalleryModeから変更される
+
+	var _dragging = 0, _dragmoved = 0, _draginix, _draginiy;
+	var _dragthreshold = 2; // _dragmoved判定
+
+	property inDragging    { getter { return !!_dragging;     } }
+	property inDragByMouse { getter { return   _dragging > 0; } }
+	property inDragByKey   { getter { return   _dragging < 0; } }
+
+	function startDrag(x, y, bykey) {
+		prevx = x if (x !== void);
+		prevy = y if (y !== void);
+		_draginix = prevx;
+		_draginiy = prevy;
+		_dragging = bykey ? -1 : 1;
+		_dragmoved = 0;
+		releaseCapture() if (bykey);
+		updateMouseCursor();
+	}
+	function stopDrag() {
+		_dragging = 0;
+		updateMouseCursor();
+	}
+	function onDragging(x, y) {
+		if(!_dragmoved) {
+			_dragmoved = (Math.abs(x - _draginix) >= _dragthreshold)
+				||       (Math.abs(y - _draginiy) >= _dragthreshold);
+		}
+	}
+
+	function enterFocus { focus(); }
+
+	function offsetScroll(ox, oy) {
+		if (!scrollable) return;
+		var left = scrollLeft;
+		var top  = scrollTop;
+		left += ox;
+		top  += oy;
+		if      (left < scrollMinLeft) left = scrollMinLeft;
+		else if (left > scrollMaxLeft) left = scrollMaxLeft;
+		if      (top  < scrollMinTop ) top  = scrollMinTop;
+		else if (top  > scrollMaxTop ) top  = scrollMaxTop;
+		scrollLeft = left;
+		scrollTop  = top;
+	}
+	function scrollByMouse(x, y) {
+		if (prevx === void || prevy === void) return;
+		offsetScroll((prevx - x) * coef, (prevy - y) * coef);
+	}
+	function scrollByKey(dx, dy) {
+		with (scrollConfig) if (.key)
+			offsetScroll(.keystep * dx, .keystep * dy);
+	}
+
+	// -------------------------------------------------------------
+
+	function internalOnMouseDown(x, y, button, shift) {
+		if (button == mbLeft) {
+			_dragmoved = 0;
+			startDrag(x, y) if (canDragOnClick());
+		}
+	}
+
+	function internalOnMouseUp(x, y, button, shift) {
+		switch (button) {
+		case mbRight: onRightClicked(); break;
+		case mbLeft:
+			stopDrag() if (inDragByMouse);
+			quit(true) if (canQuitOnClick());
+			break;
+		}
+	}
+	function onRightClicked() { quit(false); }
+
+	function internalOnMouseMove(x, y, button, shift) {
+		scrollByMouse(x, y) if (canScrollOnMove());
+		onDragging(x, y)    if (inDragging);
+		prevx = x;
+		prevy = y;
+		enterFocus();
+	}
+
+	function internalOnMouseWheel(shift, delta, x, y) {
+		if (canScroll && scrollConfig.wheel) {
+			delta *=     scrollConfig.wheelcoef;
+			switch (canScroll) {
+			case 1:  offsetScroll(-delta, 0); break;
+			default: offsetScroll(0, -delta); break;
+			}
+		}
+	}
+
+	function internalOnKeyDown(key, shift) {
+		switch (key) {
+		case VK_SPACE:
+			if (scrollConfig.spacedrag) {
+				startDrag(cursorX, cursorY, true);
+				break;
+			}
+			// not break;
+		case VK_RETURN:
+			quit(true);
+			return; //break;
+		case VK_ESCAPE:
+			quit(false);
+			break;
+		case VK_UP:    scrollByKey( 0, -1); break;
+		case VK_DOWN:  scrollByKey( 0,  1); break;
+		case VK_LEFT:  scrollByKey(-1,  0); break;
+		case VK_RIGHT: scrollByKey( 1,  0); break;
+		default:
+		}
+		enterFocus();
+	}
+
+	function internalOnKeyUp(key) {
+		stopDrag() if (key == VK_SPACE && inDragByKey);
+	}
+
+	// -------------------------------------------------------------
+
+	// マウス操作系
+	function  onMouseEnter {
+		super.onMouseEnter(...);
+		enterFocus();
+	}
+	function         onMouseDown  { if (!isvalid this) return;
+		/**/ internalOnMouseDown(...);
+		return super.onMouseDown(...);
+	}
+	function         onMouseMove  { if (!isvalid this) return;
+		/**/ internalOnMouseMove(...);
+		return super.onMouseMove(...);
+	}
+	function         onMouseUp    { if (!isvalid this) return;
+		/**/ internalOnMouseUp(...);
+		return super.onMouseUp(...);
+	}
+	function         onMouseWheel { if (!isvalid this) return;
+		/**/ internalOnMouseWheel(...);
+		return super.onMouseWheel(...);
+	}
+
+	// preProcessKeysを無視するキー
+	var _ignorePreProcessKeys = %[];
+
+	// キー操作系
+	function onKeyDown(key, shift, process) {
+		if (!isvalid this) return;
+		if (!_ignorePreProcessKeys[key] && window.preProcessKeys(key, shift)) return;
+		if (internalOnKeyDown(key, shift)) return;
+		return super.onKeyDown(...);
+	}
+	function onKeyUp(key) {
+		if (internalOnKeyUp(key)) return;
+		return super.onKeyUp(...);
+	}
+}
+
+
+// ----------------------------------------------------------------------------
+// ギャラリー基底クラス
+
+// UiBasedPageSheet に csv読み込み と ページ復帰処理 を追加
+
+class GalleryMode extends UiBasedPageSheet
+{
+	var _selfClass = void;
+	var fromTitle = false;
+	var _effect;
+	function GalleryMode(view, elm, selfclass = global.GalleryMode) {
+		super.UiBasedPageSheet(view, elm);
+		_selfClass  = selfclass;
+
+		var csv = elm.csv;
+		/**/csv = getDefaultCsvFile() if (csv == "");
+		if (csv == "") throw new Exception("csvファイルが指定されていません");
+		readCsv(csv);
+
+		// タイトルからの遷移フラグ
+		fromTitle = +elm.fromtitle if (elm.fromtitle !== void);
+
+		// 前回のページを復帰
+		var page = 0;
+		try { page = _selfClass.lastPage; } catch { _selfClass.lastPage = page; }
+
+		// elm指定を優先
+		page = +elm.page if (elm.page !== void);
+
+		// サムネエフェクトカラー
+		with (elm) {
+			_effect = %[
+				normal: _makeColorInfo(.normalcolor, .normalopacity),
+				over:   _makeColorInfo(.overcolor,   .overopacity),
+				on:     _makeColorInfo(.oncolor,     .onopacity)
+				];
+		}
+
+		init(page);
+		lastItem = elm.lastitem if (elm.lastitem !== void); // フォーカス指定
+	}
+	function finalize() {
+		// 現在のページを保存
+		_selfClass.lastPage = page if (_selfClass !== void);
+
+		super.finalize(...);
+	}
+
+	// 改ページ処理
+	function renewItemPage(force = false, group) {
+		if (group != "") _closePageGroup();
+		// ページ区切りに合わせる
+		var cnt = (_rowcol - (count % _rowcol)) % _rowcol;
+		if (!cnt && force) cnt = _rowcol;
+		while (--cnt >= 0) items.add(void);
+		if (group != "") _openPageGroup(group);
+	}
+
+	function readCsvDoFirstChar(ch, columns) {
+		switch (ch) {
+		case ":": renewItemPage(false, columns[1]); break; // 改ページ
+		case "*": items.add(void);                  break; // 空枠
+		default:  return false;
+		}
+		return true;
+	}
+
+	// csv読み込みパーサ
+	function doLine(columns, lineNo) {
+		return columns[0] != "" && readCsvDoFirstChar(columns[0].charAt(0), columns);
+	}
+
+	function readCsv() {
+		_initPageGroup();
+		var r = super.readCsv(...);
+		_closePageGroup();
+		return r;
+	}
+
+	var pageGroups = %[], pageGroupBinds = [], pageGroupNames = [];
+	var _currentPageGroup;
+	function _initPageGroup() {
+		(Dictionary.clear incontextof pageGroups)();
+		pageGroupBinds.clear();
+		pageGroupNames.clear();
+		_currentPageGroup = void;
+	}
+	function _openPageGroup(grp) {
+		_currentPageGroup = %[ name:grp, start:(count\_rowcol), end:(count\_rowcol) ];
+	}
+	function _closePageGroup() {
+		var cur = _currentPageGroup;
+		if (cur !== void) with (cur) {
+			.end = (count-1)\_rowcol;
+			if (.start <= .end) {
+				for (var i = .start; i <= .end; i++) pageGroupBinds[i] = .name;
+				pageGroups[.name] = cur;
+				pageGroupNames.add(.name);
+			}
+		}
+		_currentPageGroup = void;
+	}
+	function getCurrentPageGroup() {
+		return pageGroupBinds[page];
+	}
+	function convertPage2Subpg(pg = page, grp = getCurrentPageGroup()) {
+		if (grp == "" || pageGroups[grp] === void) return -1;
+		pg = (int)pg;
+		with (pageGroups[grp]) return (pg >= .start && pg <= .end) ? (pg - .start) : -1;
+	}
+	function convertSubpg2Page(subpg, grp = getCurrentPageGroup()) {
+		if (grp == "" || pageGroups[grp] === void) return -1;
+		subpg = (int)subpg;
+		with (pageGroups[grp]) return (subpg >= 0 && subpg <= (.end-.start)) ? (.start + subpg) : -1;
+	}
+	function getPageGroupSubpgCount(grp = getCurrentPageGroup()) {
+		if (grp == "" || pageGroups[grp] === void) return 0;
+		with (pageGroups[grp]) return .end - .start + 1;
+	}
+
+	function isEnabled(num) {
+		return (num >= 0 && num < count) ? isSeen(num) : null;
+	}
+
+	// virtual functions
+	function isSeen(num) {}						// 選択できるかどうか
+	function getDefaultCsvFile() {}				// csvファイルデフォルト
+
+	function operateThumbnailEffect(sel, layer, w, h) {
+		var eff = _effect[sel];
+		if (eff !== void) with (eff) {
+			var oface = layer.face;
+			layer.face = dfMain;
+			layer.colorRect(0, 0, w, h, .color, .alpha);
+			layer.face = oface;
+			return .opacity;
+		}
+	}
+	function _makeColorInfo(col, opa) {
+		return (col !== void || opa !== void ) ? %[
+		color:   (col !== void) ? (+col & 0xFFFFFF) : 0,
+		alpha:   (col !== void) ? (+col >>> 24)     : 0,
+		opacity: (opa !== void) ?  +opa             : 255
+			] : void;
+	}
+}
+
+
+
+// ----------------------------------------------------------------------------
+// ギャラリーボタン描画クラス
+/*
+	  mask:マスク画像ファイル名,
+	  button:通常状態ボタンファイル名,
+	  disabled:無効状態ボタンファイル名,
+ */
+
+class GalleryButton extends DecorationButton
+{
+	var autoThumbEnabled;
+	function GalleryButton(owner, elm) {
+		super.DecorationButton(...);
+		autoThumbEnabled = debugWindowEnabled;
+	}
+	function finalize() {
+		super.finalize(...);
+	}
+
+	// 通常ボタン表示
+	function drawNormalItem(target, pos) {
+		// サムネイル読み込み
+		var filename = _owner.getThumbnail(pos);
+		var orig     = _owner.getOriginal(pos);
+
+		var loading = getExistImageName(filename);
+		if (loading === void && autoThumbEnabled) try {
+			var thumb = "auto_" + filename + ".bmp";
+			var tfull = @"${kag.saveDataLocation}/${thumb}";
+			if (!Storages.isExistentStorage(tfull) && typeof orig === "String") {
+				dm("自動サムネイル生成: " + thumb, orig);
+				var origfile = orig != "" ? getExistImageName(orig) : void;
+				if (typeof global.Layer.appendDiffImageMap == "Object") origfile = orig;
+				MakeTemporaryThumbnail(tfull, origfile, _mw, _mh);
+			}
+			loading = tfull;
+		} catch {}
+
+		var _temp = kag.temporaryLayer;
+		if (loading !== void) try {
+			with (_temp) {
+				.loadImages(loading);
+				_mask.copyRect(0, 0, _temp, 0, 0, .imageWidth, .imageHeight);
+			}
+		} catch {
+			dm("サムネイル画像の読み込みに失敗しました: "+ filename);
+			_mask.loadMask();
+		}
+
+		// ボタン描画
+//		target.loadButtons(_buttonNormal);
+
+		_temp.setImageSize(_mw, _mh);
+		_temp.fillRect(0, 0, _mw, _mh, 0);
+		if (typeof _owner.makeThumbnailEffect !== "undefined") {
+			_owner.makeThumbnailEffect(target, _mask, _temp, _mx, _my, _mw, _mh, filename, orig);
+		} else {
+			var tw = target.width, th = target.height;
+			var sel = [ "normal", "on", "over" ];
+			for (var i = 0; i < 3; i++) {
+				_temp.copyRect(0, 0, _mask, 0, 0, _mw, _mh);
+				var opa = _owner.operateThumbnailEffect(sel[i], _temp, _mw, _mh);
+				target.operateRect((tw * i) +_mx, _my, _temp, 0, 0, _mw, _mh, omAlpha, (opa !== void) ? +opa : 255);
+			}
+		}
+		if (typeof _owner.onDrawNormalItem == "Object") {
+			/**/   _owner.onDrawNormalItem(target, pos);
+		}
+		return true;
+	}
+
+	// owner先のmethod
+	function getThumbnail(pos) {}				// サムネイル画像ファイルを取得
+	function getOriginal(pos) {}				// 元画像ファイルを取得
+//	function makeThumbnailEffect(target, _mask, _temp, _mx, _my, _mw, _mh);
+	function operateThumbnailEffect(sel, layer) {}
+
+	// テンポラリ サムネイル生成（開発途中用）
+	function MakeTemporaryThumbnail(thumbfile, imagefile, width, height) {
+		// shrinkCopyプラグイン読み込み
+//		if (typeof  global.Layer.shrinkCopy == "undefined" &&
+//			typeof  global.shrinkCopyPluginLoadFailed == "undefined") {
+//			try { Plugins.link("shrinkCopy.dll"); } catch {
+//				/**/global.shrinkCopyPluginLoadFailed = true;
+//			}
+//		}
+		try { _showTempThumbProgress(true, @"仮サムネ生成中...\n${Storages.extractStorageName(thumbfile)}"); } catch {}
+		try {
+			var w, h, temp;
+			if (imagefile != "") {
+				temp = kag.temporaryLayer;
+				with (temp) try {
+					.loadImages(imagefile);
+					w = .imageWidth;
+					h = .imageHeight;
+				} catch {
+					temp = imagefile = w = h = void;
+				}
+			}
+			var layer = new global.Layer(kag, kag.primaryLayer);
+			with (layer) {
+				.setImageSize(width, height);
+				.type = ltOpaque;
+				if (temp !== void) {
+//					if (typeof .shrinkCopy != "undefined") {
+//						.shrinkCopy( 0, 0, width, height, temp, 0, 0, w, h);
+//					} else {
+						.stretchCopy(0, 0, width, height, temp, 0, 0, w, h, stFastLinear);
+//					}
+				} else {
+					.fillRect(0, 0, width, height, 0xFF00FF00);
+				}
+//				var text = "仮縮小:" + Storages.chopStorageExt(Storages.extractStorageName(imagefile));
+//				.font.height = height\6;
+//				.font.face   = "ＭＳ ゴシック";
+//				w = .font.getTextWidth(text);
+//				h = .font.getTextHeight(text);
+//				.drawText((width-w)\2, (height-h)\2, text, 0x800000, 255, true, 255, 0xFFFFFF, 0, 1, 1);
+				var text = "仮サムネ\n" + Storages.chopStorageExt(Storages.extractStorageName(imagefile != "" ? imagefile : thumbfile));
+				drawTextKinsokuRect(layer, text, %[
+				x:0, y:0, w:width, h:height, halign:0, valign:0,
+				fontheight:height\6, fontface:"ＭＳ Ｐゴシック",
+				color:0x800000, param:[ 255, true, 4096, 0xFFFFFF, 2, 0, 0 ]
+					]);
+				.saveLayerImage(thumbfile);
+			}
+			invalidate layer;
+			temp.setImageSize(1, 1) if (temp);
+//			Storages.getPlacedPath(Storages.getStorageName(thumbfile));
+		} catch(e) {
+			dm(e.message);
+			try { _showTempThumbProgress(false); } catch {}
+			return false;
+		}
+		try { _showTempThumbProgress(false); } catch {}
+		return true;
+	}
+
+	function _showTempThumbProgress(vis, text) {
+		if (typeof kag.setOverlayBitmap != "Object") return;
+		if (typeof kag.temporaryLayer   != "Object") return;
+		if (vis) {
+			var  overlay = kag.temporaryLayer;
+			if (!overlay) return;
+			with (overlay) {
+				var w = kag.innerWidth, h = kag.innerHeight, type = .type;
+				.setImageSize(w, h);
+				.type = ltOpaque;
+				.fillRect(0, 0, w, h, 0);
+				drawTextKinsokuRect(overlay, text,
+									%[ x:0, y:0, w:w, h:h, halign:0, valign:0, color:0xFFFFFF, fontface:"ＭＳ Ｐゴシック", fontheight:32 ]);
+				kag.setOverlayBitmap(overlay);
+				.type = type;
+				if (typeof System.breathe == "Object") System.breathe();
+			}
+		} else {
+			kag.setOverlayBitmap(void);
+		}
+	}
+
+}
+
+// ----------------------------------------------------------------------------
+// CG モード用クラス
+
+class CgGalleryMode extends GalleryMode
+{
+	var cglayer;
+	var cglayerbak;
+	var button;
+	var scWidth, scHeight, rex;
+	var _existFileOnly = false; // 存在するCGのみでリストを作成するか
+	function CgGalleryMode(elm) {
+		var cgviewcls = global.CgGalleryMode.CgViewLayerClass;
+		button = new GalleryButton(this, elm);
+		rex = new RegExp("^([^<]*)<([^>:]*):([^>:]*)(:[^>]*)?>$");
+		_existFileOnly = +elm.existonly if (elm.existonly !== void);
+		super.GalleryMode(button, elm, .CgGalleryMode);
+		cglayer    = new cgviewcls(kag.back.base, this, "onNext");
+		cglayerbak = new cgviewcls(kag.back.base, this, "onNext");
+
+		scWidth  = kag.scWidth;
+		scHeight = kag.scHeight;
+	}
+
+	function finalize() {
+		if (cglayer !== void) {
+			cglayer.visible = false;
+			invalidate cglayer;
+		}
+		if (cglayerbak !== void) {
+			cglayerbak.visible = false;
+			invalidate cglayerbak;
+		}
+		cglayer = void;
+		cglayerbak = void;
+
+		invalidate rex if (rex !== void);
+		invalidate button if (button !== void);
+		super.finalize(...);
+	}
+
+	// csvファイルデフォルト
+	function getDefaultCsvFile() { return "cglist.csv"; }
+
+	// csv読み込み
+	function doLine(columns, lineNo) {
+		if (super.doLine(...)) return true;
+		var info = %[];
+		info.list = [];
+		info.tag  = columns[0];
+		for (var i = 1; i < columns.count; i++) {
+			var s = parseItem(columns[i], i-1);
+			info.list.add(s) if (s !== void);
+		}
+		items.add(info);
+		return true;
+	}
+
+	// GalleryModeから委譲
+	function getThumbnail(pos) { return items[pos].tag; }
+	function getOriginal(pos) {
+		var orig = items[pos].list[0];
+		if (orig === void) return void;
+		with (orig) return (.flag == "" || .flag.charAt(0) == "@") ? .file : .flag;
+	}
+
+	function parseItem(name, idx) {
+		if (name == "" || (name = name.trim()) == "") return;
+		var files = name, flags, q;
+		if ((q = name.indexOf("?")) >= 0) {
+			files = name.substr(0, q);
+			flags = name.substr(q+1).trim();
+		}
+		var ret = %[], base;
+		var div = files.split("|",, true);
+		ret.file = base = div[0].trim() if (div[0] != "");
+		ret.flag = (flags != "") ? flags : ret.file;
+		if (_existFileOnly && base != "" && getExistImageName(base) == "") {
+			if (!(_existFileOnly < 0 && !idx)) return;
+		}
+		var comp = [];
+		for (var i = 1; i < div.count; i++) {
+			var item = div[i].trim();
+			if (item == "") continue;
+			var elm, file, m = rex.match(item);
+			if (m.count != 0) elm = %[  file: (file = m[1].trim()),
+										"x" => +m[2], "y" => +m[3],
+										"pos" => ((m[4] != "") ? +(m[4].substr(1)) : 0) ];
+			else              elm = %[ file: (file = item.trim()) ];
+			if (file.charAt(0) == "*") {
+				ret.flag = elm.file = file.substr(1);
+			}
+			comp.add(elm);
+		}
+		ret.composite = comp if (comp.count > 0);
+		return ret;
+	}
+
+	// itemを既にみているか？
+	function isSeenItem(info) {
+		var flag = info.flag;
+		if (tf.allseen || flag == "") return true;
+		var fn = (flag.charAt(0) == "@") ? flag.substr(1) : ("cg_" + flag.toUpperCase());
+		return (fn == "" || sf[fn]);
+	}
+	/**
+	 * CG を既にみているか？
+	 * @param num CG番号
+	 * @param i 差分番号
+	 */
+	function isSeenOne(num, i) {
+		if (num < 0 || num >= count || i < 0) return false;
+		var list = items[num].list;
+		if (i >= list.count) return false;
+		return isSeenItem(list[i]);
+	}
+	/**
+	 * CG を既にみているか？
+	 * @param num CG番号
+	 */
+	function isSeen(num) {
+		if (num < 0 || num >= count || items[num] === void) return null;
+		var list = items[num].list;
+		if (list === void || !list.count) return null;
+		for (var i = 0; i < list.count; i++)
+			if (isSeenItem(list[i])) return true;
+		return false;
+	}
+	/**
+	 * 開いている割合を調べる
+	 * @return %[ seen:見た枚数, total:全体枚数, percent:パーセント ];
+	 */
+	function getSeenCounts() {
+		var total = 0, seen = 0;
+		for (var i = count-1; i >= 0; i--) {
+			if (items[i] === void) continue;
+			var num, list = items[i].list;
+			total += (num = list.count);
+			for (var j = num-1; j >= 0; j--)
+				if (isSeenItem(list[j])) seen++;
+		}
+		return %[ seen:seen, total:total, percent:(total > 0) ? seen*100/total : 0 ];
+	}
+
+	// cglayerの表裏入れ替え
+	function swapCgLayer(visible) {
+		cglayer.scrollable = false;
+		cglayerbak <-> cglayer;
+		cglayer.parent = kag.back.base;
+		cglayer.visible = visible;
+	}
+	function hideBack() {
+		swapCgLayer(false);
+	}
+	function update() {
+		hideBack();
+		super.update(...);
+	}
+	function lockView() {
+		cglayer.releaseCapture();
+		cglayerbak.scrollable = cglayer.scrollable = false;
+	}
+	function hideView() {
+		cglayerbak.visible = cglayer.visible = false;
+	}
+
+	var subItemPos, subItems;
+
+	/**
+	 * CGを表示
+	 */
+	function view() {
+		var repos = subItemPos > 0;
+		swapCgLayer(true);
+		var err =  loadImage(cglayer, subItems[subItemPos++]);
+		if (err != "") makeErrorImage(cglayer, err);
+		else if (repos && cglayer.canScroll) onViewRepos(cglayer, cglayerbak);
+	}
+	property compositeTempLayer { getter { return kag.temporaryLayer; } }
+	function loadImage(layer, data) {
+		try {
+			layer.loadImages(data.file);
+			var comp = data.composite;
+			if (comp !== void) {
+				var tmp = compositeTempLayer;
+				for (var i = 0; i < comp.count; i++) {
+					var info = loadCompositeLayer(comp[i], tmp);
+					doComposite(info, layer, tmp); // 上書き合成処理
+				}
+			}
+		} catch (e) {
+			return e.message != "" ? e.message : ("load failed:"+data.file);
+		}
+	}
+	function makeErrorImage(lay, err) {
+		with (lay) { // ロード失敗時
+			.setSize(scWidth, scHeight);
+			.setSizeToImageSize();
+			.fillRect(0, 0, .width, .height, 0xFF00FFFF);
+			.drawText(0, 0, err,     0x000000, 255, true);
+			dm("画像ロード失敗", err);
+		}
+	}
+	function onViewRepos(fore, back) {
+		fore.assignScroll(back);
+	}
+
+	// 合成用CGを読み込む
+	function loadCompositeLayer(mux, lay) {
+		var info = %[];
+		switch (typeof mux) {
+		case "String": info = parseComposite(mux); break;
+		case "Object": (Dictionary.assign incontextof info)(mux, true); break;
+		}
+		var w = scWidth, h = scHeight;
+		if (info.file != "") with (lay) {
+			.loadImages(info.file);
+			w = .imageWidth;
+			h = .imageHeight;
+		}
+		info.width  = w;
+		info.height = h;
+		return info;
+	}
+	// CGを合成する
+	function doComposite(info, dst, src) {
+		var w = dst.imageWidth, h = dst.imageHeight;
+		var ox, oy, cw, ch, pos;
+		with (info) cw=.width, ch=.height, ox=.x, oy=.y, pos= +info.pos;
+		pos = 5 if (!pos);
+		if (     pos == 2 || pos == 5 || pos == 8) ox += (w - cw) >> 1; // h-center
+		else if (pos == 3 || pos == 6 || pos == 9) ox += (w - cw);      // right
+		if (     pos == 4 || pos == 5 || pos == 6) oy += (h - ch) >> 1; // v-center
+		else if (pos == 1 || pos == 2 || pos == 3) oy += (h - ch);      // bottom
+		//dm("doComposite", pos, ox, oy, w, h, cw, ch);
+		dst.operateRect(ox, oy, src, 0, 0, cw, ch);
+	}
+
+	function focusView() {
+		cglayer.scrollable = true;
+		cglayer.focus();
+		cglayerbak.visible = false;
+	}
+	function onSelect(num) {
+		isCancelView = false;
+		subItemPos = 0;
+		subItems = [];
+		var list = items[num].list;
+		for (var i = 0; i < list.count; i++)
+			subItems.add(list[i]) if (isSeenOne(num, i));
+	}
+
+	var nextViewTarget = [ "cgmode.ks", "*view_next" ];
+	function jumpNextView { kag.process(nextViewTarget*); }
+	var isCancelView = false;
+	function onNext(message) {
+		switch (message) {
+		case "break": isCancelView = true;  break;
+		case "next":  isCancelView = false; break;
+		}
+		jumpNextView();
+	}
+	property isQuitViewLoop { getter() {
+		return isCancelView || ((subItems.count - subItemPos) <= 0);
+	} }
+}
+
+with (CgGalleryMode) {
+	// ページ位置保存用
+	.lastPage = 0;
+
+	// CG表示クラス
+	.CgViewLayerClass = global.CgViewLayer;
+}
+

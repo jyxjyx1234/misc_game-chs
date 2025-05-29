@@ -1,0 +1,36 @@
+func,item0,	sename,item,	exp,Current.cmd("select/0"),	target,*view
+func,item1,	sename,item,	exp,Current.cmd("select/1"),	target,*view
+func,item2,	sename,item,	exp,Current.cmd("select/2"),	target,*view
+func,item3,	sename,item,	exp,Current.cmd("select/3"),	target,*view
+func,item4,	sename,item,	exp,Current.cmd("select/4"),	target,*view
+func,item5,	sename,item,	exp,Current.cmd("select/5"),	target,*view
+func,item6,	sename,item,	exp,Current.cmd("select/6"),	target,*view
+func,item7,	sename,item,	exp,Current.cmd("select/7"),	target,*view
+func,item8,	sename,item,	exp,Current.cmd("select/8"),	target,*view
+func,item9,	sename,item,	exp,Current.cmd("select/9"),	target,*view
+func,item10,	sename,item,	exp,Current.cmd("select/10"),	target,*view
+func,item11,	sename,item,	exp,Current.cmd("select/11"),	target,*view
+func,item12,	sename,item,	exp,Current.cmd("select/12"),	target,*view
+func,item13,	sename,item,	exp,Current.cmd("select/13"),	target,*view
+func,item14,	sename,item,	exp,Current.cmd("select/14"),	target,*view
+#
+cref,allpages,page0,page1,
+rgrp,allpages,page0,page1,
+func,page0,	sename,page,	exp,Current.page=0,	target,*page
+func,page1,	sename,page,	exp,Current.page=1,	target,*page
+#
+cref,allsys,to_cg,to_scene,to_bust,to_music,back,exit,
+rgrp,modesel,to_cg,to_scene,to_bust,to_music
+#
+eval,-lock,exp,this.visible=!.IsStandModeOpened()
+func,to_cg,	target,*cgmode
+func,to_scene,	
+eval,to_scene,exp,this.toggle=true
+func,to_bust,	target,*standmode,	storage,custom.ks
+eval,-to_bust,exp,this.visible=.IsStandModeOpened()
+func,to_music,	target,*soundmode
+func,back,	target,*back
+func,exit,	exp,kag.close()
+func,base,
+#
+eval,names,call,uiloadSysSE,scenemode

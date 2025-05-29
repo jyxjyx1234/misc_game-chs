@@ -1,0 +1,1058 @@
+// Conductor.tjs - KAG シナリオ進行処理
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+
+class ConductorException extends Exception
+{
+	// ConductorException - Conductor がタグハンドラを処理中に発生した例外を
+	// 投げる時に使われる例外クラス
+	function ConductorException() { super.Exception(...); }
+	function finalize() { super.finalize(...); }
+};
+
+// コンダクタ再キック用AsyncTrigger
+class OneShotAsyncTrigger extends AsyncTrigger {
+	var _triggered; // トリガが引かれているかどうか
+	function finalize() {
+		super.finalize(...);
+	}
+	function OneShotAsyncTrigger() {
+		super.AsyncTrigger(...);
+		cached = true; // イベントのキャッシュを有効に
+	}
+	// オーバーライド
+	function trigger() { _triggered = true;  return super.trigger(...); }
+	function cancel()  { _triggered = false; return super.cancel(...); }
+	function onFire()  { _triggered = false; return super.onFire(...); }
+	// トリガーが引かれている状態をコピー
+	function assign(src) {
+		if (src._triggered) trigger();
+		else                cancel();
+	}
+}
+
+global.BaseConductorExtendClass = KAGParser if (typeof global.BaseConductorExtendClass == "undefined");
+class BaseConductor extends global.BaseConductorExtendClass
+{
+	// BaseConductor - シナリオ進行処理のベースクラス
+	var timer;
+	var oneshot;
+	var _interrupted = false; // 中断中か
+	var timerEnabled = false; // タイマが起動中か
+	var delaytags; // 遅延実行タグ
+	var pendings; // 後回しにされたタグ
+	var fasttags; // 最優先実行タグ
+	var inProcessing = false; // timerCallback を処理中かどうか
+	var reentered = false; // timerCallback 中に 再入したか
+	var nextTimerTick = 0; // 次にタイマーが発動されるはずの tick
+
+	// 行実行モード用拡張
+	var runLine;           // 通過中の行番号
+	var runCount;          // 通過中のコマンド番号
+	var runLineStr;        // 通過中のテキスト情報
+	var runLabel;          // 最後に通過したラベル
+	var runLabelLine = 0;  // 最後に通過したラベルの行番号
+	var targetLabel;       // ロード処理ターゲット行の前の基準ラベル
+	var targetLine;        // ロード処理ターゲット行
+	var targetCount;       // ロード処理ターゲットコマンド
+
+	function BaseConductor()
+	{
+		// 親コンストラクタを取得
+		var ctor;
+		if (typeof global.BaseConductor.SuperConstructor != "undefined") {
+			ctor = global.BaseConductor.SuperConstructor;
+		} else {
+			// クラス名一覧
+			var clsnames = [];
+			clsnames.assign(Scripts.getClassNames(this));
+
+			// 親クラスのコンストラクタを取得
+			var pos = clsnames.find("BaseConductor");
+			if (pos >= 0) for (var cnt = clsnames.count; ++pos < cnt;) {
+				if (typeof super[clsnames[pos]] == "Object") {
+					//dm("BaseConductor.super: "+ clsnames[pos]);
+					ctor = super[clsnames[pos]];
+					break;
+				}
+			}
+
+			// キャッシュに保存
+			global.BaseConductor.SuperConstructor = ctor;
+		}
+
+		// コンストラクタ
+		ctor(...) if (ctor !== void);
+
+		timer = new Timer(timerCallback, '');
+			// Timerの第二引数に空文字列を指定すると
+			// 第１引数に指定した関数を直接呼び出すようになる
+		oneshot = new OneShotAsyncTrigger(timerCallback, '');
+			// これも同様
+
+		pendings = [];
+		delaytags = [];
+		fasttags = [];
+	}
+
+	function finalize()
+	{
+		// finalize()
+		invalidate timer;
+		invalidate oneshot;
+		super.finalize(...);
+	}
+
+	// autoLabelMode && autoLabelType == 1 のチェック
+	property isLineTypeAutoLabel { getter { return false; } }
+
+	// 親メソッド呼び出し
+	function callOwnerMethod(method, *) {}
+
+	function clear()
+	{
+		// clear オーバーライド
+		if (isLineTypeAutoLabel) {
+			runLine = 0;
+			runCount = 0;
+			runLabel = "";
+			runLabelLine = 0;
+		}
+		pendings.clear();
+		delaytags.clear();
+		fasttags.clear();
+		super.clear();
+	}
+
+	var reNumber = new RegExp("^[0-9][0-9]*$");
+	
+    function checkTagExtract(cd, elm, isload) {
+        // 特殊タグ展開処理用フック
+        return false;
+    }
+
+	// 遅延タグの全キャンセル
+	function cancelDelay() {
+		delaytags.clear();
+	}
+	
+	/**
+	 * 遅延タグの展開
+	 * @param value 数値ならtick 文字列ならラベル
+	 */
+	function extractDelay(value, all=false) {
+		//if (delaytags.count > 0) {
+		//    dm("遅延タグ解放:" + value);
+		//}
+		var n = 0;
+		var l = delaytags.count;
+		for (var i=0;i<l;) {
+			var delFlag = false;
+			var obj = delaytags[i];
+			var isTick   = typeof value == "Integer";
+			var isNumber = typeof obj.delayrun == "Integer";
+			if (all ||
+				(value === void && !obj.nodelaydone) ||
+				obj.delayrun === void ||
+				(isTick && isNumber && obj.delayrun - value <= 0) ||
+				(!isTick && !isNumber && (obj.delayrun == value || value == "*"))) {
+				delete obj.delayrun;
+				//dm("タグ遅延実行:" + obj.tagname);
+				if (!interrupted) {
+					if (timerEnabled) {
+						// タイマ駆動中ならそのままコマンドを投入
+						pendings.insert(n++, obj);
+					} else {
+						// タイマが駆動してない(待ち)ならコマンドを直接実行
+						var step = onTag(obj);
+						if (step != 0) {
+							dm("タグ遅延実行:%s ステート:%d:誤動作の可能性があります".sprintf(obj.tagname,step));
+						}
+						// fasttags は全部実行
+						while (fasttags.count > 0) {
+							var obj = fasttags[0];
+							var step = onTag(obj);
+							if (step != 0) {
+								dm("タグ遅延実行:%s ステート:%d:誤動作の可能性があります".sprintf(obj.tagname,step));
+							}
+							fasttags.erase(0);
+						}
+					}
+					delaytags.erase(i);
+					delFlag = true;
+				}
+			}
+			if (delFlag) {
+				l--;
+			} else {
+				i++;
+			}
+		}
+	}
+
+	function hasDelay() {
+		return delaytags.count > 0 || waitUntil["delay_*"] !== void;
+	}
+	
+    function timerCallback()
+	{
+		var tick = System.getTickCount();
+		// 次の要素を得る
+		nextTimerTick = timer.interval + tick;
+		mp_target = this;
+		var obj;
+		try
+		{
+			if(inProcessing)
+			{
+				// 再入
+				reentered = true;
+				timer.interval = 0;
+				return;
+			}
+            inProcessing = true;
+
+			for(;;)
+			{
+				if (fasttags.count > 0) {
+					obj = fasttags[0];
+					fasttags.erase(0);
+				} else if(pendings.count > 0)
+				{
+					// 後回しにされたタグがある場合
+
+					if (targetLine !== void) {
+						
+						var i = 0;
+						do {
+							obj = pendings[i++];
+							if (obj.tagname == "line") {
+								runLine    = obj.line;
+								runCount   = 0;
+								runLineStr = obj.lineStr;
+							} else if (obj.tagname == "count") {
+								runCount++;
+							}
+							//dm("pending 行復帰処理中:" + runLine + "/" + runCount + ":" + obj.tagname);
+							if (runLine > targetLine || (runLine >= targetLine && runCount >= targetCount)) {
+								//dm("復帰完了");
+								targetLine = void;
+							}
+						} while (i<pendings.count && targetLine != void);
+
+						// 残りをコピー
+						var newp = [];
+						while (i <pendings.count) {
+							newp.add(pendings[i]);
+							i++;
+						}
+						pendings = newp;
+						callOwnerMethod("setUserSpeed");
+
+						if (targetLine === void && waitAndBreak(tick, -4)) return;
+						continue;
+						
+					} else {
+						obj = pendings[0];
+						pendings.erase(0);
+						if (obj.tagname == "line") {
+							// パーサ特殊処理
+							if (runLine != obj.line) {
+								runLine    = obj.line;
+								runCount   = 0;
+								runLineStr = obj.lineStr;
+								callOwnerMethod("updateDebugInfo");
+								if (parseMode && debugLevel >= tkdlVerbose) {
+									dm("%06d:%s %s".sprintf(runLine, curStorage, runLineStr));
+								}
+							}
+							continue;
+						} else if (obj.tagname == "count") {
+							runCount++;
+							continue;
+						} else if (obj.tagname == "label") {
+							//dm("パース中にラベル発見:" + runLabel + ":" + runLabelLine);
+							runLabel     = obj.label;
+							runLabelLine = obj.line;
+							owner.onConductorLabel(obj.label, obj.page);
+							continue;
+						}
+					}
+				}
+				else
+				{
+					// 後回しにされたタグがないので次のタグを得る
+					obj = getNextTag(); // 次のタグを得る
+
+					if (obj !== void) {
+
+						if (isLineTypeAutoLabel) {
+							if (runLine != curLine) {
+								runLine    = curLine;
+								runCount   = 0;
+								runLineStr = curLineStr;
+								callOwnerMethod("updateDebugInfo");
+							}
+							// タグをカウント
+							runCount++;
+						}
+
+						// タグ展開
+						if (checkTagExtract(this, obj, targetLine !== void)) {
+							continue;
+						} 
+
+						if (targetLine !== void) {
+							//dm("normal 行復帰処理中:" + runLine + "/" + runCount + ":" + obj.tagname);
+							if (runLine > targetLine || (runLine >= targetLine && runCount >= targetCount)) {
+								//dm("復帰完了");
+								callOwnerMethod("setUserSpeed");
+								pendings.insert(0, obj);
+								//pendings.insert(0, %[tagname:"autolabel"]);
+								targetLine = void;
+								if (waitAndBreak(tick, -4)) return;
+							}
+							continue;
+						}
+						
+						// getNextTag() の中で、pendings に追加された (iscript など)
+						if(pendings.count > 0) {
+							pendings.add(obj);
+							continue;
+						}
+					}
+				}
+
+				if(obj === void)
+				{
+					// シナリオ終了
+					timer.enabled = false;
+					timerEnabled =false;
+					onStop(true);
+					inProcessing = false;
+					reentered = false;
+					return;
+				} else {
+
+					//if (this === Window.mainWindow.mainConductor) {dm(runLine + "/" + runCount +  " タグ実行:" +  obj.tagname);}
+
+					// 遅延実行のキャンセル
+					if (obj.tagname == "extractdelay") {
+						owner.extractDelay(obj.label);
+						continue;
+					} else if (obj.tagname == "delaydone") {
+						owner.doneDelay(obj.all);
+						continue;
+					} else if (obj.tagname == "delaycancel") {
+						owner.cancelDelay();
+						continue;
+					}
+					
+					// 遅延実行タグ
+					if (obj.delayrun !== void) {
+						if (reNumber.test(obj.delayrun)) {
+							// 数値の場合は　tick に変換
+							obj.delayrun = tick + (+obj.delayrun);
+						}
+						//dm("遅延タグ登録:" + obj.tagname + ":" + obj.delayrun);
+						var o = %[];
+						(Dictionary.assign incontextof o)(obj, false);
+						// 遅延タグはシンクロ動作禁止
+						delete o.sync;
+						delete o.wait;
+						o.nosync = true;
+						delaytags.add(o);
+						callOwnerMethod("flipStart");
+						continue;
+					}
+					
+					// 実行時判定される cond
+					if (obj.condex !== void) {
+						if (!Scripts.eval(obj.condex)) {
+							continue;
+						}
+						delete obj.condex;
+					}
+
+					// onTag を呼ぶ
+					var step = onTag(obj);
+					if(step === void)
+						throw new Exception("onTag が void を返しました (" + obj.tagname + ")"
+							"( おそらくタグハンドラの戻り値を返し忘れた )");
+					step = int step; // step を数値に
+					if(step == 0)
+					{
+						// ウェイトを掛けずに次へ
+						timer.interval = 0;
+						continue;
+					}
+					else
+					{
+						if (waitAndBreak(tick, step, obj)) return;
+					}
+				}
+			}
+			inProcessing = false;
+			reentered = false;
+        }
+		catch(e)
+		{
+//			Debug.logAsError();
+			timer.enabled = false;
+			timerEnabled =false;
+			onStop();
+			inProcessing = false;
+			
+			if (isLineTypeAutoLabel &&
+				e.message.substring(0,17) == "シナリオファイルに変更があったため" &&
+				!onScenarioModifiedError()) return;
+
+			var msg = "致命的なエラーが発生しました。\n"
+				"ファイル : " + curStorage + "   行 : " + (curLine+1) + "\n"
+				"タグ : " + (obj === void ? "不明" : obj.tagname)
+				+ " ( ← エラーの発生した前後のタグを示している場合もあります )\n"
+				+ e.message;
+                if((typeof e.trace) != "undefined") dm("trace : " + e.trace);
+                dm(msg);
+                throw new ConductorException(msg);
+//              System.inform(msg, "エラー");
+		}
+		mp_target = void;
+	}
+
+	function waitAndBreak(tick, step, obj)
+	{
+		switch(step)
+		{
+		case -5: // いったんイベントを処理(現在のタグは後回し)
+			pendings.insert(0, obj);
+			// not break;
+		case -4: // いったんイベントを処理
+			oneshot.mode = atmAtIdle;
+			oneshot.trigger(); // トリガ
+			timer.interval = 0; // タイマは停止
+			break;
+		case -3: // ブレーク(現在のタグは後回し)
+			pendings.insert(0, obj);
+			// not break;
+		case -2: // ブレーク
+			timer.interval = 0; // タイマは停止
+			break;
+		case -1: // シナリオ終了
+			timer.interval = 0; 
+			timer.enabled = false;
+			timerEnabled = false;
+			onStop();
+			break;
+		default:
+			if (step <= 0) return false;
+			else if (/* step > 0 && */ timer.interval != step)
+			{
+				timer.interval = step;
+				nextTimerTick  = step + tick;
+			}
+			break;
+		}
+		inProcessing = false;
+		reentered = false;
+		mp_target = void;
+		return true;
+	}
+
+	// シナリオファイルに変更があった／trueを返すとそのまま例外投げ
+	function onScenarioModifiedError() { return true; }
+	function onRestoreLabelError()     { return false; }
+
+	function onTag()
+	{
+		// オーバーライドすること
+		return -1;
+	}
+
+	function onStop(eos)
+	{
+		// (シナリオの)停止時に呼ばれる。
+		// stop() から呼ばれるわけではない。
+		// オーバーライドすること。
+	}
+
+	function startProcess(immediate = false)
+	{
+		// シナリオ進行開始
+		// immediate = false の場合は非同期で実行を開始するので、
+		// このメソッド内でタグハンドラが呼ばれることはない
+		// 次のイベント配信のタイミングで最初のタグハンドラが呼ばれる。
+		// immediate = true の場合は、このメソッド内で初回のタグハンドラが
+		// 処理されるため、呼び出し側はこのメソッドの実行が終わったら
+		// すぐに吉里吉里に制御を戻す(すべての関数から抜ける)ようにするべき。
+		resetInterrupt();
+		timer.interval = 0; // 初期インターバル
+		timerEnabled = true;
+		if(!_interrupted)
+		{
+			timer.enabled = true; // タイマー開始
+			if(immediate)
+			{
+				timerCallback();
+			}
+			else
+			{
+				oneshot.mode = atmExclusive;
+					// イベントが配信されるまで他の非同期イベントをブロック
+				oneshot.trigger(); // トリガ
+			}
+		}
+	}
+
+	function start()
+	{
+		// タイマ開始
+		timerEnabled = true;
+		timer.enabled = true;
+	}
+
+	function stop()
+	{
+		// タイマ停止
+		timer.enabled = false;
+		timerEnabled = false;
+	}
+
+	property interrupted
+	{
+		getter() { return _interrupted; }
+		setter(x)
+		{
+			if(!x)
+			{
+				// enable
+				if(timerEnabled)
+				{
+					timer.interval = 0;
+					timer.enabled = true;
+					oneshot.mode = atmExclusive;
+						// イベントが配信されるまで他の非同期イベントをブロック
+					oneshot.trigger(); // トリガ
+				}
+			}
+			else
+			{
+				// disable
+				oneshot.cancel();
+				timer.enabled = false;
+			}
+			_interrupted = x;
+		}
+	}
+
+	function assign(src)
+	{
+		// src の状態をこのオブジェクトにコピー
+		var t = timer;
+		var st = src.timer;
+		t.enabled = false;
+		t.interval = st.interval;
+		nextTimerTick = src.nextTimerTick;
+		if(st.enabled && st.interval != 0)
+		{
+			// タイマ interval の調整
+			var delta = nextTimerTick - System.getTickCount();
+			if(delta > 0) t.interval = delta; else t.interval = 1;
+		}
+		t.enabled = st.enabled;
+		timerEnabled = src.timerEnabled;
+		_interrupted = src._interrupted;
+		if(src.pendings.count > 0)
+			pendings.assignStruct(src.pendings);
+		else
+			pendings.clear();
+		if(src.fasttags.count > 0)
+			fasttags.assignStruct(src.fasttags);
+		else
+			fasttags.clear();
+		// oneshotの状態もコピー
+		oneshot.assign(src.oneshot);
+
+		super.assign(src);
+	}
+
+	function store()
+	{
+		// store オーバーライド
+		if (isLineTypeAutoLabel) {
+			//dm("コンダクタ保存処理:" + runLine + "/" + runCount + ":" + runLabel + ":" + runLabelLine);
+			// store オーバーライド
+			var ret = super.store(...);
+			ret.parseMode    = parseMode;
+			ret.runLine      = runLine;
+			ret.runCount     = runCount;
+			ret.runLabel     = runLabel;
+			ret.runLabelLine = runLabelLine;
+			return ret;
+		}
+		return super.store(...);
+	}
+
+	function restore(dic)
+	{
+		if (isLineTypeAutoLabel) {
+			// 現在のラベル位置まで復帰
+			dm("コンダクタ復帰処理:" + dic.runLine + "/" + runCount + ":" + dic.runLabel + ":" + dic.runLabelLine);
+			loadScenario(dic.storageName);
+			if (dic.parseMode) {
+				parseAll();
+			}
+			if (dic.runLabel != "") {
+				goToLabel(dic.runLabel);
+				dm("指定のラベル位置に復帰:" + dic.runLabel);
+				callOwnerMethod("setRecordLabel", curStorage, dic.runLabel);
+			}
+			dm("現在行:" + runLine + " 復帰予定位置:" + dic.runLabelLine);
+			if (dic.lineSaveMode) {
+				//targetLine  = runLine + dic.runLine - dic.runLabelLine;
+				targetLine  = dic.runLine;
+				targetCount = dic.runCount;
+				targetLabel = dic.runLabel;
+				//dm("行復帰実行:" + targetLine + "/" + targetCount);
+				if (runLine != dic.runLabelLine) {
+					if (onRestoreLabelError()) throw new Exception("シナリオのラベル位置変更が検出されました。");
+				}
+			}
+			return;
+		}
+
+		// restore オーバーライド
+		super.restore(...);
+		pendings.clear();
+		fasttags.clear();
+		delaytags.clear();
+	}
+
+    // パース処理実行中
+    var parseMode;
+
+	/**
+	 * 全パース処理実行
+	 */
+	function parseAll() {
+		//dm("全パース処理:" + curStorage);
+		if (isLineTypeAutoLabel) {
+			parseMode = true;
+			var obj;
+			while ((obj = getNextTag()) !== void) { // 次のタグを得る
+				if (runLine !== curLine) {
+					enqueueTag(%[tagname:"line", line:curLine, lineStr:curLineStr]);
+					runLine = curLine;
+				}
+				enqueueTag(%[tagname:"count"]);
+				if (!checkTagExtract(this, obj, true)) {
+					var e = %[];
+					(Dictionary.assign incontextof e)(obj, false);
+					enqueueTag(e);
+				}
+			}
+			for (var i=0;i<pendings.count;i++) {
+				if (pendings[i].tagname == "line") {
+					dm("パース結果:" + pendings[i].tagname + ":" + pendings[i].line);
+				} else {
+					dm("パース結果:" + pendings[i].tagname);
+				}
+			}
+		} else {
+			throw new ConductorException("parse コマンドは行記録モードでないと使えません");
+		}
+    }
+	
+	function loadScenario(storage)
+	{
+		if (isLineTypeAutoLabel) {
+			runLine = 0;
+			runCount = 0;
+			runLabel = "";
+			runLabelLine = 0;
+			targetLine = void;
+			parseMode = false;
+		}
+		pendings.clear();
+		fasttags.clear();
+		delaytags.clear();
+		super.loadScenario(storage);
+	}
+
+	function goToLabel(label)
+	{
+		if (isLineTypeAutoLabel) {
+			runLine = 0;
+			runCount = 0;
+			runLabel = "";
+			runLabelLine = 0;
+			targetLine = void;
+			
+			// goToLabel オーバーライド
+			if (parseMode) {
+				var reload = false;
+				for (;;) {
+					dm("読み出し処理");
+					for (var i=0;i<pendings.count;i++) {
+						var obj = pendings[i];
+						if (obj.tagname == "label" && obj.label == label) {
+							// ラベル発見
+							runLine      = obj.line;
+							runCount     = 0;
+							runLabel     = obj.label;
+							runLabelLine = runLine;
+							
+							// そこまでを消去
+							var newp = [];
+							while (i <pendings.count) {
+								newp.add(pendings[i]);
+								i++;
+							}
+							pendings = newp;
+							return;
+						}
+					}
+					// 一度読み直して頭からやりなおし
+					if (reload) {
+						break;
+					} else {
+						dm("読み直し");
+						reload = true;
+						super.loadScenario(curStorage);
+						parseAll();
+					}
+				}
+				// あきらめて頭から
+				loadScenario(curStorage);
+				parseMode = false;
+			}
+
+			pendings.clear();
+			fasttags.clear();
+			delaytags.clear();
+			super.goToLabel(...);
+			runLine = curLine;
+			runCount = 0;
+			return;
+		}
+		// goToLabel オーバーライド
+		pendings.clear();
+		fasttags.clear();
+		delaytags.clear();
+		super.goToLabel(...);
+	}
+
+	function enqueueTag()     { pendings.push(...); } // Array.pushは末尾に追加する
+	function enqueueFastTag() { fasttags.push(...); }
+
+	function pushTag()        { pendings.unshift(...); } // Array.unshiftは先頭に追加する
+	function pushFastTag()    { fasttags.unshift(...); }
+
+}
+
+
+class Conductor extends BaseConductor
+{
+	// Conductor - シナリオ進行処理
+	/*const*/ var mStop = 0; // 停止
+	/*const*/ var mRun = 1; // 動作中
+	/*const*/ var mWait = 2; // 待ち
+
+	var owner;
+	var handlers;
+	var status = mStop;
+	var timeOutTimer;
+	var waitUntil = %[];
+	var lastTagName = ''; // 直前のタグ名
+//	var tagAttribOrder = []; // タグオプション順序
+
+	function Conductor(owner, handlers)
+	{
+		// コンストラクタ
+		super.BaseConductor();
+		ignoreCR = global.ignoreCR;
+		debugLevel = tkdlVerbose;
+		this.owner = owner;
+		this.handlers = handlers;
+		timeOutTimer = new Timer(onTimeOut, '');
+	}
+
+	function finalize()
+	{
+		// finalize()
+		invalidate timeOutTimer;
+		super.finalize(...);
+	}
+
+    function checkTagExtract(cd, elm, isload) {
+		return owner.checkTagExtract(cd, elm, isload);
+    }
+
+	function run(immediate = false)
+	{
+		// 実行の開始
+		// immediate=true の場合は、
+		// このメソッドを実行したらすぐに吉里吉里に制御を戻す
+		// (すべての関数から戻る)こと
+		cancelTimeOut();
+		status = mRun;
+		startProcess(immediate);
+	}
+
+	function sleep()
+	{
+		// 実行の停止
+		cancelTimeOut();
+		status = mStop;
+		stop();
+	}
+
+	function wait(until)
+	{
+		// 待ち
+		// until = trigger で用いるシグナル名とコールバック関数の
+		// 辞書配列
+		cancelTimeOut();
+		status = mWait;
+		stop();
+		(Dictionary.assign incontextof waitUntil)(until);
+	}
+
+	function waitWithTimeOut(until, timeout)
+	{
+		// 待ちを行うが、タイムアウトがある
+		// タイムアウト時には 'timeout' がトリガされるので
+		// ハンドラを定義すること。
+		if(timeout == 0) timeout = 1; // timeout が 0 の場合は 1 に
+		status = mWait;
+		stop();
+		(Dictionary.assign incontextof waitUntil)(until);
+		timeOutTimer.interval = timeout;
+		timeOutTimer.enabled = true;
+	}
+
+	function cancelTimeOut()
+	{
+		timeOutTimer.enabled = false;
+	}
+
+	function onTimeOut()
+	{
+		// timeOutTimer がタイムアウトした
+		cancelTimeOut();
+		trigger('timeout'); // 自分自身で timeout をトリガする
+	}
+
+	function trigger(name)
+	{
+		// waitUntil 内にシグナル名 name が存在すれば、実行再開、
+		// 同時に waitUntil に登録されたメソッド(リスタートハンドラ)を呼ぶ
+		// シグナル名に _arg がついたものが waitUntil 内にあれば、
+		// それを引数としてハンドラに渡す
+		// waitUntil はクリアされる
+		if(status != mWait) return false;
+		var func = waitUntil[name];
+		if(func !== void)
+		{
+			var arg = waitUntil[name + '_arg'];
+			var waittime  = arg !== void ? func(arg) : func();
+			if (waittime !== void && waittime > 0) {
+				// 追加待ち処理
+				var w = %[timeout : function(arg) {}];
+				if (waitUntil.click !== void) {
+					w.click = function() {};
+				}
+				(Dictionary.clear incontextof waitUntil)();
+				waitWithTimeOut(w, waittime);
+			} else {
+				// 待ち終了
+				(Dictionary.clear incontextof waitUntil)();
+				run();
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+/*
+	function getNextTag()
+	{
+		var r = super.getNextTag(tagAttribOrder);
+		r["*order"] = tagAttribOrder;
+		return r;
+	}
+*/
+	function onTag(elm)
+	{
+		// タグの処理
+		var tagname = elm.tagname;
+		var handler = handlers[tagname];
+		if(handler !== void)
+		{
+			var ret = handler(elm);
+			lastTagName = tagname;
+			return ret;
+		}
+		return onUnknownTag(tagname, elm);
+	}
+
+	function onStop(eos)
+	{
+		// BaseConductor.onStop オーバーライド
+		// 停止時に呼ばれるのでステータスを mStop にする
+		status = mStop;
+		if(owner.conductor == this) handlers.s(); // ハンドラの s (停止) を呼ぶ
+	}
+
+	function onScript(script, scriptname, lineofs)
+	{
+		// scirpt を実行する
+		try
+		{
+			Scripts.exec(script, scriptname, lineofs);
+		}
+		catch(e)
+		{
+			throw new Exception(scriptname + " の 行 " + lineofs + " から始まる"
+				" iscript ブロックでエラーが発生しました。"
+				"\n( 詳細はコンソールを参照してください )\n" + e.message);
+		}
+		return true;
+	}
+
+	function store()
+	{
+		// store オーバーライド
+		return super.store(...);
+	}
+
+	function restore(dic)
+	{
+		// restore オーバーライド
+		super.restore(...);
+		lastTagName = '';
+	}
+
+	function onScenarioLoad()
+	{
+		return owner.onConductorScenarioLoad(...);
+	}
+
+	function onScenarioLoaded()
+	{
+		return owner.onConductorScenarioLoaded(...);
+	}
+
+	function onLabel(label, page)
+	{
+		if (isLineTypeAutoLabel) {
+			if (parseMode) {
+				// コマンドの登録
+				//dm("ラベル登録:" + label + ":" + curLine);
+				enqueueTag(%[tagname:"label", label:label, page:page, line:curLine]);
+				return true;
+			} else {
+				runLine      = curLine;
+				runCount     = 0;
+				runLabel     = label;
+				runLabelLine = runLine;
+				if (targetLine !== void) {
+					if (label !== targetLabel) {
+						onLabelModifiedError();
+					}
+					return true;
+				}
+			}
+		}
+		return owner.onConductorLabel(...);
+	}
+
+	function onJump()
+	{
+		if (isLineTypeAutoLabel) {
+			if (parseMode) {
+				// パース中ではエラー扱いすべし XXX
+				return false;
+			} else {
+				return targetLine === void ? owner.onConductorJump(...) : true;
+			}
+		}
+		return owner.onConductorJump(...);
+	}
+
+	function onCall()
+	{
+		if (isLineTypeAutoLabel) {
+			if (parseMode) {
+				// パース中ではエラー扱いすべし XXX
+				return false;
+			} else {
+				return targetLine === void ? owner.onConductorCall(...) : true;
+			}
+		}
+		return owner.onConductorCall(...);
+	}
+
+	function onReturn()
+	{
+		if (isLineTypeAutoLabel) {
+			return targetLine === void ? owner.onConductorReturn(...) : true;
+		}
+		return owner.onConductorReturn(...);
+	}
+
+	function onAfterReturn()
+	{
+		if (isLineTypeAutoLabel) {
+			return targetLine === void ? owner.onConductorAfterReturn(...) : true;
+		}
+		return owner.onConductorAfterReturn(...);
+	}
+
+	function onScript()
+	{
+		if (isLineTypeAutoLabel) {
+			if (parseMode) {
+				// パース中ではエラー扱いすべし XXX
+				return false;
+			} else {
+				return targetLine === void ? owner.onConductorScript(...) : true;
+			}
+		}
+		return owner.onConductorScript(...);
+	}
+
+	function onUnknownTag()
+	{
+		if (isLineTypeAutoLabel) {
+			return targetLine === void ? owner.onConductorUnknownTag(...) : true;
+		}
+		return owner.onConductorUnknownTag(...);
+	}
+
+	// 親メソッド呼び出し（オーバーライド
+	function callOwnerMethod(method, *) {
+		return (typeof owner[method] == "Object") ? owner[method](*) : void;
+	}
+
+	// autoLabelMode && autoLabelType == 1 のチェック（オーバーライド）
+	property isLineTypeAutoLabel { getter {
+		with (owner) return (typeof .autoLabelMode != "undefined" && .autoLabelMode && .autoLabelType == 1);
+	} }
+
+	// 各種エラー対応
+	function onRestoreLabelError() {
+		askYesNo("シナリオのラベル位置変更が検出されました。不整合の可能性がありますがそのまま再開しますか？",
+				 "確認", function {}, function { targetLine = void; owner.goToStart(); } incontextof this);
+	}
+	function onLabelModifiedError() {
+		askYesNo("シナリオのラベル不整合が検出されました。正常動作は保障されませんが、該当シナリオの冒頭から再開しますか？",
+				 "確認", function(param) { process(param);} incontextof owner, owner.goToStart, curStorage);
+	}
+	function onScenarioModifiedError() {
+		askYesNo("セーブデータの不整合が検出されました。正常動作は保障されませんが、該当シナリオの冒頭から再開しますか？",
+				 "確認", function(param) { process(param);} incontextof owner, owner.goToStart, curStorage);
+	}
+}

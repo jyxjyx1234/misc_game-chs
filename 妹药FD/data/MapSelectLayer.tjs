@@ -1,0 +1,456 @@
+// MapMapSelectLayer.tjs - マップ選択肢レイヤ
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+
+class MapSelectButtonLayer extends Layer
+{
+    var pos; // 場所指定の記録用
+
+    var onenter; // マウスが入ってきたときに実行するもの
+    var onleave; // マウスが出ていったときに実行するもの
+    var onclick; // クリック時に実行するもの
+    var storage; // 処理終了後のジャンプ先
+    var target;  // 処理終了後のジャンプ先
+    
+    var Butt_mouseOn = false; // レイヤ内にマウスがあるか
+    var Butt_keyPressed = false;
+
+    var baseCount; // アニメーションパターンの数
+    
+    /**
+     * コンストラクタ
+     * @param win ウインドウ
+     * @param par 親レイヤ
+     * @param elm 初期化用パラメータ
+     */
+    function MapSelectButtonLayer(win, par, elm) {
+        
+        super.Layer(win, par);
+
+        // ウインドウからカーソルをコピー
+        if (typeof win.cursorPointed !== "undefined") {
+            cursor = win.cursorPointed;
+        }
+        
+        hitType = htMask;
+        hitThreshold = 1;
+        focusable = true; // フォーカスを得られる
+
+        // 画像のロード
+        loadImages(elm.image);
+        setSize(elm.width === void ? imageWidth / 2 : elm.width, elm.count !== void ? imageHeight / elm.count : elm.height);
+        //dm("ボタン生成:" + elm.image + " size:" + width + "," + height);
+        
+        // アニメーションパターン数（縦方向）
+        baseCount = (int)(imageHeight / height);
+
+        update();
+    }
+
+    function finalize() {
+        super.finalize();
+    }
+    
+    /**
+     * レイヤ描画処理
+     */
+	function onPaint() {
+        super.onPaint(...);
+
+        if (Butt_mouseOn) {
+            imageLeft = -width;
+            if (baseCount > 1) {
+                var t = int(System.getTickCount() / parent.baseInterval);
+                t %= baseCount;
+                imageTop = -height * t;
+            } else {
+                imageTop = 0;
+            }
+        } else {
+            imageLeft = 0;
+            imageTop  = 0;
+        }
+    }
+    
+	function onMouseUp(x, y, button, shift)	{
+        if (enabled && button == mbLeft) {
+            parent.onButtonClick(this);
+        }
+        if (this isvalid) super.onMouseUp(...);
+    }
+
+	function onMouseEnter()	{
+        // マウスがレイヤ領域内に入った
+        if(onenter !== void) Scripts.eval(onenter);
+		update();
+		Butt_mouseOn = true;
+		super.onMouseEnter(...);
+		_ignoreFocusJump = true;
+        focus();
+		_ignoreFocusJump = void;
+	}
+
+	function onMouseLeave()	{
+        // マウスがレイヤ領域から出ていった
+        if(onleave !== void) Scripts.eval(onleave);
+		update();
+		Butt_mouseOn = false;
+		super.onMouseLeave(...);
+	}
+
+	function onKeyDown(key, shift, process)
+	{
+        // キーが押された
+        if(window.preProcessKeys(key, shift)) return;
+        if (enabled && (key == VK_SPACE || key == VK_RETURN)) {
+            parent.onButtonClick(this);
+        }
+        if (this isvalid) super.onKeyDown(...);
+    }
+
+	var _ignoreFocusJump;
+	function onFocus(prevfocused, direction)
+	{
+        // キー操作によるフォーカス変動の場合にマウスカーソルも移動
+        var sgks = window.getKeyState;
+        var process = !_ignoreFocusJump && (sgks(VK_LEFT) || sgks(VK_UP) || sgks(VK_RIGHT) ||
+											sgks(VK_DOWN) || sgks(VK_TAB));
+        if(process) {
+            cursorX = (width>>1);
+            cursorY = (height>>1);
+			releaseCapture();
+        }
+		return super.onFocus(...);
+    }
+}
+
+/**
+ * 選択肢処理用ロジック
+ * KAG用に特化しています
+ */
+class MapSelectLayer extends KAGLayer {
+
+    var msgoff = true;
+
+    // ベースの画像
+    var frameGraphic = ""; // フレーム画像ファイル名
+    var frameKey = clNone; // フレーム画像キー
+    var frameColor = 0x000000; // フレームの色
+    var frameOpacity = 128; // フレームの不透明度
+    
+    // マップ用ボタンのアニメパターンのインターバル
+    var baseInterval = 100;
+    var buttonWidth  = 100;
+
+    // 効果音
+    var enterse;
+    var leavese;
+    var clickse;
+
+    // タイマ
+    var timer;
+    
+    /**
+     * レイヤの内容消去
+     */
+	function clearLayer()
+	{
+        if (frameGraphic == "") {
+            // フレーム画像が指定されていない場合
+            face = dfAuto;
+            if(type == ltAddAlpha) {
+                fillRect(0, 0, imageWidth, imageHeight, (frameOpacity << 24) +
+                         ((int)((((frameColor&0xff0000)>>16) * frameOpacity) / 255)<<16 ) +
+                         ((int)((((frameColor&0x00ff00)>> 8) * frameOpacity) / 255)<< 8 ) +
+                         ((int)((((frameColor&0x0000ff)    ) * frameOpacity) / 255)     ) );
+            } else {
+                fillRect(0, 0, imageWidth, imageHeight, (frameOpacity << 24) + frameColor);
+            }
+            //xoff = 0;
+            //yoff = 0;
+            
+        } else {
+            // センタリング表示
+            var layer = new global.Layer(window, this);
+            layer.loadImages(frameGraphic, frameKey);
+            layer.setSizeToImageSize();
+            
+            // 消去
+            fillRect(0, 0, imageWidth, imageHeight, 0);
+            
+            // 画像コピー
+            var xoff = ((width  - layer.width)>>1)  + left;
+            var yoff = ((height - layer.height)>>1) + top;
+            operateRect(xoff, yoff, layer, 0, 0, layer.width, layer.height);
+            
+            invalidate layer;
+        }
+        face = dfProvince;
+        colorRect(0, 0, imageWidth, imageHeight, 0); // 領域もクリア
+        face = dfAuto;
+    }
+
+    /**
+     * オプションの設定
+     */
+	function setOptions(elm) {
+
+        super.setOptions(elm);
+
+        // アニメーションのインターバル
+        baseInterval = elm.interval if elm.interval !== void;
+        buttonWidth  = elm.buttonwidth if elm.btnwidth !== void;
+        
+        // 効果音指定
+        enterse = elm.enterse if elm.enterse !== void;
+        leavese = elm.leavese if elm.leavese !== void;
+        clickse = elm.clickse if elm.clickse !== void;
+
+        // 背景グラフィック指定
+        frameGraphic  = elm.frame    if elm.frame !== void;
+        frameKey      = elm.framekey if elm.framekey !== void;
+        frameColor    = +elm.color   if elm.color !== void;
+        frameOpacity  = +elm.opacity if elm.opacity !== void;
+        clearLayer();
+
+        // メッセージ窓を消去するかどうか
+        msgoff = elm.msgoff if elm.msgoff !== void;
+    }
+
+    // 登録済みボタン情報
+    var buttons = %[];
+
+    // 登録済み場所情報
+    var positions = %[];
+    
+    /**
+     * コンストラクタ
+     */
+    function MapSelectLayer(window) {
+        super.Layer(window, window.primaryLayer);
+        setImageSize(parent.width, parent.height);
+        setSizeToImageSize();
+        hitType      = htMask;
+        hitThreshold = 1;
+        focusable    = false;
+        cursor = window.cursorDefault;
+        
+        // タイマーを作成
+        timer = new Timer(onTimer, '');
+    }
+
+    function finalize() {
+        clear();
+        invalidate buttons;
+        invalidate positions;
+        invalidate selects;
+        invalidate timer;
+        super.finalize(...);
+    }
+
+    function onTimer() {
+        // タイマーの周期ごとに呼ばれる
+        for (var i=selects.count-1;i>=0;i--) {
+            selects[i].update();
+        }
+	}
+
+    
+    /**
+     * ボタン情報の追加
+     */
+    function addButton(elm) {
+        if (elm.name !== void) {
+            var e = %[];
+            e.image  = elm.image;
+            e.width  = +elm.width  if elm.width  !== void;
+            e.height = +elm.height if elm.height !== void;
+            e.count  = +elm.count  if elm.count  !== void;
+            buttons[elm.name] = e;
+        }
+    }
+
+    /**
+     * 場所情報の追加
+     */
+    function addPosition(elm) {
+        if (elm.name !== void) {
+            var e = %[];
+            e.left = +elm.left;
+            e.top  = +elm.top;
+            positions[elm.name]  = e;
+        }
+    }
+
+    /**
+     * ボタン情報と場所情報の消去
+     */
+    function init() {
+        (Dictionary.clear incontextof buttons)(); 
+        (Dictionary.clear incontextof positions)(); 
+    }
+    
+    // 登録済み選択肢
+    var selects = [];
+    
+    /**
+     * 選択消去
+     */
+    function clear() {
+        for (var i=selects.count-1;i>=0;i--) {
+            var select = selects[i];
+            invalidate select;
+        }
+        selects.clear();
+    }
+
+    /**
+     * 選択肢を追加
+     */
+    function addSelect(elm) {
+
+        var info = buttons[elm.text];
+        if (info === void) {
+            throw new Exception("指定された選択肢が追加できません:" + elm.text);
+        }
+        
+        var enterse  = elm.enterse !== void ? elm.enterse : enterse;
+        var leavese  = elm.leavese !== void ? elm.leavese : leavese;
+        var clickse  = elm.clickse !== void ? elm.clickse : clickse;
+
+        var entersebuf = elm.entersebuf !== void ? elm.entersebuf : kag.numSEBuffers - 2;
+        var leavesebuf = elm.leavesebuf !== void ? elm.leavesebuf : kag.numSEBuffers - 2;
+        var clicksebuf = elm.clicksebuf !== void ? elm.clicksebuf : kag.numSEBuffers - 1;
+
+        var select = new MapSelectButtonLayer(window, this, info);
+
+        select.pos     = elm.pos !== void ? elm.pos : "default";
+        select.onenter = MessageLayer.createSoundExpression(elm.onenter, enterse, entersebuf);
+        select.onleave = MessageLayer.createSoundExpression(elm.onleave, leavese, leavesebuf);
+        select.onclick = MessageLayer.createSoundExpression(elm.exp,     clickse, clicksebuf),
+        select.storage = elm.storage;
+        select.target  = elm.target;
+        
+        selects.add(select);
+    }
+
+    /*
+     * 親の差し替え
+     */
+    function setParent(parent, absolute) {
+        this.parent = parent;
+        this.absolute = absolute;
+    }
+    
+    /**
+     * 選択処理開始
+     */
+    function start(parent, absolute) {
+
+        this.parent = parent;
+        this.absolute = absolute;
+        
+        var posall   = %[];
+        
+        // 選択肢を場所ごとに分類
+        for (var i=0; i<selects.count;i++) {
+            var select = selects[i];
+            if (posall[select.pos] === void) {
+                posall[select.pos] = [];
+            }
+            posall[select.pos].add(select);
+        }
+
+        // 場所ごとにボタンを再配置する
+        foreach(posall, function(posname,selects,posall,self) {
+            
+            var pos = self.positions[posname];
+            if (pos === void) {
+                pos = self.positions["default"];
+            }
+            if (pos !== void) {
+
+                // 場所の調整処理
+                var left = pos.left - (selects.count * self.buttonWidth) / 2;
+                for (var i=0; i<selects.count;i++) {
+                    var select = selects[i];
+                    select.setPos(left + i * self.buttonWidth + ((self.buttonWidth - select.width) / 2),
+                                  pos.top - select.height / 2);
+                    // Ｙ座標が大きいほうが上、左にいるほうが上
+                    select.absolute = pos.top * 1000 + select.left;
+                    select.visible = true;
+                    //dm("表示:" + select.left  +"," + select.top);
+                }
+            }
+        },this);
+
+        visible = true;
+        timer.interval = baseInterval / 2;
+        timer.enabled  = true;
+    }
+
+    /**
+     * 完了
+     */
+    function done() {
+        visible = false;
+        timer.enabled  = false;
+        clear();
+    }
+    
+    /**
+     * 処理終了
+     */
+    function onButtonClick(select) {
+        if (select !== void) {
+            Scripts.eval(select.onclick) if select.onclick != '';
+            if (select isvalid) {
+                if (select.storage != '' || select.target != '')	{
+                    window.lockMessageLayerSelProcess(); // 選択をロック
+                    if (window.getKeyState(VK_RETURN) || window.getKeyState(VK_SPACE) || window.getKeyState(VK_CONTROL))
+                        window.hideMouseCursor();
+                    // キーボードによる操作の場合はマウスカーソルを隠す
+					window.processGo();
+					window.insertTag("donemapselect", %[storage:select.storage, target:select.target]);
+				} else {
+					window.processGo();
+					window.insertTag("donemapselect");
+				}
+            }
+        }
+    }
+
+    var invisibleByUser = false; // ユーザにより一時的に不可視
+	var visibleBeforeUserInvisible  = false;
+	function setHiddenStateByUser(b)
+	{
+		// ユーザが右クリックなどでメッセージレイヤを一時的に隠すときに
+		// 呼ばれる
+		if(b)
+		{
+			visibleBeforeUserInvisible = visible;
+			invisibleByUser = true; // ユーザにより一時的に不可視
+			visible = false;
+		}
+		else
+		{
+			invisibleByUser = false; // 可視
+			visible = visibleBeforeUserInvisible;
+		}
+	}
+
+    function lockFocus() {
+        for (var i=0; i<selects.count;i++) {
+            var select = selects[i];
+            select.focusable = false;
+        }
+    }
+    
+    function unlockFocus() {
+        for (var i=0; i<selects.count;i++) {
+            var select = selects[i];
+            select.focusable = true;
+        }
+    }
+
+}

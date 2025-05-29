@@ -1,0 +1,59 @@
+// 差分画像を読み込みフック
+
+with (global.Layer) {
+	.diffTempLayer = void;
+	.diffImageMap = %[];
+	.diffLoadBefore = true; // 差分か元画像のどちらを優先するかフラグ
+	.diffDebugMessage = debugWindowEnabled;
+	.diffOrigLoadImages = .loadImages;
+	.loadImages = function (storage, key = clNone) {
+		var info, path, name, orig = this.diffOrigLoadImages;
+		with (global.Storages) {
+			path = .extractStoragePath(storage);
+			name = .chopStorageExt(.extractStorageName(storage));
+		}
+		with (global.Layer) {
+			// 自動検索パス指定でかつ差分情報が存在した場合にのみ差分読み込み
+			if (path == "" && name != "" && key === clNone && (info = .diffImageMap[name.toLowerCase()]) !== void) {
+				var exists = global.getExistImageName, dm = .diffDebugMessage;
+				// 差分優先の場合は差分元と差分先が存在する場合に差分読み込み
+				// 差分非優先の場合はオリジナルファイルが存在しない場合に差分読み込み
+				if (.diffLoadBefore ? (exists(info.base) != "") : (exists(storage)  == "")) with (info) {
+					Debug.message(@"差分読み込み：${.diff}/${.base}/${exists(.diff)}") if dm;
+					var ret = orig(.base), lay = global.Layer.diffTempLayer; // 差分元ベース読み込み
+					if (lay == void)      (lay = global.Layer.diffTempLayer = new global.Layer(this.window, this.window.primaryLayer)).name = "差分読み込み一時レイヤ";
+					if (exists(.diff) == "") return ret;
+					var ox = .x, oy = .y, ofs = (orig incontextof lay)(.diff); // 差分ファイル読み込み
+					if (ofs !== void && ofs !== null && ofs.offs_x !== void) ox = ofs.offs_x, oy = ofs.offs_y; // オフセットタグ情報がある場合はそちらを使用
+					if (.op) with (lay) this.operateRect(ox, oy, lay, 0, 0, .imageWidth, .imageHeight, omAlpha); // 差分上書き
+					else     with (lay) this.copyRect(   ox, oy, lay, 0, 0, .imageWidth, .imageHeight); // 差分上書き
+					return ret; // タグ情報は差分元ベースの値を返す
+				}
+			}
+		}
+		return orig(...); // それ以外は通常処理
+	};
+	// 差分マップ読み込み：要CSVParser
+	.appendDiffImageMap = function (storage, opr) {
+		with (new global.CSVParser()) {
+			.operateRectFlag = opr;
+			.doLine = function (clms, line) {
+				var tag;
+				if (clms == void || clms.count <= 0 || (tag = clms[0].trim()).charAt(0) == "#" || tag == "") return;
+				var info = %[];
+				with (info) {
+					.base   =   clms[1]; // 差分元画像名
+					.diff   =   clms[2]; // 差分画像名（自動生成）
+					.x      =  +clms[3];
+					.y      =  +clms[4];
+					.op     =   operateRectFlag;
+					if (.base != "" && .diff != "") {
+						//Debug.message("diffImage", tag, .base, .diff, .x, .y) if global.Layer.diffDebugMessage;
+						global.Layer.diffImageMap[tag.toLowerCase()] = info;
+					}
+				}
+			};
+			.parseStorage(storage);
+		}
+	} incontextof global.Layer;
+}

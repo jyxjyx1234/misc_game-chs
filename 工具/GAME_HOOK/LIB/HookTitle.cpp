@@ -237,6 +237,7 @@ HWND WINAPI HookedCreateWindowExW(
 
 
 void hookTitle_main() {
+
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     printf("Title Hook Installed!\n");

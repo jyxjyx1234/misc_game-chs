@@ -1,0 +1,38 @@
+func,attention,visible,false
+cref,allctrl,prev,log,auto,skip,next,hide,hold,
+func,prev,	exp,SystemAction.prev()
+func,log,	exp,SystemAction.log()
+func,auto,	exp,SystemAction.auto(),	nostable,true
+func,skip,	exp,SystemAction.skip(),	nostable,true
+func,next,	exp,SystemAction.next()
+func,hide,	exp,SystemAction.hide()
+func,hold,	exp,ToggleSysButtonHold(),	nostable,true
+#
+func,exit,	exp,SystemAction._endReplay()
+cref,allsys,qsave,qload,save,load,option,
+func,qsave,	exp,SystemAction.qsave()
+func,qload,	exp,SystemAction.qload()
+func,qload,	onenter,ShowHideQLoadPopup(true),		onleave,ShowHideQLoadPopup(false)
+func,save,	exp,SystemAction.save()
+func,load,	exp,SystemAction.load()
+func,option,	exp,SystemAction.option()
+func,vreplay,	exp,SystemAction.vreplay()
+#
+func,winopac,	uipsdfix,true,	min,0,	max,255,	jumpmode,true,	position,MessageFrameOpac,	onchangefunc,onMessageFrameOpacChanged
+#
+func,name,	visible,false
+func,frame1,	
+func,frame2,	visible,false
+func,base,
+#
+eval,base,glyph,base.click
+eval,elm,name,  base.name
+eval,elm,face,  base.face
+eval,elm,exp,this.facetop++
+eval,elm,margin,base.text
+eval,elm,exp,this.marginr+=4*2
+#
+part,rm_svld,qsave,qload,save,load
+part,rm_exit,exit
+eval,pre,exp,this.partremove=(global.kag.isRecollection?"rm_svld":"rm_exit")
+eval,names,call,uiloadSysSE,message

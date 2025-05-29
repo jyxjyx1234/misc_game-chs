@@ -1,0 +1,14 @@
+//==============
+// 常に手前表示
+property stayOnTopOption { getter { return (System.getArgument("-stayontop") == "yes"); } }
+function resetStayOnTop() { System.stayOnTop = stayOnTopOption; };
+SystemArgumentInfo.stayontop = %[ type:"Boolean", menu:"stayOnTopMenuItem", changed:function { resetStayOnTop(); systemUpdate("topMost"); } incontextof global ];
+addKagHookCallback("onKAGSetupMenu", function(kag) {
+	createMenuFromList(kag, kag.displayMenu, [
+		"-",
+		getSysArgCheckMenuItem("stayOnTopMenuItem", "常に手前に表示(&Y)", "stayontop", true, "no"),
+		]);
+	updateSysArgMenuItem(kag.stayOnTopMenuItem);
+//	systemUpdate("topMost");
+}, true);
+resetStayOnTop(); // kag起動前から設定できる

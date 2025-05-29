@@ -1,0 +1,21 @@
+cref,allbtns,save,load,option,flowchart,log,lock,prev,auto,skip,vreplay,hide,
+func,save,	exp,SystemAction.save()
+func,load,	exp,SystemAction.load()
+func,option,	exp,SystemAction.option()
+func,flowchart,	exp,SystemAction.scnsel(),	name,scnsel
+func,log,	exp,SystemAction.log()
+func,lock,	exp,ToggleSysButtonHold(),	nostable,true
+func,prev,	exp,SystemAction.prev()
+func,auto,	exp,SystemAction.auto(),	nostable,true
+func,skip,	exp,SystemAction.skip(),	nostable,true
+func,vreplay,	exp,SystemAction.vreplay()
+func,hide,	exp,SystemAction.hide()
+file,attention
+func,attention,	visible,false
+func,base,
+#
+eval,elm,name,  base.name
+eval,elm,margin,base.text
+eval,base,glyph,base.click
+#
+eval,names,call,uiloadSysSE,window

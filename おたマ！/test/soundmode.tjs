@@ -1,0 +1,379 @@
+// --------------------------------------------------------
+// サウンドモード
+// --------------------------------------------------------
+
+// システムメニューとして登録
+setSystemMenuStorage("soundmode.ks");
+
+if (typeof global.getExistSoundName === "undefined") {
+	/**
+	 * 指定した名前の音声・BGMファイルが存在すればその名前を返す
+	 * @return 拡張子まで指定された画像ファイル名。存在しなければ void
+	 */
+	global.getExistSoundName = function(storage) {
+		var ext = [".wav", ".ogg"];
+		for (var i = 0; i < ext.count; i++) {
+			var test = storage + ext[i];
+			if (Storages.isExistentStorage(test)) return test;
+		}
+		return void;
+	};
+}
+
+class SoundButton extends DecorationButton
+{
+	var _hideDisabled;
+	var _drawText, _fontSize, _fontFace, _unknown;
+	var _customdraw;
+	function SoundButton(owner, elm) {
+		with (elm) {
+			_hideDisabled = +.hidedisableditem;
+			_drawText = (.drawtext !== void) ? +.drawtext : true;
+			_customdraw = .customdraw;
+			_fontSize = (.fontsize !== void) ? +.fontsize : 16;
+			_fontFace = (.fontface !== void) ?  .fontface : "ＭＳ Ｐゴシック";
+			_unknown  = (.unknown  !== void) ?  .unknown  : "？？？";
+		}
+		super.DecorationButton(...);
+	}
+	function finalize() {
+		super.finalize(...);
+	}
+	function drawDisabledItem(target, num) {
+		if (_hideDisabled) return null;
+		super.drawDisabledItem(target);
+		drawCaption(target, _unknown,, num) if (_drawText);
+	}
+
+	function drawNormalItem(target, num, reload = false) {
+		var nowPlaying = _owner.isPlaying(num);
+		clearNormalItem(target, num) if (reload);
+		if (_customdraw !== void) _customdraw(...);
+		if (_drawText) drawCaption(target, _owner.getTitle(num), nowPlaying, num);
+		else           target.toggle = nowPlaying;
+	}
+	function drawCaption(target, text, isplay) {
+		target.font.height = _fontSize;
+		target.font.face   = _fontFace;
+		_owner.drawCaption(...);
+	}
+}
+
+
+// ----------------------------------------------------------------------------
+// サウンドモード用クラス
+
+class SoundGalleryMode extends GalleryMode
+{
+	var playing  = void;
+	var lastplay = void;
+	var storages = [], randomSpool = [], lastPlayed = [];
+	var _mode = "one";
+	var selected = void;
+	var autoPageChange = true; // Next/Prevボタンの曲移動でページを追従する
+
+	var _tempFocus = void;
+	var _exchange = 2000, _fadeout = 2000;
+	var _hasloop;
+	var _randMove = true; // ランダム時にNext/Prevでランダム移動にするか
+	var _canreplay = false; // ボタン再押しを可能にするか
+
+	var button;
+	function SoundGalleryMode(elm) {
+		with (elm) {
+			_exchange  =  +.exchange  if (.exchange  !== void);
+			_fadeout   =  +.fadeout   if (.fadeout   !== void);
+			_canreplay = !!.canreplay if (.canreplay !== void);
+		}
+
+		button = new SoundButton(this, elm);
+		super.GalleryMode(button, elm, .SoundGalleryMode);
+		stop() if (!elm.nostop);
+		lastplay  = elm.lastplay.toUpperCase() if (elm.lastplay !== void);
+	}
+	function finalize() {
+		kag.bgm.setLoop(true);
+		clearBgmCallback();
+
+		super.finalize(...);
+	}
+	function clearBgmCallback() {
+		kag.clearBgmStop();
+		kag.clearBgmLabel();
+		_hasloop = void;
+	}
+	function setBgmCallback(noclear = false) {
+		clearBgmCallback() if (!noclear);
+		updateLoopFlag();
+		kag.setBgmStop( %[ exp: 'Current.cmd("onBgmStop")']);
+		kag.setBgmLabel(%[ exp: 'Current.cmd("onBgmLabel")', name: "fade" ]);
+	}
+	function updateLoopFlag() {
+		kag.bgm.setLoop(_hasloop && looping);
+	}
+
+	// csv読み込み
+	function doLine(columns, lineNo) {
+		var info = %[];
+		with (info) {
+			.storage = columns[0].toUpperCase();
+			.title   = columns[1];
+			.slabel  = columns[2] != "" ? columns[2] : void;
+			.seenflag= columns[3] != "" ? columns[3] : ("bgm_"+.storage);
+
+			var f = global.getExistSoundName(.storage);
+			.hasloop = (f !== void) && (Storages.isExistentStorage(f + ".sli"));
+		}
+		items.add(info);
+		storages.add(info.storage);
+	}
+
+	function isSeen(num) {
+		return tf.allseen || sf[items[num].seenflag];
+	}
+	function isPlaying(num) {
+		return playing === storages[num];
+	}
+	function getTitle(num) {
+		return items[num].title;
+	}
+
+	function drawCaption(target, title, hilight) {
+		drawButtonCaption(target, 0, 0, title, hilight ? 0xFF8080 : 0xFFFFFF,255,true);
+	}
+
+	function updateButton(num, enabled = true) {
+		var target = getItemTarget(num);
+		if (target === void) return;
+		button.drawNormalItem(target, num, true);
+		target.enabled = _canreplay || enabled;
+	}
+
+	function onSelect(num) {
+		selected = num;
+		play(storages[num]);
+	}
+
+	property kagPlaying { getter() {
+		var ret =  kag.bgm.playingStorage;
+		ret = ret.toUpperCase() if (typeof ret === "String");
+		return ret;
+	} }
+	property isAnyPlaying { getter() {
+		with (kag.bgm) return (!.inFading && .playingStorage != "");
+	} }
+	function play(storage, exchange = false) {
+		storage = playing    if (storage === void);
+		storage = lastplay   if (storage === void);
+		storage = kagPlaying if (storage === void);
+		if (storage === void || storage == "") return stop();
+
+		var before = storages.find(playing);
+		var after  = storages.find(storage);
+		var changed = (before !== after);
+
+		clearBgmCallback();
+		playing = storage;
+
+		var lp = _hasloop = items[after].hasloop;
+		var start         = items[after].slabel;
+		lp &= looping;
+		if (exchange && kagPlaying != "" && kagPlaying !== storage)
+			doExchange(%[ storage:storage, loop:lp, start:start, time:_exchange]);
+		else
+			doPlay(%[     storage:storage, loop:lp, start:start]);
+
+		setBgmCallback(true);
+
+		checkAutoPageChange(after);
+		updateButton(before)        if (before >= 0 && changed);
+		updateButton(after, false)  if (after  >= 0);
+		updateState("play");
+	}
+	function doExchange() { return kag.bgm.exchange(...); }
+	function doPlay()     { return kag.bgm.play(...); }
+
+	function stop() {
+		if (playing !== void) updateState("stop");
+		var num = storages.find(playing);
+		lastplay = playing if (playing != "");
+		playing = void;
+		clearBgmCallback();
+		kag.bgm.fadeOut(%[ time:_fadeout ]);
+
+		updateButton(num) if (num >= 0);
+	}
+
+	function updateState(name) {
+		var p = false, s = false;
+		switch (name) {
+		case "stop": p = true; break;
+		case "play": s = true; break;
+		default:
+		}
+		with (kag.current.names) {
+			.play.enabled = p if (.play !== void);
+			.stop.enabled = s if (.stop !== void);
+		}
+	}
+
+	function setFocusButton(target, isFocus) {
+		// [XXX] button内部functionを直呼びだがまあいいか
+		if (target !== void) {
+			runOnceDelayedTrigger((
+				isFocus ? function { if (isvalid this) drawState(2); } :
+				/**/      function { if (isvalid this) drawState(0); }) incontextof target);
+		}
+	}
+
+	function getSidePos(pos, isNext) {
+		var dir   = isNext ?  1 : -1;
+		var reset = isNext ?  0 : count-1;
+		var i, s  = pos;
+		if (pos < 0) pos = count;
+		for (i = count; i > 0; i--) {
+			pos += dir;
+			if (pos >= count || pos < 0) pos = reset;
+			if (isSeen(pos)) break;
+		}
+		return (s < 0 && i == 0) ? -1 : pos;
+	}
+	function move(isNext, exchange) {
+		if (mode == "rnd" && _randMove) {
+			if (isNext) return random(exchange);
+			if (lastPlayed.count > 0) return play(lastPlayed.shift(), exchange);
+		}
+		var pos = getSidePos(storages.find(playing), isNext);
+		play(storages[pos], exchange) if (pos >= 0);
+	}
+	function random(exchange) {
+		if (!randomSpool.count) {
+			var pool = [];
+			for (var i = count-1; i >= 0; i--) {
+				pool.add(storages[i]) if (isSeen(i));
+			}
+			if (!pool.count) return;
+			randomSpool.assign(shuffle(pool));
+			if (playing == randomSpool[0]) {
+				var tmp =  randomSpool.shift();
+				randomSpool.push(tmp) if (tmp != "");
+			}
+		}
+		lastPlayed.unshift(playing) if (playing != "");
+		lastPlayed.pop() if (lastPlayed.count > 100);
+		play(randomSpool.shift(), exchange);
+	}
+	function shuffle(lst) {
+		var ret = [], rnd = new Math.RandomGenerator();
+		while (lst.count > 0) {
+			var pos = (int)(lst.count * rnd.random());
+			ret.add(lst[pos]);
+			lst.erase(pos);
+		}
+		invalidate rnd;
+		return ret;
+	}
+
+	function prev() { prevNext(false); }
+	function next() { prevNext(true);  }
+	function prevNext(isNext) {
+		if (playing !== void) return move(isNext, false);
+
+		var pos = getSidePos(storages.find(lastplay), isNext);
+		if (pos < 0 || pos >= count) return;
+		checkAutoPageChange(pos);
+		lastplay = items[pos].storage;
+		var target = getItemTarget(pos);
+		setFocusButton(_tempFocus, false);
+		setFocusButton(target, true);
+		_tempFocus = target;
+	}
+	function checkAutoPageChange(pos) {
+		onAutoPageChanged(pos \ _per) if (autoPageChange && (pos < offset || pos >= offset + _per));
+	}
+	function onAutoPageChanged(newpage) {
+		page = newpage;
+		update(true);
+	}
+
+	function enter(num) {
+		setFocusButton(_tempFocus, false);
+		_tempFocus = void;
+		if (num !== void) {
+			var pos = +num + offset;
+			lastplay = items[pos].storage if (items[pos] !== void && !isAnyPlaying);
+			_tempFocus = getItemTarget(pos);
+		}
+	}
+	function focus() {
+		var target = _tempFocus;
+		target = getItemTarget(storages.find(playing)) if (playing !== void);
+		kag.current.setFocusToLink(target.linkNum, true) if (target !== void);
+	}
+
+	// modeにおけるループ動作
+	property looping { getter {
+		switch (mode) {
+		case "all": case "non": case "rnd": case "rep": return false;
+		case "one": return true;
+		}
+		return false;
+	} }
+
+	// fadeラベル時の動作
+	function autoFade() {
+		kag.bgm.fadeOut(%[ time:_fadeout ]) if (!looping);
+	}
+
+	// 曲終了時の動作
+	function playNext() {
+		switch (mode) {
+		case "rnd": random(true); break;
+		case "all": move(true, true); break;
+		case "rep":
+		case "one": play(); break;
+		case "non":
+		default:    stop(); break;
+		}
+	}
+	function onBgmStop()  { /*dm("onBgmStop", kagPlaying);*/ playNext(); }
+	function onBgmLabel() { autoFade(); }
+
+	// キーボード操作
+	function onKeyDown(key, shift) {
+		var norep = !(shift & ssRepeat);
+		var noplay = !isAnyPlaying;
+		if ((shift & ssShiftCtrlAlt) == 0) switch (key) {
+		case VK_PRIOR: if (norep || noplay) { prev(); focus(); } return true;
+		case VK_NEXT:  if (norep || noplay) { next(); focus(); } return true;
+		case VK_SPACE:
+			if (norep) with (kag.bgm) {
+				if (noplay) play();
+				else stop();
+			}
+			return true;
+		}
+		return super.onKeyDown(...);
+	}
+	property mode {
+		getter    { return _mode; }
+		setter(v) {
+			var chg = (_mode != v);
+			_mode = v;
+			if (chg) onModeChanged(v);
+		}
+	}
+	function onModeChanged() {
+		updateLoopFlag();
+	}
+
+	function onPageChange() {
+		_tempFocus = void;
+		super.onPageChange(...);
+	}
+}
+
+// ページ位置保存用
+SoundGalleryMode.lastPage = 0;
+
+

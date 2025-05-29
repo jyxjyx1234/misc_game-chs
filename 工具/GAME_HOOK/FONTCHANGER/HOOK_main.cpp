@@ -8,6 +8,7 @@
 #include "HookTitle.h"
 #include "LE.h"
 #include "textReplacer.h"
+#include "VFS.h"
 //#include "FVPSaveChanger.h"
 
 rr::RConfig config;
@@ -42,6 +43,16 @@ void HOOK_main() {
 		install_LE();
 	}
 	LoadLibraryA(config.ReadString("GLOBAL", "LOADDLL", "").c_str());
+	LoadLibraryA(config.ReadString("GLOBAL", "LOADDLL2", "").c_str());
+	LoadLibraryA(config.ReadString("GLOBAL", "LOADDLL3", "").c_str());
+
+	//if (config.ReadString("VFS", "PACKNAME", "") != "") {
+	//	std::string packname = config.ReadString("VFS", "PACKNAME", "");
+	//	printf("VFS PackName: %s\n", packname.c_str());
+	//	std::string key = "jyxjyx1234";
+	//	//InstallHookCreateFileA(packname, key);
+	//	//InstallHookCreateFileW(packname, key);
+	//}
 
 	std::string newFontNameA = config.ReadString("FONT", "FONTNAME", "NOTCHANGE");
 	newFontName = GBKStringToWString(newFontNameA);
@@ -62,5 +73,6 @@ void HOOK_main() {
 	}
 	if (config.ReadInt("TEXTREPLACE", "MODE", 0) != 0) {
 		install_hook_textreplace(config.ReadInt("TEXTREPLACE", "MODE", 0));
+		//install_hook_textreplaceFromPackEx(config.ReadInt("TEXTREPLACE", "MODE", 0), config.ReadString("VFS", "PACKNAME", ""), "data2.bin", "jyxjyx1234");
 	}
 }

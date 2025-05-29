@@ -1,0 +1,482 @@
+/**
+ * ズームつき仮想画面スクロールレイヤ
+ */
+
+class ZoomMapLayer extends Layer {
+	var manager, typeMap;
+	var _tempLayer;
+	var imageLayers = %[];
+	function ZoomMapLayer(win, par, elm) {
+		super.Layer(win, par);
+
+		setImageSize(par.width, par.height);
+		setSizeToImageSize();
+
+		manager = new ZoomMapDrawManagerClass(this);
+		typeMap = global.ZoomMapLayer.TypeMap;
+	}
+	function finalize() {
+		invalidate  manager   if ( manager   !== void);
+		invalidate _tempLayer if (_tempLayer !== void);
+		InvalidateDict(imageLayers);
+		super.finalize(...);
+	}
+	property tempLayer { getter {
+		if (_tempLayer === void) {
+			_tempLayer = new global.Layer(window, this);
+			_tempLayer.name = "tempLayer";
+		}
+		return _tempLayer;
+	} }
+	function InvalidateDict(dic) {
+		var ext = [];
+		ext.assign(dic);
+		for (var i = ext.count-1; i >= 0; i--) {
+			var obj = ext[i];
+			invalidate obj if (typeof obj == "Object" && obj != null && isvalid obj);
+		}
+		invalidate dic;
+	}
+	function getImageLayer(storage) {
+		var file = getExistImageName(storage);
+		if (file == "") throw new Exception(@"ZoomMapLayer:画像が見つかりません ${storage}");
+		with (Storages) file = .getFullPath(.getPlacedPath(file));
+		if (file == "") throw new Exception(@"ZoomMapLayer:パス展開失敗 ${storage}");
+		var ret = imageLayers[file];
+		if (imageLayers[file] === void) {
+			imageLayers[file] = ret = new Layer(window, this);
+			with (ret) {
+				.name = file;
+				.loadImages(file);
+				.setSizeToImageSize();
+			}
+		}
+		return ret;
+	}
+	var _zoom = 1; // 拡大率 (1=100%)
+	var _rcx, _rcy; // 注視点（レイヤ座標）
+	var _vcx, _vcy; // 注視点（仮想座標）
+	var _vview; // 仮想画面表示範囲
+	var _vrect; // 仮想画面表示可能範囲
+	function getVirtualView() {
+		return toVirt(%[ x:0, y:0, w:width /_zoom, h:height/_zoom ]);
+	}
+	function fixVirtualView(view, rect) {
+		var reset = false;
+		with (rect){
+			var w = width, h = height;
+			var lt = toReal(%[ x:.x,    y:.y    ]);
+			var rb = toReal(%[ x:.x+.w, y:.y+.h ]);
+			with (lt) .x=(int)Math.floor(.x), .y=(int)Math.floor(.y);
+			with (rb) .x=(int)Math.ceil (.x), .y=(int)Math.ceil (.y);
+
+			var vw = rb.x - lt.x;
+			var vh = rb.y - lt.y;
+
+			var rc, vc;
+			if (vw < w)         vc=.x+.w\2, rc=w\2;
+			else if (lt.x >= 0) vc=.x,      rc=0;
+			else if (rb.x <= w) vc=.x+.w,   rc=w;
+			if (vc !== void) _vcx=vc, _rcx=rc, reset = true;
+
+			vc = void;
+			if (vh < h)         vc=.y+.h\2, rc=h\2;
+			else if (lt.y >= 0) vc=.y,      rc=0;
+			else if (rb.y <= h) vc=.y+.h,   rc=h;
+			if (vc !== void) {
+//				dm("fixv", vc, rc, lt.y, rb.y, w, h);
+				_vcy=vc, _rcy=rc, reset = true;
+			}
+		}
+		if (reset) (global.Dictionary.assign incontextof view)(getVirtualView(), false);
+		return reset;
+	}
+	var _redraw = true;
+	function redraw() {
+		_redraw = true;
+		update();
+	}
+	function onFixedView() {}
+	function onViewUpdated() {}
+	function onViewDraw() {}
+
+	// 拡大率(%)
+	property zoom {
+		getter    { return _zoom*100; }
+		setter(v) {
+			if (v <= 0) throw new Exception(@"不正な拡大率: ${v}");
+			_zoom = v / 100;
+			redraw();
+		}
+	}
+	property padding { getter { return _zoom >= 1 ? 0 : Math.ceil(1/_zoom); } }
+
+	function toVirt(ptr) {
+		with (ptr) .x= _vcx+(.x-_rcx)/_zoom, .y= _vcy+(.y-_rcy)/_zoom;
+		return ptr;
+	}
+	function toReal(ptr) {
+		with (ptr) .x= _rcx+(.x-_vcx)*_zoom, .y= _rcy+(.y-_vcy)*_zoom;
+		return ptr;
+	}
+	
+	function setHotSpot(x, y) {
+		var v = toVirt(%[ x:x, y:y ]);
+		_vcx = (int)Math.round(v.x);
+		_vcy = (int)Math.round(v.y);
+		_rcx = x;
+		_rcy = y;
+		redraw();
+	}
+	function setPosition(vx, vy, rx=width\2, ry=height\2) {
+		_vcx = (int)Math.round(vx);
+		_vcy = (int)Math.round(vy);
+		_rcx = (int)Math.round(rx);
+		_rcy = (int)Math.round(ry);
+		redraw();
+	}
+	function onPaint() {
+		if (!isvalid this) return;
+		if (_redraw) {
+			var view = getVirtualView();
+			if (_vrect !== void) {
+				onFixedView() if (fixVirtualView(view, _vrect));
+			}
+			with (view) if (_vview === void ||
+							_vview.x != .x || _vview.y != .y ||
+							_vview.w != .w || _vview.h != .h) {
+				drawOnPaint(_vview = view);
+				onViewUpdated();
+			}
+		}
+		_redraw = false;
+		return super.onPaint(...);
+	}
+	var stQuality = stNearest;
+	function copyTemp(rect, opr = void, opa = 255) {
+		var lay = tempLayer;
+		with (rect) if (_zoom == 1) {
+			if (opr === void) copyRect(.x, .y, tempLayer, 0, 0, .w, .h);
+			else           operateRect(.x, .y, tempLayer, 0, 0, .w, .h, opr, opa);
+		} else {
+//			if (opr === void) stretchCopy(.x, .y, .w, .h, lay, 0, 0, lay.imageWidth, lay.imageHeight, stQuality);
+//			else           operateStretch(.x, .y, .w, .h, lay, 0, 0, lay.imageWidth, lay.imageHeight, opr, opa, stQuality);
+			if (opr === void) affineCopy(lay, 0, 0, lay.imageWidth, lay.imageHeight, false, .x-0.5,.y-0.5, .x+.w-0.5,.y-0.5, .x-0.5,.y+.h-0.5, stQuality, false);
+			else           operateAffine(lay, 0, 0, lay.imageWidth, lay.imageHeight, false, .x-0.5,.y-0.5, .x+.w-0.5,.y-0.5, .x-0.5,.y+.h-0.5, opr, opa, stQuality);
+		}
+	}
+	function drawTempCommon(rect) {
+		fillRect(0, 0, imageWidth, imageHeight, 0);
+		copyTemp(rect, onViewDraw());
+	}
+
+	var drawOnPaint = this.drawOnDemand;
+	function resetDrawOnPaint() {
+		drawOnPaint = this.drawOnDemand;
+		drawOnPaint = this.drawByFixTempRect if (fixTempRect !== void);
+		drawOnPaint = this.drawByManager     if (drawByManagerEnabled);
+		_vview = void;
+	}
+
+	// 固定処理描画
+	function drawByFixTempRect(view) {
+		with (fixTempRect) drawTempCommon(toReal(%[ x:.x, y:.y, w:.w*_zoom, h:.h*_zoom ]));
+	}
+	var fixTempRect;
+	function fixDrawTemp(rect) {
+		fixTempRect = rect;
+		if (rect !== void) with (rect) manager.draw(tempLayer, .x, .y, .w, .h);
+		resetDrawOnPaint();
+	}
+
+	// 拡縮含めマネージャー丸投げ
+	function drawByManager(view) {
+		manager.onPaint(this, view, _zoom);
+	}
+	var drawByManagerEnabled = false;
+	function setDrawByManager(en) {
+		manager.resetOnPaint();
+		drawByManagerEnabled = en;
+		resetDrawOnPaint();
+	}
+
+	// オンデマンド描画
+	function drawOnDemand(view) {
+		drawTempCommon(drawTemp(view));
+	}
+	function drawTemp(view) {
+		var x, y, w, h;
+		with (view) {
+			var pad = padding, p2 = pad+pad;
+			x = (int)Math.floor(.x) - pad;
+			y = (int)Math.floor(.y) - pad;
+			w = (int)Math.ceil(.x+.w) - x + p2;
+			h = (int)Math.ceil(.y+.h) - y + p2;
+		}
+		manager.draw(tempLayer, x, y, w, h);
+		return toReal(%[ x:x, y:y, w:w*_zoom, h:h*_zoom ]);
+	}
+
+	function addItem(elm) {
+		var target, obj, type = elm.type;
+		if (typeof type != "String") target = type;
+		else target = (typeMap[type] !== void) ? typeMap[type] : global[type];
+
+		try { obj = new target(manager, elm); }
+		catch { throw new Exception(@"ZoomMapLayer:不明なtype ${type}"); }
+		redraw();
+		return obj;
+	}
+	function removeAllItems() {
+		manager.clear(true);
+	}
+
+	function checkHit(x, y, *) {
+		var pos = toVirt(%[ x:x, y:y ]);
+		return manager.checkHit(pos.x, pos.y, *);
+	}
+}
+ZoomMapLayer.TypeMap = %[];
+ZoomMapLayer.AddItemClass = function (tag, cls) {
+	TypeMap[tag] = cls;
+} incontextof global.ZoomMapLayer;
+
+class ZoomMapDrawManager {
+	var items =  []; // 全描画アイテムリスト
+	var map   = %[]; // ブロック内配置情報
+	var _size = 32;  // ブロックサイズ
+	property size {
+		getter    { return _size; }
+		setter(v) { _size = v; reset(); }
+	}
+
+	var owner;
+	function ZoomMapDrawManager(o) { owner = o; }
+	function finalize() {
+		clear(true) if (isvalid this);
+	}
+	function invokeOwner(method, *) {
+		if (typeof owner[method] == "Object") return owner[method](*);
+	}
+
+	// item をクリア
+	function clear(delitem = false) {
+		if (delitem) {
+			for (var i = 0; i < items.count; i++)
+				invalidate items[i] if (items[i] !== void);
+		}
+		items.clear();
+		(Dictionary.clear incontextof map)();
+	}
+
+	// ブロック座標文字列（map用）
+	function getTag(x, y) { return "%d:%d".sprintf(x, y); }
+
+	// 実座標⇒ブロック座標変換
+	function getPos(pos) { return (pos >= 0) ? (pos \ size) : (pos \ size)-1; }
+
+	// 四隅のブロック座標を取得
+	function getRect(x, y, w, h) {
+		return %[ /**/ x1: getPos(x), x2: getPos(x + w-1),
+				  /**/ y1: getPos(y), y2: getPos(y + h-1) ];
+	}
+	// 四隅のブロック座標を取得（オブジェクト版）
+	function getRectFromObj(obj) {
+		//with (obj) dm("getrect", .left, .top, .width, .height);
+		with (obj) return getRect(.left, .top, .width, .height);
+	}
+	// 矩形が等しいかどうか
+	function checkRectChanged(a, b) {
+		return ((a.x1 != b.x1) || (a.x2 != b.x2) ||
+				(a.y1 != b.y1) || (a.y2 != b.y2));
+	}
+	// 矩形の合成
+	function getMixedRect(a, b) {
+		return %[ /**/ x1:(a.x1<b.x1 ? a.x1:b.x1), x2:(a.x2>b.x2 ? a.x2:b.x2),
+				  /**/ y1:(a.y1<b.y1 ? a.y1:b.y1), y2:(a.y2>b.y2 ? a.y2:b.y2) ];
+	}
+
+	// 更新範囲
+	function checkUpdate(obj) {
+		var now = getRectFromObj(obj);
+		var old = obj.entry;
+		if (checkRectChanged(now, old)) {
+			obj.entry = now;
+			var id = now.id = old.id;
+			eachBlocks(old, function(x, y, map) { delete map[getTag(x, y)]; }, map);
+			eachBlocks(now, entry, id);
+			update(getMixedRect(old, now));
+		} else update(now);
+	}
+	function update(rect) {
+		// ...
+	}
+
+	// 指定範囲に含まれるブロックについてcallback
+	function eachBlocks(rect, cb, *) {
+		with (rect)
+			for (var j = .y1; j <= .y2; j++)
+				for (var i = .x1; i <= .x2; i++)
+					cb(i, j, *);
+	}
+
+	// 描画オブジェクトを追加
+	function add(obj) {
+		items.add(obj);
+		var rect = obj.entry = getRectFromObj(obj);
+		var id = rect.id = items.count-1;
+		with (obj) eachBlocks(rect, entry, id);
+		return id;
+	}
+	// ブロックにObjectを追加
+	function entry(x, y, id) {
+		var tag = getTag(x, y);
+		var set = map[tag];
+		if (set === void) set = map[tag] = %[];
+		set[id] = -1;
+	}
+	// 再設定
+	function reset() {
+		var tmp = [];
+		tmp.assign(items);
+		items.clear();
+		(Dictionary.clear incontextof map)();
+		for (var i = 0; i < tmp.count; i++) add(tmp[i]);
+	}
+
+	// 指定範囲を描画
+	function draw(lay, x, y, w, h, ox = 0, oy = 0, reset = true) {
+		if (reset) with (lay) {
+			.setImageSize(w, h);
+			.setClip(0, 0, w, h);
+			.fillRect(0, 0, w, h, 0);
+		}
+		var list = getTargets(getRect(x, y, w, h));
+		if (list.count == 0) return;
+		list.sort("9");
+		for (var i = list.find(-1)-1; i >= 0; i--) {
+			var item = items[list[i]];
+			if (item !== void) {
+				item.draw(lay, ox-x, oy-y);
+			}
+		}
+	}
+	// stub
+	function onPaint {}
+	function resetOnPaint {}
+
+	// 当たり判定
+	function checkHit(x, y, *) {
+		var bx = getPos((int)Math.round(x)), by = getPos((int)Math.round(y));
+		var set = map[getTag(bx, by)];
+		if (set === void) return;
+		var list = [];
+		list.assign(set);
+		list.sort("-");
+		var end = list.find(-1);
+		for (var i = 0, item; i < end; i++) {
+			with ((item = items[list[i]])) {
+				if (.checkHit(x - .left, y - .top, *))
+					return item;
+			}
+		}
+	}
+	
+	// 範囲に含まれるアイテム取得
+	function getTargets(rect) {
+		var dict = %[], ret = [];
+		eachBlocks(rect, merge, dict);
+		ret.assign(dict);
+		return ret;
+	}
+	// １ブロック内のアイテムを描画対象にマージ
+	function merge(x, y, targets) {
+		var set = map[getTag(x, y)];
+		//dm("merge", x, y, StructToString(set));
+		(Dictionary.assign incontextof targets)(set, false) if (set !== void);
+	}
+}
+var ZoomMapDrawManagerClass = ZoomMapDrawManager;
+
+// 描画アイテム用クラス
+class ZoomMapItemBase {
+	var owner, manager, entry;
+	function finalize() {}
+	function ZoomMapItemBase(mgr) {
+		manager = mgr;
+		manager.add(this);
+	}
+	function update() {
+		manager.checkUpdate(this);
+	}
+	function invokeOwner() { return manager.invokeOwner(...); }
+
+	// stubs
+	//function draw(lay, ox, oy);
+	var left, top, width, height;
+
+	// 当たり判定
+	var hitting = true;
+	function checkHit(x, y /* , ... */) {
+		// とりあえず矩形内なら常にtrue
+		return hitting && x >= 0 && y >= 0 && x < width && y < height;
+	}
+}
+
+
+class ZoomMapImage extends ZoomMapItemBase {
+	var image;
+	function finalize() { super.finalize(...); }
+	function ZoomMapImage(mgr, elm) {
+		with (elm) {
+			image  = invokeOwner("getImageLayer", .storage);
+			left   = .left;
+			top    =  .top;
+			width  = image.width;
+			height = image.height;
+		}
+		super.ZoomMapItemBase(mgr);
+	}
+	function draw(layer, ox, oy) {
+		with (image)
+			layer.operateRect(ox+left, oy+top, image, -.imageLeft, -.imageTop, width, height);
+	}
+}
+ZoomMapLayer.AddItemClass("image", ZoomMapImage);
+
+class ZoomMapFill extends ZoomMapItemBase {
+	var color;
+	function finalize() { super.finalize(...); }
+	function ZoomMapFill(mgr, elm) {
+		with (elm) {
+			left   = .left;
+			top    = .top;
+			width  = .width;
+			height = .height;
+			color  = .color;
+		}
+		super.ZoomMapItemBase(mgr);
+	}
+	function draw(layer, ox, oy) {
+		layer.fillRect(ox+left, oy+top, width, height, color);
+	}
+}
+ZoomMapLayer.AddItemClass("fill", ZoomMapFill);
+
+class ZoomMapLine extends ZoomMapItemBase {
+	var color, x1, y1, x2, y2;
+	function finalize() { super.finalize(...); }
+	function ZoomMapLine(mgr, elm) {
+		with (elm) x1=.x1, y1=.y1, x2=.x2, y2=.y2, color=.color;
+		if (x1 < x2) left=x1, width =x2-x1+1;
+		else         left=x2, width =x1-x2+1;
+		if (y1 < y2) top =y1, height=y2-y1+1;
+		else         top =y2, height=y1-y2+1;
+		super.ZoomMapItemBase(mgr);
+	}
+	function draw(layer, ox, oy) {
+		layer.fillRect(ox+left, oy+top, width, height, color);
+	}
+}
+ZoomMapLayer.AddItemClass("line", ZoomMapLine);
+

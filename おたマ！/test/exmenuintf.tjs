@@ -1,0 +1,495 @@
+/*
+ * 遅延起動ダイアログ類
+ */
+
+
+// トラックバーダイアログ
+class TrackBarsDialog extends WIN32DialogEX {
+	function finalize() { super.finalize(...); }
+	function TrackBarsDialog() {
+		super.WIN32DialogEX(...);
+//		(global.Dictionary.assign incontextof template)(defaultDialogTemplate, false);
+	}
+	var tbInfo = [];
+	var tbWins = %[];
+	function open() {
+		var r = super.open(...);
+		if (r !== void && r.result == IDOK) onApply(r.items);
+		else onCancel();
+	}
+	function onInit() {
+		super.onInit(...);
+		setCenterPosition();
+		setItemFocus(IDOK);
+		for (var i = 0; i < tbInfo.count; i++) {
+			var info = tbInfo[i];
+			var id = info.id;
+			tbWins[id] = getItem(id);
+			sendItemMessage(id, TBM_SETRANGEMIN, 0, 0);
+			sendItemMessage(id, TBM_SETRANGEMAX, 0, info.max);
+			sendItemMessage(id, TBM_SETTICFREQ,  info.step, 0);
+		}
+	}
+	function store() {
+		super.store(...);
+		this.IDINIT = getNumberdId("init");
+	}
+	function onCommand(msg, wp, lp) {
+		if (wp == this.IDINIT) {
+			onSetDefaultParams();
+			return true;
+		}
+		return super.onCommand(...);
+	}
+	function addOkCancelButtons(bx = 0) {
+		var add = template.items.add;
+		var cx = template.cx, cy = template.cy;
+		add(PushButton(   "初期設定",          "init",    bx+cx-180, cy-22, 50, 15));
+		add(DefPushButton("OK",                IDOK,      bx+cx-120, cy-22, 50, 15));
+		add(PushButton(   "キャンセル",        IDCANCEL,  bx+cx-60,  cy-22, 50, 15));
+	}
+	function addGroupBox(*) { template.items.add(GroupBox(*)); }
+	function addButton(*)   { template.items.add(PushButton(*)); }
+	function addTrackBar(text, id, x, y, w1, w2, min="MIN", max="MAX") {
+		var add = template.items.add;
+		var fh = template.pointSize, h = 20, w = 16;
+		var ts = WS_VISIBLE|WS_TABSTOP|TBS_HORZ|TBS_AUTOTICKS;
+		add(LText(text,,  x, y+3, w1, fh));
+		add(RText(min,, x+w1, y+3, w, fh));
+		add(Control("", id, TRACKBAR, ts, x+w1+w, y, w2, h));
+		add(LText(max,, x+w1+w+w2, y+3, w, fh));
+	}
+	function onHScroll(msg, wp, lp) {
+		for (var i = 0; i < tbInfo.count; i++) {
+			var info = tbInfo[i], id;
+			if (info !== void && lp == tbWins[(id = info.id)])
+				onTrackBarChanged(id, getTrackBar(id));
+		}
+		return super.onHScroll(...);
+	}
+	function makeResults() {
+		super.makeResults(...);
+		for (var i = 0; i < tbInfo.count; i++) {
+			var info = tbInfo[i], id;
+			if (info !== void && (id = info.id) != "")
+				itemResults[id] = getTrackBar(id);
+		}
+	}
+	function setTrackBar(id, pos) { sendItemMessage(id, TBM_SETPOS, true, pos); }
+	function getTrackBar(id)      { return sendItemMessage(id, TBM_GETPOS, 0, 0); }
+
+	function onTrackBarChanged(id, pos) {}
+	function onSetDefaultParams() {}
+	function onApply(dic) {}
+	function onCancel() {}
+}
+
+// 中間で拡大ダイアログ
+class MiddleZoomValueDialog extends TrackBarsDialog {
+	var template = %[
+	title:"拡大割合指定",
+	x:0, y:0, cx:250, cy:106-15,
+	style:DS_MODALFRAME|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU|DS_SETFONT,
+	pointSize:9,
+	typeFace:"ＭＳ ゴシック",
+	weight:FW_NORMAL,
+	items:[],
+		];
+	var argtag = "mzpercent";
+	var track, oldper;
+	var canpreview, idpreview;
+	function finalize() {
+		super.finalize(...);
+	}
+	function MiddleZoomValueDialog() {
+		super.TrackBarsDialog(...);
+		var ox = 16, oy = 20, cx = template.cx, cy = template.cy;
+		var bx = ox+200, by = oy+1, bw = 20, bh = 12;
+		addGroupBox("中間で拡大",, ox - 10, oy - 15, cx-12, 71-15);
+		addTrackBar("拡大率", "track", ox, oy, 40, 140, "内接", "外接");
+		template.items.add(AutoCheckBox("プレビュー", "preview", ox, oy+25, 100, 12));
+		addOkCancelButtons();
+		store(template);
+		tbInfo.add(%[ id:"track", max:100, step:25 ]);
+		with (kag) canpreview = (.maximized && (.pseudoFullScreened ||
+												System.getArgument("-maximizezoom") == "fszoom"));
+	}
+	function store() {
+		super.store(...);
+		idpreview = getNumberdId("preview");
+	}
+	function onInit() {
+		var r = super.onInit(...);
+		var now = oldper = System.getArgument("-"+argtag);
+		if (now == "" || now < 0) now = 50;
+		else if (now > 100) now = 100;
+		setTrackBar("track", (int)now);
+		setItemEnabled("preview", canpreview);
+		setCheckBox("preview", canpreview);
+		return r;
+	}
+	function onSetDefaultParams() {
+		var def = 50;
+		setTrackBar("track", def);
+		setZoom(def);
+	}
+	function onCommand(msg, wp, lp) {
+		if (wp == idpreview) {
+			setZoom(getTrackBar("track")) if (getCheckBox("preview"));
+			return true;
+		}
+		return super.onCommand(...);
+	}
+	function onTrackBarChanged(id, pos) { setZoom(pos); }
+	function onCancel() { setZoom(oldper, true); }
+	function onApply(dic) {
+		var val = (string)dic.track;
+		setZoom(val, true);
+		changeUserConf(argtag, val);
+	}
+	function setZoom(zoom, preview = getCheckBox("preview")) {
+		System.setArgument("-"+argtag, (string)zoom);
+		runOnceDelayedTrigger(kag.onResize) if (preview);
+	}
+}
+
+
+// パッド割り当てダイアログ
+class GamePadBindDialog extends TrackBarsDialog {
+	var template = %[
+	title:"ゲームパッド割り当て変更",
+	x:0, y:0, cx:200, cy:255,
+	style:DS_MODALFRAME|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU|DS_SETFONT,
+	pointSize:9,
+	typeFace:"ＭＳ ゴシック",
+	weight:FW_NORMAL,
+	items:[],
+		];
+	var bindList = [
+		"none:なし",
+		"return:リターン(Enter)キー",
+		"escape:ESCキー",
+		"space:スペースキー",
+		"control:Ctrlキー",
+		"prior:PageUpキー",
+		"next:PageDownキー",
+		"f1:F1キー",
+		"f2:F2キー",
+		"f3:F3キー",
+		"f4:F4キー",
+		"f5:F5キー",
+		"f6:F6キー",
+		"f7:F7キー",
+		"f8:F8キー",
+		"f9:F9キー",
+		"f10:F10キー",
+		"f11:F11キー",
+		"f12:F12キー",
+		];
+	var bindIndexToTag =  [];
+	var bindTagToIndex = %[];
+	var bindVkToTag    = %[];
+	function finalize() {
+		super.finalize(...);
+	}
+	function GamePadBindDialog() {
+		super.TrackBarsDialog(...);
+		var ox = 16, oy = 20, cx = template.cx, cy = template.cy;
+		var bx = ox+200, by = oy+1, bw = 20, bh = 12;
+		addGroupBox("ゲームパッドボタン",, ox - 10, oy - 15, cx-12, cy-35);
+
+		var combo = [];
+		var list = bindList;
+		list = global.padBindListOverride if (typeof global.padBindListOverride == "Object");
+		for (var i = 0; i <list.count; i++) {
+			var bind = list[i];
+			if (bind == "") continue;
+			var div = bind.split(":", true);
+			if (div[0] == "") continue;
+
+			combo.add(div[1]);
+			bindIndexToTag.add(div[0]);
+			bindTagToIndex[div[0]] = i;
+
+			var tag = "VK_"+div[0].toUpperCase();
+			bindVkToTag[global[tag]] = div[0] if (typeof global[tag] == "Integer");
+		}
+		var selected = %[];
+		var initParams = %[];
+		var lw = 40, lh = 10, lp = 3;
+		var cw = 100, ch = 200;
+		var add = template.items.add;
+		for (var i = 0; i < 10; i++) {
+			var id = "pad"+i;
+			var y = oy + i*20;
+			add(RText("ボタン%2d".sprintf(i+1),, ox, y+lp, lw, lh));
+			add(ComboBox(id, ox+lw+lp, y, cw, ch, CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP));
+			selected[id]    = %[ selectComboBox: +bindTagToIndex[getKagBindTag(i)] ];
+			initParams[id]  = [ %[ setComboBoxTexts: combo ], selected[id] ];
+		}
+		addOkCancelButtons();
+		store(template);
+		setInitParams(initParams);
+	}
+	function getKagBindTag(num, isDefault = false) {
+		var sel = isDefault ? kag.initialPadKeyMap : kag.padKeyMap;
+		var map = sel[VK_PAD1 + num];
+		var ret = (map != "") ? bindVkToTag[map] : void;
+		return (ret == "") ? "none" : ret;
+	}
+	function onSetDefaultParams() {
+		for (var i = 0; i < 10; i++) {
+			var id = "pad"+i;
+			selectComboBox(id, +bindTagToIndex[getKagBindTag(i, true)]);
+		}
+	}
+	function onCancel() {}
+	function onApply(dic) {
+		var modified = false;
+		for (var i = 0; i < 10; i++) {
+			var id = "pad"+i;
+			var tag = bindIndexToTag[dic[id]];
+			if (tag != getKagBindTag(i)) {
+				modified = true;
+				var sysarg = "padbtn"+(i+1);
+				System.setArgument("-"+sysarg, tag);
+				changeUserConf(sysarg, tag);
+			}
+		}
+		kag.createPadKeyMap() if (modified);
+	}
+}
+
+// テキストを表示するのみのダイアログ
+// (new MyNoticeTextDialog(%[ title, width, height, text:[], {size,face,status} ])).open(parent)
+class        MyNoticeTextDialog      extends WIN32DialogEX {
+	function MyNoticeTextDialog(elm) { super.WIN32DialogEX(elm);
+		var templ = %[
+		style:DS_MODALFRAME|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU|DS_SETFONT,
+		x:0, y:0, cx:elm.width, cy:elm.height,
+		title:elm.title,
+		pointSize:(elm.size > 0) ? (int)+elm.size : 9,
+		typeFace:(elm.face != "") ? elm.face : "ＭＳ ゴシック",
+		weight:FW_NORMAL,
+		items: []
+			];
+
+		var x = templ.cx, y = templ.cy, mul = templ.pointSize/12;
+		var add = templ.items.add;
+		var cx = (templ.cx = (int)(x*mul));
+		var cy = (templ.cy = (int)(y*mul));
+		add(EditText("Text", 0, 0, cx, cy-16,
+					 ES_LEFT|ES_MULTILINE|ES_WANTRETURN|ES_READONLY|
+					 ES_AUTOVSCROLL|ES_AUTOHSCROLL|
+					 WS_VSCROLL|WS_HSCROLL|
+					 WS_BORDER|WS_TABSTOP));
+		add(LText((string)elm.status, -1,       1, cy-15, cx\2-4, 14));
+		add(DefPushButton("閉じる",   IDCANCEL, cx*3\4-1, cy-15, cx\4, 14));
+
+		store(templ);
+
+		text = elm.text.join("\r\n");
+	}
+	function finalize() { super.finalize(...); }
+
+	var text;
+	function onInit() {
+		super.onInit(...);
+		//setCenterPosition();
+		setItemText("Text", text);
+		setItemFocus("Text"); //IDCANCEL);
+	}
+}
+
+// フォント選択ダイアログ
+class MyFontSelectDialog extends WIN32GenericDialogEX {
+	var fontList, itemHeight = 30, initialSelect, iniPrompt, curPrompt, tagINF;
+	var layerCreated, bitmap, bmpLayer, fontLayer, preRenderEx, preRendTag;
+	function finalize() {
+		invalidate bitmap    if (bitmap    !== void);
+		invalidate bmpLayer  if (bmpLayer  !== void);
+		invalidate fontLayer if (fontLayer !== void);
+		super.finalize(...);
+	}
+	function getConfigText(name, def) { return SystemConfig[name] != "" ? SystemConfig[name] : def; }
+	function MyFontSelectDialog(lay, face, flags, caption, prompt, sample) {
+		var tagOK = getConfigText("FontDialogOK",     "OK");
+		var tagNG = getConfigText("FontDialogCancel", "キャンセル");
+		/**/tagINF= getConfigText("FontDialogInfo",   "詳細情報");
+		super.WIN32GenericDialogEX(%[ title:caption, width:200, itemtexts:%[ IDOK=>tagOK, IDCANCEL=>tagNG, "Info"=>tagINF ] ]);
+		fontLayer = new KAGLayer(lay.window, lay);
+		bmpLayer  = new Layer(lay.window, lay);
+		bitmap    = new global.WIN32Dialog.Bitmap(bmpLayer);
+
+		addLText(iniPrompt = curPrompt = prompt, void, void, "Prompt");
+		nextLine();
+
+		fontList = [];
+		if (!SystemConfig.PreRenderFontSelectOnly) {
+			fontList.assign(lay.font.getList(flags));
+			fontList.sort();
+		}
+
+		// PreRenderFontEx 用
+		if (typeof global.PreRenderFontEx == "Object") with (PreRenderFontEx) {
+			var names =  .PreRenderFontNames;
+			@if (! PACKED)
+			{
+				var ttf = .TTFFontNames;
+				for (var i = ttf.count-1; i >= 0; i--)
+					fontList.remove(ttf[i], true);
+			}
+			@endif
+			if (names.count > 0) {
+				preRendTag = SystemConfig.PreRenderFontTag;
+				preRendTag = "[組み込み] " if (preRendTag === void);
+				preRenderEx = .PreRenderFontInfo;
+				fontList.unshift(names*);
+			}
+		}
+		initialSelect = getInitialSelect(face);
+		initialSelect = 0 if (initialSelect < 0);
+
+		var selheight = SystemConfig.FontDialogHeight > 0 ? (int)SystemConfig.FontDialogHeight : 150;
+		addListSelect("Select", selheight, void, void, fontList);
+		addInit(      "Select", "setItemHeight", itemHeight);
+		getLastItem().style |= (LBS_OWNERDRAWFIXED | WS_VSCROLL);
+		nextLine();
+
+		addButton("Info",   makeStepLeft (0, 40), 8) if (preRenderEx);
+		addDefPush(IDOK,    makeStepRight(1, 60), 8);
+		addButton(IDCANCEL, makeStepRight(0, 60), 8);
+	}
+	function getInitialSelect(face) {
+		face = (string)face;
+		if (face.indexOf(",") < 0) return fontList.find(face);
+		var div = face.split(",",, true);
+		for (var i = 0; i < div.count; i++) {
+			var r = getInitialSelect(div[i]);
+			if (r >= 0) return r;
+		}
+		return -1;
+	}
+	function onInit() {
+		super.onInit(...);
+		setCenterPosition();
+		setItemFocus( "Select");
+		selectListBox("Select", initialSelect);
+		onSelectChanged();
+	}
+	function onCommand(msg, wp, lp) {
+		var proc, notify = wp >>16;
+		switch (getNamedId(wp & 0xFFFF)) {
+		case "Select": proc = onSelectCommand(notify, lp); break;
+		case "Info":   proc = onInfoCommand  (notify, lp); break;
+		}
+		return proc ? true : super.onCommand(...);
+	}
+	function setItemHeight(id, h) {
+		sendItemMessage(id, LB_SETITEMHEIGHT, 0, h);
+	}
+	function onSelectCommand(notify, lp) {
+		switch (notify) {
+		case LBN_DBLCLK:
+			close(IDOK);
+			return true;
+		case LBN_SELCHANGE:
+			onSelectChanged();
+			break;
+		}
+	}
+	function getPreRenderExInfo(idx = getResult("Select"), face) {
+		if (idx >= 0 && (face = fontList[idx]) != "" && preRenderEx[face] !== void)
+			return preRenderEx[face];
+	}
+	function onInfoCommand(notify, lp) {
+		if (notify == BN_CLICKED) {
+			var info = getPreRenderExInfo();
+			if (info !== void && info.detail !== void) {
+				var dlg = new MyNoticeTextDialog(%[
+				title:info.caption, text:info.detail,
+				width:480, height:300,
+				status:@"${info.name}の${tagINF}",
+				]);
+				dlg.open(this);
+			}
+			return true;
+		}
+	}
+	function onSelectChanged() {
+		if (preRenderEx) {
+			var info = getPreRenderExInfo();
+			var mes  = (info !== void && info.comment !== void) ? info.comment : iniPrompt;
+			if (mes != curPrompt) setItemText("Prompt", curPrompt = (string)mes);
+			setItemEnabled("Info", (info !== void && info.detail !== void));
+		}
+	}
+	function onDrawItem(id, info) {
+		if (getNamedId(id) == "Select") try {
+			var x, y, w, h;
+			with (info.itemRect) x=.x, y=.y, w=.w, h=.h;
+			var selected = info.itemState & ODS_SELECTED;
+
+			createFontLayer(w);
+			var y2 = y + sendItemMessage(id, LB_GETTOPINDEX, 0, 0) * itemHeight;
+			var getcol = System.toActualColor;
+			with (bmpLayer) {
+				.setImageSize(w, h);
+				.fillRect(0, 0, w, h,           getcol(selected ? clHighlight : clWindow) | 0xFF000000);
+				drawFontLayer(y2, h);
+				fontLayer.fillRect(x, y2, w, h, getcol(selected ? clHighlightText : clWindowText));
+				.operateRect(0, 0, fontLayer, x, y2, w, h);
+			}
+			info.draw(bitmap, x, y);
+		} catch {}
+		return true;
+	}
+	function createFontLayer(width) {
+		if (layerCreated) return;
+		/**/layerCreated = [];
+		var cnt = fontList.count;
+		with (fontLayer) {
+			.setImageSize(width, cnt * itemHeight);
+			.fillRect(0, 0, .imageWidth, .imageHeight, 0);
+		}
+	}
+	function drawFontLayer(y2, h) {
+		for (var s = y2\itemHeight, e = (y2+h-1)\itemHeight; s <= e; s++) {
+			if(!layerCreated[s]) {
+				layerCreated[s] = true;
+				with (fontLayer) .holdAlpha = false, .face = dfBoth;
+				drawFontLayerOne(s);
+			}
+		}
+		with (fontLayer) .holdAlpha = true, .face = dfOpaque;
+	}
+	function drawFontLayerOne(i) {
+		var pad = 4, basefh = itemHeight - pad*2;
+		with (fontLayer) {
+			var h = basefh;
+			var face = .font.face = fontList[i];
+			if (preRenderEx && preRenderEx[face] !== void) {
+				face = preRendTag + face;
+				._preRenderFontEx.fontUpdate();
+				h = ._preRenderFontEx.searchNearSize(h);
+				h = itemHeight if (h > itemHeight);
+			}
+			.font.height = h;
+			.drawText(pad, i*itemHeight + (itemHeight - h)\2, face, 0xFFFFFF, 255, true);
+		}
+	}
+	function open() {
+		var r = super.open(...);
+		if (r.result == IDOK) return fontList[r.items.Select];
+	}
+}
+
+
+// システムセーブエラー時再試行
+function onSaveSystemVariablesFailed(reason) {
+	var text = @"システムセーブデータの保存に失敗しました。\n(${reason})\nシステムセーブデータを正しく保存できないと次回起動時に設定やフラグが初期化される場合があります。ディスクの空き容量などを確認して再度保存を試みてください。";
+	var cap = "Error:"+System.title;
+	with (WIN32Dialog)
+		return .messageBox(kag, text, cap, .MB_RETRYCANCEL|.MB_ICONERROR) == .IDRETRY;
+}
+

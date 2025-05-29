@@ -1,0 +1,46 @@
+func,logo,
+cref,allbtns,start,load,flowchart,csel,config,extra,end,
+part,maingrp,start,load,flowchart,csel,config,extra,end,
+func,start,	storage,custom.ks,	target,*title_gsel
+func,load,	storage,title.ks,	target,*load
+func,flowchart,	storage,custom.ks,	target,*scnsel
+func,csel,	storage,custom.ks,	target,*title_chsel
+func,config,	storage,title.ks,	target,*option
+func,extra,	storage,custom.ks,	target,*title_extra
+func,end,	exp,kag.close()
+#
+func,capnewgame,
+cref,newgames,	start1,start2,start3,start4,start5,start6,ngback
+part,gselgrp,	start1,start2,start3,start4,start5,start6,ngback,capnewgame
+func,start1,	storage,title.ks,	target,*game,	exp,tf.gamestart=0
+func,start2,	storage,title.ks,	target,*game,	exp,tf.gamestart=1
+func,start3,	storage,title.ks,	target,*game,	exp,tf.gamestart=2
+func,start4,	storage,title.ks,	target,*game,	exp,tf.gamestart=3
+func,start5,	storage,title.ks,	target,*game,	exp,tf.gamestart=4
+func,start6,	storage,title.ks,	target,*game,	exp,tf.gamestart=5
+func,ngback,	storage,custom.ks,	target,*title_back,	sename,back
+#
+func,capextra
+cref,allextras,	graphic,stand,sound,replay,exback,capextra
+part,extragrp,	graphic,stand,sound,replay,exback,capextra,exback,capextra
+func,graphic,	storage,title.ks,	target,*cgmode
+func,stand,	storage,custom.ks,	target,*standmode
+func,sound,	storage,title.ks,	target,*soundmode
+func,replay,	storage,title.ks,	target,*scenemode
+func,exback,	storage,custom.ks,	target,*title_back,	sename,back
+#
+func,copyright,	
+func,base,
+#
+eval,-new2,exp,	this.visible=!.sf.newgame1
+eval,-new3,exp,	this.visible=!.sf.newgame2
+eval,-new4,exp,	this.visible=!.sf.newgame3
+eval,-new5,exp,	this.visible=!.sf.newgame4
+eval,-new6,exp,	this.visible=!.sf.newgame5
+part,news,	new2,new3,new4,new5,new6
+part,common,	base,logo,copyright
+part,main,	common,maingrp
+part,exsel,	common,extragrp,
+part,gsel,	common,gselgrp,news
+#
+eval,names,call,uiloadSysSE,title

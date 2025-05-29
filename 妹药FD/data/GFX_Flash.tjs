@@ -1,0 +1,107 @@
+// 動画α処理用プラグイン
+class __dummyGfxFlash { function FlashPlayer { throw new Exception("flashは使用できません（flashPlayerプラグインが必要です）"); } }
+if (typeof global.FlashPlayer == "undefined") {
+	try {
+		Plugins.link("flashPlayer.dll");
+		invalidate global.__dummyGfxFlash;
+		delete     global.__dummyGfxFlash;
+	} catch(e) {
+		//Debug.message(e.message);
+		global.FlashPlayer = __dummyGfxFlash;
+	}
+}
+class FlashController extends GenericFlip, FlashPlayer
+{
+	var FLIP  = global.GenericFlip;
+	var SUPER = global.FlashPlayer;
+
+	var targetLayer; //< 動画表示用 
+	var file;        //< 現在のファイル
+
+	function FlashController(window) {
+		var prim = window.primaryLayer;
+		var w = prim.width, h = prim.height;
+		SUPER.FlashPlayer(w, h);
+		FLIP.GenericFlip(window);
+
+		targetLayer = new Layer(window, window.primaryLayer);
+		targetLayer.setImageSize(w, h);
+		targetLayer.setSizeToImageSize();
+	}
+
+	function finalize() {
+		FLIP.finalize();
+		SUPER.finalize();
+		invalidate targetLayer;
+	}
+
+	function flipFrame { return flipping;  } // override
+
+	/**
+	 * ムービー再生開始
+	 * @param filename ファイル名
+	 * @param elm その他パラメータ
+	 */
+	function start(filename, elm) {
+		flipSetOptions(elm);
+		targetLayer.name = "動画:" + filename;
+		file = filename;
+		var fn = getExistFileNameAutoExtFill(file, "swf");
+		initMovie(fn);
+		play();
+	}
+
+	// 外部から停止
+	function stop() {
+		SUPER.stop();
+		flipStop();
+	}
+	
+	// ムービー更新処理
+	function onFrameUpdate() {
+		if (!isvalid this) return;
+		draw(targetLayer, true);
+		flipAssign(targetLayer);
+	}
+
+	function onReadyStateChange(newState) {
+		dm("FlashController.onReadyStateChange", newState);
+	}
+
+	function flipSetOptions(elm) {
+		if (elm === void) return;
+		var upd = false, w = targetLayer.width, h = targetLayer.height;
+		if (elm.flashwidth  !== void) w = +elm.flashwidth,  upd = true;
+		if (elm.flashheight !== void) w = +elm.flashheight, upd = true;
+		if (upd) {
+			setSize(w, h);
+			targetLayer.setImageSize(w, h);
+			targetLayer.setSizeToImageSize();
+		}
+	}
+	function flipStore(dic) {
+		with (dic) {
+			;.file  = file;
+			;.flashwidth  = targetLayer.width;
+			;.flashheight = targetLayer.height;
+		}
+	}
+	function flipRestore(dic) {
+		start(dic.file, dic);
+	}
+	function flipStart(storage, elm) {
+		start(storage, elm);
+	}
+}
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "flash",             // 登録タグ
+		"class"    => FlashController,     // コントローラクラス
+		"trigger"  => "flashstop",         // 停止時に投げるトリガー名
+		"ext"      => "swf",               // 判定処理（拡張子文字列or配列）
+//		"checker"  => void,                // 判定処理（関数）
+		"options"  => [ "flashwidth", "flashheight" ], // 使用するオプション値（KAGEnvLayer用）
+		"autoflag" => "flash",             // 自動フラグタグ名（KAGEnvLayer用）
+		]);
+

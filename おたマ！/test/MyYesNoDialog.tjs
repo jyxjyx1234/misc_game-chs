@@ -1,0 +1,536 @@
+// YesNoDialog の改変
+
+/**
+ * ウインドウ版
+ */
+class MyYesNoDialogWindow extends Window
+{
+	var baseLayer; // ベース部分
+	var result = false; // no:false yes:true
+	var isMain = false;
+	var maskThreshold; // マスク切り抜きの閾値
+	var callback;
+
+	var tempLayer;
+	property temporaryLayer
+	{
+		// ワークエリアとして一時的に使用できるレイヤを返す
+		getter()
+		{
+			if(tempLayer === void)
+			{
+				tempLayer = new KAGLayer(this, primaryLayer);
+				tempLayer.name = "一時ワークレイヤ";
+			}
+			return tempLayer;
+		}
+	}
+
+	function processKeys(key, shift)
+	{
+		// nothing to do
+	}
+
+	function getKeyState(key)
+	{
+		// System.getKeyState 関数と同等だが、パッドのキーに関しても
+		// 反応を返す
+		var sg = System.getKeyState;
+		var state = sg(key);
+		if(state) return true;
+		var pad_key = kag.padKeyMapReverse[key];
+		if(pad_key !== void)
+		{
+			// キーコード -> パッドのキーコードの変換が見つかった
+			return sg(pad_key);
+		}
+		return false;
+	}
+
+	// オブジェクトが有効かどうか
+	function isValidObject(obj) {
+		return (typeof obj == "Object" && obj !== null && isvalid obj);
+	}
+
+	// マウスカーソル形状の設定
+	function setCursorDefault(mainWindow) {
+		// mainWindowがない場合は何もしない
+		if (!isValidObject(mainWindow)) return;
+
+		// メインウィンドウから cursorDefault の情報をとってくる
+		if (typeof mainWindow.cursorDefault != "undefined") 
+			this.cursorDefault = mainWindow.cursorDefault; // プライマリのマウスカーソルもついでに設定
+
+		// cursorPointed も同様に取得
+		if (typeof mainWindow.cursorPointed != "undefined")
+			this.cursorPointed = mainWindow.cursorPointed;
+	}
+
+	// 指定ウィンドウの中央に配置（ただし画面外にならないこと）
+	function setCenterPosition(win) {
+		var pos = getParentWindowCenterPos(win, width, height);
+		if (pos !== void) with (pos) setPos(.x, .y);
+	}
+
+	// ベースダイアログレイヤの生成
+	function createBaseLayer(part, cls, cb) {
+		callback = cb;
+		cls = global.MyYesNoDialogLayer if (cls === void || !(typeof cls == "Object" && cls instanceof "Class"));
+		var lay = new cls(this, primaryLayer, part, this.doneFunc);
+		lay.close = function() {}; // closeを潰す
+		lay.setPos(0, 0);
+		return lay;
+	}
+
+	// 各種初期化
+	function initWindowStyle(bw, bh) {
+
+		var kag = global.Window.mainWindow;
+		if (isValidObject(kag)) {
+			// 拡大率の設定
+			if (kag.fullScreen) {
+				if (kag.innerWidth / kag.pxWidth < kag.innerHeight / kag.pxHeight)
+					setZoom(kag.innerWidth, kag.pxWidth);
+				else
+					setZoom(kag.innerHeight, kag.pxHeight);
+			} else {
+				setZoom(kag.zoomNumer, kag.zoomDenom);
+			}
+		}
+		var zoomw = bw * zoomNumer / zoomDenom;
+		var zoomh = bh * zoomNumer / zoomDenom;
+		setInnerSize(zoomw, zoomh); // サイズをあわせる
+
+		// 透明部分を抜く
+		with (primaryLayer) {
+			.type = ltAlpha;
+			.setSize(bw, bh);
+			.fillRect(0, 0, bw, bh, 0);
+			var tmp = new Layer(this, primaryLayer);
+			tmp.setImageSize(bw, bh);
+			tmp.piledCopy(0, 0, primaryLayer, 0, 0, bw, bh);
+			.setImageSize(zoomw, zoomh);
+			.setSizeToImageSize();
+			.stretchCopy(0, 0, width, height, tmp, 0, 0, bw, bh);
+			setMaskRegion(maskThreshold);
+			.setSize(bw, bh);
+			.fillRect(0, 0, bw, bh, 0);
+			invalidate tmp;
+        }
+
+		// プライマリレイヤのマウスカーソル設定
+		primaryLayer.cursor = this.cursorDefault if (typeof this.cursorDefault !== "undefined");
+
+		// ウィンドウ位置の調整
+		setCenterPosition(global.Window.mainWindow);
+	}
+
+	// コンストラクタ
+	function MyYesNoDialogWindow()
+	{
+		super.Window();
+
+		drawDevice.preferredDrawer = 2; // GDI優先
+		// マスク切り抜きの閾値
+		maskThreshold = global.MyYesNoDialog.maskThreshold;
+
+		// 外見の調整
+		borderStyle = bsNone;
+		innerSunken = false;
+		showScrollBars = false;
+
+		// マウスカーソル設定
+		var kag = global.Window.mainWindow, w = 800, h = 600;
+		setCursorDefault(kag);
+		if (isValidObject(kag)) with (kag) {
+			w = kag.pxWidth;
+			h = kag.pxHeight;
+		}
+		// プライマリレイヤ
+		add(new Layer(this, null));
+		primaryLayer.setSize(w,h);
+		primaryLayer.visible = true;
+		
+		var bw, bh;
+		with (baseLayer = createBaseLayer(...)) {
+			.visible = true;
+			bw = .basewidth;
+			bh = .baseheight;
+			.setPos(-.baseleft, -.basetop);
+		}
+//		dm("baseleft:" + baseLayer.baseleft);
+//		dm("basetop:" + baseLayer.basetop);
+//		dm("bw:" + bw);
+//		dm("bh:" + bh);
+		
+		// 各種初期化
+		initWindowStyle(bw, bh);
+	}
+	property defaultFocusItemName {
+		getter { return baseLayer !== void ? baseLayer.defaultFocusItemName : void; }
+		setter(v) { if (baseLayer !== void)  baseLayer.defaultFocusItemName = v; }
+	}
+
+	// デストラクタ
+	function finalize()
+	{
+		invalidate tempLayer if tempLayer !== void;
+		super.finalize(...);
+		invalidate baseLayer;
+	}
+
+	function start() {
+		baseLayer.onOpen();
+		showModal();
+		return result;
+	}
+	function open() {
+		var r = start();
+		callback(r) if (callback !== void);
+		return r;
+	}
+	function addHook(){}
+	function removeHook(){}
+
+	function doneFunc(r) {
+		result = r;
+		close();
+	}
+
+	// エスケープキャンセル
+	function onKeyDown(key, shift)
+	{
+		super.onKeyDown(...);
+		if (key == VK_ESCAPE) {
+			result = false;
+			close();
+		}
+	}
+
+	// 右クリックキャンセル
+	function onMouseDown(x, y, button)
+	{
+		if (button == mbRight) {
+			result = false;
+			close();
+		}
+	}
+}
+/**
+ * マウスカーソル移動アクション
+ */
+class CursorMoveAction {
+	class        CursorMoveActionHandler extends AbsoluteActionHandler {
+		function CursorMoveActionHandler { super.AbsoluteActionHandler(...); }
+		function getResultValue {}
+		function doAction(target, prop, now, stop) {
+			var t = 1-now/time;
+			if (!isvalid target || target.move(t*t, stop)) return true;
+			return stop;
+		}
+	}
+	var window, layer, x, y, cx, cy, lx, ly, cancel, threshold;
+	property cursor { setter(v) {} getter{ return; } } // dummy
+	function CursorMoveAction(win, lay, ox, oy, time, thr = 4) {
+		var inst = instance;
+		invalidate inst if (inst && isvalid inst);
+		instance = this;
+		window=win, layer=lay, x=ox, y=oy, threshold=thr;
+		if (isvalid layer) with (layer) lx=cx=.cursorX, ly=cy=.cursorY;
+		window.beginAction(this, %[ cursor:%[ handler:CursorMoveActionHandler, time:time ] ], stop, true);
+		window.ignoreTrackPseudoMenu = true;
+	}
+	function finalize() {
+		if (!isvalid this) return;
+		window.ignoreTrackPseudoMenu = false;
+		window.stopAction(this);
+		instance = void if (instance === this);
+	}
+	function stop() { invalidate this if (isvalid this); }
+	function move(pos, stopFlag) {
+		if (!isvalid layer) return true;
+		if (stopFlag && !cancel) layer.setCursorPos(x, y);
+		else with (layer) {
+			var abs = Math.abs, thr = threshold;
+			if (abs(lx-.cursorX) > thr || abs(ly-.cursorY) > thr) return (cancel=true);
+			.setCursorPos(x + (cx-x)*pos, y + (cy-y)*pos);
+			lx =.cursorX, ly=.cursorY;
+		}
+	}
+	property instance {
+		setter(v) {     global.CursorMoveAction.Instance = v; }
+		getter { return global.CursorMoveAction.Instance;     }
+	}
+}
+with (CursorMoveAction) {
+	.Instance = void;
+	.Start = function(win, lay) {
+		if (!win || !isvalid win || typeof win.beginAction == "undefined" ||
+			!lay || !isvalid lay) return;
+		var inst = new CursorMoveAction(...);
+	} incontextof global;
+}
+
+/**
+ * ダイアログ版
+ */
+class MyYesNoDialogLayer extends DialogLayer
+{
+	var callback, trig1, trig2;
+
+	function MyYesNoDialogLayer(win, parent, part, callback, dark) {
+		var storage = config.storage;
+		super.DialogLayer(win, parent, "MyYesNoDialogLayer : " + storage);
+		selProcessLock = true;
+
+		this.callback = callback;
+		trig1 = createTrigger("focusItemPhase2", atmAtIdle);
+		trig2 = createTrigger("focusItemPhase3", atmAtIdle);
+		var bgopacity = 0, bgcolor = 0;
+		if (dark) with (config) bgopacity = .bgOpacity, bgcolor = .bgColor;
+		uiload(%[ storage:storage, partexcept:part, bgopacity:bgopacity, bgcolor:bgcolor]);
+	}
+
+	function finalize() {
+		invalidate trig1 if (trig1 !== void && isvalid trig1);
+		invalidate trig2 if (trig2 !== void && isvalid trig2);
+		super.finalize();
+	}
+
+	property inDialogWindow { getter { return window instanceof "MyYesNoDialogWindow"; } }
+
+	function createTrigger(method, idle) {
+		var trig;
+		with (trig = new AsyncTrigger(this, method)) {
+			.mode = idle;
+			.cached = true;
+		}
+		return trig;
+	}
+
+	var defaultFocusItemName;
+	function onOpen() {
+		selProcessLock = false;
+		var se = getSysSE("dialog.open");
+		playSysSE(se) if (stateSysSE(se) != "play");
+		focusItem(defaultFocusItemName);
+		if (config.fadeTime > 0 && !inDialogWindow) {
+			showHideFade(true, config.fadeTime);
+		}
+	}
+	var _fcitem;
+	function focusItem(name) {
+//		parent.focusedLayer = null;
+		var target;
+		target = this.names[name] if (name != "");
+		target = this.names.no  if (target === void);
+		target = this.names.yes if (target === void);
+
+		var time = config.cursorMoveTimeByFocus;
+		if (!time) focusItemPhase1(target);
+		else if (time > 0 && target && isvalid target) with (target)
+			CursorMoveAction.Start(window, target, .width\2, .height\2, time);
+	}
+	function focusItemPhase1(target) {
+		if ((_fcitem = target) === void) return;
+		if (_fcitem && isvalid _fcitem) with (_fcitem) {
+			.enabled = false;
+			setFocusToLink(.linkNum, true);
+		}
+		trig1.trigger();
+	}
+	function focusItemPhase2() {
+		if (!isvalid this) return;
+		_fcitem.enabled = true if (_fcitem && isvalid _fcitem);
+		trig2.trigger();
+	}
+	function focusItemPhase3() {
+		if (!isvalid this) return;
+		setFocusToLink(_fcitem.linkNum, true) if (_fcitem && isvalid _fcitem);
+		_fcitem = void;
+	}
+
+	function close(playse = true) {
+		// ESC や右クリックでキャンセルされた場合にもコールバックを呼ぶ
+		callback(0) if (callback !== void);
+		callback = void;
+		playSysSE("dialog.close") if (playse);
+		super.close();
+	}
+
+	var result;
+	function processLink(num) {
+		super.processLink(num);
+
+		var ln = links[num];
+		if (ln === void) return;
+
+		result = onItemClick(ln.object.name);
+		if (result !== void) {
+			if (config.fadeTime > 0 && !inDialogWindow) {
+				showHideFade(false, config.fadeTime, false);
+			} else invokeCallback();
+		}
+	}
+	function invokeCallback() {
+		callback(result) if (callback !== void);
+		if (this isvalid) {
+			callback = void;
+			close(false);
+		}
+	}
+	function onShowHideFadeDone(vis, en) {
+		super.onShowHideFadeDone(...);
+		if (!vis) invokeCallback();
+	}
+
+	// get result
+	function onItemClick(name) {
+		return ((name == "yes") || (name.indexOf("はい") >= 0));
+	}
+
+	property config { getter { return global.MyYesNoDialog; } }
+}
+
+class MyYesNoDialog {
+
+	class askYesNoCallbacks {
+		function askYesNoCallbacks(yesFunc, noFunc, param, doneFunc) {
+			this.yesFunc  = yesFunc;
+			this.noFunc   = noFunc;
+			this.param    = param;
+			this.doneFunc = doneFunc;
+		}
+		function finalize() {}
+		function Invoke(result) {
+			// コールバック呼び出し
+			yesFunc( param) if (yesFunc !== void &&  result);
+			noFunc(  param) if ( noFunc !== void && !result);
+			doneFunc(param) if (doneFunc !== void);
+		}
+	}
+	// メッセージ⇒ UI定義part名へのマップ
+	var yesnoMap = %[
+		"最初に戻ります。よろしいですか ?" => "AskTitle",
+		"終了しますか？"                   => "AskExit",
+		"初期化してよろしいですか？"       => "AskInit",
+		"ロードしてよろしいですか？"       => "AskLoad",
+		"上書きしてよろしいですか？"       => "AskOverwrite",
+		"クイックロードしますか？"         => "AskQLoad",
+		"クイックセーブしますか？"         => "AskQSave",
+		"前の選択肢に戻りますか"           => "AskBackTo",
+		"次の選択肢に進みますか"           => "AskNext",
+		"クイックセーブしました"           => "DoneQSave",
+		"クイックロードしました"           => "DoneQLoad",
+		];
+
+	// 全一致でなく部分一致用のマップ
+	var yesnoMatch = [
+		"まで戻りますか?" => "AskBackTo"
+		];
+
+	var forceYesMap = %[
+	AskOverwrite:function { return (global.SystemConfig !== void) ? !(global.SystemConfig.askOverwrite)  : false; },
+	AskInit:     function { return (global.SystemConfig !== void) ? !(global.SystemConfig.askInit)       : false; },
+	AskTitle:    function { return (global.SystemConfig !== void) ? !(global.SystemConfig.askTitle)      : false; },
+	AskExit:     function { return (global.SystemConfig !== void) ? !(global.SystemConfig.askExit)       : false; },
+		];
+
+	var _defaultFocusItem = %[];
+	property defaultFocusItem {
+		setter (v) { _defaultFocusItem = v; }
+		getter {
+			return (global.SystemConfig !== void &&
+					typeof SystemConfig["dialogDefaultFocusTable"] == "Object")
+				?          SystemConfig["dialogDefaultFocusTable"] : _defaultFocusItem;
+		}
+	}
+
+	var ThisClass = global.MyYesNoDialog;
+	var origAskYesNo;
+	function MyYesNoDialog(orig) { origAskYesNo = orig; }
+	function finalize() {}
+
+	function getMessageMap(message) {
+		// メッセージ⇒UI定義名取得
+		var msg = yesnoMap[message];
+		for (var i = 0; (msg === void && i < yesnoMatch.count); i+=2)
+			msg = yesnoMatch[i+1] if (message.indexOf(yesnoMatch[i]) >= 0);
+		return msg;
+	}
+
+	function askYesNo(message, caption = "確認", yesFunc, noFunc, param, doneFunc) {
+		var msg = getMessageMap(message);
+		var useCustom = (msg !== void) && // UI定義が存在するかどうか
+			(Storages.isExistentStorage(ThisClass.storage + ".func"));
+
+		// コールバック用オブジェクト
+		var cb = new askYesNoCallbacks(yesFunc, noFunc, param, doneFunc);
+
+		// 強制yes設定の場合はダイアログを表示しない
+		var force = (msg != "") ? forceYesMap[msg] : false;
+		force = force() if (typeof force == "Object");
+		if (force) return cb.Invoke(true);
+
+		// フォーカスアイテム
+		var focus = (msg != "") ? defaultFocusItem[msg] : "";
+		global.MyYesNoDialog.currentTextPart = msg;
+
+		if (useCustom) {
+			// ムービーが再生されているときはウィンドウ版で／そうでないときはレイヤーから
+			var useWin = (kag.isMoviePlaying() && kag.movies[0].mode != vomLayer);
+			var dialog = (useWin ?
+						  (new ThisClass.dialogWindow(msg, ThisClass.dialogLayer, cb.Invoke)) :
+						  (new ThisClass.dialogLayer(kag, kag.primaryLayer, msg,  cb.Invoke, true)));
+
+			if (typeof dialog.defaultFocusItemName != "undefined" && focus != "")
+				/*   */dialog.defaultFocusItemName = focus;
+
+			dialog.open();
+
+			invalidate dialog if (useWin);
+		} else {
+			// 既存の処理（文字列で表示）
+			return origAskYesNo(message, caption, yesFunc, noFunc, param, doneFunc);
+		}
+	}
+}
+
+KAGLoadScript("YesNoDialog.tjs");
+
+with (MyYesNoDialog)
+{
+	.currentTextPart = void;
+
+	// 作成クラス(カスタムスクリプトで置き換え可能)
+	.dialogWindow = MyYesNoDialogWindow;
+	.dialogLayer  = MyYesNoDialogLayer;
+
+	// ウィンドウ時のマスク閾値
+	.maskThreshold = 64;
+
+	// マウスカーソル移動時間(0で瞬間，マイナスにすると移動しない)
+	.cursorMoveTimeByFocus = .defaultCursorMove = 300; // デフォルト値
+	.setCursorMoveTime = function (mv) {
+		var time = (+mv > 0) ? (int)mv : (mv == "no" || +mv < 0) ? -1 : this.defaultCursorMove;
+		this.cursorMoveTimeByFocus = time;
+	} incontextof MyYesNoDialog;
+	SystemArgumentInfo.curmove.changed();
+
+	// ダイアログ用UIストレージ名
+	.storage = "dialog";
+
+	// 背景にかぶせる色
+	.bgColor      = 0;
+	.bgOpacity    = 128;
+
+	// フェード時間
+	.fadeTime     = 0;
+
+	// ラッパーインスタンス
+	.instance = new MyYesNoDialog(global.askYesNo);
+
+	// オリジナルをのっとり
+	global.askYesNo = .instance.askYesNo;
+}
+

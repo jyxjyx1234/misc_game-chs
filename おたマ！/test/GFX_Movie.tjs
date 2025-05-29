@@ -1,0 +1,125 @@
+// 動画α処理用プラグイン
+if (typeof global.Layer.copyBottomBlueToTopAlpha == "undefined") {
+	try {
+		Plugins.link("layerExBtoA.dll");
+	} catch(e) {
+	}
+}
+class MovieControlLayer extends GenericFlip, VideoOverlay
+{
+	var FLIP  = global.GenericFlip;
+	var SUPER = global.VideoOverlay;
+
+	var targetLayer; //< 動画表示用 
+	var alpha;       //< α動画か？
+	var status;      //< 再生ステータス
+	var file;        //< 現在のファイル
+
+	function MovieControlLayer(window) {
+		SUPER.VideoOverlay(window);
+		FLIP.GenericFlip(window);
+		targetLayer = new Layer(window, window.primaryLayer);
+
+		mode = vomLayer;
+		layer1 = targetLayer;
+		status = "unload";
+	}
+
+	function finalize() {
+		stop();
+		layer1 = null;
+		invalidate targetLayer;
+		FLIP.finalize();
+		SUPER.finalize();
+	}
+
+	property isPlayingMovie { getter() { return flipping; } }
+	function flipFrame { return flipping; } // override
+
+	/**
+	 * ムービー再生開始
+	 * @param filename ファイル名
+	 * @param alpha α動画扱い
+	 * @param loop ループ指定
+	 * @param ovtype 合成モード
+	 */
+	function start(filename, loop=false, alpha=0) {
+		this.alpha = alpha;
+		targetLayer.name = "動画:" + filename;
+		this.loop=loop;
+		file = filename;
+		var fn = getExistFileNameAutoExtFill(file, "mpg", "mpv", "mpeg", "wmv");
+		open(fn);
+		// 音がある場合は音量を設定
+		try { audioVolume = getAudioVolume(); } catch {}
+		play();
+	}
+
+	// 音量を取得（windowから参照）
+	function getAudioVolume() {
+		with (targetLayer.window)
+			return   (.waveenable && .movieAudioEnable) ?
+				/**/ (.wavevolume *  .movieAudioVolume) * 10 : 0; // 通常は *1000 だが vol*vol なので *10 で十分
+	}
+
+	// 外部から停止
+	function stop() {
+		SUPER.stop();
+		flipStop();
+	}
+	
+	// ムービー更新処理
+	function onFrameUpdate() {
+		if (!isvalid this) return;
+		//dm("更新:" + targetLayer.name);
+		switch (alpha) {
+		case 0:
+			targetLayer.fillAlpha();
+			break;
+		case 1:
+			targetLayer.height = targetLayer.imageHeight / 2;
+			targetLayer.copyBottomBlueToTopAlpha();
+			break;
+		case 2:
+			targetLayer.width = targetLayer.imageWidth / 2;
+			targetLayer.copyRightBlueToLeftAlpha();
+			break;
+		}
+		flipAssign(targetLayer);
+	}
+
+	// ステータス変更
+	function onStatusChanged(newstat) {
+		//dm("ステート:" + targetLayer.name + ":" + status + "->" + newstat);
+		flipStop() if (status == "play" && newstat == "stop");
+		status = newstat;
+	}
+
+//	function flipSetOptions(elm) {}
+	function flipStore(dic) {
+		with (dic) {
+			;.file  = file;
+			;.loop  = loop;
+			;.alpha = alpha;
+		}
+	}
+	function flipRestore(dic) {
+		start(dic.file, dic.loop, dic.alpha);
+	}
+	function flipStart(storage, elm) {
+		start(storage, elm.loop, elm.alpha);
+	}
+}
+
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "movie",             // 登録タグ
+		"class"    => MovieControlLayer,   // コントローラクラス
+		"trigger"  => "lmstop",            // 停止時に投げるトリガー名
+		"ext"      => [ "mpeg", "mpg", "mpv", "wmv" ], // 判定処理（拡張子文字列or配列）
+//		"checker"  => void,                // 判定処理（関数）
+		"options"  => [ "loop", "alpha" ], // 使用するオプション値（KAGEnvLayer用）
+		"autoflag" => "movie",             // 自動フラグタグ名（KAGEnvLayer用）
+		]);
+

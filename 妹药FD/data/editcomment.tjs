@@ -1,0 +1,81 @@
+/**
+ * セーブデータコメント編集ダイアログ
+ */
+class        EditSaveDataCommentDialog extends WIN32GenericDialogEX {
+	function EditSaveDataCommentDialog(title, caption, text) {
+		super.WIN32GenericDialogEX(
+			%[
+			padding:3,
+			title:title,
+			width:140, fontSize:12, fontFace:"ＭＳ ゴシック",
+			itemtexts:%[ Text: caption,
+						 IDOK => "決定",
+						 IDCANCEL => "キャンセル"
+						 ] ]);
+		text = (string)text;
+		if (text != "") text = text.replace(/\n/g, "\r\n");
+		addTextInput("Text", 36, void, text);
+		getLastItem().style &= ~(ES_AUTOHSCROLL|WS_HSCROLL);
+		nextLine();
+		addButton(IDOK,     makeStepRight(1, 50), 2);
+		addButton(IDCANCEL, makeStepRight(0, 50), 2);
+	}
+	function onInit() {
+		super.onInit(...);
+		setCenterPosition(global.Window.mainWindow);
+//		sendItemMessage("Text", EM_LIMITTEXT, 16, 0);
+		sendItemMessage("Text", EM_SETSEL, 0, -1);
+		setItemFocus("Text");
+	}
+	function open() {
+		var r = super.open(...), text;
+		try {  text = (r.result == IDOK) ? r.items.Text : void; } catch {}
+		if (text != "") text = text.replace(/\r/g, "");
+		return text;
+	}
+}
+
+
+/**
+ * 立ち絵モードダミーテキスト編集ダイアログ
+ */
+class        EditStandMessageDialog extends WIN32GenericDialogEX {
+	function EditStandMessageDialog(title, caption, text) {
+		super.WIN32GenericDialogEX(
+			%[
+			padding:3,
+			title:title,
+			width:250, fontSize:12, fontFace:"ＭＳ ゴシック",
+			itemtexts:%[ Name:"名前欄", Text: "本文",
+						 IDOK => "決定",
+						 IDCANCEL => "キャンセル"
+						 ] ]);
+		text    = (string)text;
+		caption = (string)caption;
+		if (text != "") text = text.replace(/\n/g, "\r\n");
+
+		addLineInput("Name", void, caption);
+		nextLine();
+		addTextInput("Text", 36, void, text);
+		getLastItem().style &= ~(ES_AUTOHSCROLL|WS_HSCROLL);
+		nextLine();
+
+		addButton(IDOK,     makeStepRight(1, 50), 2);
+		addButton(IDCANCEL, makeStepRight(0, 50), 2);
+	}
+	function onInit() {
+		super.onInit(...);
+		setCenterPosition(global.Window.mainWindow);
+		sendItemMessage("Name", EM_LIMITTEXT, 16, 0);
+		sendItemMessage("Text", EM_SETSEL, 0, -1);
+		setItemFocus("Text");
+	}
+	function open() {
+		var r = super.open(...), text;
+		if (r.result != IDOK) return;
+		var caption = r.items.Name;
+		var text    = r.items.Text;
+		if (text != "") text = text.replace(/\r/g, "");
+		return %[ name:caption, text:text ];
+	}
+}

@@ -1,0 +1,54 @@
+func,_on,
+func,_off,
+func,_sl,	min,0,	max,100,	uipsdfix,true,	sename,slider
+#
+func,window,		exp,Current.cmd("fullscreen=false")
+func,fullscreen,	exp,Current.cmd("fullscreen=true")
+func,effect_none,	exp,Current.cmd("effectSpeed=effect_on"),	name,effect_on
+func,effect_normal,	exp,Current.cmd("effectSpeed=effect_off"),	name,effect_off
+func,textspeed,		value,kag.textspeed
+func,autospeed,		value,kag.autospeed
+func,wavevolume,	value,kag.wavevolume
+func,bgmvolume,		value,kag.bgmvolume
+func,sevolume,		sename,samplese,	value,kag.sevolume
+func,setest,		sename,samplese
+#
+func,cfsave_on,		exp,Current.cmd("confirmSave=true")
+func,cfsave_off,	exp,Current.cmd("confirmSave=false")
+func,cfload_on,		exp,Current.cmd("confirmLoad=true")
+func,cfload_off,	exp,Current.cmd("confirmLoad=false")
+func,vcut_on,		exp,Current.cmd("voiceCut=true"),	name,voicecut_on
+func,vcut_off,		exp,Current.cmd("voiceCut=false"),	name,voicecut_off
+func,skipall,		exp,Current.cmd("allSkip=true")
+func,skipread,		exp,Current.cmd("allSkip=false")
+#
+func,flowpop_on,	exp,Current.cmd("flowPopup=true")
+func,flowpop_off,	exp,Current.cmd("flowPopup=false")
+func,frgpop_on,		exp,Current.cmd("fragPopup=true")
+func,frgpop_off,	exp,Current.cmd("fragPopup=false")
+#,
+cref,mjbattle,mjbattle_on,mjbattle_off,mjbattle_ask,
+rgrp,mjbattle,mjbattle_on,mjbattle_off,mjbattle_ask,
+func,mjbattle_on,	exp,Current.cmd("mjbattle=on"),		halftone,true
+func,mjbattle_off,	exp,Current.cmd("mjbattle=off")
+func,mjbattle_ask,	exp,Current.cmd("mjbattle=ask"),	halftone,true
+#
+func,winopac,		value,*Current.prop("windowOpac"),	max,255,	step,32
+func,winsample,
+#
+cref,allsys,shortcut,init,back,title,exit
+func,shortcut,	storage,custom.ks, target,*ShortcutHelp_inConfig
+func,init,	exp,Current.cmd("init/system")
+func,back,	target,*back
+func,title,	target,*back,	exp,kag.goToStartWithAsk(),	sename,back
+eval,-title,exp,with(this)if(global.Current.propget("fromTitle")) .exp=void; else .target=void;
+func,exit,	exp,kag.close()
+#
+cref,alltabs,tab_system,tab_voice,
+rgrp,alltabs,tab_system,tab_voice,
+func,tab_system,sename,page,	name,page0,	exp,Current.page=0,	target,*page
+func,tab_voice,	sename,page,	name,page1,	exp,Current.page=1,	target,*page
+#
+func,base,
+part,remove,_on,_off,_sl
+eval,names,call,uiloadSysSE,option

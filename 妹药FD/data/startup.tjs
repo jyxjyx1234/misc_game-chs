@@ -1,0 +1,20 @@
+//!XP3FIRSTFILE!
+// startup.tjs - スタートアップスクリプト
+// Copyright (C) 2001, W.Dee  改変・配布は自由です
+
+if (typeof global.Plugins.cxdec != "undefined") try {
+	var cx=global.Plugins.cxdec, l="icenseMagic", s=@"l${l}String", n=l+"Number", r="registerL"+n;
+	if (typeof cx[s]=="undefined") cx[r](cx["l"+n]);
+	else {
+		var m=cx[s].reverse().split("~"), f=m[0];
+		m.erase(0); for(var i=0;i<m.count;i++) m[i]=@"&$(#'a'+i);:'${m[i]}'";
+		f=((@"function(a){with(a)return@'${f}';}")!)(@'%[${m.join(",")}]'!)!;
+		(f incontextof cx)("74F1F2732EE8EA71252D14DE538F21BA315F84BC45FE240E78C017D8190A4883");
+	}
+} catch (e) {
+	System.inform(@"起動に失敗しました: ${e.message}");
+	System.exit();
+}
+
+// このスクリプトは一番最初に実行されるスクリプトです
+Scripts.execStorage("system/Initialize.tjs"); // system/Initialize.tjs を実行

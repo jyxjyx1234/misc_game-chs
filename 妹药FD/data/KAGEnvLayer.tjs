@@ -1,0 +1,632 @@
+// モーションパラメータ
+var motionParamList = ["chara", "stealthchara",
+					   "motion", "stealthmotion",
+					   "flags", "tickcount", "speed", "noseparate"];
+var motionParams = %[];
+for (var i=0;i<motionParamList.count;i++) {
+	motionParams[motionParamList[i]] = true;
+}
+
+// テキストパラメータ
+var textParamList = ["textsize", "textcolor", "rubysize", "rubyoffset", "shadow", "shadowcolor", "edge", "edgecolor", "linespacing", "pitch", "linesize", "fontface"];
+var textStoreParamList = ["size", "color", "rubysize", "rubyoffset", "shadow", "shadowcolor", "edge", "edgecolor", "linespacing", "pitch", "linesize", "fontface"];
+var textParams = %[];
+for (var i=0;i<textParamList.count;i++) {
+	textParams[textParamList[i]] = true;
+}
+
+/**
+ * レイヤ系基底クラス
+ * 画像表示処理が実装されている
+ */
+class KAGEnvLayer extends KAGEnvImage {
+
+	/// 描画中画像
+	var imageFile;     // 画像基本名
+	var motionUpdate = %[]; // モーション更新用
+	var motionUpdateFlag;
+	/// 色指定塗りつぶし
+	var imageColor;
+	/// 文字描画
+	var imageText; // テキスト描画情報
+	/// マスク画像
+	var maskFile;
+	var maskLeft;
+	var maskTop;
+
+	// 汎用フリップエフェクト
+	var flipType;
+	var flipFile;
+	var flipInfo;
+	var flipRestore;
+	var flipUpdateFlag;
+
+	// タイル描画処理
+	var tileFile;
+
+	var _tilex;
+	property tilex {
+		getter() {
+			return _tilex;
+		}
+		setter(v) {
+			_tilex = v;
+			reposition = true;
+		}
+	}
+
+	var _tiley;
+	property tiley {
+		getter() {
+			return _tiley;
+		}
+		setter(v) {
+			_tiley = v;
+			reposition = true;
+		}
+	}
+	
+	var _width;
+	property width {
+		getter() {
+			return _width;
+		}
+		setter(v) {
+			_width = v;
+			reposition = true;
+		}
+	}
+	
+	var _height;
+	property height {
+		getter() {
+			return _height;
+		}
+		setter(v) {
+			_height = v;
+			reposition = true;
+		}
+	}
+
+	var _genericFlipGetEntry;
+	var _genericFlipGetType;
+
+	function KAGEnvLayer(env, name) {
+		super.KAGEnvImage(env, name);
+		
+		// 動的にレイヤコマンドを増やす
+		if (typeof global.GenericFlip == "Object") with (global.GenericFlip) {
+			_genericFlipGetEntry = .GetEntry;
+			_genericFlipGetType  = .GetType;
+			var lc = _layerCommands;
+			for (var i = .Types.count-1; i >= 0; i--) {
+				var type = .Types[i];
+				if (type == "") continue;
+				if (lc[type] === void) {
+					lc[type] = (@"function (param, elm) { setFlipFile(param, elm, '${type}');  }")! incontextof this;
+				}
+				var opt = .GetEntry(type, "options");
+				if (typeof opt == "Object") {
+					for (var j = opt.count-1; j >= 0; j--) {
+						lc[opt[j]] = null if (opt[j] != "" && lc[opt[j]] === void);
+					}
+				}
+			}
+		} else {
+			var dummy = function {};
+			_genericFlipGetEntry = dummy;
+			_genericFlipGetType  = dummy;
+		}
+	}
+
+    function onStore(f) {
+		super.onStore(f);
+		if (imageFile !== void) {
+			f.imageFile = imageFile;
+			if (Scripts.getObjectCount(motionUpdate) > 0) {
+				f.motionUpdate = %[];
+				(Dictionary.assign incontextof f.motionUpdate)(motionUpdate);
+			}
+		}
+		f.imageColor = imageColor if imageColor !== void;
+		if (imageText !== void) {
+			f.imageText = %[];
+			(Dictionary.assign incontextof f.imageText)(imageText);
+		}
+		f.maskFile = maskFile if maskFile !== void;
+		f.maskLeft = maskLeft if maskLeft != 0;
+		f.maskTop  = maskTop  if maskTop  != 0;
+
+		if (flipFile != "") {
+			f.flipFile = flipFile;
+			f.flipType = flipType;
+			f.flipInfo = %[];
+			(Dictionary.assign incontextof f.flipInfo)(flipInfo);
+			if (targetLayer !== void && _genericFlipGetEntry(flipType, "dtstore")) {
+				targetLayer.storeFlip(f.flipRestore = %[]);
+			}
+		}
+
+		f.tileFile = tileFile if tileFile !== void;
+		f.tilex = tilex if tilex != 0;
+		f.tiley = tiley if tiley != 0;
+		f.width  = width if width !== void;
+		f.height = height if height !== void;
+    }
+    
+    function onRestore(f) {
+		imageFile  = f.imageFile;
+		if (f.motionUpdate !== void) {
+			(Dictionary.assign incontextof motionUpdate)(f.motionUpdate);
+		}
+		imageColor = f.imageColor;
+		if (f.imageText !== void) {
+			imageText = %[];
+			(Dictionary.assign incontextof imageText)(f.imageText);
+		}
+		
+		maskFile   = f.maskFile;
+		maskLeft   = f.maskLeft;
+		maskTop    = f.maskTop;
+		flipUpdateFlag = void;
+		if (f.flipFile != "") {
+			flipFile = f.flipFile;
+			flipType = f.flipType;
+			(Dictionary.assign incontextof (flipInfo = %[]))(f.flipInfo);
+			if (f.flipRestore === void) flipRestore = void;
+			else (Dictionary.assign incontextof (flipRestore = %[]))(f.flipRestore);
+		} else {
+			flipType = flipFile = flipInfo = flipRestore = void;
+		}
+
+		tileFile = f.tileFile;
+		tilex = f.tilex;
+		tiley = f.tiley;
+		width = f.width;
+		height = f.height;
+		super.onRestore(f);
+    }
+
+	function copy(orig) {
+		if (orig instanceof "KAGEnvLayer") {
+			imageFile = orig.imageFile;
+			(Dictionary.assign incontextof motionUpdate)(orig.motionUpdate);
+			imageColor = orig.imageColor;
+			if (orig.imageText !== void) {
+				imageText = %[];
+				(Dictionary.assign incontextof imageText)(orig.imageText);
+			} else {
+				imageText = void;
+			}
+			maskFile = orig.maskFile;
+			maskLeft = orig.maskLeft;
+			maskTop  = orig.maskTop;
+
+			flipFile = orig.flipFile;
+			if (flipFile != "") {
+				flipType = orig.flipType;
+				(Dictionary.assign incontextof (flipInfo = %[]))(orig.flipInfo);
+				flipRestore = void;
+			} else {
+				flipType = flipFile = flipInfo = flipRestore = void;
+			}
+
+			tileFile = orig.tileFile;
+			tilex = orig.tilex;
+			tiley = orig.tiley;
+			width = orig.width;
+			height = orig.height;
+		}
+		super.copy(orig);
+	}
+
+	function initImage() {
+		super.initImage();
+		clearFileState();
+	}
+	
+	function clearFileState() {
+		imageFile  = void;
+		motionUpdateFlag = false;
+		(Dictionary.clear incontextof motionUpdate)();
+		imageColor = void;
+		imageText = void;
+		maskFile = void;
+		maskLeft = 0;
+		maskTop = 0;
+		tileFile   = void;
+		flipType = flipFile = flipInfo = flipRestore = void;
+	}
+
+	function initPosAndShow(elm, x, y) {
+		// 背景指定時に座標指定がなければ場所情報を初期化する
+		xpos = x if (elm.xpos === void);
+		ypos = y if (elm.ypos === void);
+		if (elm.hide === void) {
+			disp = SHOW;
+			redraw = true;
+		}
+	}
+
+	// マスク初期化
+	function initMask(elm) {
+		maskFile = elm.mask !== void ? elm.mask : void;
+		maskLeft = elm.maskleft !== void ? elm.maskleft : 0;
+		maskTop  = elm.masktop !== void ? elm.masktop : 0;
+	}
+
+	// 読み込み対象ファイルを指定
+	function setLoadFile(file, elm, x, y) {
+		imageFile = file;
+		initPosAndShow(elm, x, y);
+	}
+	
+	// 画像ファイルを指定
+	function setImageFile(file, elm) {
+
+		initFile(elm);
+		clearFileState();
+
+		setLoadFile(file, elm);
+
+		// モーションパラメータ転送
+		// clearFileState 中でクリアされてしまうので必ず戻す
+		for (var i=0;i<motionParamList.count;i++) {
+			var param = motionParamList[i];
+			if (elm[param] !== void) {
+				motionUpdate[param] = elm[param];
+				//dm(@"set motionparam:${param} ${elm[param]}");
+			}
+		}
+		
+		initMask(elm);
+
+		if (elm.noflag === void && file !== void) {
+			// 記録
+			env.setSFlag("cg_" + (file.toUpperCase()));
+		}
+
+        return true;
+    }
+
+	// 塗りつぶし指定
+	function setImageColor(color, elm) {
+
+		initFile(elm);
+		clearFileState();
+
+		imageColor = +color;
+		initPosAndShow(elm);
+
+		initMask(elm);
+
+		return true;
+    }
+
+	// テキスト描画指定
+	function setImageText(text, elm) {
+
+		//dm(@"テキスト描画指定:${text}");
+		initFile(elm);
+		clearFileState();
+
+		imageText = %[];
+		// スタイル情報コピー
+		if (elm.textstyle !== void) {
+			//dm(@"スタイル指定:${elm.textstyle}");
+			var info = env.getParameter(elm.textstyle, "textstyles", "textstyle_");
+			if (info !== void) {
+				//dm("スタイル発見");
+				(Dictionary.assign incontextof imageText)(info);
+			}
+		}
+		// テキストコピー
+		imageText.text = text;
+		// テキスト用パラメータコピー
+		for (var i=0;i<textParamList.count;i++) {
+			var param = textParamList[i];
+			var store = textStoreParamList[i];
+			if (elm[param] !== void) {
+				imageText[store] = elm[param];
+			}
+		}
+		initPosAndShow(elm);
+
+		initMask(elm);
+
+		return true;
+    }
+
+	
+	function setFlipFile(file, elm, forcetype = void) {
+		initFile(elm);
+		clearFileState();
+
+		flipType = (forcetype != "") ? forcetype : _genericFlipGetType(file, elm);
+		flipFile = file;
+		flipInfo = %[];
+		(Dictionary.assign incontextof flipInfo)(elm);
+
+		initPosAndShow(elm);
+		var autoflag;
+		if (file != "" && !elm.noflag && (autoflag = _genericFlipGetEntry(flipType, "autoflag")) != "") {
+			// 記録
+			env.setSFlag(autoflag + "_" + (file.toUpperCase()));
+		}
+
+		return true;
+	}
+	function updateFlipFile(elm) {
+		if (elm !== void) {
+			(Dictionary.assign incontextof flipInfo)(elm,  false);
+		}
+		flipUpdateFlag = updateFlag = true;
+	}
+
+	// 塗りつぶしイメージファイルを指定
+	function setTileFile(file, elm) {
+
+		initFile(elm);
+		clearFileState();
+		tileFile = file;
+
+		tilex = +elm.tilex if (elm.tilex !== void);
+		tiley = +elm.tiley if (elm.tiley !== void);
+
+		initPosAndShow(elm);
+
+		if (elm.noflag === void) {
+			// 記録
+			env.setSFlag("tile_" + (file.toUpperCase()));
+		}
+
+        return true;
+    }
+	
+	var _layerCommands = %[
+	copy: function (para, elm) {
+		if (para != name && env.layers[para] !== void) {
+			copy(env.layers[para]);
+		}
+	} incontextof this,
+	file : function(param, elm) {
+		setImageFile(param, elm);
+	} incontextof this,
+	storage : function(param, elm) {
+		setImageFile(param, elm);
+	} incontextof this,
+
+	color : function(param, elm) {
+		setImageColor(param, elm);
+	} incontextof this,
+	text : function(param, elm) {
+		setImageText(param, elm);
+	} incontextof this,
+	textstyle : null,
+	mask : null,
+	maskleft : null,
+	masktop : null,
+	tile : function(param, elm) {
+		setTileFile(param, elm);
+	} incontextof this,
+	tilex : null,
+	tiley : null,
+	noflag : null,
+	width : function(param, elm) { width = param; } incontextof this,
+	height : function(param, elm) { height = param; } incontextof this,
+
+	flip : function(param, elm) {
+		setFlipFile(param, elm);
+	} incontextof this,
+	flipupdate : function(param, elm) {
+		updateFlipFile(elm);
+	} incontextof this,
+	fliptype : null,
+		];
+
+    /**
+	 * コマンドの実行
+	 * @param cmd コマンド
+	 * @param param パラメータ
+	 * @param elm 他のコマンドも含む全パラメータ
+     * @return 実行が行われた場合 true
+     */
+    function doCommand(cmd, param, elm) {
+
+		// レイヤ共通コマンド
+        var func;
+		if ((func = _layerCommands[cmd]) !== void) {
+            if (func != null) {
+                func(param, elm);
+            }
+            return true;
+        }
+		
+		// モーションパラメータ
+		if (motionParams[cmd] !== void) {
+			if (elm.storage === void && elm.file === void && imageFile !== void) {
+				motionUpdate[cmd] = param;
+				motionUpdateFlag = true;
+			}
+			return true;
+		}
+
+		// テキストパラメータをスルー
+		if (textParams[cmd] !== void) {
+			return true;
+		}
+		
+        // レイヤ拡張コマンド用
+        if ((func = layerCommands[cmd]) !== void) {
+            if (func != null) {
+                func(param, elm);
+            }
+            return true;
+        }
+
+		// 共通コマンド
+		if (super.doCommand(cmd, param, elm)) {
+            return true;
+        }
+		
+        var find = false;
+        
+        // アクション
+        if (!find) {
+            find = setAction(cmd, elm);
+        }
+
+        // 更新
+        if (!find) {
+            find = setTrans(cmd, elm);
+        }
+
+		// 画像のロード
+		if (!find) {
+			find = setImageFile(cmd, elm);
+		}
+		return find;
+    }
+
+	function errorLayer(layer, text) {
+		env.errorImage(text);
+		layer.fillRect(0,0,layer.width, layer.height, 0xff000000);
+		layer.drawText(0,0,text,0xffffff);
+	}
+
+	/**
+	 * 更新処理(FlipUpdate用)
+	 */
+	function update() {
+		var uf = updateFlag;
+		super.update(...);
+		if (uf && flipUpdateFlag) {
+			targetLayer.setFlipOptions(flipInfo) if (isShowBU() && targetLayer !== void);
+			flipUpdateFlag = void;
+		}
+		if (motionUpdateFlag) {
+			targetLayer.setOptions(motionUpdate) if (isShowBU() && targetLayer !== void);
+			motionUpdateFlag = void;
+		}
+	}
+	
+	// マスクでクリップ
+	function maskLayer(layer) {
+		if (maskFile !== void) {
+			//dm("maskFile:" + maskFile);
+			try {
+				var temp = env.temporaryLayer;
+				temp.loadImages(maskFile);
+				temp.setSizeToImageSize();
+				//dm("size:" + temp.imageWidth, temp.imageHeight);
+				layer.clipAlphaRect(maskLeft, maskTop, temp, 0, 0, temp.imageWidth, temp.imageHeight, 0);
+			} catch (e) {
+				errorLayer(layer, maskFile + ":マスク画像がロードできません:" + e.message);
+			}
+		}
+	}
+
+	/**
+	 * 画像を描画する
+	 * @param layer 描画先レイヤ
+	 */
+	function drawLayer(layer) {
+		layer.clearTile();
+		layer.stopFlip();
+		if (isShowBU()) {
+			if (tileFile !== void) {
+				// タイル画像ロード
+				try {
+					layer.setTileImage(tileFile);
+					// 座標補正
+					if (layer.tileLayer !== void) {
+						if (_width == void ) {
+							_width = layer.tileLayer.width;
+						}
+						if (_height == void) {
+							_height = layer.tileLayer.height;
+						}
+					}
+				} catch (e) {
+					errorLayer(layer, tileFile + ":タイル画像がロードできません:" + e.message);
+				}
+			} else if (imageFile !== void) {
+				// 画像のロード
+				var imageData = env.getImageData(imageFile);
+				(Dictionary.assign incontextof imageData)(motionUpdate,false);
+				motionUpdateFlag = false;
+				//dm(@"画像:${imageData.storage} chara:${imageData.chara} motion:${imageData.motion}");
+				var flipType = GenericFlip.GetType(imageData.storage, imageData);
+				if (flipType === void || flipType == null) {
+					// 単純画像
+					try {
+						layer.loadImages(imageData);
+						_width  = layer.width;
+						_height = layer.height;
+						maskLayer(layer);
+					} catch (e) {
+						errorLayer(layer, imageFile + ":画像がロードできません:" + e.message);
+					}
+				} else {
+					// フリップ画像の場合・マスクは対応できない
+					//dm(@"${imageFile}:フリップ画像対応:${flipType}:${imageData.storage}");
+					layer.startFlip(imageData.storage, imageData, flipType);
+					_width  = imageData.width  if (imageData.width  !== void);
+					_height = imageData.height if (imageData.height !== void);
+				}
+			} else if (imageColor !== void) {
+				// 塗りつぶし
+				layer.setSize(_width, _height);
+				layer.fillRect(0, 0, layer.width, layer.height, imageColor);
+				maskLayer(layer);
+			} else if (imageText !== void) {
+				//dm(@"テキスト描画実行:${_width},${_height}:${imageText.text}");
+				layer.setSize(_width, _height);
+				layer.fillRect(0, 0, layer.width, layer.height, 0);
+				var render = new TextRender();
+				render.setDefaultFont(imageText);
+				render.setDefaultStyle(imageText);
+				if (imageText.fontface !== void) {
+					//dm(@"フォントフェース指定:${imageText.fontface}");
+					layer.font.face = imageText.fontface;
+				}
+				render.draw(layer, 0, 0, layer.width, layer.height, imageText.text);
+				maskLayer(layer);
+			} else if (flipFile !== void) {
+				try {
+					if (flipRestore !== void) {
+						layer.restoreFlip(flipRestore);
+					} else {
+						layer.startFlip(flipFile, flipInfo, flipType);
+					}
+				} catch(e) {
+					errorLayer(layer, @"${flipFile}:エフェクトがロードできません:" + e.message);
+				}
+				flipUpdateFlag = flipRestore = void;
+			}
+		}
+	}
+
+	function setSize(layer) {
+		if (_width != layer.width || _height != layer.height) {
+			layer.setSize(width, height);
+		}
+		if (tileFile !== void) {
+			layer.setTilePos(tilex, tiley);
+		} else if (imageColor !== void) {
+			layer.fillRect(0,0,layer.width, layer.height, imageColor);
+			layer.callRedrawFunction(); // [XXX]
+		}
+	}
+
+	function applyMoveAction(action) {
+		if (action.module !== void) {
+			// 旧スタイルアクションは無視の方向
+			return;
+		}
+		super.applyMoveAction(action);
+		applyPropMoveAction(action, "tilex");
+		applyPropMoveAction(action, "tiley");
+	}
+
+}

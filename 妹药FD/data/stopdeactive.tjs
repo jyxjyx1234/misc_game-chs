@@ -1,0 +1,124 @@
+//==============
+// 非アクティブ時停止
+
+// ミュート制御について：
+//  kag.waveenable の変更（ゲーム中の設定で被る場合は注意）
+//  kag.scflags.NoMuteOnDeactiveStop : trueで音声を停止しない
+//  スクリプトロード前に @set(STOPDEACTIVE_NOMUTE=1) にてミュート処理をカットできる
+
+// コンフィグ：（カッコ内はデフォルト値）
+//  ロゴ画像ファイル: SystemConfig.stopDeactImage ("deactivelogo")
+//  マスクカラー:     SystemConfig.stopDeactColor (0x000000)
+//  マスク適用度:     SystemConfig.stopDeactOpacity (96)
+
+property stopDeactiveOption { getter { return (System.getArgument("-stopdeactive") == "yes"); } }
+SystemArgumentInfo.stopdeactive = %[ type:"Boolean", menu:"stopDeactiveMenuItem", changed:function { changeActiveState(true, true); systemUpdate("stopDeact"); } incontextof global ];
+
+addKagHookCallback("onKAGSetupMenu", function(kag) {
+	createMenuFromList(this, displayMenu, [
+		getSysArgCheckMenuItem("stopDeactiveMenuItem", "非アクティブ時に停止(&P)", "stopdeactive", true, "no"),
+		]);
+	updateSysArgMenuItem(stopDeactiveMenuItem);
+}, true);
+addAfterInitCallback(function() {
+	with (kag) {
+		.onActivateChanged = function(act, min) { System.eventDisabled = false if (act != 0 && System.eventDisabled); } incontextof global;
+		.stopDeactiveMenuItem.visible = .exEventEnabled;
+	}
+} incontextof global);
+
+addKagHookCallback("stopDeactiveChangeActiveState", function(kag, act, opt) {
+	// ムービー再生中やバージョン情報ダイアログ表示中は停止しない
+	opt.ignore |=  !act && ((kag.isMoviePlaying()) ||
+							(typeof kag.helpAboutWindow == "Object"
+							 &&     kag.helpAboutWindow
+							 &&     kag.helpAboutWindow.visible));
+}, false);
+function changeActiveState(act, force = false) {
+	if (typeof global.kag != "Object" || !kag || !isvalid kag) return;
+	kag.callHook(act ? "onApplicationActivate" : "onApplicationDeactivate", kag);
+	if (!kag.exEventEnabled) return;
+	var lay, view;
+	if (stopDeactiveOption || force) try {
+		var opt = %[ ignore:false ];
+		kag.callHook("stopDeactiveChangeActiveState", kag, act, opt);
+		if (opt.ignore) return;
+		System.eventDisabled = !act;
+		with (kag) if (act) {
+			// アクティブ処理
+			@if (!STOPDEACTIVE_NOMUTE)
+			.waveenable = true;
+			@endif
+			.setOverlayBitmap();
+		} else {
+			// 非アクティブ処理
+			@if (!STOPDEACTIVE_NOMUTE)
+			.waveenable = false;
+			@endif
+			var w, h, pri = ._primaryLayer;
+			lay  = new Layer(kag, pri);
+			view = new Layer(kag, pri);
+			with (pri) w = .width, h = .height;
+			with (lay) {
+				.setImageSize(w, h);
+				var hasimg = pri.hasImage;
+				pri.hasImage = true;
+				.piledCopy(0, 0, pri, 0, 0, w, h);
+				pri.hasImage = hasimg;
+				var col = SystemConfig.stopDeactColor;
+				var opac = SystemConfig.stopDeactOpacity;
+				if (col  === void) col  = 0;
+				if (opac === void) opac = 96;
+				.colorRect(0, 0, w, h, col & 0xFFFFFF, opac);
+			}
+			with (view) {
+				var file = SystemConfig.stopDeactImage;
+				if (file == "") file = "deactivelogo";
+				.loadImages(file);
+				var lw = .imageWidth, lh = .imageHeight;
+				lay.operateRect(w-lw, h-lh, view, 0, 0, lw, lh);
+				.setImageSize(1, 1);
+				.fillRect(0, 0, 1, 1, 0);
+			}
+			if (.fullScreen && !.pseudoFullScreened) {
+				var sw = 0, sh = 0;
+				if (typeof _lastWindowSize == "Object" && _lastWindowSize.fullscreen !== void)
+					with ( _lastWindowSize.fullscreen) sw=.w, sh=.h;
+				sw = System.screenWidth  if (sw <= 0);
+				sh = System.screenHeight if (sh <= 0);
+
+				view.setImageSize(sw, sh);
+				view.fillRect(0, 0, sw, sh, 0xFF808080);
+
+				var fsres  = System.getArgument("-fsres");
+				var fszoom = System.getArgument("-fszoom");
+				fszoom = "inner" if (fszoom == "" || fsres == "" || fsres == "auto");
+
+				if (fszoom == "no") {
+					view.copyRect((sw-w)\2, (sh-h)\2, lay, 0, 0, w, h);
+				} else {
+					var vert = (sw/sh > .pxWidth/.pxHeight);
+					vert = !vert if (fszoom == "outer");
+					var z = (vert) ? (sh / .pxHeight) : (sw / .pxWidth);
+					var zw = Math.ceil(w*z), zh = Math.ceil(h*z);
+					var ox = (sw-w)\2, oy = (sh-h)\2;
+					view.stretchCopy(ox>0?0:ox, oy>0?0:oy, zw, zh, lay, 0, 0, w, h, stFastLinear);
+				}
+			} else {
+				var z = .zoomNumer / .zoomDenom;
+				var zw = Math.ceil(w*z), zh = Math.ceil(h*z);
+				with (view) {
+					.setImageSize(zw, zh);
+					.stretchCopy(0, 0, zw, zh, lay, 0, 0, w, h, stFastLinear);
+				}
+			}
+			.setOverlayBitmap(view);
+		}
+	} catch(e) {
+		Debug.notice(e.message);
+	}
+	invalidate lay  if (lay  !== void);
+	invalidate view if (view !== void);
+}
+System.onActivate   = function { changeActiveState(true);  } incontextof global;
+System.onDeactivate = function { changeActiveState(false); } incontextof global;

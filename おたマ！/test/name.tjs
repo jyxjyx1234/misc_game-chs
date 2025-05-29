@@ -1,0 +1,297 @@
+// ---------------------------------------------------------
+// 名前入力関連
+
+
+// ---------------------------------------------------------
+// 基礎処理クラス
+
+class MyNameInputBase {
+	var ThisClass = global.MyNameInputBase;
+	var _owner;
+
+	// constructor
+	function MyNameInputBase(owner) {
+		_owner = (owner !== void) ? owner : this;
+		with (ThisClass) {
+			// 初回のみNGワード読み込み
+			if (.NGWords === void) {
+				var ngwords = [];
+				ngwords.load(.NGWordFile);
+				for (var i = 0; i < ngwords.count; i++) {
+					var word = ngwords[i].trim();
+					if (word.charAt(0) == "#") word = "";
+					ngwords[i] = word;
+				}
+				ngwords.remove("", true);
+				.NGWords = ngwords;
+			}
+			// global から参照できるように自分を登録
+			// 基本的に singleton なので多重インスタンスは無視
+			.Instance = this;
+
+			// Names取得
+			var areas = [], noNameList = (ThisClass.InputList === void);
+			areas.assign(.InputAreas);
+			for (var i = 0; i < areas.count; i+=2) {
+				var name = areas[i];
+				var info = areas[i+1];
+				if (name == "" || info === void) continue;
+				Names.add(name) if (noNameList);
+			}
+			if (!noNameList) Names.assign(ThisClass.InputList);
+		}
+		// 設定変数の読み込み
+		loadNameVariables();
+	}
+	// destructor
+	function finalize() {
+		ThisClass.Instance = void;
+	}
+
+	// 値の名前と，そのテンポラリ値（決定された場合のみ元の変数へ反映）
+	var Names = [], Values = %[];
+
+	// 全InputAreas項目でコールバック呼び出し
+	function foreachNames(callback, *) {
+		var areas = ThisClass.InputAreas;
+		for (var i = 0; i < Names.count; i++) {
+			var name = Names[i];
+			callback(name, Values[name], areas[name], *);
+		}
+	}
+
+	// 値を設定変数から Valuesへ読み込み
+	function loadNameVariables() { foreachNames(_loadCallback); }
+	// 値を設定変数に保存
+	function saveNameVariables() { foreachNames(_saveCallback); } 
+	// 上記関数用コールバック
+	function _loadCallback(name, value, info) { Values[name] = Scripts.eval(info.value); }
+	function _saveCallback(name, value, info) { Scripts.eval(@'(${info.value}) = "${value}"'); }
+
+	// 全入力のNGチェック＆補正(トリミング等)
+	function check() {
+		var result = [ true ];
+		foreachNames(function(name, value, info, result) {
+			value = (typeof value === "String") ? global.han2zen(value.trim()) : "";
+			if (value == "" || isNGWord(value)) {
+				result[0] = false;
+				value = (value == "") ? info.initial : "";
+			}
+			Values[name] = value;
+		} incontextof this, result);
+		return result[0];
+	}
+
+	// NGワードかどうかチェック
+	function isNGWord(name) {
+		var ngwords = ThisClass.NGWords;
+		for (var i=0; i < ngwords.count; i++)
+			if (name.indexOf(ngwords[i]) >= 0) return true;
+		return false;
+	}
+
+	// globalからの参照用expを取得
+	function getValueExpression(name) { return "MyNameInputBase.Instance.Values." + name; }
+
+
+	// 各ボタンの実処理
+	function click(name) {
+		switch (name) {
+		case "default": action("onDefaultClick"); break;
+		case "cancel":  action("onCancelClick");  break;
+		case "ok":
+			action("onOkClick");
+			if (!check()) action("onIncomplete");
+			else          action("onComplete");
+			break;
+		}
+	}
+	// EditLayer追加処理
+	function addEditLayers(ui, addEdit) {
+		foreachNames(function(name, value, info, ui, addEdit) {
+			if (info.uiname == "") return;
+			var elm = uiloadGetRect(info.uiname, ui);
+			with (elm) {
+				if (info.uiname.indexOf(".") >= 0) .x = .ox, .y = .oy;
+				.name   = name;
+				.length = +.w;
+				.exp    = getValueExpression(name);
+				delete .ox;
+				delete .oy;
+				delete .w;
+				delete .h;
+			}
+			(Dictionary.assign incontextof elm)(ThisClass.CommonEditStyle, false);
+			(Dictionary.assign incontextof elm)(info.edit, false) if (info.edit !== void);
+
+			var lay = addEdit(elm);
+
+			// editレイヤ書き換え
+			if (lay !== void) {
+				with (lay) {
+					._owner = _owner;
+					.origInsertCharacter = .insertCharacter;
+					.insertCharacter = function (ch) {
+						var text = _owner.onInsertText(name, ch);
+						if (text == "") return;
+						origInsertCharacter(text);
+					} incontextof lay;
+				}
+			}
+		} incontextof this, ui, addEdit);
+	}
+
+	// stubs
+	function onDefaultClick() {} // 初期化ボタンが押された
+	function onCancelClick()  {} // キャンセルボタンが押された
+	function onOkClick()      {} // 決定ボタンが押された
+	function onComplete()     {} // 完了
+	function onIncomplete()   {} // NGワード等でエラーが出た
+	function onInsertText(name, ch) { return ch; }
+
+	function action(tag) {
+		if (typeof _owner[tag] != "undefined") _owner[tag]();
+		else if (_owner !== this) this[tag]();
+	}
+}
+
+// ---------------------------------------------------------
+// パネルベース版
+
+class MyNameInputDialog extends PanelLayer {
+	var _base;
+	property Values { getter { return _base.Values; } }
+
+	// constructor
+	function MyNameInputDialog(win, name, elm) {
+		super.PanelLayer(win, "MyNameInputLayer : " + name, elm);
+
+		// MyNameInputBaseを保持する
+		_base = new MyNameInputBase(this);
+		init(elm);
+	}
+	function init(elm) {
+		// EditLayer を追加
+		_base.addEditLayers(uiload(elm), addEdit);
+	}
+	function finalize() {
+		invalidate _base if (_base !== void && isvalid _base);
+		super.finalize(...);
+	}
+	function addEdit(elm) {
+		super.addEdit(...);
+		return links[numLinks-1].object;
+	}
+	function save() {
+		_base.saveNameVariables();
+	}
+
+	// 閉じる時
+	function close(playse = true) {
+		playSysSE("nameinput.close") if (playse);
+		super.close();
+	}
+
+	// ボタンが押された時
+	function processLink(num) {
+		super.processLink(num);
+		var ln = links[num];
+		if (ln === void) return;
+
+		callClick(ln.object.name);
+	}
+	function callClick(tag) {
+		_base.click(tag);
+	}
+
+	function onDefaultClick() {} // 初期化ボタンが押された
+	function onCancelClick()  { close();  } // キャンセルボタンが押された
+	function onOkClick()      { commit(); } // 決定ボタンが押された
+
+	// 完了
+	function onComplete()     {
+		playSysSE("nameinput.ok");
+		save();
+		close(false);
+	}
+	// NGワード等でエラーが出た
+	function onIncomplete()   { 
+		playSysSE("nameinput.error");
+		update();
+	}
+
+	function onInsertText(ed, txt) { return txt; } // 入力文字のフィルタ
+}
+
+// ---------------------------------------------------------
+// 各種定義
+
+with (MyNameInputBase) {
+	// 現在のダイアログインスタンス
+	.Instance = void;
+
+	// NGワードファイル
+	.NGWordFile = "ngword.csv";
+
+	// NGワード情報
+	.NGWords = void;
+
+	// 共通 EditLayer 属性（各ゲームで上書きのこと）
+	.CommonEditStyle = %[
+	fontheight : 20,
+	fontface   : "ＭＳ ゴシック",
+	color      : 0,
+	bgcolor    : 0xFFFFFF,
+	opacity    : 0,
+	maxchars   : 3,
+	noborder   : true
+		];
+
+	// 名前入力位置の情報（各ゲームで上書きのこと）
+	.InputAreas = %[
+		// タグ        UI名(範囲取得用)      設定変数           初期値          addEditのオプション上書き用(.CommonEditStyleに上書き)
+		"name"   => %[ uiname:"base.name",   value:"sf.name",   initial:"名前", edit:%[] ],
+		"family" => %[ uiname:"base.family", value:"sf.family", initial:"苗字", edit:%[] ],
+
+		// さらに別の名前のタグで追加可能
+		// "nickname" => %[ ... ],
+		];
+
+	// addEditする順番を規定する場合は Array で定義する
+	.InputList = void; //[ "name", "family" ];
+}
+
+
+
+// ---------------------------------------------------------
+// 旧ゲーム固有処理？
+
+function storeRecName()
+{
+	if (kag.isRecollection) return;
+	sf["name_"   + kag.currentRecordName] = f.name;
+	sf["family_" + kag.currentRecordName] = f.family;
+}
+
+function initFamilyName(family, name)
+{
+	f.family  = family;
+	f.name    = name;
+	f.mother  = family+"";
+	f.father  = family+"";
+	f.fullname =  family+name;
+}
+
+// ---------------------------------------------------------
+// 名前置換処理
+
+function dispNameFilter(name) {
+	if (typeof name === "String") {
+		switch (name.length) {
+		case 1: name = "　" + name + "　"; break;
+		case 2: name = " " + name + " ";   break;
+		}
+		name = "【" + name + "】" if (name.length > 0);
+	}
+	return name;
+}

@@ -1,0 +1,130 @@
+//==============
+// スクウェア画面オプション
+// ※ 必ず Config.tjs に exHeight を定義しておくこと
+
+// ↓後で SystemConfig にて可変にする
+
+// オプション定義名: "squareMode", "windowSize"
+
+// マスク画像ファイル: "sqscrmask"
+
+property squareModeOption { getter {
+	var tag = System.getArgument("-sqscr");
+	var map = %[ off:0, all:1, fsonly:-1 ];
+	return (tag != "" && typeof map[tag] != "undefined") ? map[tag] : 0;
+} }
+property squareModeNoMask { getter { return System.getArgument("-sqnomask") == "yes"; } }
+SystemArgumentInfo.sqscr = (%[
+type:"String", menu:"squareScreenMenu", changed: function() {
+	if (typeof global.kag != "Object" || !kag || !isvalid kag) return;
+	with (kag) {
+		var old = .pxHeight, chg = .getWindowVirtualPixelHeight();
+		.pxHeight = chg;
+		if (old != chg) .callHook("onWindowPxHeightChanged", chg, old);
+		if (.fullScreened) reFullScreen();
+		else {
+			resetScreen();
+			if (typeof .maximized != "undefined" && .maximized) .onResize();
+			else .setZoom(.origZoomNumer, .origZoomDenom);
+		}
+		resetModeChanged();
+	}
+	runOnceDelayedTrigger(function { systemUpdate("windowSize"); systemUpdate("squareMode"); } incontextof global);
+} incontextof global ]);
+
+addKagHookCallback("prepareChangeScreenMode", function(full, isFirst = false) {
+	// フルスクリーン切り替えフック
+	var h, wide = scHeight, sqr = exHeight;
+	switch (global.squareModeOption) {
+	default: h = wide; break;
+	case 1:  h = sqr; break;
+	case -1:
+		if (isFirst || !full) h = wide;
+		else {
+			var screen = %[ w:System.screenWidth,  h:System.screenHeight  ];
+			if (typeof     System.getMonitorInfo != "undefined") {
+				var getmon=System.getMonitorInfo;
+				var info = fullScreenMode ? getmon(true, this) : getmon();
+				(Dictionary.assign incontextof screen)(info.monitor, true) if (typeof info == "Object");
+			}
+			h = (screen.w*3 / screen.h <= 4) ? sqr : wide;
+		}
+	}
+	if (h !== void) {
+		var old = pxHeight;
+		pxHeight = h;
+		if (old != pxHeight) callHook("onWindowPxHeightChanged", pxHeight, old, isFirst);
+	}
+	if (!isFirst) {
+		runOnceDelayedTrigger(resetModeChanged);
+		runOnceDelayedTrigger(function { systemUpdate("squareMode"); } incontextof global);
+	}
+}, true);
+addKagHookCallback("onKAGSetupConfig", function {
+	// 起動時に呼ぶ（縦サイズを決定）
+	callHook("prepareChangeScreenMode", false, true);
+}, true);
+
+// 画面サイズ取得
+KAGWindow.getWindowVirtualPixelHeight = function {
+	switch (global.squareModeOption) {
+	default: return scHeight;
+	case 1:  return exHeight;
+	case -1:
+		return fullScreened ? pxHeight : scHeight;
+		break;
+	}
+} incontextof null;
+
+addKagHookCallback("onKAGSetupMenu", function(kag) {
+	// 4:3モードメニュー追加
+	createMenuFromList(kag, kag.displayMenu,[
+		getSysArgRadioMenu("squareScreenMenu", "4:3画面モード(&Q)", "sqscr", true, [
+			"*off  :無効：常にワイド固定(&W):wideScreenMenuItem",
+			"all   :有効：常にスクエアで表示(&Q):squareScreenMenuItem",
+			"fsonly:自動：フルスクリーン時のみモニタで判定(&A)",
+			]) ]);
+	try {
+		kag.wideScreenMenuItem.shortcut   = "ALT+2";
+		kag.squareScreenMenuItem.shortcut = "ALT+3";
+	} catch {}
+	updateSysArgMenuItem(kag.squareScreenMenu);
+}, false);
+
+addAfterInitCallback(function {
+	// 4:3マスクレイヤを作成
+	var create = function(win, par, tag, comp) {
+		var     mask = win[tag] = new Layer(win, par);
+		win.add(mask);
+		with (  mask) {
+			.name = tag;
+			if (comp) {
+				.assignImages(comp);
+				.setSize(comp.width, comp.height);
+			} else {
+				.loadImages("sqscrmask");
+				.setSizeToImageSize();
+				.imageWidth *= 2;
+				.fillRect(.width, 0, .width, .imageHeight, 0xFF000000);
+				.fillRect(0, 0, .imageWidth, .imageHeight, 0) if (squareModeNoMask);
+			}
+			.hitType = htMask;
+			.hitThreshold = 256;
+			.setPos(0, win.scHeight);
+			.absolute = 1000000 -4;
+			.visible = true;
+		}
+		return mask;
+	} incontextof global;
+	var lay = kag.sqMaskLayer1 = create(kag, kag.fore.base, "SquareMaskLayer1"     );
+	/**/      kag.sqMaskLayer2 = create(kag, kag.back.base, "SquareMaskLayer2", lay);
+	resetSquareMaskShowing();
+} incontextof global);
+
+function resetSquareMaskShowing() {
+	try {
+		var ox = (kag.pxHeight != kag.scHeight) ? 0 : -kag.scWidth;
+		kag.sqMaskLayer1.imageLeft = kag.sqMaskLayer2.imageLeft = ox;
+	} catch {}
+}
+addKagHookCallback("onResetModeChanged", resetSquareMaskShowing, false);

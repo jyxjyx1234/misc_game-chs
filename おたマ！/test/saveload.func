@@ -1,0 +1,77 @@
+func,new,	visible,false
+func,lock,	halftone,true
+copy,pt0,lock
+copy,pt1,lock
+copy,pt2,lock
+copy,pt3,lock
+copy,pt4,lock
+copy,pt5,lock
+copy,pt6,lock
+copy,pt7,lock
+copy,pt8,lock
+copy,pt9,lock
+copy,pt10,lock
+copy,pt11,lock
+eval,pre, call,global.Current.uiEval,replaceSysButtons,lock
+eval,base,call,global.Current.uiEval,updateSysButtons
+#
+func,item0,	sename,item,	exp,Current.cmd("select/0"),	autotoggle,false
+func,item1,	sename,item,	exp,Current.cmd("select/1"),	autotoggle,false
+func,item2,	sename,item,	exp,Current.cmd("select/2"),	autotoggle,false
+func,item3,	sename,item,	exp,Current.cmd("select/3"),	autotoggle,false
+func,item4,	sename,item,	exp,Current.cmd("select/4"),	autotoggle,false
+func,item5,	sename,item,	exp,Current.cmd("select/5"),	autotoggle,false
+func,item6,	sename,item,	exp,Current.cmd("select/6"),	autotoggle,false
+func,item7,	sename,item,	exp,Current.cmd("select/7"),	autotoggle,false
+func,item8,	sename,item,	exp,Current.cmd("select/8"),	autotoggle,false
+func,item9,	sename,item,	exp,Current.cmd("select/9"),	autotoggle,false
+func,item10,	sename,item,	exp,Current.cmd("select/10"),	autotoggle,false
+func,item11,	sename,item,	exp,Current.cmd("select/11"),	autotoggle,false
+func,qdata,	sename,item,	exp,Current.cmd("select/12"),	autotoggle,false,	name,item12
+func,_chk,	
+func,cf_qsave,	name,askqsave,		exp,Current.cmd("toggleConfirm/askQSave")
+func,cf_qload,	name,askqload,		exp,Current.cmd("toggleConfirm/askQLoad")
+func,cf_save,	name,asksave,		exp,Current.cmd("toggleConfirm/askSave")
+func,cf_load,	name,askload,		exp,Current.cmd("toggleConfirm/askLoad")
+func,cf_ovwr,	name,askoverwrite,	exp,Current.cmd("toggleConfirm/askOverwrite")
+func,cf_copy,	name,askcopy,		exp,Current.cmd("toggleConfirm/askCopy")
+func,cf_move,	name,askmove,		exp,Current.cmd("toggleConfirm/askMove")
+func,cf_del,	name,askdelete,		exp,Current.cmd("toggleConfirm/askDelete")
+cref,allpages,page0,page1,page2,page3,page4,page5,page6,page7,page8,page9,
+rgrp,allpages,page0,page1,page2,page3,page4,page5,page6,page7,page8,page9,
+func,page0,	sename,page,	exp,Current.page=0,	target,*page
+func,page1,	sename,page,	exp,Current.page=1,	target,*page
+func,page2,	sename,page,	exp,Current.page=2,	target,*page
+func,page3,	sename,page,	exp,Current.page=3,	target,*page
+func,page4,	sename,page,	exp,Current.page=4,	target,*page
+func,page5,	sename,page,	exp,Current.page=5,	target,*page
+func,page6,	sename,page,	exp,Current.page=6,	target,*page
+func,page7,	sename,page,	exp,Current.page=7,	target,*page
+func,page8,	sename,page,	exp,Current.page=8,	target,*page
+func,page9,	sename,page,	exp,Current.page=9,	target,*page
+#
+cref,allsys,init,back,title,exit,to_save,to_load,to_system,to_sound,
+func,init,	exp,Current.cmd("initConfirms")
+func,back,	target,*back,	exp,Current.cmd("clearCopyMode/false")
+func,title,	exp,kag.goToStartWithAsk(),	target,*back,	sename,back
+eval,-title,	exp,if(!.Current.propget("fromTitle"))sename=target=void;else exp=void;
+func,exit,	exp,kag.close()
+#
+rgrp,tabs,to_save,to_load,to_system,to_sound
+func,to_save,	sename,tab,	target,*save,	halftone,true
+eval,-to_save,exp,this.enabled=!.Current.propget("fromTitle")
+func,to_load,	sename,tab,	target,*load
+func,to_system,	sename,tab,	storage,custom.ks,	target,*opt_sys_from_saveload
+func,to_sound,	sename,tab,	storage,custom.ks,	target,*opt_snd_from_saveload
+#
+cref,allopr,copy,move,delete,
+func,copy,	exp,Current.cmd("setCopyMode/copy")
+func,move,	exp,Current.cmd("setCopyMode/move")
+func,delete,	exp,Current.cmd("setCopyMode/remove"),	name,remove
+#
+func,captions,
+func,base,
+part,remove,_chk,lock
+part,rm_save,remove
+part,rm_load,remove
+eval,names,call,uiloadSysSE,saveload

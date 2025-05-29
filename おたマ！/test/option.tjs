@@ -1,0 +1,338 @@
+// ----------------------------------------------------------------------------
+// レイヤ名を決めうちしたシステム画面
+/*
+  backtotitle : タイトルへ戻る
+  textspeed : テキスト速度
+  autospeed : オート速度
+  fullscreen, window : フルスクリーン・ウィンドウ
+  skipall, skipread : 未読・既読スキップ
+  afterauto_on, afterauto_off : 選択肢後オート継続on/off
+  afterskip_on, afterskip_off : 選択肢後スキップ継続on/off
+ */
+
+// システムメニューとして登録
+setSystemMenuStorage("option.ks");
+
+class OptionBase
+{
+	var _voiceNames;
+	var fromTitle;
+	var lastItem;
+
+	var itemNames   =  [];
+	var itemUpdates = %[];
+
+	function finalize() {}
+	function OptionBase(elm) {
+		_voiceNames = global.OptionBase.voiceNames;
+
+		fromTitle = (elm.fromtitle !== void) ? +elm.fromtitle : false;
+		lastItem  = elm.lastitem;
+
+		//            名前(prop)     OnのUI名      OffのUI名   プロパティ値
+		addOnOffItem("fullscreen",  "fullscreen",  "window",  "_fullscreen");
+		addOnOffItem("afterSkip",   "afterskip",   void,      "kag.afterskip");
+		addOnOffItem("afterAuto",   "afterauto",   void,      "kag.afterauto");
+		addOnOffItem("voiceCut",    "voicecut",    void,      "kag.voicecut");
+		addOnOffItem("voiceCutPage","voicecutpage",void,      "kag.voicecutpage");
+		addOnOffItem("bgmDown",     "bgmdown",     void,      "kag.bgmdown");
+		addOnOffItem("allSkip",     "skipall",     "skipread","_allSkip");
+		addOnOffItem("waveEnable",  "wave",        void,      "_waveEnable");
+		addOnOffItem("bgmEnable",   "bgm",         void,      "_bgmEnable");
+		addOnOffItem("seEnable",    "se",          void,      "_seEnable");
+		addOnOffItem("sysseEnable", "sysse",       void,      "_sysseEnable");
+		addOnOffItem("voiceEnable", "voice",       void,      "_voiceEnable");
+
+		// スライダーは value 同期があるのでアップデートのみ登録
+		addUpdate("waveVolume",   updateWaveVolume);
+		addUpdate("bgmVolume",    updateBgmVolume);
+		addUpdate("seVolume",     updateSeVolume);
+		addUpdate("sysseVolume",  updateSysSeVolume);
+		addUpdate("voiceVolume",  updateVoiceVolume);
+//		addSliderItem("bgmVolume",   "bgmvolume",   "kag.bgmvolume");
+//		addSliderItem("seVolume",    "sevolume",    "kag.sevolume");
+//		addSliderItem("voiceVolume", "voicevolume", "kag.voicevolume");
+
+		addUpdate("textSpeed",   updateTextSpeed);
+		addUpdate("autoSpeed",   updateAutoSpeed);
+//		addSliderItem("textSpeed",   "textspeed",   "kag.textspeed");
+//		addSliderItem("autoSpeed",   "autospeed",   "kag.autospeed");
+
+		addUpdate("effectSpeed", updateEffectSpeed);
+//		addRadioItem( "effectSpeed", "effectspeed", "getEffectSpeedItem(kag.drawspeed)", &this._effectSpeed);
+
+		addUpdate("voice",       updateVoice);
+		addUpdate("titleBack",   updateTitleBack);
+
+		addUpdate("fontSelect",   updateFontSelect);
+	}
+
+	// 更新処理を登録
+	function addUpdate(tag, upd) {
+		itemNames.remove(tag, true);
+		itemNames.add(tag);
+		itemUpdates[tag] = upd;
+	}
+
+	// on/offボタンを登録
+	function addOnOffItem(tag, name, offname, getprop, setprop) {
+		// UIパーツの名前決定(offnameがない場合は末尾に _on/_off をつける)
+		if (offname === void) {
+			offname = name + "_off";
+			name    = name + "_on";
+		}
+		entrySwitchItem(tag, setprop,
+						@"function() { setItemProp(${getprop} ? '${name}' : '${offname}', 'toggle', true);}",
+						@"property ${tag} { setter(v) { ${getprop} = v; itemUpdates.${tag}(); } getter { return ${getprop}; } }");
+	}
+	// チェックボタンを登録
+	function addCheckItem(tag, name, getprop, setprop, tglnot) {
+		var rev = tglnot ? "!" : "!!";
+		entrySwitchItem(tag, setprop,
+						@"function() { setItemProp('${name}', 'toggle', ${rev}(${getprop}));}",
+						@"property ${tag} { setter(v) { ${getprop} = (v == 'toggle') ? !(${getprop}) : !!v; itemUpdates.${tag}(); } getter { return !!${getprop}; } }");
+	}
+	// addOnOffItem/addCheckItem 共通処理
+	function entrySwitchItem(tag, setprop, updstr, propstr) {
+		if (typeof this[tag] != "undefined") Debug.message(tag+"が上書きされます");
+		if (setprop === void) propstr!;
+		else this[tag] = setprop;
+		addUpdate(tag, updstr! incontextof this);
+	}
+
+	// アイテムの更新
+	function update(name = void) {
+		if (name == "") {
+			for (var i = 0; i < itemNames.count; i++) update(itemNames[i]);
+		} else {
+			var upd = itemUpdates[name];
+			if (upd !== void) upd();
+		}
+	}
+
+	// アイテム取得
+	function getItem(name) { return name != "" ? kag.current.names[name] : void; }
+
+	// フォーカス設定
+	function focusItem(name) {
+		var target = getItem(name);
+		if (target !== void) 
+			kag.current.setFocusToLink(kag.current.checkFocus(target.linkNum, 1), true);
+	}
+
+	// ボタン等のプロパティ設定
+	function setItemProp(name, prop, value) {
+		var target = getItem(name);
+		target[prop] = value if (target !== void);
+	}
+
+	////////////////
+
+	// タイトルに戻るボタン
+	function updateTitleBack()   { setItemProp("backtotitle", "enabled",  !fromTitle);   }
+
+	// 画面モード (systemUpdateが呼ばれてボタン更新される)
+	property _fullscreen { getter { return kag.fullScreened; } setter(v) {
+		if (v) kag.fullScreenMenuItem.click();
+		else   kag.windowedMenuItem.click();
+	} }
+
+	// 既読スキップ (systemUpdateが呼ばれてボタン更新される)
+	property _allSkip { getter { return (typeof kag._allskip != "undefined") ? kag._allskip : kag.allskip; } setter(v) {
+		if (v) kag.allskipMenuItem.click();
+		else   kag.noallskipMenuItem.click();
+	} }
+
+	// 音量ミュート設定
+	property _waveEnable  { setter(v) { kag.waveenable  = !!v; updateWaveVolume();  } getter { return !!kag.waveenable;  } }
+	property _bgmEnable   { setter(v) { kag.bgmenable   = !!v; updateBgmVolume();   } getter { return !!kag.bgmenable;   } }
+	property _seEnable    { setter(v) { kag.seenable    = !!v; updateSeVolume();    } getter { return !!kag.seenable;    } }
+	property _sysseEnable { setter(v) { kag.sysseenable = !!v; updateSysSeVolume(); } getter { return !!kag.sysseenable; } }
+	property _voiceEnable { setter(v) { kag.voiceenable = !!v; updateVoiceVolume(); } getter { return !!kag.voiceenable; } }
+
+	// テキスト・オート速度
+	function updateTextSpeed() { updateVolume("textspeed", kag.textspeed, void, _ts); }
+	function updateAutoSpeed() { updateVolume("autospeed", kag.autospeed, void, _as); }
+
+	// 音量
+	function updateWaveVolume()  { updateVolume("wavevolume",  kag.wavevolume,  kag.waveenable,  _vol); }
+	function updateBgmVolume()   { updateVolume("bgmvolume",   kag.bgmvolume,   kag.bgmenable,   _bgm); }
+	function updateSeVolume()    { updateVolume("sevolume",    kag.sevolume,    kag.seenable,    _se);  }
+	function updateSysSeVolume() { updateVolume("syssevolume", kag.syssevolume, kag.sysseenable, _sse); }
+	function updateVoiceVolume() { updateVolume("voicevolume", kag.voicevolume, kag.voiceenable, _vo);  }
+
+	function updateVolume(name, value, enable, rad) {
+		setItemProp(name, "position", value);
+		if (enable !== void) {
+			setItemProp(name, "enabled",  enable);
+			for (var i = 0; i < rad.num; i++) {
+				var item = rad.format.sprintf(i + rad.offset);
+				setItemProp(item, "enabled",  enable);
+				setItemProp(item, "opacity",  enable ? 255 : 128);
+			}
+		}
+		setItemProp(rad.format.sprintf(this[rad.prop] + rad.offset), "toggle", true);
+	}
+
+
+	// エフェクト速度 （デフォルト実装は normal, fast, none の３種類）
+	/*virtual*/ function getEffectSpeedItem(speed) {
+		var sel = (speed <= 0) ? "none" : (speed < 1) ? "fast" : "normal";
+		return "effect_" + sel;
+	}
+	/*virtual*/ function getEffectSpeedValue(name) {
+		switch (name) {
+		case "none": return 0;
+		case "fast": return 0.5;
+		case "normal":
+		default:     return 1;
+		}
+	}
+	function updateEffectSpeed() { setItemProp(getEffectSpeedItem(kag.drawspeed), "toggle", true); }
+	property effectSpeed { getter{ return getEffectSpeedItem(kag.drawspeed); } setter(v) {
+		var speed = getEffectSpeedValue(v);
+		if (speed !== void) {
+			kag.drawspeed = speed;
+			updateEffectSpeed();
+		}
+	} }
+
+	// キャラ毎のボイスon/off
+	function updateVoice() {
+		for (var i = 0; i < _voiceNames.count; i++) {
+			var name = _voiceNames[i];
+			setItemProp(name, "toggle", kag.getVoiceOn(name));
+		}
+	}
+	// chara voice 全on/off
+	property voiceAll { setter(flag) {
+		global.setVoiceAll(flag);
+		updateVoice();
+	} }
+	// プロパティらしからぬ使用法だが ui.func からメソッドに引数が渡せないので
+	property toggleVoice { setter(name) { chara(name); } }
+
+	// キャラボイスのトグル
+	function chara(name) {
+		var flag = !kag.getVoiceOn(name);
+		kag.setVoiceOn(name, flag);
+		setItemProp(name, "toggle", flag);
+	}
+
+
+	// 初期化
+	function setDefault(upd = false, ask = true) {
+		var init = upd ? initAndUpdate : initAndSave;
+		if (ask) askYesNo("初期化してよろしいですか？", "確認", init);
+		else init();
+	}
+	function initAndSave() {
+		initialEnvironment();
+
+		setAllSkip(void, true); // [XXX] スキップモードのメニューのチェック同期(cf. Override.tjs)
+
+		kag.setMessageLayerUserFont();
+		kag.saveSystemVariables();
+	}
+	function initAndUpdate() {
+		initAndSave();
+		update();
+	}
+
+	// 音量・速度のラジオボタンの場合の処理
+	property textSpeed   { setter(v) { kag.textspeed   = v * 10  / _ts.max; } getter() { return Math.round(kag.textspeed   * _ts.max / 10);  } }
+	property autoSpeed   { setter(v) { kag.autospeed   = v * 10  / _as.max; } getter() { return Math.round(kag.autospeed   * _as.max / 10);  } }
+	property waveVolume  { setter(v) { kag.wavevolume  = v * 100 / _vol.max;} getter() { return Math.round(kag.wavevolume  * _vol.max/ 100); } }
+	property bgmVolume   { setter(v) { kag.bgmvolume   = v * 100 / _bgm.max;} getter() { return Math.round(kag.bgmvolume   * _bgm.max/ 100); } }
+	property seVolume    { setter(v) { kag.sevolume    = v * 100 / _se.max; } getter() { return Math.round(kag.sevolume    * _se.max / 100); } }
+	property sysseVolume { setter(v) { kag.syssevolume = v * 100 / _sse.max;} getter() { return Math.round(kag.syssevolume * _sse.max/ 100); } }
+	property voiceVolume { setter(v) { kag.voicevolume = v * 100 / _vo.max; } getter() { return Math.round(kag.voicevolume * _vo.max / 100); } }
+	//   値範囲:0～max  UI名前format    UI開始番号  個数   プロパティ名
+	var _ts = %[ max:9, format:"ts%d",  offset:1, num:10, prop:"textSpeed"   ];
+	var _as = %[ max:9, format:"as%d",  offset:1, num:10, prop:"autoSpeed"   ];
+	var _vol= %[ max:9, format:"vol%d", offset:1, num:10, prop:"waveVolume"  ];
+	var _bgm= %[ max:9, format:"bgm%d", offset:1, num:10, prop:"bgmVolume"   ];
+	var _se = %[ max:9, format:"se%d",  offset:1, num:10, prop:"seVolume"    ];
+	var _sse= %[ max:9, format:"sse%d", offset:1, num:10, prop:"sysseVolume" ];
+	var _vo = %[ max:9, format:"vo%d",  offset:1, num:10, prop:"voiceVolume" ];
+
+	function setupBlockConfig(prop, val) {
+		_ts[prop] = _as[prop] = _vol[prop] = _bgm[prop] = _se[prop] = _sse[prop] = _vo[prop] = val;
+	}
+
+	// フォント設定
+	function updateFontSelect() {
+		var target = getItem("font");
+		if (target === void) return;
+		with (target.font) {
+			var face = .face = currentFont;
+			var w = target.width, h = fontSelectSize;
+			while (h > 0) {
+				.height = h;
+				if (.getTextWidth(face) <= w) break;
+				h--;
+			}
+		}
+		drawFontSelect(target, currentFont);
+	}
+	function drawFontSelect(target, face) {
+		clearFontSelect(target);
+		drawButtonCaptionWithAlign(target, 0, 0, 5, face, fontSelectDraw*);
+	}
+	function clearFontSelect(target) {
+		with (target) .fillRect(0, 0, .imageWidth, .imageHeight, 0);
+	}
+	var _fontList;
+	var fontSelectFlags = (fsfSameCharSet | fsfNoVertical | fsfTrueTypeOnly);
+	if (kag.showFixedPitchOnlyInFontSelector) fontSelectFlags |= fsfFixedPitch;
+	var fontSelectSize  = 24;
+	var fontSelectDraw  = [ 0xFFFFFF, 255, true ];
+	property fontList { getter {
+		if (_fontList === void) {
+			var getList = ((typeof kag.getFontFaceList == "Object") ? kag.getFontFaceList
+						   : kag.temporaryLayer.font.getList);
+			var fl = getList(fontSelectFlags);
+			_fontList = [];
+			_fontList.assign(fl) if (fl !== void);
+		}
+		return _fontList;
+	} }
+	property currentFont {
+		getter    { return kag.chDefaultFace; }
+		setter(v) {        kag.chDefaultFace = v; }
+	}
+	property font {
+		getter { for (var i = 0, fl = fontList; i < fl.count; i++) if (fl[i] == currentFont) return i; }
+		setter (v) {
+			var fl = fontList;
+			v = 0 if (v >= fl.count);
+			v = fl.count-1 if (v < 0);
+			currentFont = fl[v];
+			kag.setMessageLayerUserFont();
+			itemUpdates.fontSelect();
+		}
+	}
+}
+
+
+// キャラクタ voiceNames
+OptionBase.voiceNames = [];
+
+// すべてのボイスをオンオフする処理
+function setVoiceAll(value=true, volume = void)
+{
+	var names = OptionBase.voiceNames;
+	for (var i = 0; i < names.count; i++) with (kag) {
+		.setVoiceOn(names[i], value);
+		.setVoiceVolume(names[i], volume) if (volume !== void);
+	}
+}
+
+// メニューが更新された処理
+function systemUpdate(name) {
+	if (typeof global.kag != "Object" || !kag || !isvalid global.kag) return;
+	if (kag.conductor.curStorage == "option.ks" && kag.inSleep) {
+		Dialog.action("update", name);
+	}
+}
+

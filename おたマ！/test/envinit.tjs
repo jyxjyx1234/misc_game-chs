@@ -1,0 +1,1285 @@
+%[
+	// 時間情報
+	"times" => %[
+		"昼" => %[
+			"prefix" => "d",
+			],
+		"夕方" => %[
+			"prefix" => "e",
+			"lightColor" => 0xc0ff6010,    // 背景補正光色
+			"lightType" => ltPsHardLight,  // 背景補正光合成種別
+			"brightness" => 0,             // 背景明度補正
+			"contrast" => 0,               // 背景コントラスト補正
+			"charLightColor" => 0x77cc0000,   // キャラ補正光合成色
+			"charLightType" => ltPsSoftLight, // キャラ補正光合成種別
+			"charBrightness" => 0,            // キャラ明度補正
+			"charContrast" => 0,              // キャラコントラスト補正
+			],
+		"夕方部屋" => %[
+			"prefix" => "e",
+			],
+		"夜部屋" => %[
+			"prefix" => "n",
+			],
+		"夜" => %[
+			"prefix" => "n",
+			"lightColor" => 0xc0000040,   // 補正光合成色
+			"lightType" => ltPsHardLight, // 補正光合成種別
+			"brightness" => -10,          // 明度補正
+			"contrast" => -15,            // コントラスト補正
+			"charLightColor" => 0xff400080,   // キャラ補正光合成色
+			"charLightType" => ltPsSoftLight, // キャラ補正光合成種別
+			"charBrightness" => -25,          // キャラ明度補正
+			"charContrast" => -15,            // キャラコントラスト補正
+			],
+		"消灯" => %[
+			"prefix" => "nf",
+			"lightColor" => 0xc0000020,   // 補正光合成色
+			"lightType" => ltPsHardLight, // 補正光合成種別
+			"brightness" => -20,          // 明度補正
+			"contrast" => -15,            // コントラスト補正
+			"charLightColor" => 0xff400080,   // キャラ補正光合成色
+			"charLightType" => ltPsSoftLight, // キャラ補正光合成種別
+			"charBrightness" => -40,          // キャラ明度補正
+			"charContrast" => -20,            // キャラコントラスト補正
+			],
+		"曇" => %[
+			"prefix" => "d",
+			"lightColor" => 0x00000000,   // 背景補正光合成色
+			"lightType" => ltPsHardLight, // 背景補正光合成種別
+			"brightness" => -15,          // 背景明度補正
+			"contrast" => -20,            // 背景コントラスト補正
+			"charLightColor" => 0xff400040,   // キャラ補正光合成色
+			"charLightType" => ltPsSoftLight, // キャラ補正光合成種別
+			"charBrightness" => -7,          // キャラ明度補正
+			"charContrast" => -15,            // キャラコントラスト補正
+			],
+
+		// 立ち絵鑑賞画面用
+		"モブ" => %[ prefix:"m1" ],
+		"モブ昼" => %[ prefix:"m1d" ],
+		"モブ夕" => %[ prefix:"m1e" ],
+		"モブ夜" => %[ prefix:"m1n" ],
+		"モブ２" => %[ prefix:"m2d" ],
+		],
+
+	// 場所情報
+	"stages" => %[
+			"メイド喫茶"						=> %[ image:"BK001m1" ],
+			"メイド喫茶・モブなし"				=> %[ image:"BK001TIME" ],
+			"オタク街１"						=> %[ image:"BK002TIME" ],
+			"オタク街１・モブ"					=> %[ image:"BK002m1" ],
+			"オタク街２"						=> %[ image:"BK003TIME" ],
+			"オタク街２・モブ"					=> %[ image:"BK003m1TIME" ],
+			"オタク街２・モブ２"				=> %[ image:"BK003m2d" ],
+			"主人公の部屋"						=> %[ image:"BK004TIME" ],
+			"もみじの部屋"						=> %[ image:"BK005TIME" ],
+			"コミケ会場西"						=> %[ image:"BK006TIME" ],
+			"コミケ会場西・モブ"				=> %[ image:"BK006m1" ],
+			"コミケ会場東"						=> %[ image:"BK007TIME" ],
+			"コミケ会場東・モブ"				=> %[ image:"BK007m1" ],
+			"アキハバラ"						=> %[ image:"BK008TIME" ],
+			"アキハバラ・モブ"					=> %[ image:"BK008m1TIME" ],
+			"ビッグサイト"						=> %[ image:"BK009TIME" ],
+			"ビッグサイト・モブ"				=> %[ image:"BK009m1TIME" ],
+			"ホテル部屋"						=> %[ image:"BK010TIME" ],
+			"同人ショップ"						=> %[ image:"BK011TIME" ],
+			"同人ショップ・モブ"				=> %[ image:"BK011m1" ],
+			"ソフトショップ"					=> %[ image:"BK012TIME" ],
+			"ソフトショップ・モブ"				=> %[ image:"BK012m1" ],
+			"ホビーショップ"					=> %[ image:"BK013TIME" ],
+			"ホビーショップ・モブ"				=> %[ image:"BK013m1" ],
+			"風呂"								=> %[ image:"BK014TIME" ],
+			"近所"								=> %[ image:"BK015TIME" ],
+			"公園"								=> %[ image:"BK016TIME" ],
+			"ＳＭラブホテル"					=> %[ image:"BK017TIME" ],
+			"ＣＤ・ＤＶＤコーナー"				=> %[ image:"BK018TIME" ],
+			"ＣＤ・ＤＶＤコーナー・モブ"		=> %[ image:"BK018m1" ],
+			"ゲームコーナー"					=> %[ image:"BK019TIME" ],
+			"ゲームコーナー・モブ"				=> %[ image:"BK019m1" ],
+			"空"								=> %[ image:"BK020TIME" ],
+			"ベッドルーム"						=> %[ image:"BK021nf" ],
+			"怪しい本屋"						=> %[ image:"BK022d" ],
+
+
+		// 単色
+		"黒"							=> %[ image:"bg_c_black" ], // 
+		"白"							=> %[ image:"bg_c_white" ], // 
+		"赤"							=> %[ image:"bg_c_red" ], //
+		"ピンク"						=> %[ image:"bg_c_pink" ], //
+		"ピンク２"						=> %[ image:"bg_c_pink2" ], //
+		"ピンク星"						=> %[ image:"bg_c_pink_star2" ], //
+		"炎"							=> %[ image:"bg_c_fire" ], //
+
+		// 立ち絵鑑賞画面用
+		"立ち絵鑑賞デフォルト背景" => %[ image:"exchview_bg" ],
+
+		],
+
+
+	"defaultTime" => "昼",
+
+	// キャラクタ配置総合オフセット（画面中央原点)
+	"yoffset" => 0,
+
+	// 自動レイアウト指定
+	"layouts" => [
+		%[ "xpos", [0], "level", 2, "leveltrans", "showslide", "time", 200],
+		%[ "xpos", [-220,220], "level", 1, "leveltrans", "showslide", "time", 200 ],
+		%[ "xpos", [-400,0,400], "level", 1, "leveltrans", "showslide", "time", 200  ],
+		%[ "xpos", [-450,-150,150,450], "level", 1, "leveltrans", "showslide", "time", 200  ],
+		],
+
+	"defaultBU" => true, // デフォルトで立ち絵のみ顔無し
+
+	// キャラクタ配置情報定義
+	"positions" => %[
+		// ※type定義は不要になりました。disp/xpos/ypos/level いずれかの定義が記述されていればそれが使用されます。
+
+		// 表示定義（顔表示は，フェイスウィンドウ機能がない場合には意味を持ちません）
+		"出" => %[ "disp" => KAGEnvImage.SHOW      ], // デフォルト表示
+		"両" => %[ "disp" => KAGEnvImage.BOTH      ], // 立ち絵と顔を表示
+		"立" => %[ "disp" => KAGEnvImage.BU        ], // 立ち絵のみ表示
+		"顔" => %[ "disp" => KAGEnvImage.FACE      ], // 顔のみ表示
+		"消" => %[ "disp" => KAGEnvImage.CLEAR     ], // 一時非表示（状態変更による自動表示は有効）※基本はこちらを使います
+		"無" => %[ "disp" => KAGEnvImage.INVISIBLE ], // 完全非表示（状態変更による自動表示も無効）
+
+		"入場" => %[ "disp" => KAGEnvImage.BOTH, "layout" => "right", "trans" => "showslide"  ], // 自動レイアウトつき表示
+		"退場" => %[ "disp" => KAGEnvImage.CLEAR, "layout" => "hide", "trans" => "showslide"  ], // 自動レイアウトつき消去
+		"割込" => %[ "disp" => KAGEnvImage.BOTH, "layout" => "center", "trans" => "showslide"  ], // 自動レイアウトつき表示
+
+		// トランジションつき定義
+		"出左長"   => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド左長" ],
+		"出右長"   => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド右長" ],
+		"出左速長" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド左速長" ],
+		"出右速長" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド右速長" ],
+		"出左遅長" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド左遅長" ],
+		"出右遅長" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド右遅長" ],
+		"出左" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド左" ],
+		"出右" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド右" ],
+		"出左遅" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド左遅" ],
+		"出右遅" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド右遅" ],
+		"出左速" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド左速" ],
+		"出右速" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド右速" ],
+
+		"消左長"   => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド左長" ],
+		"消右長"   => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド右長" ],
+		"消左速長" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド左速長" ],
+		"消右速長" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド右速長" ],
+		"消左遅長" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド左遅長" ],
+		"消右遅長" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド右遅長" ],
+		"消左" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド左" ],
+		"消右" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド右" ],
+		"消左遅" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド左遅" ],
+		"消右遅" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド右遅" ],
+		"消左速" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド左速" ],
+		"消右速" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド右速" ],
+
+		"出上下"   => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド上下" ],
+		"出上下速" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド上下速" ],
+		"出上下遅" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド上下遅" ],
+		"出上下小" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド上下小" ],
+		"出上下遅小" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド上下遅小" ],
+		"出上下速小" => %[ "disp" => KAGEnvImage.SHOW, trans:"スライド上下速小" ],
+		"消上下"   => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド上下" ],
+		"消上下速" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド上下速" ],
+		"消上下遅" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド上下遅" ],
+		"消上下小" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド上下小" ],
+		"消上下遅小" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド上下遅小" ],
+		"消上下速小" => %[ "disp" => KAGEnvImage.CLEAR, trans:"スライド上下速小" ],
+
+		// 位置定義
+		"左750"   => %[ "xpos" => int -750 ],
+		"左700"   => %[ "xpos" => int -700 ],
+		"左650"   => %[ "xpos" => int -650 ],
+		"左600"   => %[ "xpos" => int -600 ],
+		"左550"   => %[ "xpos" => int -550 ],
+		"左500"   => %[ "xpos" => int -500 ],
+		"左450"   => %[ "xpos" => int -450 ],
+		"左400"   => %[ "xpos" => int -400 ],
+		"左350"   => %[ "xpos" => int -350 ],
+		"左300"   => %[ "xpos" => int -300 ],
+		"左250"   => %[ "xpos" => int -250 ],
+		"左"   => %[ "xpos" => int -250 ],
+		"左200"   => %[ "xpos" => int -200 ],
+		"左150"   => %[ "xpos" => int -150 ],
+		"左100"   => %[ "xpos" => int -100 ],
+		"左50"   => %[ "xpos" => int -50 ],
+		"中"   => %[ "xpos" => int    0 ],
+		"右50"   => %[ "xpos" => int 50 ],
+		"右100"   => %[ "xpos" => int 100 ],
+		"右150"   => %[ "xpos" => int 150 ],
+		"右200"   => %[ "xpos" => int 200 ],
+		"右"   => %[ "xpos" => int  250 ],
+		"右250"   => %[ "xpos" => int 250 ],
+		"右300"   => %[ "xpos" => int 300 ],
+		"右350"   => %[ "xpos" => int 350 ],
+		"右400"   => %[ "xpos" => int 400 ],
+		"右450"   => %[ "xpos" => int 450 ],
+		"右500"   => %[ "xpos" => int 500 ],
+		"右550"   => %[ "xpos" => int 550 ],
+		"右600"   => %[ "xpos" => int 600 ],
+		"右650"   => %[ "xpos" => int 650 ],
+		"右700"   => %[ "xpos" => int 700 ],
+		"右750"   => %[ "xpos" => int 750 ],
+
+
+
+		// yposは直で個別に指定する場合が多いようです
+//		"縦デフォルト" => %[ "ypos" => int    0 ],
+//		"縦しゃがみ"   => %[ "ypos" => int   50 ],
+//		"縦背伸び"     => %[ "ypos" => int  -20 ],
+
+		"奥"   => %[ "level" => int 0 ],
+		"前"   => %[ "level" => int 1 ],
+		"手前" => %[ "level" => int 2 ],
+		],
+
+    // 表示レベル用情報
+	"levels" => [
+		%[
+			// 拡大率指定
+			"zoom" => 75, // 位置縮小率（カメラ
+//			"imgzoom" => 100, // 画像縮小率
+			"name" => "0", //レベル名称
+			],
+		%[
+			"zoom" => 100,
+			"name" => "1"
+			],
+		%[
+			"zoom" => 150,
+			"name" => "2"
+			],
+		],
+    
+    "defaultLevel" => 1,
+
+	// BG奥行き指定（levelのzoom指定相当）　※各BG個別でのlevelz変更は未実装
+	"bglevelz" => 30,
+
+
+    // 表情窓用のレベル指定。表情窓を使わない場合は void
+	"faceLevelName" => 0,
+	"faceApplyColor" => true, // 顔に対しても色味変更を適用するかどうか
+//	"faceArea" => %[ name:"顔領域", width:324, height:288 ],
+//	"faceZoom" => 100,
+
+
+    "actions" => %[
+		"おじぎ" => %[
+			"module" => "LayerJumpOnceActionModule",
+			"vibration" => 20,
+			"cycle" => 2000,
+			],
+        "おじぎ小" => %[
+            "module" => "LayerJumpOnceActionModule",
+            "vibration" => 10,
+            "cycle" => 1200,
+            ],
+        "おじぎ速" => %[
+            "module" => "LayerJumpOnceActionModule",
+            "vibration" => 5,
+            "cycle" => 500,
+            ],
+        "おじぎ速大" => %[
+            "module" => "LayerJumpOnceActionModule",
+            "vibration" => 50,
+            "cycle" => 1000,
+            ],
+        "おじぎ大" => %[
+            "module" => "LayerJumpOnceActionModule",
+            "vibration" => 50,
+            "cycle" => 4000,
+            ],
+		"どっきり" => %[
+			"module" => "LayerHeartBeatZoomModule",
+			"time" => 200,
+			"zoom" => 110,
+			],
+        "どっきり小" => %[
+            "module" => "LayerHeartBeatZoomModule",
+            "time" => 100,
+            "zoom" => 103,
+            ],
+        "どっきり大" => %[
+            "module" => "LayerHeartBeatZoomModule",
+            "time" => 150,
+            "zoom" => 150,
+            ],
+        "どっきり速" => %[
+            "module" => "LayerHeartBeatZoomModule",
+            "time" => 100,
+            "zoom" => 108,
+            ],
+		"びょん" => %[
+			"module" => "LayerJumpActionModule",
+			"vibration" => -30,
+			"cycle" => 1000,
+			],
+        "びょん小" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => 6,
+            "cycle" => 500,
+            ],
+        "びょん速" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => 3,
+            "cycle" => 300,
+            "nowait" => true,
+            ],
+        "びょん速－" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => -3,
+            "cycle" => 300,
+            "nowait" => true,
+            ],
+		"びょん待ち無" => %[
+			"module" => "LayerJumpActionModule",
+			"vibration" => -30,
+			"cycle" => 1000,
+			"nowait" => true,
+			],
+        "浮遊" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => 5,
+            "cycle" => 3000,
+            "nowait" => true,
+            ],
+        "浮遊小" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => 3,
+            "cycle" => 3000,
+            "nowait" => true,
+            ],
+        "浮遊速" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => 5,
+            "cycle" => 578,
+            "nowait" => true,
+            ],
+        "浮遊速小" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => 3,
+            "cycle" => 2000,
+            "nowait" => true,
+            ],
+        "浮遊止め" => %[
+            "module" => "LayerJumpActionModule",
+            "vibration" => 0,
+            "cycle" => 1,
+            ],
+        "ガクガク" => %[
+            "module" => "LayerVibrateActionModule",
+            "vibration" => 3,
+            "waittime" => 40
+            ],
+        "ガクガク大" => %[
+            "module" => "LayerVibrateActionModule",
+            "vibration" => 5,
+            "waittime" => 40
+            ],
+        "うろうろ大" => %[
+            "module" => "LayerWaveActionModule",
+            "vibration" => 100,
+            "cycle" => 5000,
+            "nowait" => true,
+            ],
+        "うろうろ" => %[
+            "module" => "LayerWaveActionModule",
+            "vibration" => 50,
+            "cycle" => 5000,
+            "nowait" => true,
+            ],
+        "うろうろ小" => %[
+            "module" => "LayerWaveActionModule",
+            "vibration" => 10,
+            "cycle" => 1000,
+            "nowait" => true,
+            ],
+        "うろうろ小速" => %[
+            "module" => "LayerWaveActionModule",
+            "vibration" => 10,
+            "cycle" => 500,
+            "nowait" => true,
+            ],
+
+		"背伸び" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:1000, accel:"acdec"] ],
+			%[ "top" => %[ handler:"MoveAction", value:"@+3", time:300, accel:1] ],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:500, accel:-1] ],
+			],
+		
+		"がっくり" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-10", time:500, accel:1] ],
+			%[ "top" => %[ handler:"MoveAction", value:"@-5", time:300, accel:-1] ],
+			],
+
+		"ふるふる" => [
+			%[ "left" => %[ handler:"MoveAction", value:"@-5", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+5", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@-5", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+5", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@", time:200, accel:"acdec"] ],
+			],
+
+		"ふるふる速" => [
+			%[ "left" => %[ handler:"MoveAction", value:"@-5", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+5", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@-5", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+5", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@", time:100, accel:"acdec"] ],
+			],
+
+		"ふるふる小" => [
+			%[ "left" => %[ handler:"MoveAction", value:"@-2", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+2", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@-2", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+2", time:200, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@", time:200, accel:"acdec"] ],
+			],
+
+		"ふるふる小速" => [
+			%[ "left" => %[ handler:"MoveAction", value:"@-2", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+2", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@-2", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@+2", time:100, accel:"acdec"] ],
+			%[ "left" => %[ handler:"MoveAction", value:"@", time:100, accel:"acdec"] ],
+			],
+
+		"こくこく" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-10", time:200, accel:"acdec"] ],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:200, accel:"acdec"] ],
+			%[ wait:5 ],
+			%[ "top" => %[ handler:"MoveAction", value:"@-10", time:200, accel:"acdec"] ],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:200, accel:"acdec"] ],
+			],
+
+
+        "ぶるぶる大３００" => %[
+            left : %[
+                handler : "RandomAction",
+                vibration : 10,
+                waittime : 10,
+                time     : 300,
+            ],
+            top : %[
+                handler : "RandomAction",
+                vibration : 10,
+                waittime : 10,
+                time     : 300,
+            ],
+        ],
+
+        "ぶるぶる３００" => %[
+            left : %[
+                handler : "RandomAction",
+                vibration : 5,
+                waittime : 10,
+                time     : 300,
+            ],
+            top : %[
+                handler : "RandomAction",
+                vibration : 5,
+                waittime : 10,
+                time     : 300,
+            ],
+        ],
+
+        "ぶるぶる小３００" => %[
+            left : %[
+                handler : "RandomAction",
+                vibration : 2,
+                waittime : 10,
+                time     : 300,
+            ],
+            top : %[
+                handler : "RandomAction",
+                vibration : 2,
+                waittime : 10,
+                time     : 300,
+            ],
+        ],
+
+        "ぶるぶる大５００" => %[
+            left : %[
+                handler : "RandomAction",
+                vibration : 10,
+                waittime : 10,
+                time     : 500,
+            ],
+            top : %[
+                handler : "RandomAction",
+                vibration : 10,
+                waittime : 10,
+                time     : 500,
+            ],
+        ],
+
+        "ぶるぶる５００" => %[
+            left : %[
+                handler : "RandomAction",
+                vibration : 5,
+                waittime : 10,
+                time     : 500,
+            ],
+            top : %[
+                handler : "RandomAction",
+                vibration : 5,
+                waittime : 10,
+                time     : 500,
+            ],
+        ],
+
+        "ぶるぶる小５００" => %[
+            left : %[
+                handler : "RandomAction",
+                vibration : 2,
+                waittime : 10,
+                time     : 500,
+            ],
+            top : %[
+                handler : "RandomAction",
+                vibration : 2,
+                waittime : 10,
+                time     : 500,
+            ],
+        ],
+
+
+
+		"立ち上がり出る" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:0]],
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:500, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"100", time:500, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:200, accel:"acdec"]],
+			],
+
+		"立ち上がり消去用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-5", time:300, accel:"acdec"] ],
+			%[ wait:300 ],
+			%[ "visvalue" => %[ handler:"MoveAction", value:"0", time:1000, accel:"acdec"],
+			   "top" => %[ handler:"MoveAction", value:"@+50", time:1000, accel:"acdec"]],
+			],
+		
+		"立ち上がり用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:0]],
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:500, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"100", time:500, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:200, accel:"acdec"]],
+			],
+
+		"立ち上がり速用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:0]],
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:300, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"100", time:300, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:100, accel:"acdec"]],
+			],
+
+		"立ち上がり超速用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:0]],
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:1150, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"100", time:150, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:50, accel:"acdec"]],
+			],
+
+		"立ち上がり速消去用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-5", time:150, accel:"acdec"]],
+			%[ wait:150 ],
+			%[ "visvalue" => %[ handler:"MoveAction", value:"0", time:500, accel:"acdec"],
+			   "top" => %[ handler:"MoveAction", value:"@+50", time:500, accel:"acdec"]],
+			],
+
+		"立ち上がり遅用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:0]],
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:800, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"100", time:800, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:300, accel:"acdec"]],
+			],
+
+		"立ち上がり超遅用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:0]],
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:2400, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"100", time:1200, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:900, accel:"acdec"]],
+			],
+
+		"座り用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@+100", time:0]],
+			%[ "top" => %[ handler:"MoveAction", value:"@-5", time:1000, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"100", time:800, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:500, accel:"acdec"]],
+			],
+
+		"しゃがみ用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:1000, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"0", time:800, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@", time:0, accel:"acdec"]],
+			],
+		
+		"しゃがみ速用" => [
+			%[ "top" => %[ handler:"MoveAction", value:"@+5", time:100, accel:"acdec"]],
+			%[ "top" => %[ handler:"MoveAction", value:"@-100", time:250, accel:"acdec"],
+			   "visvalue" => %[ handler:"MoveAction", value:"0", time:250, accel:"acdec"]],
+			],
+
+		// 新スタイルアクション定義例
+
+		"移動テスト" => %[ // 現在位置から+300の位置に500ms かけて移動
+						   "time" => 500,
+						   "left" => %[ handler:"MoveAction", value:"@+300" ],
+						   ],
+
+		"パス移動テスト" => %[ // 複数移動の一括指定
+						   "time" => 1000,
+						   "left" => %[ handler:"PathAction", value:"@+300,@-300,@+100" ],
+						   ],
+
+		"パス移動テスト2" => %[ // KAGのmove互換表記
+								"time" => 3000,
+								"path" => "(-400,400,128)(-400,-400,100)(0,0,256)",
+								"spline" => true,
+						   ],
+		
+		"回転テスト" => %[ // 1000msの間回転
+						   "time" => 1000,
+						   "rotate" => %[ handler:"TriangleAction", vibration:360,  ontime:1000, offtime:0 ]
+						   ],
+
+		// 連続アクション
+
+		"連続テスト" => [
+			// 座標移動の初期値は全アクション実行の前の位置になるのに注意
+			%[ // 現在位置から +300 の位置に 500ms かけて移動
+			   "time" => 500,
+			   "left" => %[ handler:"MoveAction", value:"@+300" ],
+				],
+			%[ // 現在位置から -300 の位置に 500ms かけて移動
+				"time" => 1000,
+				"left" => %[ handler:"MoveAction", value:"@-300" ],
+				],
+			%[ // 現在位置から +300 の位置に 500ms かけて移動
+				"time" => 1000,
+				"left" => %[ handler:"MoveAction", value:"@+300" ],
+			   ],
+			%[ // 現在位置に 500ms かけて移動
+			   "time" => 1000,
+			   "left" => %[ handler:"MoveAction", value:"@" ]
+			   ]
+			],
+
+		"連続テスト２" => [ // アクション名で連続指定も可能
+							"移動テスト", "回転テスト" ],
+
+		"右跳ね" => %[
+			"time" => 1500,
+			"left" => %[ handler:"PathAction", value:"@+300", accel:"-1"],
+			"top" => %[ handler:"PathAction", value:"@+10,@,@+10,@,@+10,@,@+10,@", spline:"true", accel:"-1"],
+			],
+
+		"左跳ね" => %[
+			"time" => 1500,
+			"left" => %[ handler:"PathAction", value:"@-300", accel:"-1"],
+			"top" => %[ handler:"PathAction", value:"@+10,@,@+10,@,@+10,@,@+10,@", spline:"true", accel:"-1"],
+			],
+
+		"右跳ね大" => %[
+			"time" => 1500,
+			"left" => %[ handler:"PathAction", value:"@+600", accel:"-1"],
+			"top" => %[ handler:"PathAction", value:"@+10,@,@+10,@,@+10,@,@+10,@", spline:"true", accel:"-1"],
+			],
+
+		"左跳ね大" => %[
+			"time" => 1500,
+			"left" => %[ handler:"PathAction", value:"@-600", accel:"-1"],
+			"top" => %[ handler:"PathAction", value:"@+10,@,@+10,@,@+10,@,@+10,@", spline:"true", accel:"-1"],
+			],
+
+
+		"タイルスライド" => %[
+			"tilex" => %[ handler:"LoopMoveAction", max:800, loop:2000 ],
+			"tiley" => %[ handler:"LoopMoveAction", max:600, loop:2000 ]
+			],
+
+		"横スライド" => %[
+			"tilex"  => %[ handler:"LoopMoveAction", max:2700, loop:2700 ],
+			"nowait" => true,
+			],
+
+		"モーションアクション" => %[
+			"motion"  => %[ handler:"MotionAction", storage:"action.psb", chara:"action", motion:"motion1", layer:"レイヤ1" ],
+			],
+
+		"モーションアクション2" => %[
+			"motion"  => %[ handler:"MotionAction", storage:"action.psb", chara:"action", motion:"motion2", layer:"レイヤ1" ],
+			],
+
+		"モーションアクション3" => %[
+			"motion"  => %[ handler:"MotionAction", storage:"action.psb", chara:"action", motion:"motion3", layer:"レイヤ1" ],
+			],
+
+		"モーションアクション4" => %[
+			"motion"  => %[ handler:"MotionAction", storage:"action.psb", chara:"action", motion:"motion4", layer:"レイヤ1" ],
+			],
+
+		
+		"sys_title_fg_act" => [
+			%[ "time" => 1200, "top" => %[ handler:"MoveAction", start:-1232, value:220, accel:-1      ], ],
+			%[ "time" =>  600, "top" => %[ handler:"MoveAction", start:220,   value:0,   accel:"acdec" ], ]
+			],
+
+		"sys_title_fg_act1" => [
+			%[ "time" => 1400, "top" => %[ handler:"MoveAction", start:-896, value:10, accel:-1      ], ],
+			%[ "time" =>  400, "top" => %[ handler:"MoveAction", start:10,   value:0,  accel:"acdec" ], ]
+			],
+		"sys_title_fg_act2" => [
+			%[ "time" => 1200, "zoom"=> %[ handler:"MoveAction", start: 75,   value: 100, ],
+			   /**/            "left"=> %[ handler:"MoveAction", start:-100,  value:-300, ],
+			   /**/            "top" => %[ handler:"MoveAction", start:-896, value:64, accel:-1      ], ],
+			%[ "time" =>  600, "left"=> %[ handler:"MoveAction", start:-300,  value:-359, accel:-1 ],
+			   /**/            "top" => %[ handler:"MoveAction", start:64,   value:0,  accel:"acdec" ], ]
+			],
+		"sys_title_fg_act3" => [
+			%[ "time" => 1300, "left"=> %[ handler:"MoveAction", start:-192, value:80, ],
+			   /**/            "top" => %[ handler:"MoveAction", start:-896, value:32, accel:-1      ], ],
+			%[ "time" =>  500, "left"=> %[ handler:"MoveAction", start: 80,  value:92, accel:-1 ],
+			   /**/            "top" => %[ handler:"MoveAction", start:32,   value:0,  accel:"acdec" ], ]
+			],
+		"sys_title_fg_act4" => [
+			%[ "time" => 1200, "top" => %[ handler:"MoveAction", start:-896, value:64, accel:-1      ], ],
+			%[ "time" =>  600, "top" => %[ handler:"MoveAction", start:64,   value:0,  accel:"acdec" ], ]
+			],
+		"sys_title_fg_act5" => [
+			%[ "time" =>  500, "top" => %[ handler:"MoveAction", start:-320, value:-320, ], ],
+			%[ "time" =>  500, "top" => %[ handler:"MoveAction", start:-320, value:0,    accel:-1 ], ]
+			],
+
+		],
+
+    // 画面更新パラメータ
+	"transitions" => %[
+		"normal" => %[
+			"time" => 1000,
+			"method" => "crossfade",
+			],
+
+		"notrans" => %[
+			"time" => 0,
+			"method" => void,
+			],
+
+		"showfade" => %[
+		time: 200,
+		showaction: %[],
+		hideaction: %[]
+			],
+		
+		"showslide" => %[
+		time: 200,
+		showaction: %[ left : %[ handler:"MoveAction", start:"@+50", value:"@" ]	],
+		hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@-50" ]	]
+			],
+
+		"showzoom" => %[
+		time: 200,
+		showaction: %[ zoom : %[ handler:"MoveAction", start:200, value:100, accel:1 ]],
+		hideaction: %[ zoom : %[ handler:"MoveAction", start:"@", value:150, accel:1 ]]
+			],
+
+	// 通常クロスフェード
+        "normal" => %[
+            "time" => 1000,
+            "method" => "crossfade",
+            ],
+
+	// トランジションしない
+        "notrans" => %[
+            "time" => 0,
+            "method" => void,
+            ],
+
+	// トランジションほぼしない
+        "trans1" => %[
+            "time" => 1,
+            "method" => "crossfade",
+            ],
+
+	// ウルトラクイッククロスフェード２
+	"ultraquick2" => %[
+		"time" => 15,
+		"method" => "crossfade",
+            ],
+
+	// ウルトラクイッククロスフェード
+	"ultraquick" => %[
+		"time" => 30,
+		"method" => "crossfade",
+            ],
+
+	// スーパークイッククロスフェード２
+	"superquick2" => %[
+		"time" => 50,
+		"method" => "crossfade",
+            ],
+
+	// スーパークイッククロスフェード
+	"superquick" => %[
+		"time" => 100,
+		"method" => "crossfade",
+            ],
+
+	// クイッククロスフェード
+	"quickfade" => %[
+		"time" => 250,
+		"method" => "crossfade",
+            ],
+	// ショートフェード
+	"shortfade" => %[
+		"time" => 500,
+		"method" => "crossfade",
+            ],
+
+	// ミドルクロスフェード
+	"midfade" => %[
+		"time" => 2000,
+		"method" => "crossfade",
+            ],
+
+	// ロングクロスフェード
+	"longfade" => %[
+		"time" => 3000,
+		"method" => "crossfade",
+            ],
+
+	// スーパーロングクロスフェード
+	"superlong" => %[
+		"time" => 6000,
+		"method" => "crossfade",
+            ],
+
+	// ウルトラロングクロスフェード
+	"ultralong" => %[
+		"time" => 10000,
+		"method" => "crossfade",
+            ],
+
+	// ユニバーサル
+	"univ" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"rule" => "map01"
+            ],
+
+	"モザイク" => %[
+		"time" => 1000,
+		"method" => "mosaic",
+            ],
+
+	"水滴" => %[
+		"time" => 1000,
+		"method" => "ripple",
+            ],
+
+	"波" => %[
+		"time" => 1000,
+		"method" => "wave",
+            ],
+
+	// map501
+	"目閉じ" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"rule" => "map501"
+            ],
+
+	// map501b
+	"目開け" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"rule" => "map501b"
+            ],
+
+	// map501
+	"目閉じslow" => %[
+		"time" => 5000,
+		"method" => "universal",
+		"rule" => "map501"
+            ],
+
+	// map501b
+	"目開けslow" => %[
+		"time" => 5000,
+		"method" => "universal",
+		"rule" => "map501b"
+            ],
+
+	// map502
+	"観音閉じ" => %[
+		"time" => 2000,
+		"method" => "universal",
+		"rule" => "map502"
+            ],
+
+	// map502b
+	"観音開き" => %[
+		"time" => 2000,
+		"method" => "universal",
+		"rule" => "map502b"
+            ],
+
+	// map31
+	"突進" => %[
+		"time" => 300,
+		"method" => "universal",
+		"vague" => "600",
+		"rule" => "map31"
+            ],
+
+	// map18
+	"場面転換" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"rule" => "map18"
+            ],
+
+	// map504a
+	"場面転換速" => %[
+		"time" => 300,
+		"method" => "universal",
+		"vague" => "300",
+		"rule" => "map504a"
+            ],
+
+	// rule_slidebar_hor01a
+	"場面転換・スライド横" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_hor01a"
+            ],
+
+	// rule_slidebar_hor01a
+	"場面転換・スライド横逆" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_hor01b"
+            ],
+
+	// rule_slidebar_ver01a
+	"場面転換・スライド縦" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_ver01a"
+            ],
+
+	// rule_slidebar_ver01a
+	"場面転換・スライド縦逆" => %[
+		"time" => 1300,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_ver01b"
+            ],
+
+	// rule_slidebar_naname01a
+	"場面転換・スライド斜め１" => %[
+		"time" => 1300,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_naname01a"
+            ],
+
+	// rule_slidebar_naname01c
+	"場面転換・スライド斜め１逆" => %[
+		"time" => 1300,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_naname01c"
+            ],
+
+	// rule_slidebar_naname01b
+	"場面転換・スライド斜め２" => %[
+		"time" => 1300,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_naname01b"
+            ],
+
+	// rule_slidebar_naname01d
+	"場面転換・スライド斜め２逆" => %[
+		"time" => 1300,
+		"method" => "universal",
+		"vague" => "0",
+		"rule" => "rule_slidebar_naname01d"
+            ],
+
+
+
+	// rule_ball01a
+	"場面転換・ボール１" => %[
+		"time" => 1500,
+		"method" => "universal",
+		"vague" => "3",
+		"rule" => "rule_ball01a"
+            ],
+
+	// rule_ball02
+	"場面転換・ボール２" => %[
+		"time" => 1500,
+		"method" => "universal",
+		"vague" => "3",
+		"rule" => "rule_ball02a"
+            ],
+
+
+	// map27
+	"時間経過" => %[
+		"time" => 1000,
+		"method" => "universal",
+		"rule" => "map27"
+            ],
+
+
+
+
+		"スライド左長"   => %[ time: 500, showaction: %[ left : %[ handler:"MoveAction", start:"@+50", value:"@", accel:-1 ] ] ,
+										hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@-50", accel: 1 ] ] ],
+		"スライド右長"   => %[ time: 500, showaction: %[ left : %[ handler:"MoveAction", start:"@-50", value:"@", accel:-1 ] ],
+						                hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@+50", accel: 1 ] ] ],
+		"スライド左速長" => %[ time: 200, showaction: %[ left : %[ handler:"MoveAction", start:"@+100", value:"@", accel:-1 ] ],
+						                hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@-100", accel: 1 ] ] ],
+		"スライド右速長" => %[ time: 200, showaction: %[ left : %[ handler:"MoveAction", start:"@-100", value:"@", accel:-1 ] ],
+							            hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@+100", accel: 1 ] ] ],
+		"スライド左遅長" => %[ time: 800, showaction: %[ left : %[ handler:"MoveAction", start:"@+50", value:"@", accel:-1 ] ],
+						                hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@-50", accel: 1 ] ] ],
+		"スライド右遅長" => %[ time: 800, showaction: %[ left : %[ handler:"MoveAction", start:"@-50", value:"@", accel:-1 ] ],
+	                                    hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@+50", accel: 1 ] ] ],
+		"スライド左" => %[ time: 300, showaction: %[ left : %[ handler:"MoveAction", start:"@+10", value:"@", accel:-1 ] ],
+	                                    hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@-10", accel: -1 ] ] ],
+		"スライド右" => %[ time: 300, showaction: %[ left : %[ handler:"MoveAction", start:"@-10", value:"@", accel:-1 ] ],
+	                                    hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@+10", accel: -1 ] ] ],
+		"スライド左遅" => %[ time: 800, showaction: %[ left : %[ handler:"MoveAction", start:"@+10", value:"@", accel:-1 ] ],
+						                  hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@-10", accel: -1 ] ] ],
+		"スライド右遅" => %[ time: 800, showaction: %[ left : %[ handler:"MoveAction", start:"@-10", value:"@", accel:-1 ] ],
+						                  hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@+10", accel: -1 ] ] ],
+		"スライド左速" => %[ time: 200, showaction: %[ left : %[ handler:"MoveAction", start:"@+10", value:"@", accel:-1 ] ],
+						                  hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@-10", accel: -1 ] ] ],
+		"スライド右速" => %[ time: 200, showaction: %[ left : %[ handler:"MoveAction", start:"@-10", value:"@", accel:-1 ] ],
+						                  hideaction: %[ left : %[ handler:"MoveAction", start:"@", value:"@+10", accel: -1 ] ] ],
+
+		"スライド上下"   => %[ time: 500, showaction: %[ top : %[ handler:"MoveAction", start:"@-100", value:"@", accel:-1 ] ] ,
+										  hideaction: %[ top : %[ handler:"MoveAction", start:"@", value:"@-100", accel: 1 ] ] ],
+		"スライド上下速" => %[ time: 200, showaction: %[ top : %[ handler:"MoveAction", start:"@-100", value:"@", accel:-1 ] ],
+						                  hideaction: %[ top : %[ handler:"MoveAction", start:"@", value:"@-100", accel: 1 ] ] ],
+		"スライド上下遅" => %[ time: 800, showaction: %[ top : %[ handler:"MoveAction", start:"@-100", value:"@", accel:-1 ] ],
+						                  hideaction: %[ top : %[ handler:"MoveAction", start:"@", value:"@-100", accel: 1 ] ] ],
+		"スライド上下小" => %[ time: 300, showaction: %[ top : %[ handler:"MoveAction", start:"@-10", value:"@", accel:-1 ] ],
+	                                      hideaction: %[ top : %[ handler:"MoveAction", start:"@", value:"@-10", accel: -1 ] ] ],
+		"スライド上下遅小" => %[ time: 800, showaction: %[ top : %[ handler:"MoveAction", start:"@-10", value:"@", accel:-1 ] ],
+						                    hideaction: %[ top : %[ handler:"MoveAction", start:"@", value:"@-10", accel: -1 ] ] ],
+		"スライド上下速小" => %[ time: 200, showaction: %[ top : %[ handler:"MoveAction", start:"@-10", value:"@", accel:-1 ] ],
+						                    hideaction: %[ top : %[ handler:"MoveAction", start:"@", value:"@-10", accel: -1 ] ] ],
+
+		"立ち上がり" => %[
+			"time" => 1,
+			"showaction" => "立ち上がり用",
+			"hideaction" => "立ち上がり消去用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+
+		"立ち上がり速" => %[
+			"time" => 1,
+			"showaction" => "立ち上がり速用",
+			"hideaction" => "立ち上がり速消去用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+			
+		"立ち上がり超速" => %[
+			"time" => 1,
+			"showaction" => "立ち上がり速用",
+			"hideaction" => "立ち上がり速消去用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+
+		"立ち上がり遅" => %[
+			"time" => 1,
+			"showaction" => "立ち上がり遅用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+
+		"立ち上がり超遅" => %[
+			"time" => 1,
+			"showaction" => "立ち上がり超遅用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+
+		"座り" => %[
+			"time" => 1,
+			"showaction" => "座り用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+
+		"しゃがみ" => %[
+			"time" => 1,
+			"hideaction" => "しゃがみ用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+
+		"しゃがみ速" => %[
+			"time" => 1,
+			"hideaction" => "しゃがみ速用"
+			// 特殊機能。文字列指定すると指定のアクションをそのまま使う。時間指定はスルーされる。
+			],
+
+		"sysact_logojump" => %[
+		time: 400,
+		showaction: %[ left : %[ handler:"MoveAction", start:"@+100", value:"@" ],
+					   top:   %[ handler:"SinAction",  vibration:40, cycle:800, time:400 ] ],
+		hideaction: %[]
+			]
+		],
+
+//デフォルトトランジション定義　ここから
+
+	//立ち絵、背景、イベント絵の変更時にトランジション指定が省略されていた場合に使用するトランジションを定義します
+	// "*Trans" => トランジション名文字列（"transitions"で定義されているもの） または トランジション定義辞書
+	// ※キャラクタ関係はキャラ定義内の *Trans の定義が優先されます。
+
+	"charDispTrans" => %[ "time" =>  300, "method"  => "crossfade" ],                   // キャラクタの表示・消去指定
+	"positionTrans" => %[ "time" =>  300, "method"  => "crossfade" ],                   // キャラクタの位置変更
+
+//	"poseTrans"     => %[ "time" =>  300, "method"  => "crossfade", "nosync" => true ], // キャラクタのポーズ変更
+//	"dressTrans"    => %[ "time" =>  300, "method"  => "crossfade", "nosync" => true ], // キャラクタの服装変更
+//	"diffTrans"     => %[ "time" =>  300, "method"  => "crossfade", "nosync" => true ], // キャラクタの差分変更(exstand使用時のみ)
+//	"faceTrans"     => %[ "time" =>  300, "method"  => "crossfade", "nosync" => true ], // キャラクタの表情変更
+	"charTrans"     => %[ "time" =>  300, "method"  => "crossfade", "nosync" => true ], // ポーズ・服装・差分・表情のデフォルト（上記が未定義の時に使用される）
+
+//	"layerDispTrans"=> %[ "time" =>  500, "method"  => "crossfade" ],                   // レイヤー(newlayで作成されたもの)の表示・消去指定
+
+//	"timeTrans"     => %[ "time" => 1500, "method"  => "crossfade" ],                   // 時間変更
+//	"stageTrans"    => %[ "time" => 1500, "method"  => "crossfade" ],                   // 舞台（ステージ）変更
+//	"eventTrans"    => %[ "time" => 1500, "method"  => "crossfade" ],                   // イベント変更
+	"envTrans"      => "normal",                                                        // 環境デフォルト（上記が未定義の時に使用される）
+
+//デフォルトトランジション定義　ここまで
+
+	// fade コマンドの規定値:全体用 (未定義の場合埋め込み値 500)
+	"fadeValue" => 1000,
+	// fade コマンドの規定値:キャラクタ用（未定義だと fadeValue を参照)
+	"charFadeValue" => 300,
+
+	// 自動インクリメンタル方式の場合のボイス番号初期値
+	//"voiceInit" => 0,
+
+	// sync時はセーブポイントにする
+	//"autolabelSync" => true,
+
+	// キャラクタ定義情報
+	"characters" => %[
+		// ※exstand (psd素材からのコンバート立ち絵) を使う場合は，ここでの詳細定義は不要。
+		//   voiceName等の定義のみでよい
+		//"あい" => %[ "voiceName" => "voice0", ～ ];
+
+
+		// 定義
+		"きらら" => %[ voiceName :"a01" ],
+		"まみ"   => %[ voiceName :"a02" ],
+		"もみじ" => %[ voiceName :"a03" ],
+		"いいな" => %[ voiceName :"a04" ],
+		"こより" => %[ voiceName :"a05" ],
+		"あめり" => %[ voiceName :"a06" ],
+		"立ち絵鑑賞あめり大" => %[ voiceName :"a06" ],
+		"ケリー" => %[ voiceName :"others" ],
+
+		//モブ
+		"サークルの人" => %[ voiceName : "others" ],
+		"スタッフＡ" => %[ voiceName : "others" ],
+		"スタッフＢ" => %[ voiceName : "others" ],
+		"スタッフＣ" => %[ voiceName : "others" ],
+		"スタッフＤ" => %[ voiceName : "others" ],
+		"スタッフＥ" => %[ voiceName : "others" ],
+		"ファンＡ" => %[ voiceName : "others" ],
+		"ファンＢ" => %[ voiceName : "others" ],
+		"ファンＣ" => %[ voiceName : "others" ],
+		"ファンＤ" => %[ voiceName : "others" ],
+		"ファンＥ" => %[ voiceName : "others" ],
+		"マネージャー" => %[ voiceName : "others" ],
+		"参加者" => %[ voiceName : "others" ],
+		"参加者Ａ" => %[ voiceName : "others" ],
+		"参加者Ｂ" => %[ voiceName : "others" ],
+		"参加者Ｃ" => %[ voiceName : "others" ],
+		"参加者Ｄ" => %[ voiceName : "others" ],
+		"参加者Ｅ" => %[ voiceName : "others" ],
+		"参加者Ｆ" => %[ voiceName : "others" ],
+		"参加者Ｇ" => %[ voiceName : "others" ],
+		"参加者Ｈ" => %[ voiceName : "others" ],
+		"参加者Ｉ" => %[ voiceName : "others" ],
+		"司会" => %[ voiceName : "others" ],
+		"売り子" => %[ voiceName : "others" ],
+		"売り子さん" => %[ voiceName : "others" ],
+		"女子学生Ａ" => %[ voiceName : "others" ],
+		"女子学生Ｂ" => %[ voiceName : "others" ],
+		"女子学生Ｃ" => %[ voiceName : "others" ],
+		"子供" => %[ voiceName : "others" ],
+		"客" => %[ voiceName : "others" ],
+		"店員" => %[ voiceName : "others" ],
+		"迷子" => %[ voiceName : "others" ],
+		"通行人Ａ" => %[ voiceName : "others" ],
+		"通行人Ｂ" => %[ voiceName : "others" ],
+		"通行人Ｃ" => %[ voiceName : "others" ],
+		"通行人Ｄ" => %[ voiceName : "others" ],
+		"通行人Ｅ" => %[ voiceName : "others" ],
+		"ドライバー" => %[ voiceName : "others" ],
+		"受付" => %[ voiceName : "others" ],
+		"通行人" => %[ voiceName : "others" ],
+		"もみじの父" => %[ voiceName : "others" ],
+		"男" => %[ voiceName : "others" ],
+
+		],
+
+	// 既定名レイヤ
+	// 指定の名前のレイヤが無ければ自動で作成して既定の初期化を行う
+	// ※名前は小文字で正規化されるのに注意してください
+	// 効果用の画像などをファイル名やレベル名を指定して登録することができます
+	"layers" => %[
+		"border" => %[
+		init: %[level:5, file:"border"], // 初期化パラメータ。任意のパラメータ配置可能
+		trans: "normal", // デフォルトのトランジション指定,
+		dispTrans: "normal",  // デフォルトの表示トランジション指定
+			],
+
+		"title_bg" => %[
+		init: %[ level:0, file:"title_bg", xpos:6, ypos:-390 ],
+		trans: "normal", // デフォルトのトランジション指定,
+		dispTrans: "normal",  // デフォルトの表示トランジション指定
+			],
+
+		"title_fg" => %[
+		init: %[ level:1, file:"title_fg",xpos:-224 ],
+		trans: "notrans", // デフォルトのトランジション指定,
+		dispTrans: "notrans",  // デフォルトの表示トランジション指定
+			],
+
+		"title_fg0" => %[ init: %[ level:1, file:"title_fg0",xpos:-196 ], trans: "notrans", dispTrans: "notrans" ],
+		"title_fg1" => %[ init: %[ level:1, file:"title_fg1",xpos:-141 ], trans: "notrans", dispTrans: "notrans" ],
+		"title_fg2" => %[ init: %[ level:2, file:"title_fg2",xpos:-359 ], trans: "notrans", dispTrans: "notrans" ],
+		"title_fg3" => %[ init: %[ level:3, file:"title_fg3",xpos:92   ], trans: "notrans", dispTrans: "notrans" ],
+		"title_fg4" => %[ init: %[ level:4, file:"title_fg4",xpos:-196 ], trans: "notrans", dispTrans: "notrans" ],
+		"title_fg5" => %[ init: %[ level:5, file:"title_fg5",xpos:-521 ], trans: "notrans", dispTrans: "notrans" ],
+
+		"title_frame" => %[
+		init: %[ level:6, file:"title_frame", xpos:396 ],
+		trans: "notrans", // デフォルトのトランジション指定,
+		dispTrans: "notrans",  // デフォルトの表示トランジション指定
+			],
+
+		"brandlogo_ch1" => %[ init: %[ level:2, file:"brandlogo_a"  ], dispTrans:"sysact_logojump" ],
+		"brandlogo_ch2" => %[ init: %[ level:2, file:"brandlogo_c1" ], dispTrans:"sysact_logojump" ],
+		"brandlogo_ch3" => %[ init: %[ level:2, file:"brandlogo_c2" ], dispTrans:"sysact_logojump" ],
+		"brandlogo_ch4" => %[ init: %[ level:2, file:"brandlogo_e"  ], dispTrans:"sysact_logojump" ],
+		"brandlogo_ch5" => %[ init: %[ level:2, file:"brandlogo_n"  ], dispTrans:"sysact_logojump" ],
+		"brandlogo_ch6" => %[ init: %[ level:2, file:"brandlogo_t"  ], dispTrans:"sysact_logojump" ],
+
+		]
+	];

@@ -1,0 +1,19 @@
+/**
+ * SEの連続再生をチェックするためのフック
+ */
+
+SystemConfig.SysseDoublePlayCheckThreshold = 5;
+with (SESoundBuffer) {
+	.syssechk_origplay = .play;
+	.play = function(elm) {
+		var cur = System.getTickCount();
+		if (typeof this.syssechk_lastplay == "Object") with (syssechk_lastplay) {
+			if ((cur - .time) < SystemConfig.SysseDoublePlayCheckThreshold) try {
+				kag.errorSound(@"効果音が同時刻に再生されました:${.storage}->${elm.storage}");
+				dm(Scripts.getTraceString()) if (System.getArgument("-debug") == "yes");
+			} catch {}
+		}
+		this.syssechk_lastplay = %[ storage:elm.storage, time:cur ];
+		return syssechk_origplay(...);
+	} incontextof null;
+}

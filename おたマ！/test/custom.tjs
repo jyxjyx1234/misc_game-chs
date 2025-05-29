@@ -1,0 +1,2448 @@
+// ゲームタイトル依存の特殊処理等
+
+KAGLoadScript("KAGEnvCharacterEx.tjs") if (Storages.isExistentStorage("charinit.csv"));
+
+//--------------------------------------------------------------
+// 差分画像
+KAGLoadScript("diffimage.tjs");
+Layer.appendDiffImageMap("!evdiff.csv", true);
+
+//--------------------------------------------------------------
+// ムービークオリティ選択
+KAGLoadScript("movieqsel.tjs");
+
+//--------------------------------------------------------------
+// 特殊タグ
+
+addKagHandler("endreplay", function(elm) {
+	sflags["flag_"+elm.flag] = true if (elm.flag != "");
+	return isRecollection ? tagHandlers.endrecollection(...) : 0;
+}, true);
+
+// サスペンドセーブ
+var SuspendSaveTag = "continue";
+function DoSuspendSave() {
+	switch (SystemHook.currentState) {
+	case "game":
+	case "sysmenu":
+		break;
+	case "save": case "load": case "option":
+		if (Current.propget("fromTitle")) return false;
+		break;
+	default:
+		return false;
+	}
+	if (kag.isRecollection) return false;
+
+	try { kag.addBookMarkInfo("lastText", kag.historyLayer.currentText); } catch {}
+	SystemAction._preSave();
+	kag.saveBookMarkToFile(kag.getBookMarkFileNameBySystem(SuspendSaveTag));
+	kag.freeSnapshot();
+	return true;
+}
+addKagHandler("suspendsave", function(elm) {
+	DoSuspendSave();
+	return 0;
+}, false);
+addKagHookCallback("onCloseYes", function {
+	DoSuspendSave();
+}, false);
+addAfterInitCallback(function {
+	kag.goToStartOrig = kag.goToStart;
+	kag.goToStart = function {
+		DoSuspendSave();
+		return goToStartOrig(...);
+	} incontextof kag;
+
+	loadTrigger.instance.loadHooks.continue = %[
+	callback:function {
+		loadBookMarkFromFile(getBookMarkFileNameBySystem(SuspendSaveTag));
+		return true;
+	} incontextof kag ];
+});
+
+KAGWindow.getBookMarkFileNameBySystem = function (tag) { return getBookMarkFileName("_"+tag) + (tag==SuspendSaveTag?".bmp":".ksd"); } incontextof null;
+
+//--------------------------------------------------------------
+// タイトル
+
+function IsStandModeOpened() {
+	return tf.allseen || (
+		// [XXX] フラグ直埋め
+		sf.end_kirara &&
+		sf.end_mami   &&
+		sf.end_momiji &&
+		sf.end_iina   &&
+		sf.end_koyori &&
+		sf.end_ameri  &&
+		sf.end_harem  &&
+		true);
+}
+class CustomTitle {
+	var hasContinue, contFile, isExtra, clearFlag, isAllClear;
+	function CustomTitle(elm) {
+		isExtra = !!elm.extra;
+		contFile = kag.getBookMarkFileNameBySystem(SuspendSaveTag);
+		hasContinue = Storages.isExistentStorage(contFile);
+
+		clearFlag  = tf.allseen || sf.game_clear;
+		isAllClear = IsStandModeOpened();
+	}
+	function changeExtra  { isExtra = true; }
+	function changeNormal { isExtra = false; }
+
+	var cox, coy;
+	function contPopup(vis) {
+		// [XXX]
+		if (hasContinue) ShowHideQLoadPopup(!!vis, cox, coy, contFile);
+	}
+	function onQLoad(elm) { ShowHideQLoadPopup(false); }
+	function onUiload(elm) {
+		elm.partremove = isExtra ? "rm_extra" : "rm_normal";
+	}
+	function onUiloaded(elm, ui) {
+		with (uiloadGetRect("cont_popup", ui)) cox = .x, coy = .y;
+		with (kag.current.names) {
+			setButtonEnabled(.continue,  hasContinue);
+			setButtonEnabled(.extra,     clearFlag);
+			setButtonEnabled(.standmode, isAllClear);
+			
+		}
+	}
+	function setButtonEnabled(lay, en) {
+		if (lay) lay.enabled = !!en;
+	}
+}
+Dialog.add(%[ name:"title", start:CustomTitle, storage:"title" ]);
+
+//--------------------------------------------------------------
+// ダイアログ
+
+with (MyYesNoDialog) {
+	.fadeTime = 200;
+}
+
+//--------------------------------------------------------------
+// バージョン情報
+
+with (aboutDialogConfig) {
+	.color = 0;
+	.size = 16;
+	.face = SystemDefaultFontFace;
+	.top = 162;
+	.versionstring = "version ${global.software_version}";
+}
+
+//--------------------------------------------------------------
+// メッセージ窓周り調整
+
+function dispNameFilter(name) { return name; }
+KAGLoadScript("msghack.tjs");
+addKagHookCallback("onModeChangeHook", function {
+	try {
+		if (onModeChangePropChanger) with (onModeChangePropChanger) {
+			.set("vreplay", "visible", modeChangeCheckHash.voiceReplay);
+		}
+	} catch {}
+}, false);
+@set (ENABLE_MESWIN_OPAC=1)
+function ResetMessageFrameVisible(lay = kag.current, opac = (int)+sf.windowOpac) {
+	try {
+		with (lay.buttons) {
+			lay.window.messageFrameChanger.setFrameVisible(.frame1, .frame2, opac);
+			@if (ENABLE_MESWIN_OPAC)
+			if (.name !== void) .name.opacity = opac;
+			@endif
+		}
+	} catch {}
+}
+CustomMessageLayer.getFrameOpacity = function() {
+	ResetMessageFrameVisible(this);
+	return 0;
+} incontextof null;
+
+addKagHookCallback("onNameLayerVisibleChanged", function(nl, v) {
+	with (nl.owner.buttons) {
+		var opac = (int)+sf.windowOpac;
+		if (.name !== void) .name.visible = v;
+		if (!v && .vreplay !== void) .vreplay.visible = false;
+		ResetMessageFrameVisible(nl.owner, opac);
+	}
+}, false);
+
+
+addKagHookCallback("onModeChangeHookEx", function (prop, kag, am, sm, ca, cs, ss, modal, cr) {
+	// スキップモードアイコン
+	sm = sm && inGameState(kag);
+	if (isModeChanged("skipMode_icon", sm) &&
+		typeof kag.skipModeIcon == "Object") {
+		with  (kag.skipModeIcon) {
+			.parent = kag.fore.base;
+			.setPos(.baseLeft, .baseTop);
+			.visible = sm;
+		}
+	}
+}, false);
+
+addAfterInitCallback(function() {
+	var file = "skipmark";
+	if (getExistImageName(file) != "") with (kag) {
+		var x = .scWidth, y = .scHeight;
+		try {
+			var uil = uiload;
+			var ui  = uiloadParse(%[ storage:"message" ]).result;
+			with (uiloadGetRect("base.click", ui)) x=.x, y=.y;
+		} catch {}
+		.skipModeIcon = new ClickGlyphLayer(kag, .fore.base);
+		.add(.skipModeIcon);
+		with (.skipModeIcon) {
+			.loadImages(file);
+			.restartOnReload = true;
+			.visible = false;
+			.baseLeft = x;
+			.baseTop  = y;
+		}
+	}
+} incontextof global);
+
+
+//--------------------------------------------------------------
+// メッセージ窓変更処理
+
+class        MessageFrameChanger extends KAGPlugin {
+	function MessageFrameChanger(kag, defaultType) {
+		this.kag = kag;
+		this.defaultType = defaultType;
+		kag.add      (this);
+		kag.addPlugin(this);
+		kag.addHook("onEraceMessage", onEraceMessage);
+		kag.addHook("onSkipNoDispChanged", onSkipNoDispChanged);
+	}
+
+	function onEraceMessage { reset(); }
+	function onSkipNoDispChanged { reset(); }
+	function reset() {
+		if (!world_object.playerConverting) type = defaultType;
+	}
+
+	var kag, defaultType, type, tag = "meswinloud";
+	function onEnvCommand(tagname, elm) {
+		if (tagname == tag) {
+			setType("loud");
+			ResetMessageFrameVisible() if (elm.force);
+			return 0;
+		}
+	}
+	function onEnvInit() { setType(defaultType); }
+	function onEnvRestore(dic) { setType(dic[tag]);       }
+	function onEnvStore  (dic) {         dic[tag] = void; } //type;
+
+	function setType(name) {
+		type = (name == "") ? defaultType : name;
+	}
+	property env { getter { with (world_object) {
+		return .playerConverting ? .player.parseEnv : .env;
+	} } }
+	function setFrameVisible(f1, f2, opac) {
+		var isNormal = (type != "loud");
+		if (f1) with (f1) {
+			.visible =  isNormal;
+			@if (ENABLE_MESWIN_OPAC)
+			.opacity =  opac;
+			@endif
+		}
+		if (f2) with (f2) {
+			var oldvis = .visible;
+			.visible = !isNormal;
+			if (!oldvis && .visible && kag.skipMode < SKIP_FAST) {
+				var vib = 6, wt = 30, time = 150;
+				kag.stopAction (f2);
+				kag.beginAction(f2, %[ left:   %[ handler:RandomAction, vibration:vib, waittime:wt, time:time ],
+									   /**/top:%[ handler:RandomAction, vibration:vib, waittime:wt, time:time ] ]);
+			}
+			@if (ENABLE_MESWIN_OPAC)
+			.opacity =  opac;
+			@endif
+		}
+	}
+}
+addAfterInitCallback(function() {
+	kag.messageFrameChanger = new MessageFrameChanger(kag, "normal");
+} incontextof global);
+
+SelectButtonLayer.drawMessage = function (message) {
+	var cnt = Butt_showFocusImage ? 4 : 3;
+	var tw = font.getTextWidth(message);
+	var th = font.getTextHeight(message);
+	var y = (height-th)>>1;
+	//dm("サイズ:" + width + " ," + height);
+	var dx = (width-tw)>>1;
+	for (var i=0;i<cnt;i++) {
+		var x = i*width + dx;
+		// vvv[XXX]
+		var ox = (i == 1) ? 3 : 0;
+		var oy = (i == 1) ? 5 : 0;
+		// ^^^[XXX]
+
+		//dm("メッセージ:" + x);
+		owner.drawTextToLayer(this, x+ox, y+oy, message, i, drawopt);
+	}
+} incontextof null;
+
+//--------------------------------------------------------------
+// アイコンフェード
+
+SystemConfig.iconFaderHoldInitialState = true;
+SystemConfig.iconFaderList = [ "auto", "skip", "log", "prev", "next", "hide", "hold", "exit", "qsave", "qload", "save", "load", "option", "winopac" ];
+class        IconAutoFader {
+	function IconAutoFader(kag) {
+		this.kag = kag;
+		with (kag) {
+			.add(this);
+			.addPlugin(this);
+			.addHook("mouseMove", onMouseMove);
+			.addHook("onResetModeChanged", reset);
+			.addHook("onModeChangeHookEx", this.onModeChanged);
+		}
+	}
+	property hold {
+		getter {
+			var r = kag.scflags.IconFaderHold;
+			if (r === void) r = !!SystemConfig.iconFaderHoldInitialState;
+			return r;
+		}
+		setter (v) {
+			var old = !!kag.scflags.IconFaderHold;
+			var cur = kag.scflags.IconFaderHold = !!v;
+			kag.setMenuAccessibleAll();
+			if (old != cur) checkEnter();
+		}
+	}
+	function onModeChanged(prop, kag, auto, skip, canauto, canskip, ss, modal, cr) {
+		prop.checkToggleChanged("hold", "iconHold", hold);
+	}
+
+	var _iconList = SystemConfig.iconFaderList;
+	var kag, _enter, _fade;
+	function setOne(names, opac, ds*) {
+		var dsopac = (int)+sf.windowOpac;
+		for (var i  = _iconList.count-1; i >= 0; i--) {
+			var tag = _iconList[i];
+			if (names[tag] !== void) {
+				names[tag].opacity = ds[i] ? dsopac : opac;
+			}
+		}
+	}
+	function set(*) {
+		try { setOne(kag.fore.messages[0].buttons, *); } catch {}
+		try { setOne(kag.back.messages[0].buttons, *); } catch {}
+	}
+	function update(opac = _fade) {
+		set(opac); //, kag.autoMode, !!kag.skipMode);
+	}
+	property fade {
+		getter { return _fade; }
+		setter(v) {
+			v = (int)+v;
+			var upd = (_fade !== v);
+			_fade = v;
+			update() if (upd);
+		}
+	}
+	function setEnter(ent) {
+		if (_enter !== ent) {
+			_enter  =  ent;
+			var cur = _fade, val = ent ? 255 : hold ? (int)+sf.windowOpac : 0;
+			kag.stopAction(this);
+			_fade = void;
+			if (cur === void || val === cur) {
+				fade = val;
+			} else {
+				kag.beginAction(this, %[ fade:%[ handler:MoveAction, start:(fade = cur), value:val, time:200 ] ],, true);
+			}
+		}
+	}
+	function checkEnter() {
+		var lay = kag.fore.messages[0].buttons.attention;
+		if (lay !== void) with (lay) {
+			var cx = .cursorX, cy = .cursorY, enter = false;
+			if (cx >= 0 && cy >= 0 && cx < .width && cy < .height) {
+				enter = .getMaskPixel(cx, cy) > 0;
+			}
+			setEnter(enter);
+		}
+	}
+	function onMouseMove(x, y) {
+		checkEnter() if (inGameState(kag) && kag.current === kag.fore.messages[0]);
+	}
+	function reset() {
+		_enter = _fade = void;
+		checkEnter() if (inGameState(kag));
+	}
+}
+addAfterInitCallback(function() {
+	kag.iconFader = new IconAutoFader(kag);
+	if (sf.windowOpac === void)
+		sf.windowOpac = 255;
+} incontextof global);
+property MessageFrameOpac {
+	getter {
+		return (int)+sf.windowOpac;
+	}
+	setter(v) {
+		v = (int)+v;
+		if (v < 0) v = 0;
+		else if (v > 255) v = 255;
+		sf.windowOpac = v;
+		ResetMessageFrameVisible() if (inGameState(kag) && kag.current === kag.fore.messages[0]);
+	}
+}
+function onMessageFrameOpacChanged(pos) {
+	MessageFrameOpac = pos;
+}
+function ToggleSysButtonHold {
+	try {
+		with (kag.iconFader) .hold = !.hold;
+	} catch {}
+}
+
+//--------------------------------------------------------------
+// バックログ
+
+KAGLoadScript("backlog.tjs");
+class        CustomBacklog extends BacklogBase {
+	function CustomBacklog { super.BacklogBase(...);
+		with (_render) {
+			//...
+		}
+		renderAutoIndent = _snapshotEnabled ? kag.autoIndent : 0;
+	}
+	function finalize { super.finalize(...); }
+
+	var textRect, nameRect;
+	var renderAutoIndent;
+	function setup(elm, ui) {
+		textRect = uiloadGetRect("scroll.text", ui);
+		with      (uiloadGetRect("scroll.block", ui)) blockHeight = blockStep = .h;
+		with      (uiloadGetRect("scroll.name", ui)) nameRect = %[
+			/**/x:.ox, y:.oy, w:.w, h:.h, halign:-1, valign:0, maxline:1, drawtext:internalDrawText3 ];
+		super.setup(...);
+	}
+	function drawTextBlock(lay, info) {
+		with (lay) {
+			//.fillRect(0, 0, .width, .height, 0x80FFFFFF);
+			//putStamp(lay, gFrame);
+			var face = lay.font.face = kag.chDefaultFace, name;
+			var col  = lay.window.getCurrentMessageColor(true, info.name == "" ? "" : info.name); //_render.defaultChColor;
+
+			var fsz = _render.defaultFontSize, rsz = 0; //_render.defaultRubySize;
+			if (info.name != "") name = ((string)(info.disp != "" ? info.disp : info.name)).trim();
+
+			var text = (string)(info.text);
+			var indent = (text.indexOf("%@") == 0);
+
+			with (textRect) {
+				lay.drawTextOwner = this;
+				lay.drawTextOrig  = internalDrawText2 incontextof lay;
+				lay.drawText <-> lay.drawTextOrig;
+				try {
+					_render.defaultChColor = col;
+					_render.draw(lay, .ox-(indent?fsz:0), .oy+rsz, .w+(indent?fsz:0), .h, text, renderAutoIndent);
+				} catch (e) {
+					lay.drawText <-> lay.drawTextOrig;
+					throw e;
+				}
+				lay.drawText <-> lay.drawTextOrig;
+			}
+			if (name != "") with (nameRect) {
+				.fontface   = face;
+				.fontheight = fsz;
+				.color      = col;
+				//putStamp(lay, gName);
+				drawTextKinsokuRect(lay, name, nameRect);
+			}
+		}
+	}
+	function internalDrawText(layer, dt, x,y,text,col) {
+		with (_render)
+			EdgeShadowDrawText( dt, layer, x, y, text, col, 255, .antialiased,
+								.defaultShadow, .shadowColor, .shadowWidth, .shadowOffsetX, .shadowOffsetY,
+								.defaultEdge,   .edgeColor,   .edgeEmphasis, .edgeExtent);
+	}
+	function internalDrawText2(       x,y,text,col) { drawTextOwner.internalDrawText(this,  drawTextOrig,   x, y, text, col); }
+	function internalDrawText3(layer, x,y,text,col) {               internalDrawText(layer, layer.drawText, x, y, text, col); }
+
+	function putStamp(lay, info) {
+		if (info === void || info.lay === void) return;
+		with (info) lay.operateRect(.x, .y, .lay, 0, 0, .lay.width, .lay.height);
+	}
+
+	var _sliderFirstPos;
+	function onSliderChanged(pos, drag) {
+		if (!canScroll || _sliderUpdating) return;
+		if (_sliderFirstPos === void) _sliderFirstPos = scroll;
+		if (drag) return super.onSliderChanged(...);
+		fixSliderScroll(pos, _sliderFirstPos !== void ? pos-_sliderFirstPos : void);
+		_sliderFirstPos = void;
+	}
+	function doWheelScroll(delta) {
+		var pos = getScrollActionTargetPos() - (delta*blockStep/120);
+		fixSliderScroll(pos, -delta);
+	}
+	function fixSliderScroll(pos, dir) {
+		var from = getScrollActionTargetPos(); //scroll;
+		var to = ((int)Math.round(pos/blockStep)) * blockStep;
+		if      (dir < 0 && pos < to) to -= blockStep;
+		else if (dir > 0 && pos > to) to += blockStep;
+		if (to < scrollMin) to = scrollMin;
+		else if (to > scrollMax) to = scrollMax;
+		//dm("fixSliderScroll", dir, pos, to);
+		if (from != to) {
+			updateSliderPos(from);
+			startScrollAction(from, to, getScrollTime(to-from));
+		}
+	}
+}
+Dialog.add(%[ name:"backlog", start:CustomBacklog, storage:"backlog" ]);
+
+
+//--------------------------------------------------------------
+// 設定画面
+
+with (SystemConfig) {
+	var yn = function (exp) { return exp ? "true" : "false"; };
+	//                   tag             default
+	createPropertyProxy("askQSave",     yn(._askQSave),     /*scflags*/, "!!", SystemConfig);
+	createPropertyProxy("askQLoad",     yn(._askQLoad),     /*scflags*/, "!!", SystemConfig);
+	createPropertyProxy("askSave",      yn(._askSave),      /*scflags*/, "!!", SystemConfig);
+	createPropertyProxy("askLoad",      yn(._askLoad),      /*scflags*/, "!!", SystemConfig);
+	createPropertyProxy("askOverwrite", yn(._askOverwrite), /*scflags*/, "!!", SystemConfig);
+	createPropertyProxy("askMove",      yn(._askMove),      /*scflags*/, "!!", SystemConfig);
+	createPropertyProxy("askCopy",      yn(._askCopy),      /*scflags*/, "!!", SystemConfig);
+	createPropertyProxy("askDelete",    yn(._askDelete),    /*scflags*/, "!!", SystemConfig);
+
+	createPropertyProxy("rclickBind", "'hide'", /*scflags*/, "(string)", SystemConfig);
+}
+
+OptionBase.voiceNames = SystemConfig.defaultVoiceNames;
+class CustomOption extends OptionBase {
+	var testvoice;
+	function CustomOption {
+		super.OptionBase(...);
+		_page = (int)+sf.systemPage;
+
+		addCheckItem("bgmDown", "bgmdown", "_bgmDown");
+
+		addUpdate("updateHideMouseCursor", updateHideMouseCursor);
+		addUpdate("updateShortCutKey", updateShortCutKey);
+//		addUpdate("updateFontType", updateFontType);
+		addUpdate("updateRclickBind", updateRclickBind);
+		addUpdate("updateFinishType", updateFinishType);
+		addUpdate("updateBgmDownVolume", updateBgmDownVolume);
+
+		testvoice = new VoiceTrack(this);
+		testvoice.voiceName = "";
+
+		initSpeedSample();
+	}
+	function finalize() {
+		termSpeedSample();
+		invalidate testvoice if (testvoice !== void);
+		_setBgmDown(false);
+		super.finalize(...);
+	}
+	function onUiload(elm) {
+		elm.partremove = "remove";
+	}
+
+	var _initTag;
+	function initialEnvironment() {
+		Debug.message("*** init", _initTag);
+		global.initialEnvironment(false, _initTag);
+		stopSampleVoice();
+	}
+	function init(tag) {
+		_initTag = tag;
+		setDefault(true, true);
+	}
+
+	var pagetabs = [ "sys", "snd" ];
+	property storage { getter { return "opt_"+pagetabs[page]; } }
+	var _page;
+	property page {
+		getter { return (int)+_page; }
+		setter(v) {
+			var n = (int)v, cnt = pagetabs.count;
+			while (n < 0) n += cnt;
+			n = n % cnt;
+			sf.systemPage = _page = n;
+		}
+	}
+	function onUiloaded(elm, ui) {
+		var names = kag.current.names;
+		if (names["page"+page] !== void)
+			names["page"+page].toggle = true;
+
+		setupShortcutUI(ui);
+	}
+
+	//------------------------------
+	// ミュートボタン対応
+
+	function addOnOffItem(tag, name, offname, getprop, setprop) {
+		switch (name) {
+		case "wave": case "bgm": case "se": case "sysse": case "voice":
+			return addCheckItem(tag, name+"mute", getprop, setprop, true);
+		}
+		return super.addOnOffItem(...);
+	}
+
+	//------------------------------
+	// ボイスBGMダウン
+	property _bgmDown  { setter(v) { kag.bgmdown = !!v; updateBgmDownVolume();  } getter { return !!kag.bgmdown;  } }
+	var _ignoreBgmSlider;
+	function updateBgmVolume { _ignoreBgmSlider = true; super.updateBgmVolume(...); updateBgmDownVolume(); }
+	function updateBgmDownVolume() {
+		_ignoreBgmSlider = true;
+		updateVolume("downvolume",  (int)(kag.bgmdownlevel * kag.bgmvolume / 100), _bgmDown);
+		_ignoreBgmSlider = false;
+	}
+	function onBgmDownChanged  (pos, drag) {
+		if (_ignoreBgmSlider) return;
+		var bgm = kag.bgmvolume, bgmupd = false;
+		if (pos > bgm) {
+			bgm = kag.bgmvolume = pos;
+			bgmupd = true;
+		}
+		kag.bgmdownlevel = bgm > 0 ? (pos * 100 / bgm) : 0;
+//		kag.bgmdown = kag.bgmdownlevel < 100;
+		if (bgmupd) updateBgmVolume();
+		else updateBgmDownVolume();
+	}
+	function onBgmVolumeChanged(pos, drag) {
+		if (_ignoreBgmSlider) return;
+		kag.bgmvolume = pos;
+		updateBgmVolume();
+	}
+
+	//------------------------------
+	// 中／外選択
+	function updateFinishType {
+		var type = (int)+sf.hseltype;
+		var tag = type < 0 ? "in" : type > 0 ? "out" : "sel";
+		setItemProp("finish_"+tag, "toggle", true);
+	}
+	function setFinish(sel) {
+		sf.hseltype = (int)+sel;
+	}
+
+	//------------------------------
+	// 個別ボイス設定
+
+	function updateVoice() {
+		for (var i = _voiceNames.count-1; i >= 0; i--)
+			updateVoiceOne(i);
+	}
+	function updateVoiceOne(i) {
+		i = (int)+i;
+		var name = _voiceNames[i];
+		var en = kag.getVoiceOn(name);
+		var vol = kag.getVoiceVolume(name, true);
+		var tag = "ch"+i;
+		setItemProp(tag+"mute", "toggle", !en);
+		updateVolume(tag+"volume", vol,  !!en);
+	}
+	var ignoreChVoiceChange;
+	function changeChVoiceVol(pos, drag, num) {
+		if (ignoreChVoiceChange) return;
+		var name = _voiceNames[(int)+num];
+		kag.setVoiceVolume(name, pos);
+		if (drag) resetSampleVoiceVolume(name);
+		else      playSampleVoice(name);
+	}
+	function testVoice(num) {
+		playSampleVoice(_voiceNames[(int)+num]);
+	}
+	function setChVoice(num,on) {
+		var name = _voiceNames[(int)+num];
+		if (on == "toggle") {
+			on = !kag.getVoiceOn(name);
+		}
+		kag.setVoiceOn(name, !!on);
+		updateVoiceOne(num);
+		resetSampleVoiceVolume(name);
+	}
+
+	function updateVolume(name, value, enable, rad) {
+		ignoreChVoiceChange = true;
+		setItemProp(name, "position", value);
+		ignoreChVoiceChange = false;
+		if (enable !== void) {
+			setItemEnabled(name, enable);
+//			setItemEnabled(name+"_dw", enable);
+//			setItemEnabled(name+"_up", enable);
+		}
+	}
+	function setItemEnabled(name, en) {
+		setItemProp(name, "enabled",  en);
+		setItemProp(name, "opacity",  en ? 255:128);
+	}
+
+	//------------------------------
+	// サンプルボイス
+
+	function onStartVoice()      { _setBgmDown(true); }
+	function onStartVoiceLabel() {}
+	function onStopVoice()       { _setBgmDown(false); }
+	function onStopVoiceLabel()  {}
+	function onLabelVoice()      {}
+	function _setBgmDown(en) {
+		try { world_object.env.setBGMDown(en); } catch {}
+	}
+
+	function playSampleVoice(name) {
+		playVoice("voicetest."+name, name);
+	}
+	function playVoice(tag, name) {
+		if (!_voiceEnable) return;
+		var se = getSysSE(tag);
+		if (se === void || se.storage == "") return;
+
+		var orig = se.storage;
+		/**/se = getRandomSE(%[ array:se.storage.split(" ",, true) ]);
+		if (se === void || se.storage == "") {
+			kag.errorSound("サンプルボイスが見つかりませんでした:"+orig);
+			return;
+		}
+
+		if (testvoice !== void) with (testvoice) {
+			.voiceName = name;
+			.volume2 = kag.getVoiceVolume(name) * 1000;
+			.open(se.storage + ".ogg");
+			.play();
+		}
+	}
+	function stopSampleVoice() {
+		testvoice.stop() if (testvoice !== void);
+	}
+	function resetSampleVoiceVolume(name) {
+		if (testvoice !== void) with (testvoice) {
+			name = .voiceName if (name == "");
+			if (name == testvoice.voiceName) {
+				if (kag.getVoiceOn(name)) {
+					.volume2 = kag.getVoiceVolume(name) * 1000;
+				} else {
+					stopSampleVoice();
+				}
+			}
+		}
+	}
+	function changeVoiceVolume(pos, drag) {
+		if (ignoreChVoiceChange) return;
+		kag.voicevolume = pos;
+		if (drag) resetSampleVoiceVolume();
+		else {
+			testRandomVoice();
+		}
+	}
+	function testRandomVoice() {
+		var list = [];
+		for (var i = 0; i < _voiceNames.count; i++)
+			list.add(_voiceNames[i]) if (kag.getVoiceOn(_voiceNames[i]));
+		if (list.count > 0) {
+			var rnd = list[(int)(defaultRandomGenerator.random() * list.count)];
+			playSampleVoice(rnd);
+		}
+	}
+
+	property _voiceEnable {
+		getter { return super._voiceEnable; }
+		setter(v) { super._voiceEnable = v; if (!v) stopSampleVoice(); }
+	}
+
+
+	//------------------------------
+	// マウスカーソル自動消去
+
+	function updateHideMouseCursor {
+		var hide = hideMouseCursor;
+		setItemProp("curhide_" +(hide ? hide : "none"), "toggle", true);
+	}
+	property hideMouseCursor {
+		getter { return (int)+kag.scflags.hideMouseCursorTime; }
+		setter(v) {           kag.scflags.hideMouseCursorTime = (int)+v;
+			try { kag.updateHideMouseCursorTimer(); } catch {}
+		}
+	}
+
+	//------------------------------
+	// フォントタイプ選択
+	function updateFontType {
+		var type = getFontType();
+		setItemProp("font_default", "toggle", false);
+		setItemProp("font_gothic",  "toggle", false);
+		setItemProp("font_mincho",  "toggle", false);
+		setItemProp("font_"+type,   "toggle", true) if (type != "");
+	}
+	var _fontGothic = "HGｺﾞｼｯｸE,ＭＳ ゴシック";
+	var _fontMincho = "HG明朝E,ＭＳ 明朝";
+	var _fontTypeMap = %[
+		MessageDefaultFontFace => "default",
+		_fontGothic     => "gothic",
+		"HGｺﾞｼｯｸE"      => "gothic",
+		"ＭＳ ゴシック" => "gothic",
+		_fontMincho     => "mincho",
+		"HG明朝E"       => "mincho",
+		"ＭＳ 明朝"     => "mincho",
+		];
+	function getFontType() {
+		var face = currentFont;
+		return (face != "" && _fontTypeMap[face] != "") ? _fontTypeMap[face] : void;
+	}
+	function setFont(type) {
+		switch (type) {
+		case "default": currentFont = MessageDefaultFontFace; break;
+		case "gothic":  currentFont = _fontGothic; break;
+		case "mincho":  currentFont = _fontMincho; break;
+		}
+		kag.setMessageLayerUserFont();
+	}
+
+	//------------------------------
+	// ショートカットキー割り当て
+
+	function isShortCutPage { return page == 0; }
+	var _shortCutItem;
+	function setupShortcutUI(ui) {
+		_shortCutItem = (isShortCutPage() && ui.sc !== void) ? ui.sc : void;
+	}
+	function updateShortCutKey() { for (var i = 0; i < 12; i++) updateShortCutKeyOne(i); }
+	function updateShortCutKeyOne(num) {
+		if (_shortCutItem === void) return;
+		if (typeof num == "Object") num = int(+num.num);
+		var bind = kagCustomizedKeys[VK_F1 + num];
+		if (bind == "") return;
+		var btn = kag.current.names["sc" + num];
+		if (btn !== void) {
+			btn.loadUIInfo(_shortCutItem);
+			btn._copyButtonUIStates(0, _shortCutItem, void, "nm_"+bind);
+			btn._copyButtonUIStates(1, _shortCutItem, void, "on_"+bind);
+			btn._copyButtonUIStates(2, _shortCutItem, void, "ov_"+bind);
+		}
+	}
+	function bindShortCut(elm) {
+		var num = (int)+elm.num;
+		var ox = 0, oy = 0;
+		var btn = kag.current.names["sc" + num];
+		if (btn !== void && _shortCutItem !== void) with (_shortCutItem) {
+			ox = btn.left - .x;
+			oy = btn.top  - .y;
+		}
+		var bind = kagCustomizedKeys[VK_F1 + num];
+		kag.insertTag("panel", %[ "class" => "ShortCutPulldownPanel", _ox:ox, _oy:oy, _index:num, _bind:bind ]);
+	}
+
+	//------------------------------
+	// 右クリック割り当て
+
+	function updateRclickBind {
+		var bind = SystemConfig.rclickBind;
+		setItemProp("rc_"+bind, "toggle", true) if (bind != "");
+	}
+
+	//==============================
+	// サンプル表示
+	var textSpeedSample1 = "テキストスピードとオートスピードのサンプル速度表示です\nおたマ！～おたく仲間はちっこいマニア～";
+	var textSpeedSample2 = "おたマ！～おたく仲間はちっこいマニア～\nテキストスピードとオートスピードのサンプル速度表示です";
+	property speedSampleLayer { getter { try { return kag.current.names.speedsample; } catch {} } }
+	function getSampleColor(tag) { return 0x000000; }
+	function getSampleOffset() { return %[ ox:0, oy:0 ]; }
+	function getSampleDrawOption(mes) {
+		with (mes) return [ 255, .antialiased ]; //,
+		//.defaultShadow, .shadowColor, .shadowWidth, .shadowOffsetX, .shadowOffsetY,
+		//.defaultEdge,   .edgeColor,   .edgeEmphasis, .edgeExtent ];
+	}
+	function setSampleOverride(elm) {
+		with (elm) {
+			.fontheight = 16;
+			.linestep = 18;
+		}
+		return elm;
+	}
+	//------------------------------
+	function  updateFontSelect() {
+		super.updateFontSelect(...);
+		updateTextSample();
+		updateFontType(); // [XXX]
+	}
+
+	function changeTextSpeed(pos, drag) { kag.textspeed = pos; updateTextSample() if (!drag); }
+	function changeAutoSpeed(pos, drag) { kag.autospeed = pos; updateTextSample() if (!drag); }
+//	function updateTextSpeed() { updateVolume("textspeed", kag.textspeed, void, _ts); }
+//	function updateAutoSpeed() { updateVolume("autospeed", kag.autospeed, void, _as); }
+
+	var timer;
+	var currentSpeedSample, currentSpeedSampleSelect, currentSpeedSamplePos;
+	var lastSpeedSampleText;
+	function initSpeedSample() {
+		timer = new Timer(this, "onSpeedSampleTimer");
+		with (timer) {
+			.capacity = 1;
+			.enabled = false;
+			.interval = 1000;
+			.mode = atmAtIdle;
+		}
+	}
+	function termSpeedSample() {
+		invalidate timer if (timer);
+	}
+	function onSpeedSampleTimer() {
+		if (!isvalid this || !isvalid kag || timer === void) return;
+		timer.enabled = false;
+
+		var next = 0, text, page, line, speed;
+		with (kag) page = .autoModePageWait, line = .autoModeLineWait, speed = .userChSpeed;
+		if (!page && !line && !speed) {
+			drawSpeedSample(currentSpeedSample = textSpeedSample1);
+			return;
+		} else do {
+			var current = currentSpeedSampleSelect ? textSpeedSample2 : textSpeedSample1;
+			if (currentSpeedSamplePos >= current.length) {
+				// 改ページ
+				text = currentSpeedSample;
+				resetSpeedSample(!currentSpeedSampleSelect);
+				next = page;
+			} else {
+				var ch = current.charAt(currentSpeedSamplePos++);
+				currentSpeedSample += ch;
+				text = currentSpeedSample;
+				next = (ch == "\n") ? line : speed;
+			}
+		} while (!next);
+		with (timer) .interval=next, .enabled=true;
+		drawSpeedSample(text);
+	}
+	function updateTextSample() {
+		timer.enabled = false if (timer !== void);
+		if (speedSampleLayer !== void) {
+			var vis = !sf.disableShowTextSample;
+			speedSampleLayer.visible = vis;
+			if (vis) {
+				lastSpeedSampleText = void;
+				resetSpeedSample();
+				drawSpeedSample();
+				onSpeedSampleTimer();
+			}
+		}
+	}
+	function resetSpeedSample(sel) {
+		currentSpeedSample = "";
+		currentSpeedSamplePos = 0;
+		currentSpeedSampleSelect = !!sel;
+	}
+	function drawSpeedSample(text) {
+		var lay = speedSampleLayer;
+		if (lay !== void) {
+			lastSpeedSampleText = text;
+			with (getSampleOffset()) drawSampleText(lay, true, .ox, .oy, text, getSampleColor());
+		}
+		else if (timer !== void) timer.enabled = false;
+	}
+	function redrawSpeedSample { drawSpeedSample(lastSpeedSampleText); }
+
+	function drawSampleText(lay, clear, ox, oy, text, col) {
+		if (lay !== void) with (lay) {
+			.fillRect(0, 0, .width, .height, 0) if (clear);
+			if (text == "") return;
+			drawTextKinsokuRect(lay, text, setSampleOverride(%[
+				/**/x:ox, y:oy, w:.width-ox, h:.height-oy, drawtext:this.internalDrawSampleText,
+				/**/color:col, fontface:kag.chDefaultFace ]));
+		}
+	}
+	function internalDrawSampleText(layer, x,y,text,col) {
+		var mes = kag.fore.messages[0];
+		with (mes) {
+			if (col < 0) col = .chColor;
+			var opt = getSampleDrawOption(mes);
+			if (opt === void) opt = [];
+			EdgeShadowDrawText( layer.drawText, layer, x, y, text, col, opt*);
+		}
+	}
+}
+Dialog.add(%[ name:"option", start:CustomOption ]);
+SystemHook.add("option.close.init", function() {
+//	resetModeChanged();
+	redrawMessageText();
+	kag.setMenuAccessibleAll();
+} incontextof global);
+
+
+//------------------------------
+// マウスカーソル消去
+KAGWindow.setMouseCursorTempHidden = function {
+	try {
+		hideMouseCursorTimer.enabled = false;
+		mouseCursorState = mcsTempHidden;
+	} catch {}
+} incontextof null;
+KAGWindow.updateHideMouseCursorTimer = function {
+	var time = (int)+kag.scflags.hideMouseCursorTime;
+	if (time > 0) {
+		if (typeof this.hideMouseCursorTimer != "Object") {
+			var t= this.hideMouseCursorTimer = new Timer(this, "setMouseCursorTempHidden");
+			with (t) {
+				.enabled = false;
+				.capacity = 1;
+				.mode = atmAtIdle;
+			}
+			add(t);
+		}
+		var timer = this.hideMouseCursorTimer;
+		with (timer) {
+			.enabled = false;
+			.interval = time * 1000;
+			.enabled = true;
+		}
+	} else {
+		if (typeof this.hideMouseCursorTimer == "Object") {
+			/**/   this.hideMouseCursorTimer.enabled = false;
+		}
+	}
+} incontextof null;
+addKagHookCallback("mouseMove", function { updateHideMouseCursorTimer(); }, true);
+
+
+//------------------------------
+// ショートカットキー割り当て
+class        ShortCutPulldownPanel                 extends PanelLayer {
+	function ShortCutPulldownPanel(win, name, elm) { super.PanelLayer(...);
+		vkIndex = elm._index;
+		uiload( %[ storage:"opt_sys_scmenu", opacity:0, bgcolor:0, baseoffsetx:elm._ox, baseoffsety:elm._oy ]);
+		var bind = elm._bind;
+		if (bind != "" && names[bind] !== void) names[bind].toggle = true;
+	}
+	var vkIndex;
+	function finalize { super.finalize(...); }
+	function processLink(n)	{
+		// リンク番号 n を処理する
+		var ln = links[n];
+		if(ln !== void && ln.object !== void) with (ln.object) {
+			if (.name != "") {
+				var list = kag.scflags.ShortCutKeyBinds;
+				if (list === void)
+					list = resetShortcutKeys();
+				list[+vkIndex] = .name;
+				rebindShortcutKeys(list);
+				playSysSE("pulldown.ok");
+				close(true);
+				return;
+			}
+		}
+		return super.processLink(...);
+	}
+	function onMouseUp(x,y) {
+		super.onMouseUp(...);
+		var close = (x < baseleft || y < basetop || x >= baseleft+basewidth || y >= basetop+baseheight);
+		if (!close && !getMaskPixel(x, y)) close = true;
+		if (close) this.close();
+	}
+	function close(nose) {
+		if (_closed) return;
+		_closed = true;
+		enabled = false;
+		if (!nose) playSysSE("pulldown.cancel");
+		kag.process("custom.ks", "*shortcut_done");
+	}
+}
+function rebindShortcutKeys(bind = kag.scflags.ShortCutKeyBinds) {
+	if (bind === void)      bind = SystemConfig.defaultKeyBinds;
+	if (!bind || typeof bind != "Object" || !(bind instanceof "Array")) return;
+	var k = kagCustomizedKeys;
+	for (var i = 0; i < 12; i++) k[VK_F1 + i] = bind[i];
+	resetCaptionFunctionKeys(kag);
+}
+function resetShortcutKeys(rebind) {
+	var list = kag.scflags.ShortCutKeyBinds = [];
+	list.assign(SystemConfig.defaultKeyBinds);
+	rebindShortcutKeys(list) if (rebind);
+	return list;
+}
+addAfterInitCallback(function() {
+	// ショートカットキー初期化
+	if (kag.scflags.ShortCutKeyBinds !== void) rebindShortcutKeys();
+	else resetShortcutKeys();
+} incontextof global);
+{
+	var kb = kagCustomizedKeys;
+	var def = SystemConfig.defaultKeyBinds;
+	for (var i = 0; i < 12; i++) kb[VK_F1 + i] = def[i];
+}
+
+//------------------------------
+// 右クリック割り当て
+
+SystemActionBase._hide_ = function () {
+	kag.switchMessageLayerHiddenByUser(true);
+} incontextof null;
+addAfterInitCallback(function() {
+	objectHookInjection(%[ target:kag, method:"switchMessageLayerHiddenByUser", func:function (orig, noHook) {
+		var bind = SystemConfig.rclickBind;
+		if (noHook || bind == "" || bind == "hide") return orig();
+		if (typeof SystemAction[bind] == "Object") {
+			/**/   SystemAction[bind]();
+		}
+	} ]);
+} incontextof global);
+
+
+//--------------------------------------------------------------
+// セーブロード
+
+class        CustomSaveDataButton extends SaveDataButton {
+	function CustomSaveDataButton { super.SaveDataButton(...); }
+	function finalize { super.finalize(...); }
+	function clearNormalItem(target, num) {
+		if (_owner.isQuickData(num)) {
+			_owner.clearQuickData(target, true);
+		} else super.clearNormalItem(...);
+	}
+	function drawDisabledItem(target, num) {
+		if (_owner.isQuickData(num)) {
+			_owner.clearQuickData(target, false);
+		} else super.drawDisabledItem(...);
+	}
+	var _thumbQuick;
+	function thumbMerge(target) {
+		var omx = _mx, omy = _my;
+		if (_thumbQuick) {
+			var ofs = _owner.getQuickDataThumbPos();
+			if (ofs) {
+				_mx = ofs.ox;
+				_my = ofs.oy;
+			}
+		}
+		var r = super.thumbMerge(...);
+		_mx = omx, _my = omy;
+		return r;
+	}
+	function drawNormalItem(target, num, redraw = false) {
+		_thumbQuick = _owner.isQuickData(num);
+		return super.drawNormalItem(...);
+	}
+}
+class CustomSaveLoad extends SaveLoadBase {
+	function CustomSaveLoad(elmov) {
+		var elm = %[
+		itemname:		"item0",   // ボタンレイヤ名
+		mask:			"thumb",    // 　マスク状態名
+		disabled:		"normal",     // 　無効状態名
+		rows:			1,
+		columns:		12+1,
+		pagecount:		10,
+		ringpage:		true,
+			];
+		(.Dictionary.assign incontextof elm)(elmov, false);
+		super.SaveLoadBase(CustomSaveDataButton, elm);
+		qsvnum = SystemAction.qsaveBookmarkNumber;
+	}
+	function finalize() {
+		super.finalize(...);
+	}
+	function onSelect(num) {
+		_lastSelect = num;
+		if (_iscopy != "") return onCopyMoveSelect(num);
+		with (SystemConfig) {
+			var mes = _message, ask = .askLoad;
+			if (_issave) {
+				ask = .askOverwrite;
+				if (!isExistData(num)) {
+					ask = .askSave;
+					mes = "AskSave";
+				}
+			}
+			if (ask) askYesNo(mes, "確認", _action, void, num);
+			else _action(num);
+		}
+	}
+	function updateItemProperty(target, result) {
+		var r = super.updateItemProperty(...);
+		with (target) if (.toggleButton && .groupName == "") .toggleButton = -1;
+		return r;
+	}
+
+
+	function drawItem(target, info, btn, num) {
+		var ui = isQuickData(num) ? _qsui : _view._uiNormal;
+		drawItemOne(target, info, ui);
+		if (target) with (target) {
+			.toggle = false;
+			._copyButtonUIStates(1, ui, void, "cursor");
+			._copyButtonUIStates(2, ui, void, "cursor");
+			. copyRect(.width*3, 0, target, 0, 0, .width*3, .height);
+			._copyButtonUIStates(3, ui, void, "cursor");
+		}
+		return getProtectItemEnabled(num);
+	}
+	function drawItemOne(target, info, ui) {
+		if (target === void) return;
+
+		if (info !== void) {
+			if (info.lastsaved) showNewIcon(target);
+			var fh = 16, face = global.SystemDefaultFontFace;
+			var param = [
+				255, true,
+				/*shadow*/false, 0x000000, 0, 0, 0,
+				/*edge*/  true,  0xFFFFFF, 2048, 1 ];
+			var elm = %[ color:0x000000, maxline:1, fontface:face, fontheight:fh, param:param ];
+			var mg = function (a, b) {
+				var r = %[];
+				(Dictionary.assignStruct incontextof r)(a);
+				(Dictionary.assign       incontextof r)(b, false);
+				return r;
+			} incontextof global;
+			var comment = info.comment != "" ? info.comment : info.lastText;
+			drawItemText(target, info.realdate, ui, "date",    mg(elm, %[ halign:0 ])); //mg(elm, %[ fontface:"ＭＳ ゴシック", /*param:param*/ ]));
+			drawItemText(target, comment,       ui, "text",    mg(elm, %[ maxline:3, linestep:fh+4 ]));
+		}
+	}
+	function drawItemText(lay, text, ui, pos, elmov) {
+		var elm, max = 3;
+		if (ui !== void && ui.uistates[pos] !== void) {
+			with (ui.uistates[pos]) elm = %[ x:.ox, y:.oy, w:.w, h:.h ];
+		} else if (typeof lay[pos] == "Object") with (lay = lay[pos]) {
+			// [XXX] for QLoadPopup
+			max = 1;
+			elm = %[ x:0, y:0, w:.width, h:.height ];
+			.fillRect(0, 0, .width, .height, 0);
+		} else {
+			dm("*** internal error: layer not found:"+pos);
+			return;
+		}
+		(Dictionary.assign incontextof elm)(elmov, false);
+		for (var i = 0; i < max; i++, elm.x += lay.width) {
+			EdgeShadowDrawTextKinsokuRect(void, lay, text, elm);
+		}
+	}
+	var ncox, ncoy;
+	function showNewIcon(target, names = kag.current.names) {
+		var newicon = names.new;
+		if (newicon !== void) with (newicon) {
+			.setPos(target.left + ncox, target.top + ncoy) if (target);
+			.visible = !!target;
+		}
+		if (target === null) sf.lastsaved = void;
+	}
+
+	function  initConfirms { askYesNo("初期化してよろしいですか？", "確認", _initConfirms); }
+	function _initConfirms {
+		initialEnvironment(false, "svld");
+		updateConfirmToggle();
+	}
+	var _confirms = [
+		"askQSave",
+		"askQLoad",
+		"askSave",
+		"askLoad",
+		"askOverwrite",
+		"askMove",
+		"askCopy",
+		"askDelete" ];
+	function updateConfirmToggle() {
+		var names = kag.current.names;
+		for (var i =  _confirms.count-1; i >= 0; i--) {
+			var tag = _confirms[i], chk;
+			if (tag != "" && (chk=names[tag.toLowerCase()]) !== void) {
+				chk.toggle = SystemConfig[tag];
+			}
+		}
+	}
+	function toggleConfirm(tag) {
+		SystemConfig[tag] = !SystemConfig[tag];
+		updateConfirmToggle();
+	}
+
+
+	var qsvnum;
+	function getDataNumber(num) {
+		num = (int)+num;
+		return (num % _rowcol == (_rowcol-1)) ? qsvnum : (num - (num \ _rowcol));
+		}
+	function isQuickData(num) {
+		num = (int)+num;
+		return (num % _rowcol == (_rowcol-1));
+	}
+	function clearQuickData(lay, en) {
+		lay.loadUIInfo(_qsui) if (lay && _qsui);
+	}
+	var _qsui;
+	function onUiload(elm) {
+		elm.partremove = _issave ? "rm_save" : "rm_load";
+		elm.func = "saveload";
+	}
+	function onUiloaded(elm, ui) {
+		_qsui = ui.qdata;
+		var tab = kag.current.names[_issave ? "to_save" : "to_load"];
+		if (tab) tab.toggle = true;
+
+		with (uiloadGetRect("new",   ui)) ncox =.x, ncoy =.y;
+		with (uiloadGetRect("item0", ui)) ncox-=.x, ncoy-=.y;
+
+		updateConfirmToggle();
+
+		return super.onUiloaded(...);
+	}
+	function getQuickDataThumbPos() {
+		return _qsui ? _qsui.uistates.thumb : void;
+	}
+
+	//------------------------------
+	// データ操作
+
+	function onDelete(num) {
+		var info = getItemInfo(num);
+		if (info !== void && info.lastsaved) showNewIcon(null);
+		var r = super.onDelete(...);
+		forceUpdateEditButton(); //[XXX]
+		clearCopyMode(false);
+		drawCopyModeState();
+		return r;
+	}
+	function onCopyMoveSelect(num) {
+		var msg, action, cf;
+		if (_iscopy == "remove") {
+			if (SystemConfig.askDelete) askYesNo("AskDelete", "確認", onDelete, void, num);
+			else onDelete(num);
+			return;
+		}
+		if (_copysrc === void) {
+			_copysrc = num;
+			update(true);
+			return;
+		}
+		switch (_iscopy) {
+		case "copy": msg = "AskCopy"; action = saveDataCopy; cf = "askCopy"; break;
+		case "move": msg = "AskMove"; action = saveDataMove; cf = "askMove"; break;
+		}
+		var exist = isExistData(num), ovr = "AskOverwrite";
+		if (SystemConfig[cf])          askYesNo(exist ? ovr : msg, "確認", action, void, num);
+		else if (exist && SystemConfig.askOverwrite) askYesNo(ovr, "確認", action, void, num);
+		else action(num);
+	}
+	function drawCopyModeState() {
+		var en = (_iscopy != "");
+		if (en) {
+			// TODO...
+			if (_copysrc !== void) {
+				var target = getItemTarget(_copysrc);
+				if (target !== void)
+					target.toggle = true;
+			}
+		}
+		with (kag.current.names) {
+			.copy.toggle   = (_iscopy == "copy");
+			.move.toggle   = (_iscopy == "move");
+			.remove.toggle = (_iscopy == "remove");
+		}
+	}
+	function saveDataCopy(num) { onCopyMove(num, Storages.copyFile); }
+	function saveDataMove(num) { onCopyMove(num, Storages.moveFile); }
+	function onCopyMove(dstnum, opr) {
+		// [TODO] 動作が遅いので bookMarkIndex 関連の処理を最適化すること
+		var get    = kag.getBookMarkFileNameAtNum;
+		var srcnum = _copysrc;
+		var src    = getDataNumber(srcnum);
+		var dst    = getDataNumber(dstnum);
+		var from   = get(src);
+		var to     = get(dst);
+
+		playSysSE("save.commit");
+
+		// Newアイコンを消す
+		var info = getItemInfo(srcnum);
+		if (info.lastsaved) showNewIcon(null);
+		/**/info = getItemInfo(dstnum);
+		if (info !== void && info.lastsaved) showNewIcon(null);
+
+		kag.eraseBookMark(dst);
+		super.onDelete(dstnum);
+
+		opr(from, to, false);
+		clearFilePlaceCache();
+		clearCopyMode(false);
+		update(true);
+	}
+	function clearCopyMode(redraw = true) {
+		_iscopy = _copysrc = void;
+		update() if (redraw);
+	}
+	function setCopyMode(tag) {
+		if (_iscopy == tag) return clearCopyMode();
+		_iscopy = tag != "" ? tag : void;
+		_copysrc = void;
+		update(true);
+	}
+	function isEnabled(num) {
+		if (   _iscopy == "remove") return isExistData(num);
+		return _iscopy != "" || super.isEnabled(num);
+	}
+	function getProtectItemEnabled(num) {
+		var wp = protectMap[getDataNumber(num)];
+		switch (_iscopy) {
+		case "remove": return !wp;
+		case "move":
+			if (_copysrc === void && wp) return false;
+			// not break
+		case "copy":
+			return (_copysrc === void) ? isExistData(num) : ((num != _copysrc) && !wp);
+		}
+		if (_issave && wp) return false;
+	}
+
+	var _iscopy, _copysrc;
+	function onBack() {
+		var en = (_iscopy != "");
+		clearCopyMode(false);
+		if (en) {
+			playSysSE("cancel");
+			clearCopyMode();
+			kag.unlockMessageLayerSelProcess();
+			kag.current.focus();
+			update(true);
+			kag.process("", "*wait");
+		} else {
+			disableEditButton();
+		}
+	}
+
+	function forceUpdateEditButton() {
+		foreach(kag.current.buttons, function(k,v) {
+			v.update() if (v);
+		});
+	}
+	function disableEditButton() {
+		foreach(kag.current.buttons, function(k,v) {
+			v.enabled = false if (v);
+		});
+	}
+
+	//------------------------------
+	function update() {
+		showNewIcon(void);
+		super.update(...);
+		drawCopyModeState();
+		updateEditButton();
+	}
+	function updateEditButton(num) {
+		if (num === void) {
+			for (var i = 0; i < _rowcol; i++) updateEditButton(i);
+			return;
+		}
+
+		var names = kag.current.names;
+		var pos = offset + num;
+		var btn = names["item" + num];
+		if (btn === void) return;
+		var wp  = protectMap[getDataNumber(pos)];
+
+		// ボタンが有効な場所のみ表示
+		// セーブ時はデータがない場所は表示しない
+		var en = (_issave && !isExistData(pos)) || (_iscopy != "") ? false : isEnabled(pos) ;
+		setSystemButtonEnabled(getProtectButton (num), en).toggle =  wp;
+//		en &&= !wp;
+//		setSystemButtonEnabled(getCommentButton (num), en);
+//		setSystemButtonEnabled(getDeleteButton  (num), en);
+//		setSystemButtonEnabled(getCopyMoveButton(num), en || (_iscopy != "" && _copysrc == pos)).toggle = _lastmove;
+	}
+	function setSystemButtonEnabled(btn, en) {
+		with (btn) {
+			.hitThreshold = en ? 0 : 256;
+			.enabled = en;
+		}
+		return btn;
+	}
+	property protectMap { getter {
+		var        scflags = global.kag.scflags;
+		if (typeof scflags.bookMarkProtect != "Object")
+			/**/   scflags.bookMarkProtect  = %[];
+		return     scflags.bookMarkProtect;
+	} }
+	function protect(num) {
+		num = (int)+num;
+		var pos = offset + num;
+		var idx = getDataNumber(pos);
+		var map = protectMap;
+		var wp  = map[idx] = !map[idx];
+		var names = kag.current.names;
+		dm("protect", pos, idx, wp);
+
+		var btn = names["item" + num];
+		btn.enabled = isEnabled(pos) && !(_issave && wp);
+		updateEditButton(num);
+		kag.saveSystemVariables();
+	}
+	function forceRedrawItem(pos) {
+		super.forceRedrawItem(...);
+		updateEditButton(getItemPosition(pos));
+	}
+	function save(num) {
+		var r = super.save(...);
+		if (r) protectMap[getDataNumber(num)] = false;
+		return r;
+	}
+
+	function getSysButton(tag, ret) { return ((ret = kag.current.buttons[tag]) !== void) ? ret : %[]; }
+	function getProtectButton(num)  { return getSysButton("pt" + num); }
+//	function getCommentButton(num)  { return getSysButton("tx" + num); }
+//	function getDeleteButton(num)   { return getSysButton("rm" + num); }
+//	function getCopyMoveButton(num) { return getSysButton("cp" + num); }
+	function replaceSysButtons(elm, ui, orig) {
+		var x, y, ox, oy;
+		with (ui.item0) x=.x, y=.y;
+		for (var i = 0; i < _rowcol; i++) {
+			var tag = "item"+i;
+			if   (ui[tag] === void) continue;
+			with (ui[tag]) ox=.x-x, oy=.y-y;
+			replaceSysButtonOne(ui, ox, oy, i, "pt", "protect", orig );
+//			replaceSysButtonOne(ui, ox, oy, i, "tx", "comment" );
+//			replaceSysButtonOne(ui, ox, oy, i, "rm", "remove"  );
+//			replaceSysButtonOne(ui, ox, oy, i, "cp", "copymove");
+		}
+	}
+	function replaceSysButtonOne(ui, x, y, n, tag, exec, orig=tag+"0") {
+		var uis = ui[tag + n];
+		if (uis !== void) with (uis) {
+			if (n > 0) with (ui[orig]) {
+				uis.x = .x+x;
+				uis.y = .y+y;
+			}
+			.exp     = @'Current.cmd("${exec}/${n}")';
+//			.onenter = @'Current.cmd("enter/${n}")';
+//			.onleave = @'Current.cmd("leave/${n}")';
+		}
+	}
+	function updateSysButtons(base, ui) {
+		foreach(base.buttons, function(k,v,d, ui){
+			if (v) with (v) {
+//				.halftone=(k.indexOf("pt")<0);
+				.absolute=1000;
+				.hitType = htMask;
+				.hitThreshold = 0;
+//				var tag = "UpArrow";
+//				var info = ui[k.replace(/[0-9]/g, "")+"0"];
+//				if (info !== void && info.cursor != "") tag = info.cursor;
+//				.cursor = getSystemMouseCursor(tag, .cursor);
+			}
+		}, ui);
+	}
+
+}
+{
+	var onback = function { Current.cmd("onBack"); } incontextof global;
+	SystemHook.add("save.back", onback);
+	SystemHook.add("load.back", onback);
+}
+
+Dialog.add(%[ name:"save", start:CustomSaveLoad, storage:"save" ]);
+Dialog.add(%[ name:"load", start:CustomSaveLoad, storage:"load" ]);
+
+SystemConfig.notifyQSave=false;
+SystemConfig.dialogDefaultFocusTable = %[
+	AskQLoad: "yes",
+	AskQSave: "yes",
+	AskSave:  "yes",
+	AskLoad:  "yes",
+		];
+{
+	var ynmap = function (tag) { yesnoMap[tag] = tag; } incontextof MyYesNoDialog.instance;
+	ynmap("AskSave");
+	ynmap("AskCopy");
+	ynmap("AskMove");
+	ynmap("AskDelete");
+	ynmap("AskOverwrite");
+	ynmap("AskQuitReplay");
+}
+addKagHookCallback("onShowSelectHook", function(list) {
+	var texts = [], tag = "【選択】";
+	try {
+		if (list === void) list = kag.flags.selectInfos;
+		if (list === void || !list.count) return;
+		for (var i = 0; i < list.count; i++) texts.add(list[i].text);
+		if (list.count > 1) {
+			tag = "【%s択】".sprintf(han2zen((string)list.count));
+		}
+	} catch {}
+	historyLayer.currentText = texts.count > 0 ? tag+texts.join("／") : void;
+}, true);
+addKagHookCallback("onAfterSelectHook", function {
+	if(historyWriteEnabled) historyLayer.repage(true);
+}, true);
+
+
+// -------------------------------------------------------------
+// セーブサムネ差し替え
+
+class CustomSystemAction extends SystemActionBase {
+	function finalize() { super.finalize(...); }
+	function CustomSystemAction() { super.SystemActionBase(...); }
+
+	// サムネ差し替え
+	var thumbReplMap, thumbReplList;
+	function _checkSaveThumbnail(img) {
+		var list = getLayerImageFileList(img);
+		var cnt = list.count;
+		dm("_checkSaveThumbnail", list*) if (cnt > 0);
+		for (var i = 0; i < cnt; i++) {
+			var r = getThumbReplace(list[i]);
+			if (r !== void) {
+				dm("matched", list[i], r);
+				return r;
+			}
+		}
+	}
+	function getLayerImageFileList(img) {
+		var r = [];
+		r.add(img) if (img != "");
+		foreach(world_object.env.layers, function (k,v,d, r) {
+			try { if (v.isShowBU() && v.imageFile != "") r.add(v.imageFile); } catch {}
+		}, r);
+		return r;
+	}
+	function getThumbReplace(tag) {
+		if (tag == "") return;
+		with (Storages) tag = .chopStorageExt(.extractStorageName(((string)tag).toLowerCase()));
+		if (thumbReplMap === void) loadThumbReplaceList();
+		var replace = thumbReplMap[tag];
+		if (replace === void)
+			replace = searchReplace(tag);
+		return replace != "" ? replace : void;
+	}
+	function loadThumbReplaceList() {
+		thumbReplMap  = %[];
+		thumbReplList = %[];
+		var csv = new CSVParser(), line;
+		try {
+//			dm("loadThumbReplaceList");
+			csv.initStorage("savelist.csv");
+			while ((line = csv.getNextLine()) !== void) {
+				var thumb = ((string)line[0]).trim();
+				if (thumb == "" || thumb.charAt(0) == "#") continue;
+				for (var i = line.count-1; i >= 1; i--) {
+					var tag = ((string)line[i]).trim().toLowerCase();
+					if (tag == "") continue;
+					var wild = tag.indexOf("*");
+					if (wild >= 0) {
+						if (wild != tag.length-1) throw new Exception("ワイルドカードが末尾ではありません:"+tag);
+						if (!wild)                throw new Exception("全画像マッチはできません:"+tag);
+						
+						thumbReplList[tag.substr(0, wild)] = thumb;
+					} else {
+						thumbReplMap[tag] = thumb;
+					}
+//					dm("setThumbReplaceList", thumb, tag, wild);
+				}
+			}
+		} catch (e) {
+			invalidate csv;
+			throw e;
+		}
+		invalidate csv;
+	}
+	function searchReplace(tag) {
+		@if (DEBUG)
+			dm("already mapped", tag, thumbReplMap[tag]) if (typeof thumbReplMap[tag] != "undefined");
+		@endif
+		for(var n = tag.length; n > 0; n--) {
+			var s = tag.substr(0, n);
+			var r = thumbReplList[s];
+			if (r != "") {
+				// found (cached)
+				return (thumbReplMap[tag] = r);
+			}
+		}
+		// not found (cached)
+		return (thumbReplMap[tag] = "");
+	}
+
+}
+global.SystemActionClass = CustomSystemAction;
+
+
+//--------------------------------------------------------------
+// 鑑賞モード画面
+
+// 共通処理
+class GalleryCommon {
+	var SUPER;
+	function GalleryCommon(base, elm) {
+		SUPER = base;
+		with (elm) {
+			.itemname = "item0";
+			.rows     = 5;
+			.columns  = 3;
+			.disabled = "normal";
+			.mask     = "thumb";
+			.ringpage = true;
+		}
+		updateElement(elm);
+	}
+	function updateElement(elm) {}
+	function initView() {
+		with (_view) {
+			.drawNormalItem_ = .drawNormalItem;
+			.drawNormalItem = function(lay, pos) {
+				var r = drawNormalItem_(...);
+				lay._copyButtonUIStates(1, _uiNormal, void, "cursor");
+				lay._copyButtonUIStates(2, _uiNormal, void, "cursor");
+				_owner.customDrawItem(lay, pos, _uiNormal);
+				return r;
+			} incontextof _view;
+		}
+	}
+	function customDrawItem {}
+
+	var cursel, curox, curoy;
+	function  onUiloaded(elm, ui) {
+		SUPER.onUiloaded(...);
+
+		// [XXX]
+		with (_view._mask) {
+			.loadMask = function {};
+			.holdAlpha = false;
+			.face = dfAuto;
+		}
+
+		cursel = void;
+//		with (uiloadGetRect(_itemname, ui)) curox =.x, curoy =.y;
+//		with (uiloadGetRect("cursor", ui))  curox-=.x, curoy-=.y;
+
+		var names = kag.current.names;
+		var subpg = convertPage2Subpg();
+		var pgnum = getPageGroupSubpgCount();
+		if (pgnum <= 1) {
+			pgnum = 0; // 1ページの場合は表示しない
+			names.pageframe.visible = false if (names.pageframe !== void);
+		}
+		for (var i = 0; i < 10; i++) {
+			var page = names["subpage"+i];
+			if (page !== void) {
+				page.visible = (i < pgnum);
+				page.toggle  = (i == subpg);
+			}
+		}
+
+		var grp = getCurrentPageGroup();
+		if (grp != "") {
+			var tab = names["tabpage"+pageGroupNames.find(grp)];
+			if (tab !== void) tab.toggle = true;
+		}
+	}
+
+	function setSubPage(num) { page = convertSubpg2Page(num); }
+	function setTabPage(num) { page = convertSubpg2Page(0, pageGroupNames[num]); }
+	function setChara(name)  { page = convertSubpg2Page(0, name); }
+/*
+	function onItemEnter(n) { onItemEnterLeave(true,  n); }
+	function onItemLeave(n) { onItemEnterLeave(false, n); }
+	function onItemEnterLeave(vis, pos) {
+		pos = (int)pos;
+		var cur = kag.current.names.cursor;
+		var item = getItemTarget(pos, true);
+		if (cur !== void && item !== void && (vis || cursel == pos)) {
+			cur.setPos(item.left - curox, item.top - curoy);
+			cur.visible = vis;
+		}
+		cursel = vis ? pos : void;
+	}
+ */
+}
+
+//--------------------------------------------------------------
+// CGモード画面
+
+KAGLoadScript("cgview.tjs");
+class CustomCgViewLayer extends UiBasedCgViewLayer {
+	var image;
+	function CustomCgViewLayer() {
+		super.UiBasedCgViewLayer(...);
+		setup("cgview");
+		if (names.base !== void) with (names.base) {
+			.hitType = htMask;
+			.hitThreshold = 0;
+			.cursor = window.cursorDefault;
+			.drawState = .onExecute = .onMouseEnter = .onMouseLeave = function {};
+			.enabled = true;
+			objectHookInjection(%[ target:names.base, method:"onMouseDown", func:function(orig, x, y, btn, *) {
+				//dm("clicked+++", x, y, btn);
+				if (btn == mbRight) window.onPrimaryRightClick();
+				else return orig(x, y, btn, *);
+			} ]);
+		}
+		_centerx = width\2;
+		_centery = height\2;
+
+		image = new AffineLayer(window, this);
+		with (image) {
+			.onPaint = function {};
+			.defaultAfx = "center";
+			.defaultAfy = "center";
+			.reset();
+		}
+	}
+	function finalize() {
+		if (!isvalid this) return;
+		Invalidate(image);
+		super.finalize(...);
+	}
+	// UI hack
+	var _ui;
+	function uiload { return (_ui = global.uiload(...)); }
+	function drawNumber(tag, idx) {
+		var draw = CustomExtraCharaView.drawNumber; //[XXX]
+		draw(names[tag+"100"], (idx \ 100) % 10, true, _ui.num);
+		draw(names[tag+"010"], (idx \  10) % 10, true, _ui.num);
+		draw(names[tag+"001"], (idx      ) % 10, true, _ui.num);
+	}
+
+	var _showHideBaseLeft;
+	function getShowHideFromTo {
+		if (_showHideBaseLeft === void) {
+			_showHideBaseLeft = uilayer.left;
+		}
+		var r = super.getShowHideFromTo(...);
+		r.left = uilayer.left;
+		return r;
+	}
+	function getShowHideAction(p) {
+		var r = super.getShowHideAction(...);
+		r.left = %[ handler:MoveAction, start:_showHideBaseLeft+((255-p.from)/8), value:_showHideBaseLeft+((255-p.to)/8), time:r.opacity.time, accel:p.to?-1:1 ];
+		return r;
+	}
+	function afterLoadImages {
+		var r = super.afterLoadImages(...);
+		if (_showHideBaseLeft !== void) {
+			window.stopAction(uilayer, true);
+			uilayer.left = _showHideBaseLeft;
+		}
+		if (_initialForceHide !== void) {
+			resetUiLayer(_initialForceHide > 0);
+			forceHideMode = _initialForceHide < 0;
+		}
+		return r;
+	}
+
+	// スクロール位置用プロパティ
+	var _swidth, _sheight, _sleft, _stop, _szoom, _shorz, _svert;
+	var _inix, _iniy;
+	var _centerx, _centery;
+	property scrollLeft { getter { return _sleft; } setter(v) { _sleft = v; onScrolled(); } }
+	property scrollTop  { getter { return _stop;  } setter(v) { _stop  = v; onScrolled(); } }
+	property scrollZoom { getter { return _szoom; } setter(v) { _szoom = v; onScrollResize(); onScrolled(); } }
+	property scrollMinLeft { getter { return -_shorz; } }
+	property scrollMinTop  { getter { return -_svert; } }
+	property scrollMaxLeft { getter { return  _shorz; } }
+	property scrollMaxTop  { getter { return  _svert; } }
+
+	property scrollWidth  { getter { return _swidth;  } }
+	property scrollHeight { getter { return _sheight; } }
+
+	function onScrolled() {
+		image.setPos(_centerx - _sleft, _centery - _stop);
+		update();
+	}
+	function onScrollResize(afx = width\2, afy = height\2) {
+		if      (_szoom < 100) _szoom = 100;
+		else if (_szoom > 200) _szoom = 200;
+		// [TODO] スクロール可能範囲をzoomにあわせて変更すること
+		_shorz = (_swidth  * (_szoom/100) - width)  / 2;
+		_svert = (_sheight * (_szoom/100) - height) / 2;
+		if (_shorz < 0) _shorz = 0;
+		if (_svert < 0) _svert = 0;
+		offsetScroll(0, 0); // left/topをmin/max補正するコードが呼ばれる
+
+		if (image) {
+//			var rx = _swidth * afx/width, ry = _sheight * afy/height;
+			image.setZoom(_szoom);
+			update();
+		}
+
+		setSliderPosition("zoom", _szoom, true); // zoomのスライダー更新
+	}
+	function setupInitialImage {
+		onScrolled();
+		onScrollResize();
+		scrollHorz = _inix;
+		scrollVert = _iniy;
+	}
+	
+	function checkScrollable {
+		canScroll = 3;
+	}
+
+	function internalOnMouseWheel(shift, delta, x, y) {
+		_szoom += delta/60;
+		onScrollResize(x, y);
+	}
+
+	function onMouseEvent(tag) {
+		switch (tag) {
+		case "tout": return super.onMouseEvent(...);
+		case "move":
+			if (!forceHideMode && names.base) with (names.base) {
+				setButtonsShowHide(.cursorX >= 0);
+				return true;
+			}
+			break;
+		case "click":
+			if (forceHideMode) return super.onMouseEvent(...);
+			break;
+		}
+	}
+
+	function assignScroll(src) {}
+
+	function onPaint() {
+		var r = super.onPaint();
+		redraw();
+		return r;
+	}
+	function redraw(force) {
+		if (!image) return;
+		//dm("redraw", image._doAffine);
+		if (force) {
+			fillRect(0, 0, width, height, neutralColor);
+			image._doAffine = 2; //[XXX] 常に全更新
+			image._image._clearRegion.clear(); //[XXX] 常に全更新
+		}
+		image.drawAffine(this);
+	}
+
+	var _currentImageIndex, _currentImageList, _initialForceHide;
+	function loadImages(list, idx, pos, forcehide) {
+		drawNumber("cg", pos+1);
+		_currentImageList  = list;
+		loadImageOne(idx);
+		_sleft = _stop = 0;
+		_swidth  = image.width;
+		_sheight = image.height;
+		_szoom   = 100;
+		_inix    = 0.5, _iniy = 0.5;
+		if (!_swidth || !_sheight) throw new Exception("zero width/height");
+
+		//initDiffTables(info);
+		//  -> setupDiffSlider
+		_initialForceHide = forcehide;
+		afterLoadImages(name);
+		redraw(true);
+	}
+	function setItemProp(name, prop, value) {
+		var target = names[name];
+		if (target && prop != "") target[prop] = value;
+		return target;
+	}
+
+	function isMaxImageIndex() { return _currentImageIndex == _currentImageList.count-1; }
+	function roundIndex(n, m) { return n < 0 ? m : n > m ? 0 : n; }
+	function loadImageOne(idx) {
+		var max = _currentImageList.count-1;
+		switch (idx) {
+		case "up":   idx = roundIndex(_currentImageIndex+1, max); break;
+		case "down": idx = roundIndex(_currentImageIndex-1, max); break;
+		}
+		_currentImageIndex = idx;
+		_owner.loadImage(image, _currentImageList[idx]);
+		image.setSizeToImageSize();
+		image.calcAffine();
+		redraw(true);
+
+		var en = (max >= 1);
+		drawNumber("diff", en ? idx+1 : 0);
+		with (names) {
+			.diff_up.enabled = en if (.diff_up !== void);
+			.diff_dw.enabled = en if (.diff_dw !== void);
+		}
+	}
+
+	
+	function updateDiff(info, force) {
+	}
+
+	function loadDiffImage(file) {
+		var left = _sleft, top = _stop;
+		var width = _swidth, height = _sheight, zoom = _szoom;
+		try { loadEnvImage(file); } catch { return; }
+		if (width  == _swidth &&
+			height == _sheight) {
+			scrollLeft = left;
+			scrollTop  = top;
+			scrollZoom = zoom;
+		}
+	}
+
+	function onSliderChange(name, pos, drag) {
+		if (ignoreSliderChange) return;
+		scrollZoom = pos;
+		resetTimer();
+	}
+	function onRightClicked() {
+		if (!forceHideMode) hide();
+		else {
+			playSE(void, "show");
+			setButtonsShowHide(true);
+		}
+	}
+	function onButtonClick(name, btn, sft) {
+		if (btn == mbLeft) {
+			switch (name) {
+			case "cg_dw":   return sendMessage("prev");
+			case "cg_up":   return sendMessage("next");
+			case "diff_dw": return prevDiff(); // loadImageOne("down");
+			case "diff_up": return nextDiff(); // loadImageOne("up");
+				return;
+			case "view": return hide();
+			case "exit": return window.close();
+			}
+		}
+		return super.onButtonClick(...);
+	}
+	function onKeyDown(key, shift) {
+		switch (key) {
+		case VK_PRIOR:  return sendMessage("prev");
+		case VK_NEXT:   return sendMessage("next");
+		case VK_DELETE: return hide();
+		case VK_BACK:   return prevDiff(); // loadImageOne("down");
+		case VK_RETURN:
+		case VK_SPACE:  return nextDiff(); // loadImageOne("up");
+		}
+		return super.onKeyDown(...);
+	}
+
+	function prevDiff() { return !_currentImageIndex ? sendMessage("prev2") : loadImageOne("down"); }
+	function nextDiff() { return  isMaxImageIndex()  ? sendMessage("next2") : loadImageOne("up");   }
+	function getUiLayerVisibleState() {
+		return forceHideMode ? -1 : currentButtonsVisible ? 1 : 0;
+	}
+}
+CgGalleryMode.CgViewLayerClass = global.CustomCgViewLayer;
+class CustomCgMode extends CgGalleryMode, GalleryCommon {
+	var BASE =      global.CgGalleryMode;
+	function finalize() { BASE.finalize(...); }
+	function CustomCgMode(elm) {
+		GalleryCommon(BASE, elm);
+		CgGalleryMode(...);
+		initView();
+	}
+
+	function setCgViewScrollConfig(view, conf, canscr, name) {
+		conf.mouse = "dragex";
+//		with (conf) .wheel=.mousemove=.key=.spacedrag = false;
+//		view.cursor = view.window.cursorDefault;
+	}
+
+	function onPageChange(last, now) {
+		// [XXX] EVの最後のページを記録
+		if (pageGroupBinds[+last] == "EV") {
+			tf.lastCgModeEvPage = (int)+last;
+		}
+		return BASE.onPageChange(...);
+	}
+	function setTabPage(num) {
+		var tag = pageGroupNames[num];
+		// [XXX] EVの最後のページを記録
+		if (tag == "EV" && tf.lastCgModeEvPage !== void) {
+			page = tf.lastCgModeEvPage;
+		} else {
+			page = convertSubpg2Page(0, tag);
+		}
+	}
+
+	function getItemSeenPer(num) {
+		if (num < 0 || num >= count || items[num] === void) return;
+		var list = items[num].list;
+		if (list === void || !list.count) return;
+
+		var total = list.count, seen = 0;
+		for (var i = 0; i < total; i++)
+			if (isSeenItem(list[i])) seen++;
+
+		return %[ seen:seen, total:total ];
+	}
+	function customDrawItem(lay, pos, ui) {
+		var numlay = kag.current.names.number;
+		if (numlay === void) return;
+		var per = getItemSeenPer(pos);
+		if (per !== void) try {
+			var pos  = ui.uistates.diff0;
+			var ox = pos.ox, oy = pos.oy;
+			var step = ui.uistates.diff1.ox - ox;
+			var text = @"${per.seen}/${per.total}";
+			dm(pos, text);
+			for (var n = text.length-1; n >= 0; n--, ox+=step) {
+				stampOne(lay, text.charAt(n), ox, oy, numlay);
+			}
+		} catch {}
+	}
+	function stampOne(lay, num, ox, oy, numlay) {
+		if (num == "/") num = 10;
+		else num = (int)+num;
+		var nh = numlay.height \ 11;
+		var nw = numlay.width;
+		var y = num * nh;
+		var w = lay.width;
+		lay.operateRect(ox+w*0, oy, numlay, 0, y, nw, nh);
+		lay.operateRect(ox+w*1, oy, numlay, 0, y, nw, nh);
+		lay.operateRect(ox+w*2, oy, numlay, 0, y, nw, nh);
+	}
+
+	property isQuitViewLoop { getter() { return isCancelView; } }
+	function onNext(message) {
+		isCancelView = (message == "break");
+		_hideUiLayer = _showLastDiff = void;
+		switch (message) {
+		case "next2": _hideUiLayer = cglayer.getUiLayerVisibleState();
+		case "next": onSelect(findNextSeen(_lastSelectItem,  1)); break;
+		case "prev2": _hideUiLayer = cglayer.getUiLayerVisibleState(), _showLastDiff = true;
+		case "prev": onSelect(findNextSeen(_lastSelectItem, -1)); break;
+		}
+		jumpNextView();
+	}
+	function findNextSeen(idx, dir) {
+		for (var i = 0, max = count, pos = idx; i < max; i++) {
+			pos += dir;
+			if      (pos <    0) pos = max-1;
+			else if (pos >= max) pos = 0;
+			if (isSeen(pos)) return pos;
+		}
+		return idx;
+	}
+	var _lastSelectItem, _hideUiLayer, _showLastDiff;
+	function onSelect(num) {
+		_lastSelectItem = num;
+		return BASE.onSelect(...);
+	}
+	function view() {
+		swapCgLayer(true);
+		try {
+			cglayer.loadImages(subItems, _showLastDiff ? subItems.count-1 : 0, _lastSelectItem, _hideUiLayer);
+		} catch (e) {
+			makeErrorImage(cglayer, e.message);
+		}
+		_hideUiLayer = void;
+	}
+	function onViewCancel() {
+		cglayer.hide();
+	}
+	function doComposite(info, dst, src) {
+		return BASE.doComposite(info, dst._image._image, src); // [XXX]
+	}
+}
+SystemHook.add("cgmode.view.cancel", function {
+	Current.cmd("onViewCancel");
+	kag.process("", "*wait");
+} incontextof global);
+
+class CustomSceneMode extends SceneGalleryMode, GalleryCommon {
+	var BASE =         global.SceneGalleryMode;
+	function finalize() { BASE.finalize(...); }
+	function CustomSceneMode(elm) {
+		GalleryCommon(BASE, elm);
+		SceneGalleryMode(...);
+		initView();
+	}
+	function updateElement(elm) {
+		elm.disabled = "disabled";
+	}
+	function view() {
+		kag._isRecollection = true; // [XXX] メッセージ窓のボタン差し替えに必要
+		return BASE.view(...);
+	}
+}
+Dialog.add(%[ name:"scenemode", start:CustomSceneMode, storage:"scene" ]);
+Dialog.add(%[ name:"cgmode",    start:CustomCgMode,    storage:"cgmode" ]);
+
+SystemActionBase._endReplay = function {
+	if (!inGameState(kag)) return;
+	var modal;
+	with (kag) modal = .historyShowing || .messageLayerHiding || .currentDialog || .panelModal;
+	if (!canConfig(kag, modal)) return;
+
+	askYesNo("AskQuitReplay", "確認", kag.endRecollection);
+} incontextof null;
+addKagHookCallback("onModeChangeHookEx", function (prop, kag, am, sm, ca, cs, ss, modal, cr) {
+	prop.checkEnableChanged("exit", "canExit", canConfig(kag, modal));
+}, false);
+
+//--------------------------------------------------------------
+// 音楽鑑賞
+
+class CustomSoundMode extends SoundGalleryMode {
+	function CustomSoundMode(elm) {
+		with (elm) {
+			.itemname = "";
+			.rows = 1;
+			.columns = 12;
+			.csv = "soundlist.csv";
+			.drawtext = false;
+			.disabled = "normal";
+			.lastplay = "bgm01";
+		}
+		_mode = "one";
+//		_exchange = _fadeout = 4000;
+		super.SoundGalleryMode(...);
+		_view.clearNormalItem = function {};
+	}
+	function finalize() {
+		try { kag.bgm.fadeOut(%[ time:400 ]); } catch {}
+		super.finalize(...);
+	}
+	function onUiloaded(elm, ui) {
+		labelImage = ui.playing;
+		updateState("stop");
+		updateModeState();
+		super.onUiloaded(...);
+	}
+	function updateState(name) {
+		var btn = kag.current.names.play;
+		var play = (name == "play");
+		btn.toggle = play if (btn !== void);
+		redrawLabel(play ? (string)(storages.find(playing)) : "none");
+	}
+	function stop() {
+		if (playing === void && lastplay === void) updateState("stop");
+		return super.stop();
+	}
+	function onModeChanged(m) {
+		super.onModeChanged(...);
+		updateModeState();
+	}
+	function updateModeState() {
+		var one, all, rnd;
+		with (kag.current.names) one=.one, all=.all, rnd=.rnd;
+		if (one === void || all === void) return;
+		switch (_mode) {
+		case "rnd": one.toggle = false; all.toggle = false; rnd.toggle = true;  break;
+		case "all": one.toggle = false; all.toggle = true;  rnd.toggle = false; break;
+		case "one": one.toggle = true;  all.toggle = false; rnd.toggle = false; break;
+		case "non": one.toggle = false; all.toggle = false; rnd.toggle = false; break;
+		}
+	}
+	function repeat(tag) {
+		var target = kag.current.names[tag];
+		if (target !== void && target.toggle) mode = tag;
+		else mode = "non";
+	}
+	function isSeen(num) {
+		return true;
+	}
+
+
+	var labelImage;
+	function redrawLabel(tag) {
+		var img = kag.current.names.playing;
+		if (img !== void) with (img) {
+			._copyButtonUIStates(0, labelImage, void, tag);
+		}
+	}
+}
+
+Dialog.add(%[ name:"soundmode", start:CustomSoundMode, storage:"music" ]);
+
+
+//--------------------------------------------------------------
+// 立ち絵鑑賞
+
+@set (EXCHVIEW_GLOBALFLAG_IS_TF = 1)
+KAGLoadScript("exchview.tjs");
+with (SystemConfig) {
+	.ExChViewDefaultCharState.xpos -= 128;
+}
+ExCVCharObject.toggleButtonIndex = function(*) {
+	ownerCallback("toggleButtonIndex", *);
+} incontextof null;
+ExCVStageObject.onUpdateButton = function(names) {
+	ownerCallback("toggleButtonIndex", names, "stage", getStageIndex(), true);
+	var times = getTimeList();
+	ownerCallback("toggleButtonIndex", names, "time",  times && times.count > 1 ? getTimeIndex() : -1,  true);
+} incontextof null;
+class        CustomExtraCharaView extends ExtraCharaViewBase {
+	function CustomExtraCharaView { super.ExtraCharaViewBase(...); }
+	function finalize { super.finalize(...); }
+
+	function onUiload(elm) {
+		elm.partremove = "remove";
+		return super.onUiload(...);
+	}
+	var _uiNum, _uiName;
+	function onUiloaded(elm, ui) {
+		_uiNum  = ui.num;
+		_uiName = ui.chname;
+		var nodrag = kag.current.names.nodrag;
+		if (nodrag) with (nodrag) {
+			.absolute = .opacity = 0;
+			try { .copyAlphaToProvince(); } catch {}
+		}
+		return super.onUiloaded(...);
+	}
+
+	function onDragStart {
+		var r = super.onDragStart(...);
+		if (r && !r.range) with (r) {
+			.free = true;
+			.range = true;
+			.minx = -640;
+			.maxx =  640;
+			.miny = -400;
+			.maxy =  800;
+		}
+		return r;
+	}
+
+	var _chnameReplace = %[
+		"ケリー" => "sp",
+		"立ち絵鑑賞あめり大" => "あめり(大)",
+		];
+	function toggleButtonIndex(obj, names, base, idx, vis, ens) {
+		if (base == "char") {
+			var lay = names.chname;
+			if (lay !== void) with (lay) {
+				var vis = (idx >= 0), tag = "なし";
+				if (vis) {
+					var list = callMethod(obj, "getCharList");
+					if (list && list[idx] != "") {
+						tag = list[idx];
+						tag = _chnameReplace[tag] if (_chnameReplace[tag] != "");
+					}
+				}
+				.fillRect(0, 0, .width, .height, 0);
+				._copyButtonUIStates(0, _uiName, void, tag) if (tag != "");
+			}
+		} else {
+			var vis = (idx >= 0);
+			idx += 1;
+			drawNumber(names[base+"100"], (idx \ 100) % 10, vis);
+			drawNumber(names[base+"010"], (idx \  10) % 10, vis);
+			drawNumber(names[base+"001"], (idx      ) % 10, vis);
+			if (names[base+"_up"])
+				names[base+"_up"].enabled = vis;
+			if (names[base+"_dw"])
+				names[base+"_dw"].enabled = vis;
+		}
+	}
+	function drawNumber(lay, num, vis, ui = _uiNum) {
+		if (lay) with (lay) {
+			.visible = true; //vis;
+			.fillRect(0, 0, .width, .height, 0);
+			._copyButtonUIStates(0, ui, void, vis ? (string)num : "0");
+		}
+	}
+}
+Dialog.add(%[   name:"exchview", start:CustomExtraCharaView, storage:"bustshot" ]);
+
+
+
+//--------------------------------------------------------------
+// クイックロードポップアップ
+
+class        QLoadPopupLayer extends DialogLayer {
+	function QLoadPopupLayer(win) {
+		coverParent = false;
+		super.DialogLayer(win, win.primaryLayer, "QLPopup");
+		_ui = uiload(%[ storage: "qlpopup", transparent:true, visible:false, color:0, opacity:0 ]);
+		origLeft = left;
+		origTop  = top;
+
+		hitType = htMask;
+		hitThreshold = 256;
+		joinFocusChain = false;
+		focusable = false;
+//		parent  = window.primaryLayer;
+		absolute = 2000000 + 1;
+		win.add(this);
+	}
+	var origLeft, origTop, _ui;
+
+	function finalize() {
+		if (isvalid this) stopAction(this);
+		super.finalize(...);
+	}
+	function beginAction() { window.beginAction(...); }
+	function stopAction()  { window.stopAction( ...); }
+
+	function drawItem(datanum = SystemAction.qsaveBookmarkNumber) {
+		try {
+			var info = getItemInfo(datanum), target;
+			if (info === void) return false;
+
+			CustomSaveLoad.drawItemOne(names, info, void);
+
+			with (target = names.thumb) {
+				var w = .width, h = .height;
+				.fillRect(0, 0, w, h, 0xFF000000);
+				try { .loadImages(info.thumbnail); } catch {}
+				(global.Layer.setSize incontextof target)(w, h);
+			}
+		} catch {
+			return false;
+		}
+		return true;
+	}
+	function drawItemText { return CustomSaveLoad.drawItemText(...); } // [XXX] Proxy
+
+	var _fadeTime = 100, _move = 8;
+	function show(x,y,dn) {
+		if (!isvalid this) return;
+		stopAction(this);
+		if (!drawItem(dn)) return;
+		left = (x !== void ? +x : origLeft);
+		top  = (y !== void ? +y : origTop ) +  _move;
+		beginAction(this, %[ top: %[ handler:MoveAction, start:top, value:top - _move, time:_fadeTime, accel:-1 ],
+						 opacity: %[ handler:MoveAction, start:(opacity=0), value:255, time:_fadeTime ] ],, true);
+		visible = true;
+	}
+	function hide() {
+		if (!isvalid this) return;
+		stopAction(this);
+		if (visible)
+			beginAction(this, %[ opacity:%[ handler:MoveAction, start:(opacity=255), value:0, time:_fadeTime ] ],
+						function { if (isvalid this) visible = false;  } incontextof this, true);
+	}
+	function getItemInfo(datanum) {
+		var file, info = %[];
+		if (typeof datanum == "Integer") {
+			file = kag.getBookMarkFileNameAtNum(datanum);
+			if (!Storages.isExistentStorage(file)) return void;
+
+			var bookmark  = kag.getBookMarkInfo(datanum);
+			(Dictionary.assign incontextof info)(bookmark, true) if (bookmark !== void);
+
+			info.title     = kag.getBookMarkPageName(datanum);
+			info.realdate  = kag.getBookMarkDate(datanum);
+		} else if (typeof datanum == "String" && datanum != "") {
+			file = datanum;
+			if (!Storages.isExistentStorage(file)) return void;
+
+			var data = kag.readBookMarkFromFile(file);
+			if (!data || !data.core) return false;
+			with (data.core) {
+				(Dictionary.assign incontextof info)(.bookMarkInfo) if (.bookMarkInfo !== void);
+
+				info.title     = .currentPageName;
+
+				// [XXX] Copy&Paste from MainWindow.tjs
+				var date = new Date();
+				var fmt  = "%04d/%02d/%02d %02d:%02d" + (kag.bookMarkDateSecond ? ":%02d" : "");
+				date.setTime(.storeTime);
+				with (date) info.realdate = fmt.sprintf(
+					.getYear(),  .getMonth() + 1, .getDate(),
+					.getHours(), .getMinutes(),   .getSeconds());
+			}
+		}
+		info.thumbnail = file;
+		return info;
+	}
+}
+function ShowHideQLoadPopup(vis,*) {
+	if (typeof global.kag != "Object" || !isvalid kag) return;
+	if (typeof kag.QLPopupTipLayer != "Object")
+		/**/   kag.QLPopupTipLayer = new QLoadPopupLayer(kag); //kag.selectLayerAbsolute-1);
+	try {      kag.QLPopupTipLayer[vis?"show":"hide"](*); } catch {}
+}

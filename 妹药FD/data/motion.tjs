@@ -1,0 +1,48 @@
+try { Plugins.link("motionplayer.dll"); } catch {}
+
+/**
+ * モーションリソースマネージャー
+ *
+ * モーションのリソースマネージャーのキャッシュサイズはデフォルトでは20MB。
+ * Config.tjs の 「ウィンドウや動作の追加の設定」 に以下の指定を追加することで
+ * キャッシュの値を任意のサイズに設定出来る。
+ * [start-window-additionals]
+ * motionCacheSize = 20 * 1024 * 1024;
+ * [end-window-additionals]
+ */
+class MotionResourceManager
+{
+	var resourceManager;
+	var refCount = %[];
+	
+	function MotionResourceManager(kag) {
+		resourceManager = 
+			new Motion.ResourceManager(kag, typeof(kag["motionCacheSize"]) == "undefined" 
+									   ? 20 * 1024 * 1024
+									   : kag.motionCacheSize);
+	}
+	
+	function finalize {
+		invalidate resourceManager;
+	}
+	
+	function load(path) {
+		if (typeof(refCount[path]) == "undefined") {
+			resourceManager.load(path);
+			refCount[path] = 1;
+		} else {
+			refCount[path]++;
+		}
+	}
+	
+	function unload(path) {
+		if (--refCount[path] <= 0) {
+			delete refCount[path];
+			resourceManager.unload(path);
+		}
+	}
+
+	function clearCache() {
+		resourceManager.clearCache();
+	}
+}

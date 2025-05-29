@@ -1,0 +1,33 @@
+cref,allbtns,	char_dw,char_up,pose_dw,pose_up,dress_dw,dress_up,face_dw,face_up,stage_dw,stage_up,time_dw,time_up,view,
+#
+func,char_dw,	exp,Current.cmd("setProp/ch.Char/down"),	target,*update,	halftone,true
+func,char_up,	exp,Current.cmd("setProp/ch.Char/up"),		target,*update,	halftone,true
+func,pose_dw,	exp,Current.cmd("setProp/ch.Diff/down"),	target,*update,	halftone,true,	name,diff_dw
+func,pose_up,	exp,Current.cmd("setProp/ch.Diff/up"),		target,*update,	halftone,true,	name,diff_up
+func,dress_dw,	exp,Current.cmd("setProp/ch.Dress/down"),	target,*update,	halftone,true
+func,dress_up,	exp,Current.cmd("setProp/ch.Dress/up"),		target,*update,	halftone,true
+func,face_dw,	exp,Current.cmd("setProp/ch.Face/down"),	target,*update,	halftone,true
+func,face_up,	exp,Current.cmd("setProp/ch.Face/up"),		target,*update,	halftone,true
+func,stage_dw,	exp,Current.cmd("setProp/bg.Stage/down"),	target,*update,	halftone,true
+func,stage_up,	exp,Current.cmd("setProp/bg.Stage/up"),		target,*update,	halftone,true
+func,time_dw,	exp,Current.cmd("setProp/bg.Time/down"),	target,*update,	halftone,true
+func,time_up,	exp,Current.cmd("setProp/bg.Time/up"),		target,*update,	halftone,true
+func,view,	target,*view,	halftone,true
+#
+file,chname,
+file,num,
+#
+cref,allsys,to_cg,to_scene,to_bust,to_music,back,exit,
+rgrp,modesel,to_cg,to_scene,to_bust,to_music
+#
+#eval,-lock,exp,this.visible=false
+func,to_cg,	target,*cgmode
+func,to_scene,	target,*scenemode
+func,to_bust,	
+eval,to_bust,exp,this.toggle=true
+func,to_music,	target,*soundmode
+func,back,	target,*back
+func,exit,	exp,kag.close()
+#
+part,remove,num,lock
+eval,names,call,uiloadSysSE,exchview

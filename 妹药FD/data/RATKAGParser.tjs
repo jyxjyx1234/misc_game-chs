@@ -1,0 +1,579 @@
+/**
+ * RATKAGParser.tjs: RAT extended KAGParser
+ *
+ * Conductor で KAGParser の代わりに使用させる。
+ *
+ * Copyright 2008 SAKAMOTO Takahiro, gato-tigre
+ * Copyright 2008 WATANABE Go, wamsoft
+ */
+class RATKAGParser extends KAGParser
+{
+    // ---------------------------------------------------------
+    // KAGParser エミュレータ
+    // ---------------------------------------------------------
+
+    var m_israt		= false;	//< 直近に読み込んだものが RAT か否か
+    var m_rat		= void;		//< RATPlayer
+    var m_ratTags	= [];		//< 未処理の RAT Tags
+
+    var m_expif		= void;		//< if の状態：void, true, false
+    var m_expifdone	= false;	//< if の状態：過去に true があった
+    var m_expignore	= void;		//< ignore の状態：void, true, false
+    var m_expmp		= [];		//< マクロパラメタスタック
+
+    var m_debug_nojump	= false;	//< デバッグ（select系, next, jump（RATのみ）を無視する）
+    var m_debug_files	= void;		//< デバッグファイルリスト
+
+    /**
+     * スクリプトの実行状態をクリアする。
+     */
+    function resetState() {
+        m_ratTags	= [];
+        m_expif		= void;
+        m_expifdone	= false;
+        m_expignore	= void;
+        m_expmp		= [];
+    }
+
+    /**
+     * 次のタグを取得する
+     *
+     * @return マクロ展開済＆引数評価（マクロ＆TJS）済のタグ
+     */
+    function ratGetNextTag() {
+        //dm("RAT info: ratGetNextTag");
+
+        // interrupt 状態時はその解除で終了
+        if ( m_rat.m_Interrupt ) {
+            resetInterrupt();
+            return %[name:"interrupt"];
+        }
+
+        // タグを取ってくる
+        var tags = m_ratTags;
+        while ( tags.count === 0 ) {
+            var newtags = m_rat.mkPageTags();
+            if ( newtags === void )
+                break; // シナリオ終端
+            tags = newtags;
+        }
+
+        // 先頭タグの確定
+        while ( tags.count > 0 ) {
+            // 先頭タグのパラメタを評価する
+            function evalParams(mp, params) {
+                var array = []; array.assign(params);
+                var newparams = %[];
+                for (var i = 0; i < array.count; i += 2) {
+                    var key = array[i].toLowerCase();
+                    var value = array[i+1];
+                    if ( key == "*" && mp !== void ) {
+                        // 全マクロ引数に展開
+                        (Dictionary.assign incontextof newparams)(mp, false);
+                    } else if ( typeof value !== "String" || value.length === 0 ) {
+                        // 引数が１文字以上の文字列でない
+                        newparams[key] = value;
+                    } else if ( value.charAt(0) === '&' ) {
+                        // TJS 式評価
+                        newparams[key] = Scripts.eval(value.substring(1));
+                    } else if ( value.charAt(0) === '%' ) {
+                        // マクロ引数展開
+                        var mkey = void;
+                        var mvalue = void;
+                        var n = value.indexOf("|");
+                        if ( n < 0 ) {
+                            // デフォルト値がない
+                            mkey = value.substring(1);
+                            mvalue = void;
+                        } else {
+                            // デフォルト値がある
+                            mkey = value.substring(1, n - 1);
+                            mvalue = value.substring(n + 1);
+                        }
+                        // マクロパラメタに mkey があれば、その値で置換
+                        if ( mp[mkey] !== void ) {
+                            mvalue = mp[mkey];
+                        }
+                        newparams[key] = mvalue;
+                    } else {
+                        // その他
+                        newparams[key] = value;
+                    }
+                }
+                return newparams;
+            }
+            tags[0].params = evalParams(m_expmp.length > 0 ? m_expmp[0] : void, tags[0].params);
+
+            // 先頭タグがマクロでなければ終了
+            var macro = macros[tags[0].name];
+            if ( macro === void )
+                break;
+
+            // 先頭タグをマクロ展開する
+            var mcmds = m_rat.m_rat.tokenize(macro, "[]");
+            var mtags = [];
+            mtags.add(%[name:"macropush", params:tags[0].params]);
+            for (var i = 0; i < mcmds.length; i++) {
+                mtags.add(m_rat.mkTag(mcmds[i]));
+            }
+            for (var i = 1; i < tags.length; i++)
+                mtags.add(tags[i]);
+            tags = mtags;
+        }
+
+        // タグを返す
+        var tag = void;
+        if ( tags.count > 0 ) {
+            tag = tags[0];
+            tags.erase(0);
+        }
+        m_ratTags = tags;
+        return tag;
+    }
+
+    /**
+     * 組み込みタグなどを実行する
+     *
+     * 以下のものを処理する。
+     * - 組み込みタグ１：macropush系, if系, ignore系
+     * - cond 属性
+     * - 組み込みタグ２：jump
+     *
+     * @param tag 処理するタグ
+     * @return true:この関数で処理した, false:KAGで処理させるべき
+     */
+    function ratExecInternalTag(tag) {
+        //dm("RAT info: ratExecInternalTag");
+        function evalTJS2Boolean(exp) {
+            if ( typeof exp !== "String" )
+                return false;
+            var v = Scripts.eval(exp);
+            return (typeof v === "Integer" && v !== 0);
+        }
+
+        // 組み込みタグ処理１
+        var fdone = true; // この関数で処理済
+        switch ( tag.name ) {
+        case "macropush":
+            m_expmp.insert(0, tag.params);
+            break;
+        case "macropop":
+            if ( m_expmp.length > 0 )
+                m_expmp.erase(0);
+            break;
+        case "emb":
+            tag.name = Script.eval(tag.params.exp);
+            tag.emb = void;
+            m_ratTags.insert(0, tag); // m_ratTags へ書き戻し
+            break;
+        case "if":
+            m_expif = evalTJS2Boolean(tag.params.exp);
+            m_expifdone = m_expif;
+            break;
+        case "elsif":
+            if ( m_expif !== void ) {
+                if ( m_expifdone ) {
+                    m_expif = false;
+                    //m_expifdone = true;
+                } else {
+                    m_expif = evalTJS2Boolean(tag.params.exp);
+                    m_expifdone = m_expif;
+                }
+            }
+            break;
+        case "else":
+            if ( m_expif !== void ) {
+                if ( m_expifdone ) {
+                    m_expif = false;
+                    //m_expifdone = true;
+                } else {
+                    m_expif = true;
+                    m_expifdone = true;
+                }
+            }
+            break;
+        case "endif":
+            m_expif = void;
+            m_expifdone = false;
+            break;
+        case "ignore":
+            m_expignore = evalTJS2Boolean(tag.params.exp);
+            break;
+        case "endignore":
+            m_expignore = void;
+            break;
+            //case "macro":
+            //case "endmacro":
+            //case "erasemacro":
+            //case "call":
+            //case "return":
+            //case "iscript":
+            //case "endscript":
+        default:
+            if ( m_expif !== false && m_expignore !== false )
+                fdone = false;
+            break;
+        }
+
+        // cond 属性
+        if ( !fdone && tag.params.cond !== void && !evalTJS2Boolean(tag.params.cond) )
+            fdone = true;
+
+        // 組み込みタグ処理２
+        if ( !fdone ) {
+            fdone = true;
+            switch ( tag.name ) {
+            case "jump":
+                if ( !m_debug_nojump ) {
+                    if ( tag.params.storage !== void )
+                        loadScenario(tag.params.storage);
+                    if ( tag.params.target !== void )
+                        goToLabel(tag.params.target);
+                }
+                break;
+            default:
+                fdone = false;
+                break;
+            }
+        }
+
+        return fdone;
+    }
+
+    // ---------------------------------------------------------
+    // KAGParser override
+    // ---------------------------------------------------------
+
+    function assign(src) {
+        //dm("RAT info: assign");
+        super.assign(...);
+
+        // MEMO:
+        // RATPlayer を生成のするのは起動時に
+        // kag.mainConductor に対してのみ。
+        // assign ではコピーしない。
+        //
+        // 実装としては extends KAGParser ではなく、
+        // extends BaseConductor が正解かも。
+        m_israt		= false;
+        m_rat		= void;
+        resetState();
+    }
+
+    function callLabel(label) {
+        //dm("RAT info: callLabel" + label);
+        if ( m_israt ) {
+            if ( m_rat !== void )
+                m_rat.callLabel(label);
+            resetState();
+        } else {
+            super.callLabel(...);
+        }
+    }
+
+    function clear() {
+        //dm("RAT info: clear");
+        super.clear();
+        if ( m_rat !== void )
+            m_rat.clear();
+        m_israt		= false;
+        resetState();
+    }
+
+    function clearCallStack() {
+        //dm("RAT info: clearCallStack");
+        if ( m_israt ) {
+            if ( m_rat !== void )
+                m_rat.clearCallStack();
+        } else {
+            super.clearCallStack();
+        }
+    }
+
+    function getNextTag() {
+        //dm("RAT info: getNextTag");
+        var kagtag = void;
+
+        while ( true ) {
+            // 次のタグを取ってくる
+            // ratExecInternalTag 内の jump next 等で、m_israt が変化する場合に対処
+            kagtag = void;
+            while ( true ) {
+                // ks の場合はそのまま
+                if ( !m_israt ) {
+                    kagtag = super.getNextTag();
+                    break;
+                }
+                // タグを取ってくる＆組み込みタグを処理する
+                if ( m_rat === void )
+                    break;
+                var tag = ratGetNextTag();
+                if ( tag === void )
+                    break;
+                if ( ratExecInternalTag(tag) )
+                    continue;
+                // タグ形式変換
+                kagtag = tag.params;
+                kagtag.tagname = tag.name;
+                break;
+            }
+
+            // デバッグ：次のデバッグファイルの読み込み
+            if ( kagtag === void ) {
+                if ( m_debug_files === void || m_debug_files.count <= 0 )
+                    break;
+                loadScenario(m_debug_files[0]);
+                m_debug_files.erase(0);
+                continue;
+            }
+
+            // デバッグ：select, seladd, seldone, next を無視する
+            if ( !m_debug_nojump )
+                break;
+            var skip = false;
+            switch ( kagtag.tagname ) {
+            case "sysjump":
+            case "select":
+            case "seladd":
+            case "seldone":
+            case "next":
+            case "wait":
+            case "skipprologue":
+            case "xdialog":
+            case "ydialog":
+                skip = true;
+                break;
+            }
+            if ( !skip )
+                break;
+        }
+
+        /* begin debug */
+        /*
+        if ( kagtag !== void ) {
+            var array = []; array.assign(kagtag);
+            var str = "";
+            for (var x = 0; x < array.count; x += 2) {
+                if ( array[x] !== "tagname" )
+                    str += (array[x] + "=" + array[x+1] + ", ");
+            }
+            dm("RAT info: getNextTag: " + kagtag.tagname + " " + str);
+        } else {
+            dm("RAT info: getNextTag: void");
+        }
+         */
+        /* end debug */
+
+        return kagtag;
+    }
+
+    function goToLabel(label)
+    {
+        //dm("RAT info: goToLabel");
+        if ( m_israt ) {
+            if ( m_rat !== void ) {
+                m_rat.goToLabel(...);
+                // これをやらないと，次にラベルを通過するとか，ExtraConductor が
+                // 発動するタイミングまで runLabel が空になってしまう。
+                // （デバッグ情報レイヤをよく注意してみると気づいたはず）
+                // その状態で store すると runLabel が保存されない。
+                // RATPlayer 自体は ratplayer.lastlabel として情報を持っているから
+                // 一見あまり困らないが，実は autoLabel 機構が runLabel に基づいて
+                // 処理をしているので，既読判定に失敗してしまう。 - 20100314
+                runLabel = label;
+            }
+            resetState();
+        } else {
+            super.goToLabel(...);
+        }
+    }
+
+    function interrupt() {
+        //dm("RAT info: interrupt");
+        if ( m_israt ) {
+            if ( m_rat !== void )
+                m_rat.interrupt;
+        } else {
+            super.interrupt();
+        }
+    }
+
+    function loadScenario(file) {
+        if ( file !== void ) {
+            //dm("RAT info: loadScenario " + file);
+            m_israt = m_rat !== void && Storages.extractStorageExt(file.toLowerCase()) === ".txt";
+            if ( m_israt ) {
+                m_rat.loadScenario(...);
+                resetState();
+            } else {
+                super.loadScenario(...);
+            }
+        }
+    }
+
+    function resetInterrupt() {
+        //dm("RAT info: resetInterrupt");
+        if ( m_israt ) {
+            if ( m_rat !== void )
+                m_rat.resetInterrupt(...);
+        } else {
+            super.resetInterrupt();
+        }
+    }
+
+    function restore(dic) {
+        //dm("RAT info: restore");
+        resetState();
+        m_israt		= dic.ratmode;
+        m_ratTags	= dic.rattags;
+        m_expif		= dic.ratexpif;
+        m_expifdone	= dic.ratexpifdone;
+        m_expignore	= dic.ratexpignore;
+        m_expmp		= dic.ratexpmp;
+        if ( m_israt ) {
+            if ( m_rat !== void && dic.ratplayer !== void )
+                m_rat.restore(dic.ratplayer);
+        } else {
+            super.restore(dic);
+        }
+    }
+
+    function store() {
+        //dm("RAT info: store");
+        var dic = super.store();
+        dic.ratmode	= m_israt;
+        dic.rattags	= m_ratTags;
+        dic.ratplayer	= (m_rat === void) ? void : m_rat.store();
+        dic.ratexpif	= m_expif;
+        dic.ratexpifdone= m_expifdone;
+        dic.ratexpignore= m_expignore;
+        dic.ratexpmp	= m_expmp;
+
+        // MEMO: autoLabelMode hack
+        // 実は restore は呼ばれないので、m_israt を復帰させるための storageName だけが重要。
+        // RATKAGParser では m_israt のみ復帰。その他（m_ratTags）は失われる。
+        // RATPlayer の状態復帰は、Conductor.restore() より後の KAGPlugin.onRestore() で行われる。
+        if ( m_israt && m_rat ) {
+            dic.storageName	= curStorage;
+            dic.parseMode	= false;
+            dic.lineSaveMode	= false;
+            dic.runLine		= 0; // m_rat.m_LastPage;
+            dic.runLabel	= curLabel;
+            dic.runLabelLine	= 0; // m_rat.m_rat.getLabelPage(curLabel);
+        }
+        return dic;
+    }
+
+    property callStackDepth {
+        getter() {
+            //dm("RAT info: callStackLevel");
+            if ( m_israt ) {
+                if ( m_rat !== void )
+                    return m_rat.callStackDepth;
+                return 0;
+            } else {
+                return super.callStackDepth;
+            }
+        }
+    }
+
+    property curLabel {
+        getter() {
+            //dm("RAT info: curLabel");
+            if ( m_israt ) {
+                if ( m_rat !== void )
+                    return m_rat.curLabel;
+                return void;
+            } else {
+                return super.curLabel;
+            }
+        }
+    }
+
+    property curLine {
+        getter() {
+            //dm("RAT info: curLine");
+            if ( m_israt ) {
+                if ( m_rat !== void )
+                    return m_rat.curLine;
+                return 0;
+            } else {
+                return super.curLine;
+            }
+        }
+    }
+
+    property curLineStr {
+        getter() {
+            //dm("RAT info: curLineStr");
+            if ( m_israt ) {
+                if ( m_rat !== void )
+                    return m_rat.curLineStr;
+                return "";
+            } else {
+                return super.curLineStr;
+            }
+        }
+    }
+
+    property curPos {
+        getter() {
+            //dm("RAT info: curPos");
+            if ( m_israt ) {
+                if ( m_rat !== void )
+                    return m_rat.curPos;
+                return 0;
+            } else {
+                return super.curPos;
+            }
+        }
+    }
+
+    property curStorage {
+        getter() {
+            //dm("RAT info: curStorage");
+            if ( m_israt ) {
+                if ( m_rat !== void )
+                    return m_rat.curStorage;
+                return void;
+            } else {
+                return super.curStorage;
+            }
+        }
+        setter(storage) {
+            //dm("RAT info: curStorage = " + storage);
+            loadScenario(storage);
+        }
+    }
+
+    property macroParams {
+        getter() {
+            //dm("RAT info: macroParams");
+            if ( m_israt ) {
+                if ( m_expmp.length > 0 )
+                    return m_expmp[0];
+                return %[];
+            } else {
+                return super.macroParams;
+            }
+        }
+    }
+
+    /* 以下は override しない
+    property debugLevel {}
+    property ignoreCR {}
+    property macros {}
+     */
+
+    // ---------------------------------------------------------
+    // misc
+    // ---------------------------------------------------------
+
+    function dm() {
+        if ( debugLevel >= tkdlSimple ) {
+            global.dm(...);
+        }
+    }
+}
+
+global.BaseConductorExtendClass = RATKAGParser;

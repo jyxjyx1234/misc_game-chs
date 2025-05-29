@@ -1,0 +1,630 @@
+/**
+ * RATPlayer.tjs: RAT player
+ *
+ * Copyright 2008 SAKAMOTO Takahiro, gato-tigre
+ * Copyright 2008 WATANABE Go, wamsoft
+ */
+
+/*
+ * セーブバージョン
+ *
+ * void: 2008/08/18 最初のリリース
+ * 0x01: 2008/08/29 #Page-Id: の導入
+ */
+var RAT_SAVE_VERSION		= 0x01;
+
+/**
+ * RAT の実行を行うクラス
+ */
+class RATPlayer extends KAGPlugin
+{
+    // ---------------------------------------------------
+    // KAGParser 相当実行器
+    // ---------------------------------------------------
+
+    var m_rat;			//< RAT 本体 (RATParser)
+    var m_CurStorage;		//< 現在実行中のシナリオストレージ名
+    var m_CurLine;		//< 現在実行中のページの行
+    var m_CurPage;		//< 現在実行中のページ番号
+    var m_CurPageID;		//< 現在実行中のページのページID
+    var m_CurPageVoice;		//< 現在実行中のページの音声
+    var m_LastLabel;		//< 直近のラベル
+    var m_LastTitle;		//< 直近のラベルタイトル
+    var m_Interrupt;		//< interrupt 状態
+
+    /**
+     * 別インスタンスの内容をコピーする
+     *
+     * @param src コピー元
+     */
+    function assign(src) {
+        clear();
+        if ( src !== void ) {
+            m_rat.assign(src.m_rat);
+            m_CurStorage	= src.m_CurStorage;
+            m_CurLine		= src.m_CurLine;
+            m_CurPage		= src.m_CurPage;
+            m_CurPageID		= src.m_CurPageID;
+            m_CurPageVoice	= src.m_CurPageVoice;
+            m_LastLabel		= src.m_LastLabel;
+            m_LastTitle		= src.m_LastTitle;
+            m_Interrupt		= src.m_Interrupt;
+        }
+    }
+
+    /**
+     * ラベルをサブルーチン呼び出し
+     *
+     * @param label ラベル名
+     */
+    function callLabel(label) {
+    }
+
+    /**
+     * 初期化（全状態）
+     *
+     * ストレージの中身および実行状態を全初期化する
+     */
+    function clear() {
+        m_rat.initAll();
+        m_CurStorage	= "";
+        m_CurLine	= 0;
+        m_CurPage	= 0;
+        m_CurPageID	= void;
+        m_CurPageVoice	= void;
+        m_LastLabel	= "";
+        m_LastTitle	= "";
+        m_Interrupt	= false;
+    }
+
+    /**
+     * 初期化（コールスタック）
+     *
+     * ストレージの中身および実行状態を全初期化する
+     */
+    function clearCallStack() {
+    }
+
+    /**
+     * 指定ラベルまでジャンプ
+     *
+     * @param label ラベル名
+     */
+    function goToLabel(label) {
+        var pageno = m_rat.getLabelPage(label);
+        if ( pageno !== void ) {
+            m_CurPage	= pageno;
+            m_LastLabel	= label;
+            m_LastTitle	= "";
+        } else {
+            throw new Exception(label + ":ラベルジャンプに失敗しました");
+        }
+    }
+
+    /**
+     * interrupt 状態にする
+     */
+    function interrupt() {
+        m_Interrupt = true;
+    }
+
+    /**
+     * シナリオの読み込み
+     *
+     * @param storage 読み込み対象ストレージ
+     */
+    function loadScenario(storage) {
+        try {
+            clear();
+            if ( storage !== void && storage !== "" ) {
+                m_rat.loadScenario(m_CurStorage = storage);
+            }
+        } catch ( e ) {
+            dm(e.message + ":" + e.trace);
+            System.inform(storage + ":" + e.message);
+            kag.goToStart();
+        }
+    }
+
+    /**
+     * interrupt 状態の解除
+     */
+    function resetInterrupt() {
+        m_Interrupt = false;
+    }
+
+    /**
+     * オブジェクト状態を辞書配列から復帰する
+     *
+     * @param dic 状態保存辞書配列
+     */
+    function restore(dic) {
+        //dm("RAT info: restore " + dic.curstorage + ":" + dic.curpage);
+        try {
+            // load
+            loadScenario(dic.curstorage);
+            m_CurLine		= dic.curline;
+            m_CurPage		= dic.curpage;
+            m_CurPageVoice	= dic.curvoice;
+            m_LastLabel		= dic.lastlabel;
+            m_LastTitle		= dic.lasttitle;
+            m_Interrupt		= dic.interrupt;
+            if ( dic.version === void ) {
+                // 2008/08/18 GM
+                m_CurPageID	= dic.curpage;	// 最後に表示したページ番号
+            } else {
+                // 2008/08/29 patch 1
+                m_CurPageID	= dic.curpageid;// 最後に表示したページのページID
+            }
+
+            // resolve Page-Id
+            if ( m_CurPageID !== void ) {
+                var page = m_rat.getPageID(m_CurPageID);
+                if ( page !== void ) {
+                    dm("RAT info: Resume from Page-Id = " + m_CurPageID);
+                    m_CurLine	= m_rat.getPage(page).lineno;
+                    m_CurPage	= page;
+                } else {
+                    dm("RAT info: Cannot find Page-Id = " + m_CurPageID);
+                }
+            } else {
+                dm("RAT info: Resume from Page-No = " + m_CurPage);
+            }
+        } catch ( e ) {
+            dm(e.message + ":" + e.trace);
+            System.inform(storage + ":" + e.message);
+            kag.goToStart();
+        }
+    }
+
+    /**
+     * オブジェクト状態を辞書配列に記録する
+     *
+     * @return 状態保存辞書配列
+     */
+    function store() {
+        //dm("RAT info: store " + m_CurStorage +  ":" + m_CurPage);
+        return %[
+        version		: RAT_SAVE_VERSION,
+        curstorage	: m_CurStorage,
+        curline		: m_CurLine,
+        curpage		: m_CurPage,
+        curpageid	: m_CurPageID,
+        curvoice	: m_CurPageVoice,
+        lastlabel	: m_LastLabel,
+        lasttitle	: m_LastTitle,
+        interrupt	: m_Interrupt];
+    }
+
+    /**
+     * コールスタックの深さ
+     *
+     * @return コールスタックの深さ
+     */
+    property callStackDepth {
+        getter() {
+            return 0;
+        }
+    }
+
+    /**
+     * 直近に通過したラベル名
+     *
+     * @return 直近に通過したラベル名
+     */
+    property curLabel {
+        getter() {
+            return m_LastLabel;
+        }
+    }
+
+    /**
+     * 現在の行の行数
+     *
+     * @return 現在の行の行数
+     */
+    property curLine {
+        getter() {
+            return m_CurLine + 1;
+        }
+    }
+
+    /**
+     * 現在の行の内容
+     *
+     * @return 現在の行の内容
+     */
+    property curLineStr {
+        getter() {
+            return "[page=" + (m_CurPage - 1) + ", line=" + curLine + "]";
+        }
+    }
+
+    /**
+     * 現在の行の中での位置
+     *
+     * @return 現在の行の中での位置
+     */
+    property curPos {
+        getter() {
+            return 0;
+        }
+    }
+
+    /**
+     * 現在のストレージ
+     *
+     * @storage 新しいストレージ
+     * @return 現在のストレージ
+     */
+    property curStorage {
+        getter() {
+            return m_CurStorage;
+        }
+        setter(storage) {
+            loadScenario(storage);
+        }
+    }
+
+    // ---------------------------------------------------
+    // ページ → タグ列変換
+    // ---------------------------------------------------
+
+    /**
+     * 変換中のタグ
+     *
+     * [%[name:タグ名, params:引数辞書]]
+     */
+    var m_tags;				//< 現在変換中の tags
+
+    /**
+     * 変換中のタグを追加する
+     *
+     * @param name タグ名
+     * @param params パラメタ辞書
+     */
+    function addTag(name, params) {
+        if ( m_tags === void )
+            m_tags = [];
+        if ( params === void )
+            params = %[];
+        m_tags.add(%[name:name, params:params]);
+    }
+
+    /**
+     * 編集者コメントの解釈
+     *
+     * @param name 名前
+     * @param value 値
+     */
+    function doEditorComment(name, value) {
+        //dm("RAT info: # " + name + ", " + value);
+        switch ( name.toLowerCase() ) {
+        case "page-id:":
+            m_CurPageID = value;
+            break;
+        case "subject:":
+            m_LastTitle = value;
+            kag.mainConductor.onLabel(m_LastLabel, m_LastTitle);
+            break;
+        case "voice-id:":
+            m_CurPageVoice = value;
+            break;
+        }
+    }
+
+    /**
+     * 執筆者コメントの解釈
+     *
+     * @param text コメント文字列
+     */
+    function doWriterComment(text) {
+        //dm("RAT info: / " + text);
+    }
+
+    /**
+     * そのほかコメントの解釈
+     *
+     * @param text コメント文字列
+     */
+    function doOtherComment(text) {
+        //dm("RAT info: ; " + text);
+    }
+
+    /**
+     * コマンドの解釈
+     *
+     * @param cmds コマンド文字列の配列
+     */
+    function doCommand(cmds) {
+        if ( cmds !== void ) {
+            // 全コマンド文を登録。ここではマクロ展開は行わない。
+            for (var i = 0; i < cmds.count; i++) {
+                //dm("RAT info: * " + cmds[i]);
+                var tag = mkTag(cmds[i]);
+                addTag(tag.name, tag.params);
+            }
+        }
+    }
+
+    /**
+     * 予約コマンドの実行処理
+     * @param syscmd 予約コマンド
+     */
+    function doSysCommand(syscmd) {
+        //dm("RAT info: @ " + syscmd);
+        switch ( syscmd ) {
+        case "r":
+            addTag("r");
+            break;
+        default:
+            dm("RAT error: unknown syscmd " + syscmd);
+            break;
+        }
+    }
+
+    /**
+     * １タグ分文字列を解釈し、タグにする
+     * マクロ展開や TJS 式評価はここではしない。
+     *
+     * 例: op p1=v p2="foo f = n, bar" p3=%arg|default
+     * → %[name:"op", params:%[p1:v, p2:"foo f = n, bar", p3:%arg|default]]
+     *
+     * @param cmdstr コマンド文字列
+     * @return タグ %[name:タグ名, params:パラメタ辞書]
+     */
+    function mkTag(cmdstr) {
+        //dm("RAT info: mkTag " + cmdstr);
+        var tokens = m_rat.tokenize(cmdstr, " \t", true);
+        var tag = tokens[0].toLowerCase();
+        var dic = %[];
+
+        // パラメタの解釈
+        for (var i = 1; i < tokens.length; i++) {
+            var n = tokens[i].indexOf("=");
+            var aname = void;
+            var avalue = void;
+
+            // パラメタに値があるかどうか
+            if ( n < 0 ) {
+                // パラメタに値がない
+                aname = tokens[i].toLowerCase(); // パラメタ名は小文字に正規化
+                avalue = true;
+            } else if ( n > 0 ) {
+                // パラメタに値がある
+                aname = tokens[i].substring(0, n).toLowerCase(); // パラメタ名は小文字に正規化
+                avalue = tokens[i].substring(n + 1);
+            }
+
+            // パラメタ辞書に追加
+            if ( aname !== void && aname !== "" ) {
+                dic[aname] = avalue;
+            }
+        }
+
+        return %[name:tag, params:dic];
+    }
+
+    /**
+     * タグ化されたページを得る
+     *
+     * @param macros マクロ一覧
+     * @return タグ列 [%[name:タグ名, params:パラメタ辞書]]
+     * @return void (if ページ終端)
+     */
+    function mkPageTags() {
+        //dm("RAT info: mkPageTags " + m_CurPage);
+
+        // 初期化
+        m_tags = [];
+
+        // ページ終端チェック
+        if ( m_CurPage >= m_rat.getPageCount() ) {
+            return void;
+        }
+
+        // 未読チェック
+        kagStopSkip();
+
+        // 現在の段落を実行
+        var page = m_rat.getPage(m_CurPage);
+        m_CurPageVoice = void;	// 前ページの音声を忘れる
+        m_CurLine = page.lineno;
+
+        // ラベル処理
+        if ( page.label !== void ) {
+            //dm("RAT info: label=" + page.label.label + " title=" + page.label.title);
+            m_LastLabel = page.label.label;
+            if ( page.label.title !== void )
+                m_LastTitle = page.label.title;
+            kag.mainConductor.onLabel(m_LastLabel, m_LastTitle);
+        }
+
+        // コメントの処理
+        if ( page.cmtlst !== void ) {
+            for (var i = 0; i < page.cmtlst.count; i++) {
+                var cmt = page.cmtlst[i];
+                switch ( cmt.type ) {
+                case RAT_COMMENT_TYPE_EDITOR:
+                    doEditorComment(cmt.name, cmt.value);
+                    break;
+                case RAT_COMMENT_TYPE_WRITER:
+                    doWriterComment(cmt.text);
+                    break;
+                case RAT_COMMENT_TYPE_OTHER:
+                    doOtherComment(cmt.text);
+                    break;
+                }
+            }
+        }
+
+        // 標準コマンドの実行
+        if ( page.cmdmap !== void ) {
+            doCommand(page.cmdmap[m_rat.m_CmdPrefix]);
+        }
+
+        // ボイス設定
+        if ( page.name !== void && m_CurPageVoice !== void ) {
+            addTag(page.name, %[voice:m_CurPageVoice]);
+        }
+
+        // 名前表示
+        if ( page.name !== void || page.disp !== void ) {
+            addTag("ch", %[text:"【"]);
+            if ( page.name !== void ) {
+                addTag("ch", %[text:page.name]);
+            }
+            if ( page.disp !== void ) {
+                addTag("ch", %[text:"/"]);
+                addTag("ch", %[text:page.disp]);
+            }
+            addTag("ch", %[text:"】"]);
+        }
+
+        // テキストの展開
+        if ( page.text !== void && page.text.count > 0 ) {
+            // テキストが存在する場合
+            addTag("r", %[eol:"true"]);	// 名前行改行
+            for (var i = 0; i < page.text.count; i++) {
+                var text = page.text[i];
+
+                // テキスト埋込コマンド
+                if ( page.cmdmap !== void && text.cmd !== void ) {
+                    doCommand(page.cmdmap[m_rat.m_CmdPrefix + text.cmd]);
+                }
+
+                // テキスト埋込予約コマンド
+                if ( text.syscmd !== void ) {
+                    doSysCommand(text.syscmd);
+                }
+
+                // テキスト展開
+                if ( text.text !== void ) {
+                    if ( text.term !== void ) {
+                        // 用語
+                        var kagtag = text.text;
+                        if ( text.disp !== void )
+                            kagtag += "/" + text.disp;
+                        if ( text.ruby !== void )
+                            kagtag += kag.RubySplitSimple + text.ruby;
+                        addTag(kagtag);
+                    } else if ( text.ruby !== void ) {
+                        // ルビ
+                        if ( text.ruby.indexOf(',') >= 0 ) {
+                            // 手動文字割付
+                            addTag(text.text + kag.RubySplitNormal + text.ruby);
+                        } else {
+                            // 大胆中央割付
+                            addTag(text.text + kag.RubySplitSimple + text.ruby);
+                            //addTag("ruby", %[text:text.ruby]);
+                            //addTag("ch", %[text:text.text]);
+                        }
+                    } else {
+                        // 用語でもルビでもないときは１文字ずつ表示
+                        var t = text.text;
+                        for (var j = 0; j < t.length; j++) {
+                            addTag("ch", %[text:t.charAt(j)]);
+                        }
+                    }
+                }
+
+                // 行末
+                if ( text.text === void ) {
+                    addTag("r", %[eol:"true"]); // 行末改行
+                }
+            }
+
+            // 段落末待ち
+            addTag("r", %[eol:"true"]);
+        }
+
+        // 段落単位で保存を実行
+        kagSave();
+
+        // ページを進める
+        m_CurPage++;
+
+        return m_tags;
+    }
+
+    // ---------------------------------------------------------
+    // KAGPlugin
+    // ---------------------------------------------------------
+
+    /**
+     * 状態の保存
+     */
+    function onStore(f, elm) {
+        //dm("RAT info: onStore");
+        f.ratplayer = store();
+    }
+
+    /**
+     * 状態の復帰
+     */
+    function onRestore(f, clear, elm) {
+        //dm("RAT info: onRestore");
+        restore(f.ratplayer);
+    }
+
+    // ---------------------------------------------------------
+    // misc
+    // ---------------------------------------------------------
+
+    /**
+     * コンストラクタ
+     */
+    function RATPlayer() {
+        super.KAGPlugin();
+        m_rat = new RATParser();
+    }
+
+    /**
+     * デバッグメッセージ
+     *
+     * @param ... メッセージ
+     */
+    function dm() {
+        if ( kag.debugLevel >= tkdlSimple ) {
+            global.dm(...);
+        }
+    }
+
+    /**
+     * ラベルからの行数
+     */
+    property lastLabelDistance {
+        getter() {
+            // 通常（mkPageTags外）では、実際の距離＋１になっているはず
+            return m_CurPage - (m_LastLabel == "" ? 0 : m_rat.getLabelPage(m_LastLabel));
+        }
+    }
+
+    /**
+     * 内部保存処理呼び出し
+     */
+    function kagSave() {
+        with ( kag ) {
+            .pushHistoryOfStore();
+            .storeFlags();
+        }
+    }
+
+    /**
+     * 未読ならスキップを停止させる
+     */
+    function kagStopSkip() {
+        // 未読ラベル名
+        var readLabelName = ("trail_" + m_CurStorage + "_" + m_LastLabel).toLowerCase();
+        var isread = sf[readLabelName] >= lastLabelDistance;
+        if ( !isread ) {
+            sf[readLabelName] = lastLabelDistance;
+        }
+        with ( kag ) {
+            if ( !(.allskip || isread) && .skipMode < SKIP_FAST ) {
+                .cancelSkip();
+            }
+            .setMenuAccessibleAll();
+        }
+    }
+};

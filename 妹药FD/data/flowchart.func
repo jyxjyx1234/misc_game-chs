@@ -1,0 +1,32 @@
+func,prologue,		exp,Current.cmd("prologue"),	onenter,Current.cmd("onPrologueEnterLeave/1"),	onleave,Current.cmd("onPrologueEnterLeave/0")
+eval,-prologue,exp,this.class="toggle"
+cref,swpreview,preview_on,preview_off,
+rgrp,swpreview,preview_on,preview_off,
+func,preview_on,	exp,Current.cmd("smallPlayFlag=true")
+func,preview_off,	exp,Current.cmd("smallPlayFlag=false")
+func,slider,		vertical,true,	uipsdfix,true,	onchangefunc,Current.func("onSliderChanged"),	step,200
+func,caption,		
+eval,-caption,exp,this.layer="page"+(int)+.Current.page
+file,preview,		
+func,offview,		
+eval,-offview,exp,this.layer="page"+(int)+.Current.page
+func,page0,		exp,Current.page=0,	target,*page
+func,page1,		exp,Current.page=1,	target,*page
+func,page2,		exp,Current.page=2,	target,*page
+func,page3,		exp,Current.page=3,	target,*page
+func,page4,		exp,Current.page=4,	target,*page
+func,page5,		exp,Current.page=5,	target,*page
+rgrp,pages,page0,page1,page2,page3,page4,page5
+#
+#
+file,mark
+file,pvtext
+file,pvtitle
+file,ratio,		
+file,text,		
+file,scroll,		
+func,base,		
+#
+eval,names,call,Current.uiEval,onSetupFlowBlocks,prologue
+eval,names,call,uiloadSysSE,flowchart
+eval,names,call,Current.uiEval,removeFlowBlockExp

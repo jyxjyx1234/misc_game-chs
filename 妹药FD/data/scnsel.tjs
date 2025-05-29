@@ -1,0 +1,154 @@
+/**
+ * シナリオ選択
+ */
+
+class ScenarioSelectBase extends UiBasedPageSheet
+{
+	var fromTitle, nowScnNum = -1;
+	function ScenarioSelectBase(elm) {
+		super.UiBasedPageSheet(null, elm);
+		fromTitle = (elm.fromtitle !== void) ? +elm.fromtitle : false;
+
+		var info = loadScenarioInfo();
+		nowScnNum = getCurrentScenarioNumber();
+
+		var ipage = (int)+((elm.page !== void) ? elm.page : sf.lastScnSelPage);
+		with (info) {
+			_rowcol = .items_per_page;
+			_count  = _rowcol * .maxpage;
+			ipage   = .initialpage if (.initialpage !== void);
+		}
+		if (nowScnNum >= 0) {
+			var p = findScnPage(nowScnNum);
+			ipage = p if (p !== void);
+		}
+		_itemname = void;
+		init(getPageEnabled(ipage) ? ipage : 0);
+	}
+	function finalize() {
+		sf.lastScnSelPage = page;
+		super.finalize(...);
+	}
+	var _count;
+	property count  { getter() { return _count; } }
+
+	// stubs
+	function loadScenarioInfo() { return %[ items_per_page:0, maxpage:0, /*initialpage:0*/ ]; }
+	function getCurrentScenarioNumber() { return -1; }
+	function getPageEnabled(p) { return true; }
+	function findScnPage(num) { return num \ _rowcol; }
+	function clearCommentText() {}
+	function  drawCommentText(pos, *) {}
+	function getJumpScenario(pos) { return getItemInfo(pos, "storage"); }
+	function getItemInfo(pos, tag) { try { return items[pos][tag]; } catch {} }
+
+
+	function drawItemView(target, pos) {
+		var link = target.parent.links[target.linkNum];
+		if (link !== void && link.exp === void) {
+			disableTagetExceptEnterLeave(target);
+		}
+		return items[pos] !== void ? true : null;
+	}
+	function disableTagetExceptEnterLeave(target) {
+		with (target) {
+			.copyRect(.width*1,0,target,0,0,.width,.height);
+			.copyRect(.width*2,0,target,0,0,.width,.height);
+			.copyRect(.width*3,0,target,0,0,.width,.height);
+			.copyRect(.width*4,0,target,0,0,.width,.height);
+			.copyRect(.width*5,0,target,0,0,.width,.height);
+			.cursor = .window.cursorDefault;
+		}
+	}
+//	function updateItemProperty(target, result) {}
+
+	// 選択された
+	function onSelect(num) {
+		var btn = getItemTarget(num);
+		btn.toggle = true if (btn !== void);
+		askYesNo("AskJump", "確認", onJump, onCancel, num);
+	}
+	function onCancel(num) {
+		var btn = getItemTarget(num);
+		btn.toggle = false if (btn !== void);
+	}
+	function onJump(pos) {
+		tf.scnsel_select = getJumpScenario(pos);
+		with (kag) {
+			.hideSelect();
+			.setMenuAccessibleAll();
+			var ex = (.conductor == .extraConductor);
+			.process("scnsel.ks", ex ? "*jump_from_extra" : "*jump");
+		}
+		kag.current.setSelProcessLock(true); // 選択ロック
+	}
+	var _curitem;
+	function onItemEnterLeave(vis, *) {
+		if (vis) drawCommentText(*);
+		else    clearCommentText();
+	}
+	function onItemEnter(num) {
+		var pos = offset + (int)+num;
+		if (_curitem !== pos) {
+			_curitem  =  pos;
+			onItemEnterLeave(true, pos);
+		}
+	}
+	function onItemLeave(num) {
+		var pos = (num === void) ? _curitem : (offset + (int)+num);
+		if (_curitem === pos) {
+			_curitem  = void;
+			onItemEnterLeave(false, pos);
+		}
+	}
+
+	function update() {
+		_curitem = void;
+		super.update(...);
+		toggleCurrentScenario();
+	}
+	function toggleCurrentScenario() {
+		var cur;
+		if (nowScnNum >= 0 && (cur = getItemTarget(nowScnNum)) !== void)
+			internalToggleCurrentScenario(cur);
+	}
+	function internalToggleCurrentScenario(btn) {
+		with (btn) .toggle = true, .enabled = false;
+	}
+}
+
+with (SystemScript) {
+	.add("scnsel", "scnsel");
+	.add("scnsel.from.title",    "*start_title");
+	.add("scnsel.from.game",     "*start_game");
+	.add("scnsel.sysfrom.title", "*sysfrom_title");
+	.add("scnsel.sysfrom.game",  "*sysfrom_game");
+	.add("game.from.scnsel",     "scnsel*return");
+	.add("title.from.scnsel",    "custom*title_restore");
+}
+SystemHook.add("scnsel.leave", "dialog.done");
+setSystemMenuStorage("scnsel.ks");
+
+with (SystemActionBase) {
+	.scnsel  = function (*) { return _tglSubMode("scnsel", "toggleScnsel", _scnsel, "scnselMenuItem", *); } incontextof null;
+	._scnsel = function {
+		with (kag) {
+			if (.isRecollection) {
+				askYesNo("AskQuitReplay", "確認", .endRecollection);
+				return;
+			}
+			if (.conductor == .extraConductor ||
+				.currentStorage == "scnsel.ks") return;
+		}
+		var isTitle = inTitleMenu(kag);
+		startSubSystem(!isTitle, "scnsel.sysfrom." + (isTitle ?  "title" : "game"));
+	} incontextof null;
+}
+addKagHookCallback("onKAGSetupMenu", function(kag) {
+	createMenuFromList(kag, kag.systemControlMenu, [
+		%[  name:"scnselMenuItem", caption:"シナリオ選択(&M)",  exp:"SystemAction._scnsel()", se:"menu.scnsel" ]
+		]);
+}, false);
+addKagHookCallback("onModeChangeHookEx", function(prop, kag, am, sm, ca, cs, ss, modal, cr) {
+	scnselMenuItem.enabled = canConfig(kag, modal);
+}, true);

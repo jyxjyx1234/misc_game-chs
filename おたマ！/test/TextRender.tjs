@@ -1,0 +1,958 @@
+/**
+ * テキストのレンダリング処理を行うためのクラス
+ * 矩形内にテキストを敷き詰めてそのデータを返す機能を提供する
+ *
+ * 注意事項
+ * ・フェースは１回の描画中での変更は無しとしてあります。変更すると結果が保証されません
+ * ・ルビは指定領域から上にはみ出た位置に配置されます。最大サイズの本文テキスト上端が0位置です
+ * ・行末禁則文字は kinsokuMax文字だけ指定領域からはみでる場合があります
+ *
+ * lines 全テキスト。行の配列
+ * line 現在処理中行。テキストの配列
+ * 個別テキストデータ:以下の情報を含む辞書
+ * x,y:表示位置(レンダリング原点に対する相対座標)
+ * text:表示するテキスト
+ * size:フォントサイズ
+ * graph: グラフィック画像名(テキストの代わり・縦幅に縮小して表示) ※未実装
+ * ruby:ルビテキスト
+ *   text:表示するテキスト
+ *   x,y:表示位置(文字の表示位置に対する相対座標)
+ *   size:ルビフォントサイズ
+ * color: テキスト色
+ * bold: ボールド描画するならtrue
+ * italic: italic描画するならtrue
+ * shadow: 影描画するならその色
+ * edge: 縁描画するならその色
+ *
+ */
+class TextRender
+{
+	// 行頭禁則文字
+	var wwFollowing = "%),:;]}｡｣ﾞﾟ。，、．：；゛゜ヽヾゝゞ々’”）〕］｝〉》」』】°′″℃￠％‰　" + 
+		              "!.?､･ｧｨｩｪｫｬｭｮｯｰ・？！ーぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶ";
+	// 行末禁則文字
+    var wwLeading="\\$([{｢‘“（〔［｛〈《「『【￥＄￡";
+
+	// 禁則可能数
+	var kinsokuMax = 1;
+	
+	var x; // 現在の表示位置
+	var y; // 現在の表示位置
+	var indentpos; // インデント位置
+
+	var ignoreFontChange = true; // フォント変更を無視
+	
+	var defaultFontSize = 24; // デフォルトのフォント高さ
+	var defaultLineSize = 0; // デフォルトのライン高さ
+	var lineSize; // ライン高さ
+
+	var defaultLineSpacing = 6; // デフォルトの行間
+	var lineSpacing; // 行間
+	var defaultPitch = 0; // デフォルトの字間
+	var pitch; // 字間
+	var align=-1; // -1=左/上そろえ  0=中央揃え   1=右/下そろえ
+	
+	var defaultRubySize = 10; // デフォルトのルビの高さ
+	var rubySize; // ルビ高さ
+	var defaultRubyOffset = -2; // デフォルトのルビのオフセット
+	var rubyOffset; // ルビのオフセット
+	var currentRuby = ""; // 次の文字に対するルビ
+	var currentRubyCount = 0;
+	var currentText = "";
+
+	var defaultChColor = 0xffffff; // デフォルトの文字色
+	var chColor; // 文字色
+	
+	var defaultShadow = true; // デフォルトで影をつけるか
+	var shadow; // 影をつけるか
+	var defaultShadowColor = 0x000000; // デフォルトの影の色
+	var shadowColor; // 影の色
+
+	var defaultEdge = false; // デフォルトで縁取りをするか
+	var edge; // 縁取りをするか
+	var defaultEdgeColor = 0x0080ff; // デフォルトの縁取りの色
+	var edgeColor; // 縁取りの色
+
+	var defaultBold = false; // デフォルトでボールドで描画するか
+	var defaultItalic = false; // デフォルトでボールドで描画するか
+	
+	var font;	// 処理用フォント
+	var width;  //< 表示領域横幅
+	var height; //< 表示領域縦幅
+
+	var lines;        //< 全行の情報
+	var line;         //< 現在行の情報
+	var kinsokuCount; //< 禁則のカウンタ
+
+	property bold {
+		setter(v) {
+			font.bold = v;
+		}
+		getter() {
+			return font.bold;
+		}
+	}
+
+	property italic {
+		setter(v) {
+			font.italic = v;
+		}
+		getter() {
+			return font.italic;
+		}
+	}
+
+	var _fontSize;
+	property fontSize {
+		setter(v) {
+			_fontSize = v;
+			font.height = v;
+		}
+		getter() {
+			return _fontSize;
+		}
+	}
+
+	/**
+	 * コンストラクタ
+	 * @param width 描画対象領域横幅
+	 * @param height 描画対象領域縦幅
+	 */
+	function TextRender() {
+	}
+
+	/**
+	 * ファイナライザ
+	 */
+    function finalize() {
+    }
+
+	function initFont(font) {
+		this.font = font;
+		font.angle = 0;
+	}
+	
+	/**
+	 * 画面のクリア
+	 */
+	function clear() {
+		x = 0;
+		y = 0;
+		kinsokuCount = 0;
+		currentRuby = "";
+		currentRubyCount = 0;
+		currentText = "";
+		indentpos = 0;
+		resetFont();
+		resetStyle();
+		lines = [];
+		line  = [];
+    }
+
+	// フォントのリセット
+	function resetFont() {
+		bold   = defaultBold;
+		italic = defaultItalic;
+		fontSize = defaultFontSize;
+		chColor = defaultChColor;
+		rubySize = defaultRubySize;
+		rubyOffset = defaultRubyOffset;
+		shadow = defaultShadow;
+		edge = defaultEdge;
+		shadowColor = defaultShadowColor;
+		edgeColor = defaultEdgeColor;
+	}
+
+	// フォントの設定
+	function setFont(elm) {
+
+		if (elm.bold == 'default')
+			bold = defaultBold;
+		else if(elm.bold !== void)
+			bold = +elm.bold;
+
+		if (elm.italic == 'default')
+			italic = false;
+		else if(elm.italic !== void)
+			italic = +elm.italic;
+		
+		if (elm.size == 'default')
+			fontSize = defaultFontSize;
+		else if(elm.size !== void)
+			fontSize = +elm.size;
+		if (!fontSize) throw new Exception("フォントサイズが不正です(defaultの綴り間違いなどを確認): "+elm.size);
+		
+		if (elm.color == 'default')
+			chColor = defaultChColor;
+		else if(elm.color !== void)
+			chColor = +elm.color;
+
+		if (elm.rubysize == 'default')
+			rubySize = defaultRubySize;
+		else if(elm.rubysize !== void)
+			rubySize = +elm.rubysize;
+
+		if (elm.rubyoffset == 'default')
+			rubyOffset = defaultRubyOffset;
+		else if(elm.rubyoffset !== void)
+			rubyOffset = +elm.rubyoffset;
+
+		if (elm.shadow == 'default')
+			shadow = defaultShadow;
+		else if(elm.shadow !== void)
+			shadow = +elm.shadow;
+
+		if (elm.shadowcolor == 'default')
+			shadowColor = defaultShadowColor;
+		else if(elm.shadowcolor !== void)
+			shadowColor = +elm.shadowcolor;
+
+		if (elm.edge == 'default')
+			edge = defaultEdge;
+		else if(elm.edge !== void)
+			edge = +elm.edge;
+
+		if (elm.edgecolor == 'default')
+			edgeColor = defaultEdgeColor;
+		else if(elm.edgecolor !== void)
+			edgeColor = +elm.edgecolor;
+    }
+
+	// デフォルトフォントの設定
+	function setDefaultFont(elm) {
+		defaultBold = +elm.bold if elm.bold !== void;
+		defaultFontSize = +elm.size if elm.size !== void;
+		defaultChColor = +elm.color if elm.color !== void;
+		defaultRubySize = +elm.rubysize if elm.rubysize !== void;
+		defaultRubyOffset = +elm.rubyoffset if elm.rubyoffset !== void;
+		defaultShadow = +elm.shadow if elm.shadow !== void;
+		defaultShadowColor = +elm.shadowcolor if elm.shadowcolor !== void;
+		defaultEdge = +elm.edge if elm.edge !== void;
+		defaultEdgeColor = +elm.edgecolor if elm.edgecolor !== void;
+	}
+
+	// スタイルのリセット
+	function resetStyle() {
+		lineSize = defaultLineSize;
+		lineSpacing = defaultLineSpacing;
+		pitch = defaultPitch;
+		align = -1;
+	}
+
+	// スタイルの設定
+	function setStyle(elm) {
+		if (elm.linespacing == 'default')
+			lineSpacing = defaultLineSpacing;
+		else if(elm.linespacing !== void)
+			lineSpacing = +elm.linespacing;
+
+		if (elm.pitch == 'default')
+			pitch = defaultPitch;
+		else if(elm.pitch !== void)
+			pitch = +elm.pitch;
+
+		if(elm.linesize == 'default')
+		{
+			lineSize = defaultLineSize;
+		}
+		else if(elm.linesize !== void)
+		{
+			lineSize = +elm.linesize;
+		}
+
+		if(elm.align == 'default')
+		{
+			align = -1;
+		}
+		else if(elm.align !== void)
+		{
+			if(elm.align == 'left' || elm.align == 'top')
+				align = -1;
+			else if(elm.align == 'center')
+				align = 0;
+			else if(elm.align == 'right' || elm.align == 'bottom')
+				align = 1;
+		}
+	}
+
+	// デフォルトのスタイルの設定
+	function setDefaultStyle(elm) {
+		defaultLineSpacing = +elm.linespacing if elm.linespacing !== void;
+		defaultPitch = +elm.pitch if elm.pitch !== void;
+		defaultLineSize = +elm.linesize if elm.linesize !== void;
+	}
+
+	/**
+	 * 行追加処理
+	 */
+	function addLine()	{
+
+		// 最大のフォントサイズを取得
+		var maxSize = 0;
+		var c = line.count;
+		for (var i=0;i<line.count;i++) {
+			maxSize = (int)Math.max(maxSize, line[i].size);
+		}
+		// 行幅とフォントサイズの大きい方だけずらす
+		var addy = maxSize > lineSize ? maxSize : lineSize;
+
+		if (height !== void && y +  addy >= height) {
+			// ページを越えるので打ち切り
+			line.clear();
+			return false;
+		}
+
+		// アライン処理
+		var addx;
+		switch (align) {
+		case 0:
+			addx = (width - x)/2;
+			break;
+		case 1:
+			addx = width - x;
+			break;
+		default:
+			addx = 0;
+		}
+
+		// 改行とアラインに合わせて行座標補正
+		var count = line.count;
+		for (var i=0;i<count;i++) {
+			var ch = line[i];
+			ch.x += addx;
+			ch.y += addy;
+		}
+
+		lines.add(line);
+		line = [];
+
+		// 改行処理
+		x = indentpos;
+		y += addy;
+		y += lineSpacing;
+		kinsokuCount = 0;
+		currentRuby = "";
+		currentRubyCount = 0;
+		currentText = "";
+		return true;
+	}
+
+	/**
+	 * 文字 ch を描画する
+	 * @param ch 文字
+	 * @return 打ち切られたら false
+	 */
+	function entryCh(text) {
+		with (text) {
+			if (x + .cw >= width) {
+				// 文字がはみ出る場合
+				var nextline; // 次行
+				// 行頭禁則文字
+				if (wwFollowing.indexOf(.text)!=-1) {
+					// 禁則個数範囲内ならそのまま表示
+					if (kinsokuCount < kinsokuMax) {
+						kinsokuCount++;
+					} else {
+						// 行頭禁則個数範囲が限界を超える場合は全て次行に送る
+						nextline = [];
+						while (line.count > 1 && kinsokuCount > 0) {
+							nextline.unshift(line.pop());
+							kinsokuCount--;
+						}
+						// 末尾の文字が行頭禁則で無ければそれもあわせて次行に送る
+						if (line.count > 1 && wwFollowing.indexOf(line[line.count-1].text)==-1) {
+							nextline.unshift(line.pop());
+						}
+					}
+				} else {
+					//dm("通常文字:" + .text);
+					//dm("文字数:" + line.count);
+					//dm("最後の文字:" + wwLeading.indexOf(line[line.count-1].text));
+					//dm("最後の１つ前の文字:" + wwLeading.indexOf(line[line.count-2].text));
+					// 次行を準備
+					nextline = [];
+					// 末尾が行末禁止文字なら１文字送っても問題なければ次行に送る
+					if (line.count > 2 && wwLeading.indexOf(line[line.count-2].text)==-1 && wwLeading.indexOf(line[line.count-1].text)!=-1) {
+						nextline.unshift(line.pop());
+					} if (line.count > 1 && wwLeading.indexOf(line[line.count-1].text)!=-1) {
+						nextline.unshift(line.pop());
+					}
+				}
+				if (nextline !== void) {
+					// 次行があるなら改行する
+					if (!addLine(line)) {
+						return false; // 打ち切られた
+					}
+					// 禁則で送られた文字はそのまま次行に全部入れる
+					var t;
+					while ((t = nextline.shift()) !== void) {
+						//dm("送られた文字を再エントリ:" + t.text);
+						if (!entryCh(t)) {
+							return false; // 打ち切られた
+						}
+					}
+				}
+			}
+			//dm("挿入:%s (%d,%d)".sprintf(.text, x, y));
+			.x = x;
+			.y = y-.size;
+			line.add(text);
+			x += .cw;
+			x += pitch;
+		}
+		return true; // 文字が足せた
+	}
+
+	/**
+	 * 文字 ch を描画する
+	 * @param ch 文字
+	 * @return 打ち切られたら false
+	 */
+	function processCh(ch) {
+		currentText += ch;
+		if (currentRubyCount > 0) {
+			// ルビ対象文字数指定がある場合はとりあえず蓄積
+			currentRubyCount--;
+			return true;
+		}
+		if (currentText.length == 1) {
+			// 1文字だけなら従来通り
+			// 格納するテキストの基本情報を作る
+			var cw = font.getTextWidth(currentText);
+			var text = %[text:currentText, cw:cw, size:fontSize, bold:bold, italic:italic, color:chColor];
+			text.edge   = edgeColor if edge;
+			text.shadow = shadowColor if shadow;
+			// ルビを登録
+			if (currentRuby != "") {
+				var oh = font.height;
+				font.height = rubySize;
+				var rw = font.getTextWidth(currentRuby);
+				font.height = oh;
+				var rx = int((cw>>1) - (rw>>1));
+				var ry = int(-rubySize-rubyOffset);
+				text.ruby = %[text:currentRuby, x:rx, y:ry, size:rubySize];
+				currentRuby = "";
+			}
+			currentText = "";
+			return entryCh(text);
+		} else {
+			// まずテキストを展開
+			var texts = [];
+			var l = currentText.length;
+			var w = 0;
+			for (var i=0;i<l;i++) {
+				var ch = currentText.charAt(i);
+				var cw = font.getTextWidth(ch);
+				var text = %[text:ch, cw:cw, size:fontSize, bold:bold, italic:italic, color:chColor];
+				text.edge   = edgeColor if edge;
+				text.shadow = shadowColor if shadow;
+				texts.add(text);
+				w += cw;
+			}
+			// テキストの描画横幅を計算
+			w += pitch * (l-1);
+			var cw0 = texts[0].cw/2;
+			w -= cw0;
+			w -= texts[l-1].cw/2;
+
+			// ルビのサイズ情報を取得
+			var oh = font.height;
+			font.height = rubySize;
+			var rubies = [];
+			var rl = currentRuby.length;
+			var rw = 0;
+			for (var i=0;i<rl;i++) {
+				var ch = currentRuby.charAt(i);
+				var cw = font.getTextWidth(ch);
+				rubies.add(%[ch:ch, cw:cw]);
+				rw += cw;
+			}
+			rw -= rubies[0].cw/2;
+			rw -= rubies[rl-1].cw/2;
+			font.height = oh;
+
+			// ルビ配置基準決定
+			var rx;
+			var rpitch;
+			if (w > rw) {
+				rx = cw0;
+				rpitch = w / (rl-1);
+			} else {
+				rx = cw0 - (rw - w)/2;
+				rpitch = rw / (rl-1);
+			}
+			var ry = int(-rubySize-rubyOffset);
+
+			// ルビをテキストに差し込む
+			var target = 0;
+			for (var i=0;i<rl;i++) {
+				var ch = rubies[i].ch;
+				var cw = rubies[i].cw;
+				var ruby = %[text:ch, x:rx-cw/2, y:ry, size:rubySize];
+				var text = texts[target];
+				if (text.ruby === void) {
+					text.ruby = [];
+				}
+				text.ruby.add(ruby);
+				rx += rpitch;
+				var cw = text.cw + pitch;
+				if (target < l-1 && rx > cw) {
+					target++;
+					rx -= cw;
+				}
+			}
+
+			currentRuby = "";
+			currentText = "";
+			
+			// 描画投入
+			for (var i=0;i<l;i++) {
+				if (!entryCh(texts[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
+	/**
+	 * 改行を追加する
+	 * @return 成功:true 打ち切られたら false
+	 */
+	function processReturn() {
+		return addLine();
+	}
+
+	// 次の文字に対するルビを設定する
+	function processRuby(text) {
+		if (text.length > 0) {
+			var p;
+			if ((p = text.indexOf(",")) >= 0) {
+				// ルビ側に対象文字数指定が存在する
+				currentRuby      = text.substr(0,p);
+				currentRubyCount = +text.substr(p+1);
+			} else {
+				currentRuby = text;
+				currentRubyCount = 0;
+			}
+		}
+	}
+
+	// 前インデント処理
+	function preIndent(ch) {
+		if (ch !== void) {
+			x -= font.getTextWidth(ch);
+		}
+	}
+
+	// インデントを現在位置に設定
+	function setIndent() {
+		indentpos = x;
+	}
+
+	// インデントを解除
+	function resetIndent() {
+		indentpos = 0;
+	}
+
+	// 空行判定
+	property emptyLine {
+		getter() {
+			return line === void || line.count == 0;
+		}
+	}
+
+	/**
+	 * テキストのレンダリングを一括実行して結果を返す
+	 * @param width レンダリング領域横幅
+	 * @param height レンダリング領域縦幅(voidだと終端をチェックしない)
+	 * @param font レンダリング用フォント
+	 * @param text 処理対象テキスト
+	 * @param base $による変数参照の対象。省略時はグローバルが参照される
+	 * @param autoIndent 自動インデント処理を有効にする。負の数にした場合は行頭なら逆字下げする
+	 * @param base 変数参照のベース。省略時はグローバルになる
+	 * @return はみ出ることなくレンダリングに成功したらtrue
+	 *
+	 * これを呼び出したあとは、
+	 * lines にレンダリング結果が格納された状態になる。
+	 * また、y に height 方向の最大領域値が格納されている。
+	 *
+	 * 入力用特殊テキスト書式
+	 * \n      改行
+	 * \t      タブ文字
+	 * \i      インデント開始(次行から)
+	 * \r      インデント解除(次行から)
+	 * \文字   エスケープ指定。特殊機能が全て無効
+	 * [xxxx]  ルビ指定。次の文字にかかる
+	 * %b      ボールド指定
+	 * %i      イタリック指定
+	 * %n      ボールド・イタリック解除
+	 * %s      影指定
+	 * %e      エッジ指定
+	 * %数値   サイズ指定
+	 * %r      フォントリセット
+	 * $xxx;   埋め込み指定(xxxxは変数名)
+	 * &xxx;   グラフィック文字指定 (xxxxは画像名) ※未実装
+	 */
+	function render(width, height, font, text, autoIndent=0, base=void) {
+
+		this.width = width;
+		this.height = height;
+		initFont(font);
+
+		clear();
+		base = global if base === void;
+
+		// 自動インデント用の括弧一覧（必ずBegin/Endと順序が合うように並べる）
+		var autoIndentBeginCharacters = "「『（‘“〔［｛〈《";
+		var autoIndentEndCharacters   = "」』）’”〕］｝〉》";
+		var afterCr = true;
+		var indentLevel = 0; // 「のカウントを行う
+		var indentCharacter = void; // インデントに使った文字
+		var stop = false; // 打ち切られたら true
+		
+		var c = text.length; // 文字数
+		var i = 0; // インデックス
+		while (!stop && i < c) {
+			var ch = text.charAt(i++);
+			switch (ch) {
+			case "\n":
+				// 改行コード
+				if (!processReturn()) {
+					stop = true;
+				}
+				afterCr = true;
+				break;
+			case "\\":
+				// エスケープシーケンス
+				if (i < c) {
+					ch = text.charAt(i++);
+					switch (ch) {
+					case "n":
+						if (!processReturn()) {
+							stop = true;
+						}
+						break;
+					case "t":
+						if (!processCh("\t")) {
+							stop = true;
+						}
+						afterCr = false;
+						break;
+					case "i":
+						setIndent();
+						break;
+					case "r":
+						resetIndent();
+						break;
+					case "\\":
+						if (!processCh(ch)) {
+							stop = true;
+						}
+						afterCr = false;
+						break;
+					// 他は無視
+					default:
+						break;
+					}
+				}
+				break;
+			case "[":
+				// ルビ
+				{
+					var value  ="";	while (i < c) {	ch = text.charAt(i++); if (ch == "]") break; value += ch; }
+					processRuby(value);
+				}
+				break;
+			case "%":
+				// コマンド
+				if (i < c) {
+					ch = text.charAt(i++);
+					if (/[0-9]/.test(ch)) {
+						var value = ch;
+						while (i < c) {	ch = text.charAt(i); if (!/[0-9]/.test(ch)) break; value += ch; i++; }
+						value = +value;
+						if (!ignoreFontChange) {
+							fontSize = value ? value : defaultFontSize;
+						}
+					} else {
+						switch (ch) {
+						case "b": bold = true; break;
+						case "i": italic = true; break;
+						case "n": bold = false, italic = false; break;
+						case "s": shadow = true; break;
+						case "e": edge = true; break;
+						case "r": resetFont(); break;
+						case "C": align=0; break;
+						case "R": align=1; break;
+						case "L": align=-1; break;
+						default: break;
+						}
+					}
+				}
+				break;
+			case "$":
+				// 変数参照
+				{
+					var value  ="";	while (i < c) {	ch = text.charAt(i++); if (ch == ";") break; value += ch; }
+					if (value != "") {
+						if (typeof base[value] == "String") {
+							value = base[value];
+							for (var i=0;i<value.length;i++) {
+								if (!processCh(value.charAt(i))) {
+									stop = true;
+									break;
+								}
+								afterCr = false;
+							}
+						}
+					}
+				}
+				break;
+			case "&":
+				// グラフィック文字
+				{
+					var value  ="";	while (i < c) {	ch = text.charAt(i++); if (ch == ";") break; value += ch; }
+					if (value != "") {
+						var entry = getGraphEntry(value);
+						entryCh(entry) if (entry !== void);
+					}
+					afterCr = false;
+				}
+				break;
+			default:
+				// 通常文字
+				if (autoIndent) {
+					// 自動インデント
+					var indentBeginIdx = -1, indentEndIdx = -1;
+					indentBeginIdx = autoIndentBeginCharacters.indexOf(ch);
+					indentEndIdx   = autoIndentEndCharacters  .indexOf(ch);
+					if (autoIndent < 0 && indentBeginIdx >= 0 && emptyLine) {
+						preIndent(ch);
+					}
+					if (!processCh(ch)) {
+						stop = true;
+					} else {
+						// 自動インデント処理
+						if (indentBeginIdx >= 0) {
+							if (afterCr) {
+								indentCharacter = autoIndentBeginCharacters.charAt(indentBeginIdx);
+								setIndent();
+							}
+							indentLevel++;
+						} else if (indentEndIdx >= 0) {
+							if (indentLevel == 1) {
+								var pair = autoIndentBeginCharacters.indexOf(indentCharacter);
+								resetIndent() if (pair == indentEndIdx);
+							}
+							indentLevel--;
+						}
+					}
+				} else {
+					if (!processCh(ch)) {
+						stop = true;
+					}
+				}
+				afterCr = false;
+				break;
+			}
+		}
+		if (stop) {
+			return false;
+		} else {
+			return processReturn();
+		}
+	}
+
+	// 共通パラメータ
+	// とりあえずいじる口無し
+	var antialiased; // アンチエイリアスを掛けるか
+	var edgeExtent = 1; // 袋文字のふとさ
+	var edgeEmphasis = 512; // 袋文字の強調度
+	var shadowOffsetX = 2; // 影のオフセット
+	var shadowOffsetY = 2; // 影のオフセット
+	var shadowWidth   = 0; // 影ぼかし度
+
+	/**
+	 * レイヤに対して指定文字を描画する
+	 * @param layer
+	 * @param ox 原点X位置指定
+	 * @param oy 原点Y位置指定
+	 * @param ch 文字描画情報
+	 */
+	function drawCh(layer, ox, oy, ch) {
+		with (ch) {
+			//dm(@"文字描画:(${ch.x},${ch.y}) ${ch.size}, ${ch.text}, %08x}".sprintf(ch.color));
+			layer.font.height = .size;
+			if (.graph != "") {
+				drawGraph(layer, ox, oy, .graph, ch);
+			} else {
+				var dt = layer.drawText;
+				if      (.edge   !== void) dt(ox + .x, oy + .y, .text, .color, 255, antialiased, edgeEmphasis, .edge, edgeExtent, 0, 0);
+				else if (.shadow !== void) dt(ox + .x, oy + .y, .text, .color, 255, antialiased, 255, .shadow, shadowWidth, shadowOffsetX, shadowOffsetY);
+				else                       dt(ox + .x, oy + .y, .text, .color, 255, antialiased);
+			}
+			if (.ruby !== void) {
+				if (.ruby instanceof "Array") {
+					var count = .ruby.count;
+					for (var i=0;i<count;i++) {
+						drawRuby(layer, ox, oy, ch, .ruby[i]);
+					}
+				} else {
+					drawRuby(layer, ox, oy, ch, .ruby);
+				}
+			}
+		}
+	}
+
+	function getGraphLayer(file) {
+		var win = global.Window.mainWindow;
+		var lay = new global.Layer(win, win.primaryLayer);
+		try {
+			lay.loadImages(file);
+		} catch {
+			invalidate lay;
+			return void;
+		}
+		return lay;
+	}
+
+	function getGraphEntry(file) {
+		var lay = getGraphLayer(file);
+		if (lay !== void) {
+			var text = %[ graph:file, cw:lay.imageWidth, size:lay.imageHeight, color:chColor ];
+			text.edge   = edgeColor if edge;
+			text.shadow = shadowColor if shadow;
+			invalidate lay;
+			return text;
+		}
+	}
+	function drawGraph(target, ox, oy, file, ch) {
+		var lay = getGraphLayer(file);
+		if (lay !== void) with (lay) {
+			var w = ch.cw, h = ch.size;
+			ox += ch.x;
+			oy += ch.y;
+
+			.face = dfOpaque;
+			.holdAlpha = true;
+			if (ch.edge !== void) {
+				.fillRect(0, 0, w, h, ch.edge);
+				target.operateRect(ox+1, oy,   lay, 0, 0, w, h);
+				target.operateRect(ox,   oy+1, lay, 0, 0, w, h);
+				target.operateRect(ox-1, oy,   lay, 0, 0, w, h);
+				target.operateRect(ox,   oy-1, lay, 0, 0, w, h);
+			} else if (ch.shadow !== void) {
+				.fillRect(0, 0, w, h, ch.shadow);
+				target.operateRect(ox+shadowOffsetX, oy+shadowOffsetY, lay, 0, 0, w, h);
+			}
+			.fillRect(0, 0, w, h, ch.color);
+			target.operateRect(ox, oy, lay, 0, 0, w, h);
+			invalidate lay;
+		}
+	}
+
+	function drawRuby(layer, ox, oy, ch, ruby) {
+		if (ruby) {
+			with (ruby) {
+				var rtext = %[];
+				(Dictionary.assign incontextof rtext)(ch);
+				delete rtext.ruby;
+				rtext.x += .x;
+				rtext.y += .y;
+				rtext.text = .text;
+				rtext.size = .size;
+				//dm("ルビ描画:%s (%d,%d) %d".sprintf(rtext.text, rtext.x, rtext.y, rtext.size));
+				drawCh(layer, ox, oy, rtext);
+			}
+		}
+	}
+	
+	/**
+	 * レイヤに対してテキストをレンダリングして描画する
+	 * @param layer レンダリング先レイヤ
+	 * @param ox 原点X位置指定
+	 * @param oy 原点Y位置指定
+	 * @param width レンダリング領域横幅
+	 * @param height レンダリング領域縦幅(voidだと終端をチェックしない)
+	 * @param text 処理対象テキスト
+	 * @param autoIndent 自動インデント処理を有効にする。負の数にした場合は行頭なら逆字下げする
+	 * @param base 変数参照のベース。省略時はグローバルになる
+	 * @return はみ出ることなくレンダリングに成功したらtrue
+	 */
+	function draw(layer, ox, oy, width, height, text, autoIndent=1, base=void) {
+		// レンダリング
+		var ret= render(width, height, layer.font, text, autoIndent, base);
+		drawAll(layer, ox, oy);
+		return ret;
+	}
+	function drawAll(layer, ox, oy) {
+		// レイヤに結果を描画
+		for (var l=0, lc=lines.count; l<lc; l++) {
+			for (var i=0, line=lines[l], c=line.count; i<c; i++) {
+				drawCh(layer, ox, oy, line[i]);
+			}
+		}
+	}
+	function getRect() {
+		// 範囲を取得
+		var minmax = function(rect, item, ox=0, oy=0) {
+			with (rect) {
+				var n, x=item.x+ox, y=item.y+oy;
+				if ((n=x)           < .x1 || .x1 === void) .x1 = n;
+				if ((n=y)           < .y1 || .y1 === void) .y1 = n;
+				if ((n=x+item.cw)   > .x2 || .x2 === void) .x2 = n;
+				if ((n=y+item.size) > .y2 || .y2 === void) .y2 = n;
+				if (item.ruby !== void) {
+					if (item.ruby instanceof "Array") {
+						for (var i=0, c=item.ruby.count; i < c; i++)
+							.self(rect, item.ruby[i], x, y);
+					} else  .self(rect, item.ruby,    x, y);
+				}
+			}
+		};
+		var rect = %[ self:minmax ];
+		for (var l=0, lc=lines.count; l<lc; l++) {
+			for (var i=0, line=lines[l], c=line.count; i<c; i++) {
+				minmax(rect, line[i]);
+			}
+		}
+		with (rect) return %[ x:.x1, y:.y1, width:.x2-.x1, height:.y2-.y1 ];
+	}
+
+
+	/**
+	 * メッセージレイヤから設定を複製
+	 * @parma msg メッセージレイヤ
+	 */
+	function setDefaultFromMessageLayer(msg, force) {
+		if (msg instanceof "MessageLayer" || force) {
+			var params = ["defaultBold",
+						  "defaultFontSize",
+						  "defaultChColor",
+						  "defaultRubySize",
+						  "defaultRubyOffset",
+						  "defaultShadow",
+						  "defaultShadowColor",
+						  "defaultEdge",
+						  "defaultEdgeColor",
+						  "defaultLineSpacing",
+						  "defaultPitch",
+						  "defaultLineSize",
+						  "antialiased",
+						  "edgeExtent",
+						  "edgeEmphasis",
+						  "shadowOffsetX",
+						  "shadowOffsetY",
+						  "shadowWidth"
+						  ];
+			var c = params.count;
+			for (var i=0;i<c;i++) {
+				var name = params[i];
+				if (typeof msg[name] != "undefined") {
+					this[name] = msg[name];
+				}
+			}
+		}
+	}
+}

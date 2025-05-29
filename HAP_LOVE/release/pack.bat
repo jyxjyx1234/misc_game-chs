@@ -1,0 +1,1 @@
+chs_pack pack transdata HAPLOVE_CHS.cpk HAPLOVE

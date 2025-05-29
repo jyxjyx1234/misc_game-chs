@@ -1,0 +1,222 @@
+with (SystemConfig) {
+	.PopupDefaultBaseImage = "popup_base";
+
+	.PopupDefaultConfig =
+		%[
+		name:  "PopupNotify", // レイヤ名
+
+		movevert:  0, //  0:水平移動, 1:垂直移動
+		showposh:  1, // -1:左端      1:右端
+		showposv: -1, // -1:上端      1:下端
+		showoffx:  0, // 追加オフセット
+		showoffy:  0, // 追加オフセット
+
+		showtime: 300, // 表示時間
+		stoptime: 800, // 停止時間
+		hidetime: 200, // 消去時間
+		accel: "decel", // 加速
+
+		textpadh: 0, // 水平余白
+		textpadv: 0, // 垂直余白
+
+		hastext: true, // 文字描画on/off
+			];
+
+	.PopupDefaultTextParam =
+		%[
+		maxline: 1,
+		linestep:0,
+		halign:  0,
+		valign:  0,
+		color:   0xFFFFFF,
+		//param:[ 255, true ],
+
+		fontface:   "ＭＳ Ｐゴシック",
+		fontheight: 16,
+			];
+}
+
+class PopupNotifyLayer extends Layer {
+	var textlay, complay, inipos, showpos;
+	function finalize() {
+		invalidate textlay if (textlay !== void);
+		invalidate complay if (complay !== void);
+		super.finalize(...);
+	}
+	var config;
+	var textparam = %[];
+
+	function PopupNotifyLayer(win) {
+		super.Layer(win, win.primaryLayer);
+
+		config = setupConfig();
+		initLayer(this, config.name);
+
+		setupBaseImage();
+		setupTextParam();
+
+		complay = new global.Layer(win, this);
+		if (complay) with (complay) {
+			initLayer(complay, "Comp:"+name);
+		}
+		if (config.hastext) {
+			textlay = new KAGLayer(win, this);
+			if (textlay) with (textlay) {
+				initLayer(textlay, "Text");
+				.setImageSize(width, height);
+				.setSizeToImageSize();
+				.visible = true;
+			}
+		}
+		inipos  = getFromPos();
+		showpos = getShowPos();
+		var  vert = config.movevert;
+		this[vert ? "left" : "top"] = showpos[vert ? "x" : "y"];
+	}
+	function initLayer(lay, name) {
+		with (lay) {
+			.name = name;
+			.hitType = htMask;
+			.hitThreshold = 256;
+			.focusable = .enabled = .visible = false;
+		}
+	}
+	function setupConfig(base = SystemConfig.PopupDefaultConfig) {
+		return base;
+	}
+	function setupBaseImage(file = SystemConfig.PopupDefaultBaseImage) {
+		loadImages(file);
+		setSizeToImageSize();
+	}
+	function setupTextParam(base = SystemConfig.PopupDefaultTextParam) {
+		(Dictionary.assignStruct incontextof textparam)(base);
+		with (textparam) {
+			if (.x === void) .x = config.textpadh;
+			if (.y === void) .y = config.textpadv;
+			if (.w === void) .w = width  - config.textpadh*2;
+			if (.h === void) .h = height - config.textpadv*2;
+		}
+	}
+	function getShowPos() {
+		var x, y, scw = window.scWidth, sch = window.scHeight;
+		with (config) {
+			switch (.showposh) {
+			case -1: x = 0;           break;
+			case  1: x = scw - width; break;
+			}
+			switch (.showposv) {
+			case -1: y = 0;            break;
+			case  1: y = sch - height; break;
+			}
+			x += .showoffx;
+			y += .showoffy;
+		}
+		return %[ x:x, y:y ];
+	}
+	function getFromPos() {
+		if (!config.movevert) {
+			switch (config.showposh) {
+			case -1: return -width;
+			case  1: return window.scWidth;
+			}
+		} else {
+			switch (config.showposv) {
+			case -1: return -height;
+			case  1: return window.scHeight;
+			}
+		}
+		throw new Exception("PopupNotifyLayer: invalid configuration.");
+	}
+	function getToPos(len) {
+		return (config.movevert) ? showpos.y : (showpos.x + len * config.showposh);
+	}
+
+	var _lastDraw;
+	var _lastLen = 0;
+	function draw() {
+		if (textlay === void) return 0;
+
+		var text = getDrawText(...);
+		if (text === void) return void;
+		if (text == _lastDraw) return _lastLen;
+
+		internalDraw(_lastDraw = text);
+		return      (_lastLen = getDrawResult(text));
+	}
+	function getDrawText(param) {
+		return param;
+	}
+	function internalDraw(text) {
+		with (textlay) .fillRect(0, 0, .width, .height, 0);
+		drawTextKinsokuRect(textlay, text, textparam);
+	}
+	function getDrawResult(text) {
+		var hal = textparam.halign;
+		if (!hal || (hal == config.showposh)) return 0;
+		return width - (textlay.font.getTextWidth(text) + config.textpadh);
+	}
+
+	function reparent(fore, idx) {
+		var meswin = fore.messages[idx];
+		parent     = fore.base;
+		absolute   = meswin.absolute+1 if (meswin !== void);
+		if (complay !== void) with (complay) {
+			.parent = fore.base.comp;
+			.absolute = absolute;
+			.setSize(width, height);
+			.piledCopy(0, 0, this, 0, 0, width, height);
+		}
+	}
+
+	var _showing = false;
+	function show() {
+		var len = draw(...);
+		if (len === void) return false;
+		with (window) {
+			.stopAction(this);
+			reparent(.fore, ._clearMessageLayerNumOnSkipNoDispChanged);
+
+			visible = _showing = true;
+			opacity = 0;
+
+			var dir = (config.movevert ? "top" : "left");
+			var from = this[dir] = inipos;
+			var to   = getToPos(len);
+			if (.skipMode >= SKIP_STOP) {
+				opacity = 255;
+				this[dir] = to;
+				.beginAction(this, getSkipAction(dir, from, to), moved, true);
+			} else {
+				.beginAction(this, getShowAction(dir, from, to), moved, true);
+			}
+		}
+		return true;
+	}
+	function getShowAction(dir, from, to) {
+		with (config) return [
+			%[  opacity:  %[ handler:MoveAction, start:0,    value:255, time:.showtime ], 
+				dir =>    %[ handler:MoveAction, start:from, value:to,  time:.showtime, accel:.accel ],    nowait:true ],
+			%[  opacity:  %[ handler:MoveAction, start:255,  value:0,   time:.hidetime, delay:.stoptime ], nowait:true ]
+			];
+	}
+	function getSkipAction(dir, from, to) {
+		with (config) return %[ dir => %[ handler:MoveAction, start:to,  value:to, time:0, delay:.stoptime ] ];
+	}
+
+	property visible { getter { return super.visible; } setter(v) { setCompProp("visible", v); } }
+	property left    { getter { return super.left;    } setter(v) { setCompProp("left",    v); } }
+	property top     { getter { return super.top;     } setter(v) { setCompProp("top",     v); } }
+	property opacity { getter { return super.opacity; } setter(v) { setCompProp("opacity", v); } }
+	function setCompProp(prop, v) { super[prop] = v; if (complay !== void) complay[prop] = v; }
+
+	function moved() {
+		if (isvalid this) visible = _showing = false;
+	}
+	function onMessageHiddenStateChanged(hidden) {
+		if (_showing) visible = !hidden;
+	}
+	function onCurrentMessageVisibleChanged(hidden, page) {
+		//window.stopAction(this) if (hidden && !page);
+	}
+}
+

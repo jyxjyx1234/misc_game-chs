@@ -1,0 +1,256 @@
+class MyMapSelectLayer extends DialogLayer
+{
+	var selects = []; // 登録済み選択肢
+	var icons   = []; // キャラアイコン表示用
+
+	var _uiResult;
+	var _storage  = "mapselect"; // デフォルトのuipsd
+	var  fadeTime = 0;
+
+	// storage を変更したときは読み直す
+	property storage {
+		getter    { return _storage; }
+		setter(v) { _storage = v; _uiResult = void; }
+	}
+
+	// マップを表示するときはメッセージ窓を消す
+	property msgoff { getter { return true; } }
+
+	// オプションの設定
+	function setOptions(elm) {
+		super.setOptions(elm);
+		storage = elm.storage if (elm.storage !== void);
+		fadeTime = +elm.fadetime if (elm.fadetime !== void);
+	}
+
+	// コンストラクタ
+	function MyMapSelectLayer(window) {
+		super.DialogLayer(window, window.primaryLayer);
+	}
+
+	// デストラクタ
+	function finalize() {
+		clear();
+		super.finalize(...);
+	}
+
+	// closeは封印
+	function close() {}
+
+	// 初期化
+	function init() {
+		clear();
+	}
+
+	function uiload(elm) {
+		_uiResult = super.uiload(elm === void ? %[ storage: storage ] : elm) if (_uiResult === void);
+		return _uiResult;
+	}
+
+	function clearArray(arr) {
+		if (!(arr instanceof "Array") || !isvalid arr) return;
+		for (var i = arr.count - 1; i >= 0; i--) {
+			var item = arr[i];
+			invalidate item if (typeof item === "Object" && isvalid item);
+		}
+		arr.clear();
+	}
+
+	// 選択消去
+	function clear() {
+		clearArray(selects); // 選択肢消去
+		clearArray(icons); // 表情消去
+	}
+
+	// 選択肢を追加
+	function addSelect(elm) {
+		var e = %[];
+		(Dictionary.assign incontextof e)(elm, false);
+		selects.add(e);
+	}
+
+	// 親の差し替え
+	function setParent(parent, absolute) {
+		with (this) (.parent = parent), (.absolute = absolute);
+	}
+
+	var _sysbtnname = [ "option", "load", "save", "qload", "qsave" ];
+	function isSystemButton(name) { return _sysbtnname.find(name) >= 0; }
+
+	// ボタンのイベント類をアイコンにコピーする
+	function copyEvents(from, to) {
+		with (to) {
+			.onMouseEnter = from.onMouseEnter;
+			.onMouseLeave = from.onMouseLeave;
+			.onClick      = from.onClick;
+			.onMouseUp    = from.onMouseUp;
+			.onMouseDown  = from.onMouseDown;
+			.visible      = from.visible;
+			.cursor       = from.cursor;
+		}
+	}
+	// アイコンのクラス
+	property iconClass { getter { return global.Layer; } }
+
+	// キャラアイコンを描画する
+	function drawIcon(icon, btn, sel, idx) {
+		with (icon) {
+			.name = sel.name;
+			.loadImages(sel.icon);
+			.setSizeToImageSize();
+			// ボタンの上に位置させる
+			setIconPos(...);
+		}
+		copyEvents(btn, icon);
+	}
+	function setIconPos(icon, btn, sel, idx) {
+		with (icon) .setPos(btn.left + (btn.width - .width) \ 2, btn.top - .height);
+	}
+
+	// キャラアイコンを生成する
+	function createIcon(win, par, btn, sel, idx) {
+		if (sel.name == void) return;
+		var icon = new iconClass(win, par);
+		drawIcon(icon, btn, sel, idx) if (icon !== void);
+		return icon;
+	}
+
+	// ボタンレイヤの名前を取得する
+	function getItemName(sel, idx) { return sel.text; }
+
+	function showItem(select, index) {
+		var button, name = getItemName(select, index);
+
+		// ボタン表示
+		button = names[name] if (name != "");
+		if (button !== void) initItem(button, select);
+
+		// キャラアイコン標示
+		var icon = createIcon(window, this, button, select, index);
+		icons[index] = icon;
+	}
+	function initItem(btn, select) {
+		with (btn) (.enabled = .visible = true), (.selinfo = select);
+	}
+
+	function resetButtonVisible() {
+		for (var i = 0; i < numLinks; i++) {
+			var obj = links[i].object;
+			if (obj !== void) with (obj) {
+				// 前回のselinfoがあればクリア
+				.selinfo = void if (typeof .selinfo != "undefined");
+
+				// システム系のボタン以外を全部非表示
+				.visible = isSystemButton(.name);
+			}
+		}
+	}
+
+	// 選択処理開始
+	function start(parent, absolute) {
+		uiload();
+
+		setParent(parent, absolute);
+		resetButtonVisible();
+		unlockFocus();
+
+		// 選択肢を表示する
+		for (var i = 0; i < selects.count; i++)
+			showItem(selects[i], i);
+
+		visible = true;
+		startAction();
+	}
+	function startAction() {
+		if (fadeTime > 0) {
+			enabled = false;
+			window.stopAction (this);
+			window.beginAction(this, %[ opacity:%[ handler:MoveAction, start:(opacity=0), value:255, time:fadeTime ] ],
+							   startDone, true);
+		} else startDone();
+	}
+	function startDone() {
+		enabled = true;
+		focus();
+	}
+
+	// 完了
+	function done() {
+		visible = false;
+		clear();
+	}
+
+	// 番号 num のグラフィカルボタンがクリックされた
+	function processLink(num)	{
+		super.processLink(num);
+		var link = links[num];
+		if (link !== void && link.type == ltButton) {
+			var lo = link.object;
+			onSelect(lo.selinfo, lo) if (typeof lo.selinfo == "Object");
+			onSysButton(lo.name, lo) if (isSystemButton(lo.name));
+		}
+	}
+	function onSelect(info, obj) {
+		with (info) {
+			Scripts.eval(.exp) if (.exp != "");
+			window.processGo(); //if (.storage == "" && .target == "");
+			/*
+			window.conductor.callLabel("")   if ((.storage != "" || .target != "") && .call);
+			window.process(.storage, .target) if (.storage != "" || .target != "");
+			  */
+			enabled = false;
+			_doneTags.clear();
+			insertDoneTags(unshiftDoneTag, info, obj);
+			entryDoneTags();
+		}
+	}
+	var _doneTags = [];
+	function    pushDoneTag(tag, elm) { _doneTags.push   (tag, elm); }
+	function unshiftDoneTag(tag, elm) { _doneTags.unshift(tag, elm); }
+	function entryDoneTags() {
+		var cnt = _doneTags.count\2, ins = window.insertTag;
+		for (var i = cnt-1; i >= 0; i--) {
+			var n = i*2;
+			ins(_doneTags[n], _doneTags[n+1]);
+		}
+	}
+
+	function onSysButton(name, button) {
+		var action = global.SystemAction[name];
+		action() if (action !== void);
+	}
+
+	function insertDoneTags(ins, info, obj) {
+		if (fadeTime > 0) {
+			window.stopAction (this);
+			pushDoneTag("action", %[ target:this, action:%[ opacity:%[ handler:MoveAction, start:255, value:0, time:fadeTime ] ], nowait:true ]);
+			pushDoneTag("wact", %[ target:this ]);
+		}
+		pushDoneTag("donemapselect", info);
+	}
+
+	var invisibleByUser = false; // ユーザにより一時的に不可視
+	var visibleBeforeUserInvisible  = false;
+
+	// ユーザが右クリックなどでメッセージレイヤを一時的に隠すときに呼ばれる
+	function setHiddenStateByUser(b) {
+		if (b) visibleBeforeUserInvisible = visible;
+		invisibleByUser = b; // ユーザにより一時的に不可視・可視
+		visible = b ? false : visibleBeforeUserInvisible;
+	}
+
+//	var selProcessLock = false; // selProcessLockフラグはDialogLayerに定義済みだった
+	function lockFocus()   { (global.MessageLayer.setSelProcessLock incontextof this)(true); }
+	function unlockFocus() { (global.MessageLayer.setSelProcessLock incontextof this)(false); }
+	// ダミー関数（setSelProcessLcok から呼ばれることがある）
+	function hasWheel() { return false; }
+	function hasClick() { return false; }
+
+	// ショートカットキーを機能するようにする
+	function onKeyDown(key, shift) {
+		if(window.preProcessKeys(key, shift)) return;
+		super.onKeyDown(...);
+	}
+}
+
+global.MapSelectLayer = MyMapSelectLayer;

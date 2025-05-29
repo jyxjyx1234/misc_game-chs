@@ -1,0 +1,391 @@
+/**
+ * 背景表示用レイヤ
+ * 環境に設定されている場所と時間が自動反映される
+ */
+class KAGEnvStage extends KAGEnvImage {
+
+	/**
+	 * コンストラクタ
+	 * @param env 環境
+	 * @param name 環境のレイヤ名
+	 */
+	function KAGEnvStage(env, name, absolute) {
+		super.KAGEnvImage(env, name);
+		defaultAbsolute = absolute;
+	}
+	
+	/// 時間
+    var time;
+	/// 舞台
+	var stage;
+	/// 舞台レイヤ
+	var stagelayers;
+	/// 舞台レイヤなし指定
+	var nostagelayer;
+	
+	function initImage() {
+		super.initImage();
+		time = void;
+		stage = void;
+		stagelayers = [];
+		nostagelayer = false;
+	}
+
+	function onStore(f) {
+		super.onStore(f);
+		f.time = time if time !== void;
+		f.stage = stage if stage !== void;
+		if (stagelayers.count > 0) {
+			f.stagelayers = [];
+			f.stagelayers.assign(stagelayers);
+		}
+		f.nostagelayer = nostagelayer if nostagelayer == true;
+	}
+
+	function onRestore(f) {
+		time = f.time;
+		stage = f.stage;
+		stagelayers.assign(f.stagelayers) if (f.stagelayers !== void);
+		nostagelayer = f.nostagelayer;
+		initStageLayer();
+		super.onRestore(f);
+	}
+
+	/**
+	 * 舞台レイヤの初期化
+	 */
+	function initStageLayer() {
+		
+		// 旧 stagelayer を廃棄
+		for (var i=0;i<stagelayers.count;i++) {
+			env.delLayer(%[name:stagelayers[i]]);
+		}
+		stagelayers.clear();
+
+		if (nostagelayer || stage == "") {
+			return;
+		}
+		if (typeof global.setStageLayerHook != "undefined" &&
+			/**/   global.setStageLayerHook(stage, time)) {
+			return;
+		}
+
+		//dm("新ステージレイヤ生成:" + stage + ":" + time);
+		
+		// 新 stagelayers を生成
+		var stageinfo = env.stages[stage];
+		if (stageinfo !== void && stageinfo.layers !== void) {
+			var names = [];
+			names.assign(stageinfo.layers);
+			for (var i=0;i<names.count;i+=2) {
+				var name = names[i];
+				var value = names[i+1];
+				if (name != "" && value !== void) {
+					var e = %[];
+					(Dictionary.assign incontextof e)(value);
+					var cond = e.condition;
+					delete     e.condition if (typeof e.condition != "undefined");
+					if (cond != "") {
+						var tmp;
+						switch (typeof cond) {
+						case "Object": tmp = []; tmp.assign(cond); break;
+						case "String": tmp = cond.split(","); break;
+						}
+						// 条件にマッチしない場合は登録しない
+						if (tmp !== void && tmp.find(time) < 0) {
+							name = "";
+						}
+					}
+					if (name != "") {
+						e.name = name if (e.name == "");
+						// マッチしたレイヤを登録
+						stagelayers.add(e.name);
+						env.getNewLayer(e.name).command(e);
+					}
+				}
+			}
+		}
+
+		//dm("ステージレイヤ状態:" + stagelayers.count);
+	}
+
+	// 環境レイヤの表示状態更新
+	function updateStageLayer(show) {
+		if (show) {
+			for (var i=0;i<stagelayers.count;i++) {
+				var lay = env.getEnvLayer(stagelayers[i]);
+				if (lay != null && !lay.isShow()) {
+					lay.disp = SHOW;
+				}
+			}
+		} else {
+			for (var i=0;i<stagelayers.count;i++) {
+				var lay = env.getEnvLayer(stagelayers[i]);
+				if (lay != null && lay.isShow()) {
+					lay.disp = CLEAR;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 表示処理用の自動トランジションの指定
+	 */
+	function setDispAutoTrans(elm) {
+		var info = stage !== void ? env.stages[stage] : void;
+		if (info !== void) {
+			setAutoTrans([info.dispTrans, env.envinfo.stageDispTrans, env.envinfo.stageTrans, env.envinfo.envTrans], elm);
+		} else {
+			setAutoTrans([env.envinfo.stageDispTrans, env.envinfo.stageTrans, env.envinfo.envTrans], elm);
+		}
+	}
+
+    /**
+     * 舞台を設定する
+     * @param stageName 舞台名
+     * @param elm コマンドのほかの要素
+     */
+	function setStage(stageName, elm) {
+		if (stageName == "" || env.stages[stageName] === void) {
+			env.errorCmd("舞台指定が不明です: " + stageName) if (stageName != "");
+			return;
+		}
+		if (stageName != stage || isClear() || env.event.isShow()
+@if (KAGENV_OVERLAYER)
+			|| env.over.isShow()
+@endif
+			) {
+			
+			//dm("舞台指定:" + stageName);
+			stage = stageName;
+			time = env.defaultTime if time === void;
+			
+			// ev ではじまるファイル名はCGとして登録
+			var info = env.stages[stage];
+			var image = info.image;
+			if (image !== void && image.substring(0,2).toUpperCase() == "EV") {
+				env.setSFlag("cg_" + (image.toUpperCase()));
+			}
+			
+			disp = SHOW;
+			redraw = true;
+			reposition = true;
+
+			var ax = "center";
+			var ay = "center";
+			if (info.cox !== void || info.coy !== void) {
+				var cox = info.cox !== void ? +info.cox : 0;
+				var coy = info.coy !== void ? +info.coy : 0;
+				env.setCameraOrigin(cox, coy);
+				ax = cox != 0 ? "center + " + (int)(cox * (1-levelz/100)) : "center";
+				ay = coy != 0 ? "center - " + (int)(coy * (1-levelz/100)) : "center";
+				reposition = true;
+			}
+			if (info.afx !== void) { ax = info.afx; }
+			if (info.afy !== void) { ay = info.afy; }
+			defaultAfx = ax; afx = void;
+			defaultAfy = ay; afy = void;
+			
+			xpos = elm.xpos === void ? void : +elm.xpos;
+			ypos = elm.ypos === void ? void : +elm.ypos;
+			
+			initFile(elm);
+
+			// ステージ変更時フック
+			if (typeof global.setStageHook != "undefined") {
+				global.setStageHook(stageName, elm);
+            }
+
+			// 舞台レイヤ更新
+			nostagelayer = elm.nolayer;
+			initStageLayer(false, false);
+			
+			// トランジション指定
+			setAutoTrans([info.trans, env.envinfo.stageTrans, env.envinfo.envTrans], elm);
+        }
+		// イベント絵は消去
+		if (env.event.isShow()) {
+			env.event.disp = CLEAR;
+		}
+@if (KAGENV_OVERLAYER)
+		if (env.over.isShow()) {
+			env.over.disp = CLEAR;
+		}
+@endif
+	}
+
+    /**
+     * 時間を設定する
+     * @param timeName 時間名
+     * @param elm コマンドのほかの要素
+     */
+    function setTime(timeName, elm) {
+		if (timeName == "" || timeName === true) return; // 空指定なら何もしない
+		if (env.times[timeName] === void) {
+			env.errorCmd("時間指定が不明です: "+timeName);
+			return;
+		}
+		if (timeName != time || isClear() || env.event.isShow()
+@if (KAGENV_OVERLAYER)
+			|| env.over.isShow()
+@endif
+			) {
+
+			time = timeName;
+
+			initFile(elm);
+			disp = SHOW;
+			redraw = true;
+			reposition = true;
+			
+            // 時間変更時フック
+			if (typeof global.setTimeHook != "undefined") {
+				global.setTimeHook(timeName, elm);
+			}
+
+			// 時間変更はキャラの立ち絵も再描画の必要がある
+			env.setRedrawCharacter();
+			
+			// 舞台レイヤ更新
+			nostagelayer = elm.nolayer;
+			initStageLayer(false, false);
+			
+			// トランジション指定
+			setAutoTrans([env.times[time].trans, env.envinfo.timeTrans, env.envinfo.stageTrans, env.envinfo.envTrans], elm);
+        }
+        // イベント絵は消去
+		if (env.event.isShow()) {
+			env.event.disp = CLEAR;
+        }
+@if (KAGENV_OVERLAYER)
+		if (env.over.isShow()) {
+			env.over.disp = CLEAR;
+		}
+@endif
+    }
+
+	/**
+	 * 画像を描画する
+	 * @param layer 描画先レイヤ
+	 */
+	function drawLayer(layer) {
+		if (isShowBU() && stage !== void) {
+			var info = env.stages[stage];
+			var image = info.image;
+			// 時間情報で上書き
+			var timeInfo = env.currentTimeInfo;
+			if (timeInfo !== void) {
+				// 画像のロードと座標補正処理
+				try {
+					image = image.replace(/TIME/, timeInfo.prefix);
+					env.loadBGFromCache(layer, image);
+				} catch(e) {
+					try {
+						// 画像がロードできなかった場合は補正で対応
+						image = info.image;
+						image = image.replace(/TIME/, env.defaultTimeInfo.prefix);
+						
+						env.loadBGFromCache(layer, image);
+						
+						// 色補正処理
+						// レイヤ合成
+						if (timeInfo.lightColor !== void) {
+							layer.holdAlpha = true;
+							layer.fillOperateRect(0,0,
+												  layer.width,layer.height,
+												  timeInfo.lightColor,
+												  timeInfo.lightType);
+						}
+						// 明度補正
+						if (timeInfo.brightness !== void) {
+							layer.light(timeInfo.brightness,
+										timeInfo.contrast);
+						}
+
+                    } catch (e) {
+						var text = image + ":背景画像がロードできません stage:" + stage + " time:" + time;
+						env.errorImage(text);
+						layer.fillRect(0,0,layer.width, layer.height, 0xff000000);
+						layer.drawText(0,0,text,0xffffff);
+                    }
+				}
+			}
+			with (info) {
+				if (reposition) {
+					if (xpos === void) {
+						xpos = (int).xoff;
+					}
+					if (ypos === void) {
+						ypos = (int).yoff;
+					}
+				}
+				// 特殊加工
+				if (.blurx !== void || .blury !== void) {
+					layer.doBoxBlur(.blurx, .blury);
+				}
+				var res = .resolution;
+				if (res !== void) layer.resolution  = res;
+				/**/res = .resolutionx;
+				if (res !== void) layer.resolutionx = res;
+				/**/res = .resolutiony;
+				if (res !== void) layer.resolutiony = res;
+			}
+		}
+	}
+
+    var stageCommands = %[
+	stage : this.setStage incontextof this,
+	stime : this.setTime incontextof this,
+	"delete" => function (param, elm) { disp = CLEAR; initImage(); } incontextof this, // delete指定されたら消すだけ
+	nolayer : null,
+		];
+	
+    /**
+	 * コマンドの実行
+	 * @param cmd コマンド
+	 * @param param パラメータ
+	 * @param elm 他のコマンドも含む全パラメータ
+     * @return 実行が行われた場合 true
+     */
+    function doCommand(cmd, param, elm) {
+
+		// stage固有コマンド
+		var func;
+		if ((func = stageCommands[cmd]) !== void) {
+			//dm("登録コマンドが存在:" + cmd);
+			if (func != null) {
+				func(param, elm);
+			}                
+			return true;
+        }
+
+		// 共通コマンド
+		if (super.doCommand(cmd, param, elm)) {
+			return true;
+		}
+		
+		var find = false;
+        
+		// アクション
+		if (!find) {
+			find = setAction(cmd, elm);
+        }
+
+		// 更新
+		if (!find) {
+			find = setTrans(cmd, elm);
+		}
+
+		// 時間と舞台
+		var info;
+		if (env.times !== void && (info = env.times[cmd]) !== void) {
+			setTime(cmd, elm);
+			find = true;
+		} else if (env.stages !== void && (info = env.stages[cmd]) !== void) {
+			setStage(cmd, elm);
+			find = true;
+        }
+		
+		return find;
+    }
+}

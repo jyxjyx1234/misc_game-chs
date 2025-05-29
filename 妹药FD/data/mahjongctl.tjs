@@ -1,0 +1,347 @@
+Plugins.link("process.dll");
+Plugins.link("gamemsg.dll");
+
+// 各種諸元
+const MAHJONG_TARGETCLASS = "jong67613354";
+const MAHJONG_MYCLASS = "applique_mahjong_owner";
+const locationKey = "麻雀パート（黄昏の先にのぼる明日-あっぷりけFanDisc-）_is1\\InstallLocation";
+const installReg = "\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
+const mjexe  = "apfd_mj.exe";
+
+// インストール場所を特定
+var mjpath = System.readRegValue("HKEY_CURRENT_USER" + installReg + locationKey);
+if (mjpath == "") {
+	mjpath = System.readRegValue("HKEY_LOCAL_MACHINE" + installReg + locationKey);
+}
+
+// 麻雀のexeがあるかどうか
+property MahjongExeExists { getter {
+	return Storages.isExistentStorage(Storages.getFullPath(mjpath + mjexe));
+} }
+
+/**
+ * 麻雀プログラム起動用
+*/
+class MJProcess extends Process
+{
+	function MJProcess() {
+		super.Process();
+	}
+	function finalize() {
+		terminate(0);
+	}
+	function run() {
+		return execute(mjpath + mjexe, "K", mjpath);
+	}
+};
+
+/**
+ * 麻雀画面吸い込み用レイヤ
+ */
+class MahjongLayer extends Layer
+{
+	var mjcontrol;
+
+	function MahjongLayer(window, layer) {
+		super.Layer(window, layer);
+		mjcontrol = new MahjongMsg(MAHJONG_TARGETCLASS, MAHJONG_MYCLASS);
+		mjcontrol.onScreenUpdate = this.onScreenUpdate;
+		type = ltOpaque;
+		hitThreshold = 0;
+	}
+
+	function finalize() {
+		done();
+	}
+
+	property mjstate {
+		getter() {
+			return mjcontrol.state;
+		}
+	};
+
+	function init() {
+		return mjcontrol.init(window);
+	}
+	
+	function start(elm) {
+		return mjcontrol.start(elm);
+	}
+
+	function done() {
+		mjcontrol.done();
+	}
+
+	function onScreenUpdate() {
+		update(0,0,width,height);
+	}
+	
+	function onPaint() {
+		mjcontrol.drawToLayer(this);
+	}
+
+	function onKeyDown(key, shift) {
+		//dm("onKeyDown:" + key);
+		mjcontrol.sendKeyDown(key, shift);
+	}
+	function onKeyUp(key, shift) {
+		//dm("onKeyUp:" + key);
+		mjcontrol.sendKeyUp(key, shift);
+	}
+	function onMouseMove(x, y, shift) {
+		//dm(@"onMouseMove:${x},${y},${shift}");
+		mjcontrol.sendMouseMove(x, y, shift);
+	}
+	function onMouseDown(x, y, button, shift) {
+		mjcontrol.sendMouseDown(x, y, button, shift);
+	}
+	function onMouseUp(x, y, button, shift) {
+		mjcontrol.sendMouseUp(x, y, button, shift);
+	}
+};
+
+/**
+ * KAG 用ワールド拡張プラグイン
+ */
+class MahjongPlugin extends KAGPlugin
+{
+	var kag;
+	var tagHandlers = %[];
+	var process;
+	var mjlayer;
+	var elm;
+
+	function MahjongPlugin(kag) {
+		super.KAGPlugin();
+		this.kag = kag;
+		process  = new MJProcess();
+		tagHandlers.startmahjong = startmahjong;
+		tagHandlers.waitmahjong  = waitmahjong;
+		kag.addHook("afterChangeScreenMode", onAfterChangeScreenMode);
+	}
+
+	function finalize() {
+		clear();
+		invalidate process;
+    }
+
+	function clear() {
+		if (mjlayer !== void) {
+			invalidate mjlayer;
+			mjlayer = void;
+		}
+		elm = void;
+		process.terminate(0);
+	}
+	
+	// -----------------------------------------------------------------
+
+	// フルスクリーン状態更新時(親ウインドウが変わるので再設定が必要)
+	function onAfterChangeScreenMode(args*) {
+		if (mjlayer !== void) {
+			mjlayer.init();
+		}
+	}
+
+	// 保存処理
+    function onStore(f, elm) {
+		if (this.elm !== void) {
+			var e = %[];
+			(Dictionary.assignStruct incontextof e)(this.elm);
+			f.mahjong_elm = e;
+		}
+	}
+
+	// 復帰処理
+	function onRestore(f, clear, elm) {
+		if (f.mahjong_elm !== void) {
+			startmahjong(f.mahjong_elm);
+		}
+	}
+	
+	// レイヤ消去要求コールバック
+	function onClear(base) {
+		if (base == kag.fore) {
+			clear();
+		}
+	}
+
+	// リセット要求コールバック
+	function onResetAll() {
+		clear();
+	}
+	
+	// 不明コマンドハンドラ
+	function onUnknown(tagName, elm) {
+		var func = tagHandlers[tagName];
+		if (func !== void) {
+			return func(elm);
+		}
+		return void;
+	}
+
+	// --------------------------------------------------------
+
+	// 麻雀処理選択
+	function selectMahjongResult(elm, mjplay) {
+		if (!mjplay) {
+			// 選択肢なし
+			f.mahjong_result = 0;
+			return 0;
+		}
+		f.mahjong_result = void;
+		elm.__state = "afterselect";
+		var ins = kag.insertTag;
+		ins(void, elm);
+		ins("msgoff");
+		ins("select");
+		ins("seladd", %[ text:@"麻雀パートで対戦しない", exp:"f.mahjong_result = 0" ]);
+		ins("seladd", %[ text:@"麻雀パートで対戦する！" ]); // if (mjplay);
+		return 0;
+	}
+	// 麻雀起動待ち
+	function waitMahjongBoot(elm, mode = "bootwait", error = "(起動タイムアウト)") {
+		elm.__state = mode;
+		var cnt = elm.__boottimeout++;
+		if (cnt > 2*30) return errorMahjongBoot(elm, error);
+		kag.addTag(void, elm);
+		return 500;
+	}
+	// 麻雀起動エラー
+	function errorMahjongBoot(elm, text, retry = true) {
+		System.inform("麻雀の開始に失敗しました" + text);
+		clear();
+		return selectMahjongResult(elm, retry);
+	}
+
+	// 麻雀処理開始
+	function startmahjong(elm) {
+		var textShotdownOnlineVer = "オンライン麻雀のプログラムを終了してください";
+		switch (elm.__state) {
+		case "": case void: // 初回起動
+			// 選択肢を出すかどうかチェック
+			var mode = +sf.MahjongBattleMode; // <0:常に麻雀なし, >0:常に麻雀あり, 0:毎回確認
+			if (!MahjongExeExists) mode = -1; // 実行ファイルがない場合は常に麻雀なし
+			// 既に起動されている場合（単独起動の可能性）
+			if (mode >= 0 && MahjongMsg.checkExist(MAHJONG_TARGETCLASS)) {
+				System.inform(textShotdownOnlineVer);
+				mode = 0;
+			}
+			if (mode <= 0) return selectMahjongResult(elm, !mode);
+			break;
+		case "afterselect": // 選択後
+			if (f.mahjong_result !== void) return 0;
+			if (MahjongMsg.checkExist(MAHJONG_TARGETCLASS)) {
+				System.inform(textShotdownOnlineVer);
+				return selectMahjongResult(elm, true);
+			}
+			break;
+		case "bootwait": // 麻雀起動待ち
+			if (MahjongMsg.checkExist(MAHJONG_TARGETCLASS)) {
+				// さらに待つ
+				elm.__state = "bootstart";
+				kag.addTag(void, elm);
+				return 1000; // 待ち時間
+			}
+			// しばらく待つ
+			dm("起動待ち中");
+			return waitMahjongBoot(elm);
+		case "bootstart":
+			if (MahjongMsg.checkExist(MAHJONG_TARGETCLASS)) {
+				// 起動後の処理
+				mjlayer.focusable = true;
+				mjlayer.focus(true);
+				mjlayer.init();
+				var params = %[];
+				var chara = elm.chara !== void ? elm.chara.split(",") : [1,2,3,4];
+				for (var i=0;i<chara.count;i++) {
+					chara[i] = +chara[i];
+				}
+				params.online = +elm.online if elm.online !== void;
+				params.chara  = chara;
+				params.my_syanten    = +elm.my_syanten    if elm.my_syanten    !== void;
+				params.enemy_syanten = +elm.enemy_syanten if elm.enemy_syanten !== void;
+				params.player_name   = +elm.player_name   if elm.player_name   !== void;
+				params.bgm = 0;
+				params.se  = 1;
+				if (!mjlayer.start(params)) {
+					return errorMahjongBoot(elm, "(開始エラー)", false);
+				}
+				return 0;
+			}
+			return errorMahjongBoot(elm, "（起動失敗）");
+		}
+
+		// 麻雀処理開始
+		f.mahjong_result = void;
+		// パラメータを保存しておく
+		var cp = this.elm = %[];
+		(Dictionary.assignStruct incontextof this.elm)(elm);
+		delete cp.__state;
+		delete cp.__boottimeout;
+
+		if (mjlayer === void) {
+			var w, h;
+			with (kag) {
+				mjlayer = new MahjongLayer(kag, .primaryLayer);
+				w = .scWidth, h = .scHeight;
+			}
+			with (mjlayer) {
+				try {
+					.loadImages("loading");
+					.setImageSize(w, h) if (.imageWidth != w || .imageHeight != h);
+				} catch {
+					.setImageSize(w, h);
+					.fillRect(0,0,w,h,0xff000000);
+				}
+				.setSizeToImageSize();
+				.visible = true;
+				.absolute = kag.currentDialogAbsolute-1;
+			}
+		}
+
+		// 起動してない場合の処理
+		if (!process.status) {
+			// 実行ファイルが起動されてないので起動する
+			//System.inform("麻雀プログラムを起動します");
+			if (!process.run()) return errorMahjongBoot(elm, "(起動エラー)", false);
+		}
+		return waitMahjongBoot(elm);
+	}
+
+	// 麻雀終了待ち
+	// 結果が f.mahjong_result に代入される
+	// 0:負け 1:勝ち
+	function waitmahjong(elm) {
+		if (mjlayer !== void) {
+			if (f.mahjong_result === void) {
+				if (mjlayer.mjstate === null) {
+					// [XXX] タイトルに戻るメニューを強制更新
+					kag.goToStartMenuItem.enabled = true;
+					// 1秒後に再確認
+					kag.addTag(void, elm);
+					return 1000;
+				} else {
+					// 結果を格納して終了
+					if (mjlayer.mjstate < 0) {
+						dm("麻雀処理が失敗しました");
+						f.mahjong_result = 1;
+					} else {
+						f.mahjong_result = mjlayer.mjstate;
+					}
+					clear();
+				}
+			} else {
+				clear();
+			}
+		}
+		// [XXX] タイトルに戻るメニューの状態を戻す
+		kag.setMenuAccessibleAll();
+		return 0;
+	}
+};
+
+// プラグイン登録
+addAfterInitCallback(function() {
+	kag.addPlugin(global.mahjong = new MahjongPlugin(kag));
+} incontextof global);

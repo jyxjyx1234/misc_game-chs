@@ -1,0 +1,101 @@
+func,new,	visible,false
+#
+eval,-pt0,exp,this.hint='上書禁止チェック\nキーでの操作は"P"'
+func,pt0,sename,protect
+copy,pt1,pt0,,item1,item0
+copy,pt2,pt0,,item2,item0
+copy,pt3,pt0,,item3,item0
+copy,pt4,pt0,,item4,item0
+copy,pt5,pt0,,item5,item0
+copy,pt6,pt0,,item6,item0
+copy,pt7,pt0,,item7,item0
+#
+eval,-cp0,exp,this.hint='データのコピー\nキーでの操作は"C"'
+func,cp0,sename,copy
+copy,cp1,cp0,,item1,item0
+copy,cp2,cp0,,item2,item0
+copy,cp3,cp0,,item3,item0
+copy,cp4,cp0,,item4,item0
+copy,cp5,cp0,,item5,item0
+copy,cp6,cp0,,item6,item0
+copy,cp7,cp0,,item7,item0
+#
+eval,-mv0,exp,this.hint='データの移動\nキーでの操作は"M"'
+func,mv0,sename,move
+copy,mv1,mv0,,item1,item0
+copy,mv2,mv0,,item2,item0
+copy,mv3,mv0,,item3,item0
+copy,mv4,mv0,,item4,item0
+copy,mv5,mv0,,item5,item0
+copy,mv6,mv0,,item6,item0
+copy,mv7,mv0,,item7,item0
+#
+eval,-rm0,exp,this.hint='データの削除\nキーでの操作は"DELETE"'
+func,rm0,sename,remove
+copy,rm1,rm0,,item1,item0
+copy,rm2,rm0,,item2,item0
+copy,rm3,rm0,,item3,item0
+copy,rm4,rm0,,item4,item0
+copy,rm5,rm0,,item5,item0
+copy,rm6,rm0,,item6,item0
+copy,rm7,rm0,,item7,item0
+#
+func,tx0,sename,comment,	cursor,NWPen
+func,tx0,
+copy,tx1,tx0,,item1,item0
+copy,tx2,tx0,,item2,item0
+copy,tx3,tx0,,item3,item0
+copy,tx4,tx0,,item4,item0
+copy,tx5,tx0,,item5,item0
+copy,tx6,tx0,,item6,item0
+copy,tx7,tx0,,item7,item0
+#
+cref,alledit,cp0,mv0,rm0,tx0
+eval,pre,call,global.Current.uiEval,setupSysButtons,pt,protect
+eval,pre,call,global.Current.uiEval,setupSysButtons,tx,comment
+eval,pre,call,global.Current.uiEval,setupSysButtons,rm,remove
+eval,pre,call,global.Current.uiEval,setupSysButtons,cp,copy
+eval,pre,call,global.Current.uiEval,setupSysButtons,mv,move
+eval,base,call,global.Current.uiEval,updateSysButtons
+#
+func,item0,	sename,item,	exp,Current.cmd("select/0")
+func,item1,	sename,item,	exp,Current.cmd("select/1")
+func,item2,	sename,item,	exp,Current.cmd("select/2")
+func,item3,	sename,item,	exp,Current.cmd("select/3")
+func,item4,	sename,item,	exp,Current.cmd("select/4")
+func,item5,	sename,item,	exp,Current.cmd("select/5")
+func,item6,	sename,item,	exp,Current.cmd("select/6")
+func,item7,	sename,item,	exp,Current.cmd("select/7")
+#
+cref,allsys,back,title,exit
+func,back,	target,*back
+func,title,	target,*back,	exp,kag.goToStartWithAsk(),	sename,back
+eval,-title,exp,with(this)if(global.Current.propget("fromTitle")) .exp=void; else .target=void;
+func,exit,	exp,kag.close()
+#
+cref,allpage_o,page0,page2,page4,page6,page8,page10,page12
+cref,allpage_e,page1,page3,page5,page7,page9,page11
+rgrp,allpage,page0,page1,page2,page3,page4,page5,page6,page7,page8,page9,page10,page11,page12,
+func,page0,	sename,page,	exp,Current.page=0,	target,*page
+func,page1,	sename,page,	exp,Current.page=1,	target,*page
+func,page2,	sename,page,	exp,Current.page=2,	target,*page
+func,page3,	sename,page,	exp,Current.page=3,	target,*page
+func,page4,	sename,page,	exp,Current.page=4,	target,*page
+func,page5,	sename,page,	exp,Current.page=5,	target,*page
+func,page6,	sename,page,	exp,Current.page=6,	target,*page
+func,page7,	sename,page,	exp,Current.page=7,	target,*page
+func,page8,	sename,page,	exp,Current.page=8,	target,*page
+func,page9,	sename,page,	exp,Current.page=9,	target,*page
+func,page10,	sename,page,	exp,Current.page=10,	target,*page
+func,page11,	sename,page,	exp,Current.page=11,	target,*page
+func,page12,	sename,page,	exp,Current.page=12,	target,*page
+#
+file,help
+func,loadbase,
+func,savebase,
+part,common,item
+part,rm_save,	common,loadbase,
+part,rm_load,	common,savebase
+part,rm_load_t,	common,savebase
+#
+eval,names,call,uiloadSysSE,saveload

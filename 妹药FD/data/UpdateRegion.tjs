@@ -1,0 +1,89 @@
+/**
+ * 更新領域情報
+ */
+class UpdateRegion {
+
+	// 領域情報
+	var left;
+	var top;
+	var right;
+	var bottom;
+	
+	/**
+	 * コンストラクタ
+	 */
+	function UpdateRegion(left, top, width, height) {
+		if (left !== void) {
+			this.left   = left;
+			this.right  = left + width - 1;
+		}
+		if (top !== void) {
+			this.top    = top;
+			this.bottom = top + height - 1;
+		}
+	}
+
+	/**
+	 * リージョン情報を破棄
+	 */
+	function clear() {
+		left = void;
+		top  = void;
+		right = void;
+		bottom = void;
+	}
+
+	/**
+	 * 領域更新
+	 */
+	function update(left, top, width, height) {
+		var right  = left + width - 1;
+		var bottom = top + height - 1;
+		update2(left, top, left+width-1, top+height-1);
+	}
+
+	/**
+	 * 領域更新
+	 */
+	function update2(left, top, right, bottom) {
+		if (this.left === void || left < this.left) {
+			this.left = left;
+		}
+		if (this.right === void || right > this.right) {
+			this.right = right;
+		}
+		if (this.top === void || top < this.top) {
+			this.top = top;
+		}
+		if (this.bottom === void || bottom > this.bottom) {
+			this.bottom = bottom;
+		}
+	}
+	
+	// 更新領域の横幅
+	property width {
+		getter() {
+			return left === void ? 0 : right - left + 1;
+		}
+		setter(v) {
+			right = left + v - 1;
+		}
+	}
+
+	// 更新領域の縦幅
+	property height {
+		getter() {
+			return top === void ? 0 : bottom - top + 1;
+		}
+		setter(v) {
+			bottom = top + v - 1;
+		}
+	}
+
+	function clearTarget(target) {
+		if (left !== void && top !== void && right !== void && bottom !== void) {
+			(global.Layer.fillRect incontextof target)(left, top, width, height, target.neutralColor);
+			clear();
+		}
+	}
+};

@@ -1,0 +1,85 @@
+try { Plugins.link("layerExTexture.dll"); } catch {}
+
+class TextureController extends GenericFlip, Layer {
+	var FLIP  = global.GenericFlip;
+	var SUPER = global.Layer;
+
+	var uvfile, txfile;
+	var uvmap, texture, txuspeed, txvspeed;
+	var lastox, lastoy;
+
+	function TextureController(win) {
+		FLIP.GenericFlip(win);
+		var prim = win.primaryLayer;
+		SUPER.Layer(win, prim);
+		setImageSize(prim.width, prim.height);
+		setSizeToImageSize();
+		name = "TextureController";
+
+		uvmap = new global.Layer(win, this);
+		uvmap.name = "uvmap layer";
+
+		texture = new global.Layer(win, this);
+		texture.name = "uvmap layer";
+	}
+	function finalize() {
+		Debug.notice("テクスチャ停止", name);
+		invalidate texture if (texture !== void);
+		invalidate uvmap   if (uvmap   !== void);
+		SUPER.finalize(...);
+		FLIP.finalize();
+	}
+
+	var basetime, lastTick;
+	function resetTime() {
+		basetime = lastTick = System.getTickCount();
+	}
+	function flipUpdate(tick) {
+		var	interval = tick - lastTick;
+		if (interval > 16) {
+			var ox = (int)(tick * txuspeed / 1000);
+			var oy = (int)(tick * txvspeed / 1000);
+			if (lastox === void || lastox != ox || lastoy != oy) {
+				lastox = ox;
+				lastoy = oy;
+				copyTexture(uvmap, texture, ox, oy);
+				flipAssign(this);
+			}
+		}
+		lastTick = tick;
+	}
+
+	function flipStart(file, elm) {
+		uvfile = file;
+		txfile = elm.texture;
+
+		name = "テクスチャ:" + uvfile + ":" + txfile;
+
+		texture.loadImages(txfile);
+		uvmap.loadImages(uvfile);
+		setImageSize(uvmap.imageWidth, uvmap.imageHeight);
+		setSizeToImageSize();
+
+		flipSetOptions(elm);
+		resetTime();
+	}
+	function flipSetOptions(elm) {
+		txuspeed = +elm.txuspeed if (elm.txuspeed !== void);
+		txvspeed = +elm.txvspeed if (elm.txvspeed !== void);
+		lastox = lastoy = void;
+	}
+}
+
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "texturemap",          // 登録タグ
+		"class"    => TextureController,  // コントローラクラス
+		"trigger"  => "txstop",            // 停止時に投げるトリガー名
+//		"ext"      => "png",               // 判定処理（拡張子文字列or配列）
+//		"checker"  => void,                // 判定処理（関数）
+		"options"  => [ "texture", "txuspeed", "txvspeed" ],      // 使用するオプション値（KAGEnvLayer用）
+//		"autoflag" => "",                  // 自動フラグタグ名（KAGEnvLayer用）
+//		"dtstore"  => true,                // 復帰フラグ（KAGEnvLayer用）
+		]);
+

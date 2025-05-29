@@ -1,0 +1,54 @@
+// -------------------------------------------------------------
+with (SystemConfig) {
+	.RandomVoiceTagFormat = "voice.${rnd}.${tag}";
+	.RandomVoiceCancelSkip = false;
+}
+var RandomVoiceKeys, RandomVoiceFormat;
+addKagHandler("rndvoice", function(elm) {
+	if (elm.tag == "") {
+		var lastCh = tf.lastRandomVoiceChar;
+		if (lastCh != "" && elm.wait) {
+			insertTag(lastCh, %[ waitvoice:true ]);
+		}
+	} else {
+		tf.lastRandomVoiceChar = void;
+		var rnd;
+		if (elm.chara != "") rnd = elm.chara;
+		else {
+			if (RandomVoiceKeys === void) {
+				var info = getSysSE("voice.random.keys");
+				if (info === void || info.storage == "")
+					throw new Exception("sysse.iniにランダムボイス用のvoice.random.keysを定義してください！");
+				RandomVoiceKeys = info.storage.split(" ",, true);
+				dm(RandomVoiceKeys*);
+			}
+			var list = RandomVoiceKeys;
+			for (var i = 0; i < list.count; i++) {
+				list[i] = void if (!getVoiceOn(list[i]));
+			}
+			list.remove(void, true);
+			if (list.count > 0)
+				rnd = list[(int)(defaultRandomGenerator.random() * list.count)];
+		}
+		if (rnd != "") {
+			if (RandomVoiceFormat == void)
+				RandomVoiceFormat = (@"function (rnd, tag) { return @'${SystemConfig.RandomVoiceTagFormat}'; }")!;
+			var voice = getSysSE(RandomVoiceFormat(rnd, elm.tag));
+			if (voice !== void && voice.storage != "") {
+				tf.lastRandomVoiceChar = rnd;
+				if (elm.directplay) {
+					dm("ランダムボイス(directplay)", elm.tag, rnd);
+					var unk = kag.forEachFunctionHook;
+					unk("onUnknown", "env", %[ stopallvoice:true ]);
+					unk("onUnknown",  rnd,  %[ playvoice:voice.storage, sync:true ]);
+				} else {
+					dm("ランダムボイス", elm.tag, rnd);
+					insertTag(rnd, %[ playvoice:voice.storage ]);
+					insertTag("env", %[ stopallvoice:true ]);
+					insertTag("cancelskip") if (SystemConfig.RandomVoiceCancelSkip);
+				}
+			}
+		}
+	}
+	return 0;
+}, true);

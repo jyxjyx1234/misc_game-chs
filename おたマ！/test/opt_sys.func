@@ -1,0 +1,88 @@
+func,_sl,	min,0,	max,100,	uipsdfix,true,	sename,slider,	jumpmode,true
+func,_chk,
+func,sc,
+#
+cref,allbtns,window,fullscreen,effect_normal,effect_none,skipread,skipall,voicecut_on,voicecut_off,afterauto_on,afterauto_off,afterskip_on,afterskip_off,curhide_none,curhide_5,curhide_10,curhide_20,font_gothic,font_mincho,font_default,finish_sel,finish_in,finish_out,
+rgrp,screen,window,fullscreen,
+rgrp,effect,effect_normal,effect_none,
+rgrp,skip,skipread,skipall,
+rgrp,vcut,voicecut_on,voicecut_off,
+rgrp,afauto,afterauto_on,afterauto_off,
+rgrp,afskip,afterskip_on,afterskip_off,
+rgrp,chide,curhide_none,curhide_5,curhide_10,curhide_20,
+rgrp,font,font_gothic,font_mincho,font_default,
+rgrp,finish,finish_sel,finish_in,finish_out,
+#
+func,window,		exp,Current.cmd("fullscreen=false")
+func,fullscreen,	exp,Current.cmd("fullscreen=true")
+func,effect_normal,	exp,Current.cmd("effectSpeed=normal")
+func,effect_none,	exp,Current.cmd("effectSpeed=none")
+func,skipread,		exp,Current.cmd("allSkip=false")
+func,skipall,		exp,Current.cmd("allSkip=true")
+func,voicecut_on,	exp,Current.cmd("voiceCut=true")
+func,voicecut_off,	exp,Current.cmd("voiceCut=false")
+func,afterauto_on,	exp,Current.cmd("afterAuto=true")
+func,afterauto_off,	exp,Current.cmd("afterAuto=false")
+func,afterskip_on,	exp,Current.cmd("afterSkip=true")
+func,afterskip_off,	exp,Current.cmd("afterSkip=false")
+func,curhide_none,	exp,Current.cmd("hideMouseCursor=0")
+func,curhide_5,		exp,Current.cmd("hideMouseCursor=5")
+func,curhide_10,	exp,Current.cmd("hideMouseCursor=10")
+func,curhide_20,	exp,Current.cmd("hideMouseCursor=20")
+func,font_gothic,	exp,Current.cmd("setFont/gothic")
+func,font_mincho,	exp,Current.cmd("setFont/mincho")
+func,font_default,	exp,Current.cmd("setFont/default")
+#func,textspeed,	value,kag.textspeed
+#func,autospeed,	value,kag.autospeed
+func,textspeed,		onchangefunc,Current.prop("changeTextSpeed")
+func,autospeed,		onchangefunc,Current.prop("changeAutoSpeed")
+func,finish_sel,	exp,Current.cmd("setFinish/0")
+func,finish_in,		exp,Current.cmd("setFinish/-1")
+func,finish_out,	exp,Current.cmd("setFinish/1")
+#
+func,sc0,	exp,tf.ShortCutPulldown=0,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc1,	exp,tf.ShortCutPulldown=1,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc2,	exp,tf.ShortCutPulldown=2,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc3,	exp,tf.ShortCutPulldown=3,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc4,	exp,tf.ShortCutPulldown=4,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc5,	exp,tf.ShortCutPulldown=5,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc6,	exp,tf.ShortCutPulldown=6,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc7,	exp,tf.ShortCutPulldown=7,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc8,	exp,tf.ShortCutPulldown=8,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc9,	exp,tf.ShortCutPulldown=9,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc10,	exp,tf.ShortCutPulldown=10,	storage,custom.ks,	target,*shortcut_pulldown
+func,sc11,	exp,tf.ShortCutPulldown=11,	storage,custom.ks,	target,*shortcut_pulldown
+#
+rgrp,rclick,rc_save,rc_load,rc_skip,rc_auto,rc_vreplay,rc_backlog,rc_option,rc_hide,rc_none,
+func,rc_save,		exp,SystemConfig.rclickBind="save"
+func,rc_load,		exp,SystemConfig.rclickBind="load"
+func,rc_skip,		exp,SystemConfig.rclickBind="skip"
+func,rc_auto,		exp,SystemConfig.rclickBind="auto"
+func,rc_vreplay,	exp,SystemConfig.rclickBind="vreplay"
+func,rc_backlog,	exp,SystemConfig.rclickBind="backlog"
+func,rc_option,		exp,SystemConfig.rclickBind="option"
+func,rc_hide,		exp,SystemConfig.rclickBind="hide"
+func,rc_none,		exp,SystemConfig.rclickBind="none"
+#
+cref,allsys,init,back,title,exit,to_save,to_load,to_system,to_sound,
+func,init,	exp,Current.cmd("init/sys")
+func,back,	target,*back
+func,title,	exp,kag.goToStartWithAsk(),	target,*back,	sename,back
+eval,-title,	exp,if(!.Current.propget("fromTitle"))sename=target=void;else exp=void;
+func,exit,	exp,kag.close()
+#
+rgrp,tabs,to_save,to_load,to_system,to_sound
+func,to_save,	sename,tab,	storage,custom.ks,	target,*save_from_option,	halftone,true
+eval,-to_save,exp,this.enabled=!.Current.propget("fromTitle")&&!.kag.isRecollection
+func,to_load,	sename,tab,	storage,custom.ks,	target,*load_from_option,	halftone,true
+eval,-to_load,exp,this.enabled=!.kag.isRecollection
+func,to_system,	sename,tab,	name,page0,	exp,Current.page=0,	target,*page
+func,to_sound,	sename,tab,	name,page1,	exp,Current.page=1,	target,*page
+#
+file,speedsample
+func,captions,
+func,base,
+#
+part,remove,_sl,sc,_chk
+#
+eval,names,call,uiloadSysSE,option

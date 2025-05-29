@@ -1,0 +1,121 @@
+with (SystemConfig) {
+	.defaultVoiceNames = [
+		"a01", "a02", "a03",
+		"a04", "a05", "a06",
+		"others" ];
+
+	.defaultKeyBinds = [
+		"qsave",	// F1:  クイックセーブ
+		"qload",	// F2:  クイックロード
+		"save",		// F3:  セーブ
+		"load",		// F4:  ロード
+		"skip",		// F5:  スキップ
+		"auto",		// F6:  オートモード
+		"vreplay",	// F7:  ボイス再生
+		"backlog",	// F8:  テキスト履歴
+		"option",	// F9:  システム
+		"none",		// F10: なし
+		"screen",	// F11: 画面モード切替
+		"hide"];	// F12: テキスト消去
+
+	// 確認ダイアログのデフォルト
+	._askQSave     = false;
+	._askQLoad     = true;
+	._askSave      = false;
+	._askLoad      = true;
+	._askOverwrite = true;
+	._askMove      = false;
+	._askCopy      = false;
+	._askDelete    = true;
+
+}
+
+// 環境初期化処理
+function initialEnvironment(isFirst = false, tag)
+{
+	var all = (tag == "" || tag == "all");
+
+	if (all || (tag == "snd")) {
+		// 音の有効
+		kag.waveenable  = true;
+		kag.bgmenable   = true;
+		kag.seenable    = true;
+		kag.sysseenable = true;
+		kag.voiceenable = true;
+
+		// 音量設定
+		kag.wavevolume  = 100;
+		kag.bgmvolume   = 40;
+		kag.sevolume    = 90;
+		kag.syssevolume = 90;
+		kag.voicevolume = 100;
+
+		setVoiceAll(true, 100);						// 全キャラボイスON
+
+		kag.bgmdown   = false;					// 音声再生時にBGM音量を(true:下げる, false:下げない)
+		kag.bgmdownlevel = 50;
+	}
+
+	if (all || (tag == "sys")) {
+		// スピード
+		kag.textspeed   = 50; //10 - (kag.chSpeeds.normal / (kag.chSpeeds.slow / 10));
+		kag.autospeed   = 50; //10 - (kag.autoModePageWaits.medium / (kag.autoModePageWaits.slow / 10));
+
+		kag.allskip     = false;				// 未読スキップ (true:有効, false:無効)
+		kag.drawspeed   = 1;					// エフェクトスピード
+		kag.chDefaultFace = global.MessageDefaultFontFace; //"ＭＳ ゴシック";	// フォント
+		// "HG明朝E,ＭＳ 明朝"
+		// "HGｺﾞｼｯｸE,ＭＳ ゴシック"
+
+		kag.voicecut = true;					// ボイスをカットを有効
+		kag.voicecutpage = true;				// カットするタイミング（true:ページ消去時にカット, false:名前表示時にカット)
+		kag.nosewhenskip = true;				// スキップ時の単発SE (true:鳴らさない, false:鳴らす)
+		kag.afterauto = true;					// 選択後の auto (true:継続, false:停止)
+		kag.afterskip = true;					// 選択後の skip (true:継続, false:停止)
+
+		// ショートカットキー割り当ての初期化
+		resetShortcutKeys(!isFirst);
+
+		// マウスカーソル自動消去
+		kag.scflags.hideMouseCursorTime = 0;
+
+		// 右クリック割り当て
+		SystemConfig.rclickBind = "hide";
+
+		// 中・外
+		sf.hseltype = 0;						// 0:選択, -1:中, 1:外
+	}
+
+	if (all || (tag == "svld")) {
+		with (SystemConfig) {
+			.askQSave     = ._askQSave    ;
+			.askQLoad     = ._askQLoad    ;
+			.askSave      = ._askSave     ;
+			.askLoad      = ._askLoad     ;
+			.askOverwrite = ._askOverwrite;
+			.askMove      = ._askMove     ;
+			.askCopy      = ._askCopy     ;
+			.askDelete    = ._askDelete   ;
+		}
+	}
+
+	// 初回起動時(savedataがない)のみの初期化処理
+	if (isFirst) {
+		// DSoundセカンダリバッファを常に再生成
+		setDefaultSystemArgument("wsrecreate", "yes");
+
+		// パッドリピート間隔
+		setDefaultSystemArgument("padinterval", 70);
+
+		// フレーム上限を設定
+		setDefaultSystemArgument("contfreq", 60);
+
+		// VistaではダブルバッファをDirect3Dに
+		setDefaultSystemArgument("dbstyle", "d3d") if (checkWindowsVersion("vista"));
+
+		// 擬似フルスクリーンをデフォに
+		setDefaultSystemArgument("fullscreenmode", "pseudoall");
+	}
+
+}
+

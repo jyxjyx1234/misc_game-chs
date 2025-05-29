@@ -1,0 +1,339 @@
+//--------------------------------------------------------------
+// フォント表示関連hack
+
+// layerExDrawの文字描画はは使用不可
+if (typeof Layer.drawPathString == "Object") {
+	delete Layer.drawPathString;
+}
+
+with (SystemConfig) {
+	.msgHackDefaultColor = 0xFFFFFF             if (typeof .msgHackDefaultColor == "undefined");
+@if (MSGHACK_GRADCOLOR)
+	.msgHackGradColor    = .msgHackDefaultColor if (typeof .msgHackGradColor    == "undefined");
+	.msgHackGradPixel    = 1                    if (typeof .msgHackGradPixel    == "undefined");
+@endif
+}
+
+@if (MSGHACK_GRADCOLOR)
+// グラデーション塗りつぶし
+function MakeGradationLayer(win, w, h, col, gcol) {
+	col  = ((int)+ col) & 0xFFFFFF;
+	gcol = ((int)+gcol) & 0xFFFFFF;
+	var cpix, grad;
+	if (typeof win._fontGradTemp != "Object") {
+		win.add(       win._fontGradTemp  = new global.KAGLayer(win, win.primaryLayer));
+		win.add(cpix = win._fontGradPixel = new global.   Layer(win, win.primaryLayer));
+		win.add(grad = win._fontGradColor = new global.   Layer(win, win.primaryLayer));
+		grad.setSize(1,1);
+		with (cpix) {
+			.type = ltOpaque;
+			.setSize(1,2);
+			.fillRect(0, 0, 1, 2, cpix.current = gcol);
+		}
+	} else {
+		cpix = win._fontGradPixel;
+		grad = win._fontGradColor;
+	}
+	var redraw = 0;
+	if (gcol != cpix.current) {
+		cpix.fillRect(0, 0, 1, 2, cpix.current = gcol);
+	}
+	if (col != cpix.current) {
+		cpix.setMainPixel(0, SystemConfig.msgHackGradPixel, col);
+		redraw |= 1;
+	}
+	if (grad.height != h) {
+		grad.height  = h;
+		redraw |= 1;
+	}
+	if (grad.width < w) {
+		grad.width = w;
+		redraw |= 2;
+	}
+	if (redraw) {
+		grad.stretchCopy(0, 0,   1, h, cpix, 0, 0, 1, 2, stFastLinear) if (redraw & 1);
+		grad.stretchCopy(1, 0, w-1, h, grad, 0, 0, 1, h, stNearest);
+	}
+	return grad;
+}
+@endif
+
+function EdgeShadowDrawText(dt, d,x,y,text,col,opa,aa, s,scol,sw,sx,sy, e,ecol,eemp,eext) {
+	if (s) dt(x+sx, y+sy, text, scol, 255, aa, sw>0?255:0, scol, sw, 0, 0);
+	if (e) dt(x,    y,    text, ecol, 255, aa, eemp, ecol, eext, 0, 0);
+	if (d) {
+@if (! MSGHACK_GRADCOLOR)
+		dt(x, y, text, col, 255, aa);
+@endif
+@if (MSGHACK_GRADCOLOR)
+		var gcol = SystemConfig.msgHackGradColor;
+		if (typeof gcol == "Object") gcol = gcol(col);
+		if ((((int)+col) & 0xFFFFFF) == gcol) dt(x, y, text, col, 255, aa);
+		else {
+			// グラデーションhack
+			var win  = d.window;
+			var font = d.font;
+			var w    = font.getTextWidth(text);
+			var h    = font.getTextHeight(text);
+			var grad = MakeGradationLayer(win, w, h, col, gcol);
+			var tmp  = win._fontGradTemp;
+			with (tmp.font) {
+				.face   = font.face;
+				.height = font.height;
+				.bold   = font.bold;
+				//.italic = font.italic;
+				//.angle  = font.angle;
+			}
+			var dh = 0;
+			// [XXX]
+			try { if (/[gpqy]/.test(text)) dh = (h\2); } catch {}
+			with (tmp) {
+				.setSize(w, h+dh);
+				.fillRect(0, 0, w, h+dh, 0);
+				.drawText(0, 0, text, gcol, 255, aa);
+				.face = dfMain;
+				.holdAlpha = true;
+				.copyRect(0, 0, grad, 0, 0, w, h);
+				.colorRect(0, h, w, dh, col & 0xFFFFFF, 255) if (dh > 0);
+				.face = dfBoth;
+				.holdAlpha = false;
+			}
+			d.operateRect(x, y, tmp, 0, 0, w, h+dh);
+		}
+@endif
+	}
+}
+
+function EdgeShadowDrawTextKinsokuRect(dt, layer, text, elm, paramsrc = kag.current) {
+	if (dt === void) dt = layer.drawText;
+	elm.drawtext = function (*) {
+		//global.Debug.message("drawtext", *);
+		global.EdgeShadowDrawText(dt, *);
+	} incontextof %[ dt:dt ];
+	if (elm.param === void && typeof paramsrc == "Object") with (paramsrc) try {
+		elm.param = [ 255, .antialiased,
+					  .shadow, .shadowColor, .shadowWidth,  .shadowOffsetX, .shadowOffsetY,
+					  .edge,   .edgeColor,   .edgeEmphasis, .edgeExtent ];
+	} catch {}
+	return drawTextKinsokuRect(layer, text, elm);
+}
+
+class        CustomMessageLineLayer extends KAGLayer {
+	function CustomMessageLineLayer(win, ow) {
+		_owner = ow;
+		super.KAGLayer(...);
+
+		_origDrawText  =  this.onDrawText;
+		_origDrawText <-> this.drawText;
+
+		_divlay = new global.KAGLayer(window, this);
+		with (_divlay) {
+			.hitType = htMask;
+			.hitThreshold = 256;
+			.name = "TextDrawDivider";
+			.visible = true;
+		}
+		this.font.fontSetter = fontSetter;
+		objectHookInjection(%[ target:this.font, prop:"face",   get:fontGetter, set:fontSetterFace   ]);
+		objectHookInjection(%[ target:this.font, prop:"height", get:fontGetter, set:fontSetterHeight ]);
+		objectHookInjection(%[ target:this.font, prop:"bold",   get:fontGetter, set:fontSetterBold   ]);
+	}
+	function fontGetter      (orig) { return *orig; }
+	function fontSetter(tag,  orig, v) { *orig = v; _divlay.font[tag] = v if (_divlay !== void); }
+	function fontSetterFace  (orig, v) { fontSetter("face",   orig, v); }
+	function fontSetterHeight(orig, v) { fontSetter("height", orig, v); }
+	function fontSetterBold  (orig, v) { fontSetter("bold",   orig, v); }
+	function finalize {
+		invalidate _divlay if (_divlay !== void);
+		super.finalize(...);
+	}
+	var _divlay, _owner, _origDrawText;
+	function onDrawText(x,y,text,color,opa,aa) { with (_owner) {
+		if (_divlay !== void) {
+			EdgeShadowDrawText( _origDrawText, void, x,y,text,color,opa,aa,
+								.shadow, .shadowColor, .shadowWidth, .shadowOffsetX, .shadowOffsetY,
+								.edge,   .edgeColor,   .edgeEmphasis, .edgeExtent);
+			EdgeShadowDrawText( _divlay.drawText, _divlay, x,y,text,color,opa,aa);
+		} else {
+			EdgeShadowDrawText( _origDrawText, this, x,y,text,color,opa,aa,
+								.shadow, .shadowColor, .shadowWidth, .shadowOffsetX, .shadowOffsetY,
+								.edge,   .edgeColor,   .edgeEmphasis, .edgeExtent);
+		}
+	} }
+	function assignImages(src) {
+		_divlay.assignImages(src._divlay) if (_divlay !== void && typeof src._divlay == "Object");
+		return super.assignImages(...);
+	}
+	function copyRect(dx,dy,src,*) {
+		if (src == this && _divlay !== void) _divlay.copyRect(dx,dy, _divlay, *);
+		return super.copyRect(...);
+	}
+	function fillRect(*)           { return _callMethod("fillRect", *); }
+	function setSize(*)            { return _callMethod("setSize", *); }
+	function setSizeToImageSize(*) { return _callMethod("setSizeToImageSize", *); }
+	function setPos(*)             { var r =_callMethod("setPos", *); _divlay.setPos(0,0) if (_divlay !== void); return r; }
+	property imageWidth  { getter { return _getProp("imageWidth");  } setter(v) { _setProp("imageWidth",  v); } }
+	property imageHeight { getter { return _getProp("imageHeight"); } setter(v) { _setProp("imageHeight", v); } }
+	property face        { getter { return _getProp("face");        } setter(v) { _setProp("face",        v); } }
+	property width       { getter { return _getProp("width");       } setter(v) { _setProp("width",       v); } }
+	property height      { getter { return _getProp("height");      } setter(v) { _setProp("height",      v); } }
+	function _callMethod(tag, *) { _divlay[tag](*) if (_divlay !== void); return super[tag](*); }
+	function _getProp(tag) { return super[tag]; }
+	function _setProp(tag, v) {     super[tag] = v; _divlay[tag] = v if (_divlay !== void); }
+}
+class        CustomMessageTextLayer extends MessageTextLayer {
+	function CustomMessageTextLayer { super.MessageTextLayer(...); }
+	function finalize { super.finalize(...); }
+	function operateRect(sx,sy, src, *) {
+		var opr = super.operateRect;
+		var r = opr(...);
+		opr(sx,sy, src._divlay, *) if (typeof src._divlay == "Object");
+		return r;
+	}
+}
+class        CustomNameLayer extends NameLayer {
+	var currentName;
+	function CustomNameLayer { super.NameLayer(...); }
+	function finalize()      { super.finalize( ...); }
+	function processName(text) { currentName = text; return super.processName(((string)text).trim()); }
+	function draw(x, y, text) {
+		with (owner) {
+			var col = window.getCurrentMessageColor();
+			if (x >= 0) {
+				EdgeShadowDrawText( drawText, this, x, y, text, col, 255, .antialiased,
+									.shadow, .shadowColor, .shadowWidth, .shadowOffsetX, .shadowOffsetY,
+									.edge,   .edgeColor,   .edgeEmphasis, .edgeExtent);
+			} else {
+				var temp = new global.KAGLayer(window, this);
+				var pad = 4;
+				var w = font.getTextWidth(text);
+				var h = font.getTextHeight(text);
+				with (temp) {
+					.setImageSize(w+pad*2, h+pad*2);
+					.font.face   = font.face;
+					.font.height = font.height;
+					.font.bold   = font.bold;
+				}
+				EdgeShadowDrawText(temp.drawText, temp, pad, pad, text, col, 255, .antialiased,
+								   .shadow, .shadowColor, .shadowWidth, .shadowOffsetX, .shadowOffsetY,
+								   .edge,   .edgeColor,   .edgeEmphasis, .edgeExtent);
+				fillRect(0, 0, imageWidth, imageHeight, 0);
+				stretchCopy(pad, y, width-pad*2, h, temp, pad, pad, w, h, stFastLinear|stRefNoClip);
+				invalidate temp;
+			}
+		}
+	}
+	function redrawName() {
+		processName(currentName);
+	}
+	property visible {
+		getter { return super.visible; }
+		setter(v) {     super.visible = v; window.callHook("onNameLayerVisibleChanged", this, v); }
+	}
+}
+class CustomMessageLayer extends MessageLayer {
+	function CustomMessageLayer { super.MessageLayer(...); }
+	function finalize { super.finalize(...); }
+
+	function redrawText(*) {
+		if (canRedrawFrameAndText()) {
+			if (window.callHook("onRedrawMessageText", this, (super.redrawText incontextof this), *)) return;
+			return super.redrawText(...);
+		}
+	}
+
+	property MessageLineLayer { getter { return window == global.Window.mainWindow ? CustomMessageLineLayer : global.MessageLineLayer; } }
+	property MessageTextLayer { getter { return window == global.Window.mainWindow ? CustomMessageTextLayer : global.MessageTextLayer; } }
+	property NameLayer { getter { return CustomNameLayer; } }
+//	property FaceLayer { getter { return CustomFaceLayer; } }
+
+	function getFrameOpacity() { return sf.windowOpac; }
+	function redrawFrame(*) {
+		if (id == msgHackTargetLayer && window.callHook("onRedrawMessageFrame", this, (super.redrawFrame incontextof this), *)) return;
+		return super.redrawFrame(...);
+	}
+}
+KAGWindow.MessageLayer = CustomMessageLayer;
+
+//--------------------------------------------------------------
+// メッセージ窓関連hack
+
+var msgHackTargetLayer = (int)+SystemConfig.msgHackTargetMessageLyer;
+
+function canRedrawFrameAndText() {
+	try {
+		var state = SystemHook.currentState;
+		if (kag.callHook("onCheckRedrawFrameAndText", state))
+			return true;
+		switch (state) {
+		case "game": return true;
+		case "option": case "save": case "load": case "backlog":
+			return !Current.propget("fromTitle");
+		}
+	} catch {}
+	return false;
+}
+addKagHookCallback("onResetModeChanged", function {
+	// メッセージレイヤの透明度を変更
+	if (canRedrawFrameAndText()) {
+		resetMessageLayerFrame(fore.messages[msgHackTargetLayer]);
+		resetMessageLayerFrame(back.messages[msgHackTargetLayer]);
+	}
+}, true);
+
+function redrawMessageText() {
+	if (typeof global.kag != "Object" || !kag || !isvalid kag) return;
+	if (!canRedrawFrameAndText()) return;
+	var mes; // [XXX]
+	with (mes = kag.fore.messages[msgHackTargetLayer]) .redrawText();
+	with (      kag.back.messages[msgHackTargetLayer]) .redrawText();
+	kag.current <-> mes;
+	try { world_object.env.redrawCurrentFace(); } catch {}
+	kag.current <-> mes;
+	resetModeChanged();
+}
+function resetMessageLayerFrame(mes, isSQ) {
+	with (mes) try {
+		.frameOpacity = .getFrameOpacity();
+		.redrawFrame(true);
+	} catch {}
+}
+function initMessageLayerProps(mes) {
+	with (mes) {
+		.redrawTextEnabled = true; // 再描画可能に
+		.hasTextLayer      = true; // テキストレイヤを独立
+//		.hasChFadeLayer    = true; // 文字フェード
+		var pad = SystemConfig.msgHackLineLayerPadding;
+		if (pad === void) pad = 8;
+		.lineLayerPadding  = pad;  // 余白を増やす（フチ取り用）
+		kag.callHook("onInitMessageLayerProps", mes);
+	}
+}
+addAfterInitCallback(function() {
+	with (kag) {
+		// クリック待ちアイコンのアニメリスタート指定
+		.lineBreak.restartOnReload = true;
+		.pageBreak.restartOnReload = true;
+
+		.chDefaultColor = SystemConfig.msgHackDefaultColor;
+		.getCurrentMessageColor = function (read, *) {
+			if (read === void) read = getCurrentRead();
+			var col = %[ color: chDefaultColor ];
+			callHook("onGetCurrentMessageColor", col, read, *);
+			return col.color;
+		} incontextof kag;
+	}
+	initMessageLayerProps(kag.fore.messages[msgHackTargetLayer]);
+	initMessageLayerProps(kag.back.messages[msgHackTargetLayer]);
+} incontextof global);
+
+addKagHookCallback("onDrawName", function(name) {
+	if (/*!skipNoDisp &&*/textWriteEnabled) {
+		var col = getCurrentMessageColor();
+		with (tagHandlers) {
+			.deffont(%[ color:col ]);
+			.font   (%[ color:"default"]);
+		}
+	}
+}, true);
+addKagHookCallback("onSetMessageLayerUserFont", function { redrawMessageText(); }, false);

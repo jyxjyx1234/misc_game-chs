@@ -1,0 +1,82 @@
+func,_sl,	min,0,	max,100,	uipsdfix,true,	sename,slider,	jumpmode,true
+func,_mute,
+func,_sv,
+func,_spk,	sename,speaker
+func,_vsp,	sename,speaker
+#
+func,wavevolume,	value,kag.wavevolume
+#func,bgmvolume,	value,kag.bgmvolume
+func,bgmvolume,		onchangefunc,Current.func("onBgmVolumeChanged")
+func,sevolume,		value,kag.sevolume,	sename,sevol
+func,syssevolume,	value,kag.syssevolume,	sename,sysse
+#func,voicevolume,	value,kag.voicevolume
+func,voicevolume,	onchangefunc,Current.prop("changeVoiceVolume"),	sename,chvol
+func,downvolume,	onchangefunc,Current.func("onBgmDownChanged")
+#
+func,setest,		sename,setest
+func,syssetest,		sename,sysse
+func,voicetest,		sename,test,	exp,Current.cmd("testRandomVoice")
+#
+func,wavemute,		exp,Current.cmd("waveEnable=toggle")
+func,bgmmute,		exp,Current.cmd("bgmEnable=toggle")
+func,semute,		exp,Current.cmd("seEnable=toggle")
+func,syssemute,		exp,Current.cmd("sysseEnable=toggle")
+func,voicemute,		exp,Current.cmd("voiceEnable=toggle")
+func,downmute,		exp,Current.cmd("bgmDown=toggle"),	name,bgmdown
+#
+rgrp,sysvoice,rndsv,ch0sv,ch1sv,ch2sv,ch3sv,ch4sv,ch5sv,ch6sv,
+func,rndsv,		visible,false
+func,ch0sv,		visible,false
+func,ch1sv,		visible,false
+func,ch2sv,		visible,false
+func,ch3sv,		visible,false
+func,ch4sv,		visible,false
+func,ch5sv,		visible,false
+func,ch6sv,		visible,false
+#
+func,ch0test,		sename,test,	exp,Current.cmd("testVoice/0")
+func,ch1test,		sename,test,	exp,Current.cmd("testVoice/1")
+func,ch2test,		sename,test,	exp,Current.cmd("testVoice/2")
+func,ch3test,		sename,test,	exp,Current.cmd("testVoice/3")
+func,ch4test,		sename,test,	exp,Current.cmd("testVoice/4")
+func,ch5test,		sename,test,	exp,Current.cmd("testVoice/5")
+func,ch6test,		sename,test,	exp,Current.cmd("testVoice/6")
+#
+func,ch0volume,		sename,chvol,	onchangefunc,Current.prop("changeChVoiceVol"),	onchangefuncdata,0
+func,ch1volume,		sename,chvol,	onchangefunc,Current.prop("changeChVoiceVol"),	onchangefuncdata,1
+func,ch2volume,		sename,chvol,	onchangefunc,Current.prop("changeChVoiceVol"),	onchangefuncdata,2
+func,ch3volume,		sename,chvol,	onchangefunc,Current.prop("changeChVoiceVol"),	onchangefuncdata,3
+func,ch4volume,		sename,chvol,	onchangefunc,Current.prop("changeChVoiceVol"),	onchangefuncdata,4
+func,ch5volume,		sename,chvol,	onchangefunc,Current.prop("changeChVoiceVol"),	onchangefuncdata,5
+func,ch6volume,		sename,chvol,	onchangefunc,Current.prop("changeChVoiceVol"),	onchangefuncdata,6
+#
+func,ch0mute,		exp,Current.cmd("setChVoice/0/toggle")
+func,ch1mute,		exp,Current.cmd("setChVoice/1/toggle")
+func,ch2mute,		exp,Current.cmd("setChVoice/2/toggle")
+func,ch3mute,		exp,Current.cmd("setChVoice/3/toggle")
+func,ch4mute,		exp,Current.cmd("setChVoice/4/toggle")
+func,ch5mute,		exp,Current.cmd("setChVoice/5/toggle")
+func,ch6mute,		exp,Current.cmd("setChVoice/6/toggle")
+#
+cref,allsys,init,back,title,exit,to_save,to_load,to_system,to_sound,
+func,init,	exp,Current.cmd("init/snd")
+func,back,	target,*back
+func,title,	exp,kag.goToStartWithAsk(),	target,*back,	sename,back
+eval,-title,	exp,if(!.Current.propget("fromTitle"))sename=target=void;else exp=void;
+func,exit,	exp,kag.close()
+#
+rgrp,tabs,to_save,to_load,to_system,to_sound
+func,to_save,	sename,tab,	storage,custom.ks,	target,*save_from_option,	halftone,true
+eval,-to_save,exp,this.enabled=!.Current.propget("fromTitle")&&!.kag.isRecollection
+func,to_load,	sename,tab,	storage,custom.ks,	target,*load_from_option,	halftone,true
+eval,-to_load,exp,this.enabled=!.kag.isRecollection
+func,to_system,	sename,tab,	name,page0,	exp,Current.page=0,	target,*page
+func,to_sound,	sename,tab,	name,page1,	exp,Current.page=1,	target,*page
+#
+func,sysvocaps,	visible,false
+func,captions,
+func,base,
+#
+part,remove,_sl,_mute,_sv,_spk,_vsp
+#
+eval,names,call,uiloadSysSE,option

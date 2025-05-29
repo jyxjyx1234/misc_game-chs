@@ -1,0 +1,332 @@
+@if (!PRERENDERFONTEX_INCLUDED)
+@set (PRERENDERFONTEX_INCLUDED=1)
+class PreRenderFontEx {
+	var owner,       ThisClass = global.PreRenderFontEx;
+	var fontInfo   = ThisClass.PreRenderFontInfo;
+	var reverseMap = ThisClass.PreRenderReverseMap;
+
+	var origDrawText, drawThrough, resizeLayer, resizePadding = 10, hasShrinkCopy;
+	var origGetTextWidth, origGetTextHeight, fontZoom;
+	var curInfo, curSizes, checkUpdate;
+	var fontHook, face, height, angle, bold, italic;
+	function PreRenderFontEx(layer) {
+		var font = (global.Layer incontextof (owner = layer)).font;
+
+		// drawText を差し替える
+		origDrawText  =   this.drawText;
+		origDrawText <-> layer.drawText;
+
+		// getTextWidth/Height を差し替える
+		origGetTextWidth   =  this.getTextWidth;
+		origGetTextHeight  =  this.getTextHeight;
+		origGetTextWidth  <-> font.getTextWidth;
+		origGetTextHeight <-> font.getTextHeight;
+
+		// フォントプロパティにフック処理を差し込む
+		fontHook = font.__propertyHook = %[];
+		var propertyHook = function (prop, self, filter, cur) {
+			__propertyHook[     prop] =      &this[prop];
+			__propertyHook['_' +prop] = cur = this[prop];
+			__propertyHook['__'+prop] = self[filter];
+			var exp = self[filter](prop, cur); 
+			this[prop] = exp if (cur != exp); // フィルタ適用
+			(@"property ${prop} { getter { return __propertyHook.${'_'+prop}; } " +
+			 @"setter(v) { with (__propertyHook) { .${prop} =  .${'__'+prop}('${prop}', .${'_'+prop} = v); } } }")!;
+		} incontextof font;
+		propertyHook("face"  , this, "fontFilterFace");
+		propertyHook("height", this, "fontChanged");
+		propertyHook("angle" , this, "fontChanged");
+		propertyHook("bold"  , this, "fontChanged");
+		propertyHook("italic", this, "fontChanged");
+		checkUpdate = true;
+	}
+	function finalize() {
+		invalidate resizeLayer if (resizeLayer !== void);
+		// 元に戻す
+		owner.drawText = origDrawText if (owner !== void && origDrawText !== void);
+		var font = owner.font;
+		font.getTextWidth  = origGetTextWidth;
+		font.getTextHeight = origGetTextHeight;
+		if (fontHook !== void) with (fontHook) {
+			&font.face   = &.face;
+			&font.height = &.height;
+			&font.angle  = &.angle;
+			&font.bold   = &.bold;
+			&font.italic = &.italic;
+		}
+	}
+	function fontChanged(prop, value) {
+		if (    this[prop] != value) checkUpdate = true;
+		return (this[prop]  = value);
+	}
+	function fontFilterFace(prop, value) {
+		if (face != value) checkUpdate = true;
+		/**/face  = value;
+		curInfo   = value != "" ?  fontInfo[value] : void;
+		return curInfo ? curInfo.realFace : value;
+	}
+	function getCurrentTag() {
+		if (!curInfo || curInfo.ttf) return;
+		var num = (angle << 2) | (bold ? 1 : 0) | (italic ? 2 : 0);
+		curSizes = curInfo[num];
+		return @"${num}|";
+	}
+	function fontUpdate() {
+		checkUpdate = false;
+		drawThrough = true;
+		curSizes    = void;
+		if (resizeLayer) resizeLayer.hasImage = false;
+		if (!curInfo || curInfo.ttf) return; // face が通常（プリレンダフォントでない）
+
+		var size = height;
+		size = -size if (size < 0);
+
+		var tag = getCurrentTag();
+		var list  = curSizes;
+		var pfont = curInfo[tag + size];
+
+		if (list  === void || !(list.count)) return; // フォントの登録がない
+		if (pfont !== void) return loadPFont(pfont); // 同サイズで登録されている場合はリサイズ不要
+
+		pfont = curInfo[tag + searchNearSize(size)];
+		if (pfont !== void) {
+			drawThrough = false;
+			loadPFont(pfont);
+			if (resizeLayer === void) {
+				resizeLayer = new Layer(owner.window, owner);
+				resizeLayer.name = "PreRenderFontExResizeLayer";
+				hasShrinkCopy = (typeof resizeLayer.shrinkCopy == "Object");
+			}
+			with (resizeLayer) {
+				.hasImage = true;
+				.setImageSize(pfont.height, pfont.height + resizePadding * 2);
+				.setSizeToImageSize();
+				with (.font) {
+					.face   = pfont.face;
+					.height = pfont.height;
+					.angle  = pfont.angle;
+					.bold   = pfont.bold;
+					.italic = pfont.italic;
+				}
+			}
+			fontZoom = size / pfont.height;
+		}
+	}
+	function loadPFont(pfont) {
+		if (pfont.mapped) return;
+		fontExchange(pfont);
+		try { owner.font.mapPrerenderedFont(pfont.storage); }
+		catch {
+			Debug.notice("TFTファイルの読み込みに失敗しました:"+pfont.storage);
+		}
+		fontExchange(pfont);
+		pfont.mapped = true;
+	}
+	function fontExchange(dic) { with (fontHook) {
+		.face   <-> dic.face;
+		.height <-> dic.height;
+		.angle  <-> dic.angle;
+		.bold   <-> dic.bold;
+		.italic <-> dic.italic;
+	} }
+
+	function searchNearSize(size) {
+		if (getCurrentTag() === void) return size;
+		// 近いサイズのフォント情報を取得
+		var r1 = getCeilSize(size);
+		var r2 = getCeilSize(r1-1);
+		with (Math) return (r1 == r2 || .abs(r1-size) < .abs(r2-size)) ? r1 : r2;
+	}
+	function getCeilSize(size) {
+		// 指定サイズの一回り大きいサイズを取得
+		var r = 0, list = curSizes, cnt = list.count;
+		// listは降順にソート済み
+		if (cnt > 1 && list[0] > size) {
+			for (var i = 1; i < cnt; r = i++) {
+				if (list[i] < size) break;
+			}
+		}
+		return list[r];
+	}
+	function drawText(x,y,text,col,*) {
+		fontUpdate() if (checkUpdate);
+		if (drawThrough) return origDrawText(...);
+
+		var sw, sh, dw, dh, ret;
+		with (resizeLayer.font)  sw=.getTextWidth(text),  sh=.getTextHeight(text);
+//		with (owner      .font)  dw= getTextWidth(text),  dh= getTextHeight(text);
+		dw = (int)(sw * fontZoom), dh = (int)(sh * fontZoom);
+
+		// 仮実装
+		with (resizeLayer) {
+			var w = sw + resizePadding * 2;
+			.width = w + dw;
+			.fillRect(0, 0, w, .height, col & 0x00FFFFFF);
+			ret = .drawText(resizePadding, resizePadding, text, col, *);
+			if (dw < sw && dh < sh && hasShrinkCopy) {
+				.shrinkCopy(w, 0, dw, dh, resizeLayer, resizePadding, resizePadding, sw, sh);
+				owner.operateRect   (x, y,         resizeLayer, w, 0,                         dw, dh, omAlpha, 255);
+			} else {
+				owner.operateStretch(x, y, dw, dh, resizeLayer, resizePadding, resizePadding, sw, sh, omAlpha, 255, stCubic|stRefNoClip);
+			}
+		}
+		return ret;
+	}
+	function getTextWidth() {
+		fontUpdate() if (checkUpdate);
+		return drawThrough     ? origGetTextWidth(...)
+			: (int)(resizeLayer.font.getTextWidth(...) * fontZoom);
+	}
+	function getTextHeight() {
+		fontUpdate() if (checkUpdate);
+		return drawThrough     ? origGetTextHeight(...)
+			: (int)(resizeLayer.font.getTextHeight(...) * fontZoom);
+	}
+
+}
+with (PreRenderFontEx) {
+	.FallbackFace = "ＭＳ ゴシック"; // グリフがない場合の代替フェイス
+	.PreRenderFontNames  =  []; // 仮想 face リスト
+	.PreRenderFontInfo   = %[]; // 仮想 face -> 詳細情報
+	.PreRenderReverseMap = %[]; //   実 face -> 仮想 face
+	.TTFFontNames        =  []; // TTF  face リスト(非パック時exmenuintf.tjsのフォント選択で表示させない)
+	.MakeFontInfoTable = function (virtName, mainName, fallBack) {
+		var ThisClass = global.PreRenderFontEx;
+		var names  = ThisClass.PreRenderFontNames;
+		var infos  = ThisClass.PreRenderFontInfo;
+		var rev    = ThisClass.PreRenderReverseMap;
+
+		var          realFace  = mainName + ","+ (fallBack != "" ? fallBack : ThisClass.FallbackFace);
+		if (     rev[realFace] === void)
+			/**/ rev[realFace]  = virtName;
+		else if (rev[realFace] != virtName)
+			Debug.notice("PreRenderFontEx.MakeFontInfoTable: conflict FontVirtName/RealFace: "+virtName+":"+realFace);
+
+		var target = infos[virtName];
+		if (target === void) {
+			target = infos[virtName] = %[];
+			names.add     (virtName);
+			target.name     = virtName;
+			target.realFace = realFace;
+		} else {
+			if (target.realFace != realFace)
+				Debug.notice("PreRenderFontEx.MakeFontInfoTable: conflict FontRealFace: "+target.realFace+":"+realFace);
+		}
+
+		return target;
+	} incontextof global;
+	.SetFontComment = function (target, elm) {
+		if (target === void || elm === void) return;
+		with (elm) {
+			target.comment = .comment if (.comment !== void); // コメント
+			target.detail  = .detail  if (.detail  !== void); // 詳細情報テキスト
+			target.caption = .caption if (.caption !== void); // 詳細情報キャプション
+		}
+	} incontextof global;
+	.AddFont = function(name, size, storage, opt) {
+		if (name == "" || !size)
+			throw new Exception("PreRenderFontEx.AddFont: invalid font name/size.");
+		if (storage == "" || !Storages.isExistentStorage(storage)) {
+			Debug.notice("PreRenderFontEx.AddFont: storage not found: "+storage);
+			return;
+		}
+		size = (int)+size;
+		opt  = %[] if (!opt || typeof opt != "Object");
+
+		var ThisClass = global.PreRenderFontEx;
+		var target    = ThisClass.MakeFontInfoTable(name, @"PreRenderFont(${name})", opt.fallback);
+		var realFace  = target.realFace;
+
+		ThisClass.SetFontComment(target, opt);
+
+		var num, pfont = %[
+		name    :  name,
+		storage :  storage,
+		height  :  size,
+		mapped  :  false,
+		face    :  realFace,
+		angle   : (opt.angle  !== void) ?  +opt.angle  : 0,
+		bold    : (opt.bold   !== void) ? !!opt.bold   : false,
+		italic  : (opt.italic !== void) ? !!opt.italic : false,
+			];
+		with (pfont) num = (.angle << 2) | (.bold ? 1 : 0) | (.italic ? 2 : 0);
+
+		var list = target[num];
+		if (list == void)
+			list = target[num] = [];
+		list.remove(size, true);
+		list.add   (size);
+		list.sort("-");
+
+		target[@"${num}|${size}"] = pfont;
+	} incontextof global;
+	.AddTrueTypeFont = function(name, face, storage, fallback, opt) {
+		if (typeof System.addFont != "Object")
+			throw new Exception("PreRenderFontEx.AddTrueTypeFont: System.addFont not defined.");
+		if (storage == "" || !Storages.isExistentStorage(storage)) {
+			Debug.notice("PreRenderFontEx.AddTrueTypeFont: storage not found: "+storage);
+			return;
+		}
+
+		var ThisClass = global.PreRenderFontEx;
+		var   target  = ThisClass.MakeFontInfoTable(name, ","+face, fallback);
+		/**/  target.ttf = true;
+		ThisClass.SetFontComment(target, opt);
+		ThisClass.TTFFontNames.add(face);
+		try {
+			System.addFont(storage, false);
+		} catch (e) {
+			Debug.notice("PreRenderFontEx.AddTrueTypeFont: "+e.message);
+		}
+	} incontextof global;
+
+	// KAGLayer に差し込む
+
+	.KAGLayerConstructor = function {
+		var ThisClass = global.PreRenderFontEx;
+		with (ThisClass) {
+			.KAGLayerConstructor(...);
+			this._preRenderFontEx = new ThisClass(this);
+		}
+	};
+	.KAGLayerFinalizer   = function {
+		if (isvalid this && typeof this._preRenderFontEx == "Object") {
+			invalidate this._preRenderFontEx;
+			delete     this._preRenderFontEx;
+		}
+		global.PreRenderFontEx.KAGLayerFinalizer(...);
+	};
+	if (typeof global.KAGLayer == "Object") {
+		.KAGLayerConstructor <-> global.KAGLayer.KAGLayer;
+		.KAGLayerFinalizer   <-> global.KAGLayer.finalize;
+	}
+
+
+	// フォント一覧取得を差し替え
+
+	if (typeof global.KAGWindow == "Object") {
+		/**/   global.KAGWindow.getFontFaceList = function {
+			var r = genericFontInstance.getList(...);
+			if (r !== void && typeof global.PreRenderFontEx == "Object")  {
+				var names =          global.PreRenderFontEx.PreRenderFontNames;
+				@if (! PACKED)
+			{
+				var ttf =            global.PreRenderFontEx.TTFFontNames;
+				for (var i = ttf.count-1; i >= 0; i--)
+					r.remove(ttf[i], true);
+			}
+				@endif
+				if (names.count > 0) r.unshift(names*);
+			}
+			return r;
+		} incontextof null;
+	}
+}
+
+/*
+
+KAGLoadScript("PreRenderFontEx.tjs");
+PreRenderFontEx.AddFont(フォント名, フォントサイズ, フォントファイル);
+
+ */
+@endif

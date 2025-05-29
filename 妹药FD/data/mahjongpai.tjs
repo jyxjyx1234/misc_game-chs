@@ -1,0 +1,164 @@
+function GetMahjongPaiSize(isw, mp) {
+	var r = ParseMahjongPai(mp.text, mp.mode, mp.hansp, mp.zensp);
+	return isw ? r.width : r.height;
+}
+function GetMahjongPaiScript(mp) {
+	var mode  = mp.mode != "" ? @"'${mp.mode.escape()}'" : "void";
+	var hansp = mp.hansp !== void ? (int)+mp.hansp : "void";
+	var zensp = mp.zensp !== void ? (int)+mp.zensp : "void";
+	return @"mahjong,'${mp.text.escape()}',${mode},${hansp},${zensp}";
+}
+
+function ParseMahjongPai(text, mode,
+						 hansp = SystemConfig.MahjongPaiHanSpcDefault,
+						 zensp = SystemConfig.MahjongPaiZenSpcDefault)
+{
+	var info = SystemConfig.MahjongPaiOrderConfig;
+	var defo = SystemConfig.MahjongPaiOrderDefault;
+	var target;
+	while (target === void) {
+		if (mode == "" || info[mode] === void) mode = defo;
+		target = info[mode];
+		if (typeof target == "String") {
+			mode = target;
+			target = void;
+		}
+	}
+	var tag = @"${mode}:${hansp}:${zensp}:${text}";
+	if (tag == CachedPaiOrderTag) {
+		return CachedPaiOrderData; // readonlyëOíÒÇ≈ÇªÇÃÇ‹Ç‹ï‘Ç∑
+	}
+	var r, parser = new OrderMahjongPai(target, (int)+hansp, (int)+zensp);
+	try {
+		r = parser.parse(text);
+	} catch (e) {
+		dm(e.message);
+		invalidate parser;
+		throw e;
+	}
+	invalidate parser;
+	CachedPaiOrderTag  = tag;
+	CachedPaiOrderData = r; // readonlyëOíÒÇ≈ÇªÇÃÇ‹Ç‹ë„ì¸
+	return r;
+}
+// ç≈å„Ç…ïœä∑ÇµÇΩÉLÉÉÉbÉVÉÖ
+var CachedPaiOrderTag, CachedPaiOrderData;
+
+class        OrderMahjongPai {
+	function OrderMahjongPai(elm, han, zen) { config = elm; hansp = han; zensp = zen; }
+	function finalize {}
+	var padding = SystemConfig.MahjongPaiPadding;
+	var jihai   = SystemConfig.MahjongPaiJihai;
+	var config, list, current, fx, fy, ox, oy, minx, miny, maxx, maxy, hansp, zensp;
+	function addRect(x, y, w = config.w, h = config.h) {
+		if (x < minx) minx = x;
+		if (y < miny) miny = y;
+		if (x+w > maxx) maxx = x+w;
+		if (y+h > maxy) maxy = y+h;
+	}
+	function addPai (img) {
+		if (current === void) list.add(current = []);
+		with (config) current.add(%[ file:.prefix + img + .suffix, x:ox, y:oy ]);
+		addRect(ox, oy);
+		with (config) {
+			ox += .nx;
+			oy += .ny;
+		}
+	}
+	function addSpc(dot) {
+		with (config) {
+			if (.nx) ox += dot * (.nx > 0 ? 1 : -1);
+			if (.ny) oy += dot * (.ny > 0 ? 1 : -1);
+		}
+	}
+	function reline {
+		current = void;
+		with (config) {
+			fx += .lx, fy += .ly;
+			ox  =  fx, oy  =  fy;
+		}
+	}
+	function parse(text) {
+		text = (string)text;
+
+		list = [];
+		current = void;
+		fx = fy = ox = .oy = 0;
+		minx = miny = 0;
+		maxx = maxy = 0;
+
+		var cur = "man";
+		for (var i = 0, len = text.length; i < len; i++) {
+			var ch = text.charAt(i);
+			switch (ch) {
+			case "‰›": cur = "man"; if (text.charAt(i+1) == "éq") i++; break;
+			case "çı": cur = "sou"; if (text.charAt(i+1) == "éq") i++; break;
+			case "ìõ": cur = "pin"; if (text.charAt(i+1) == "éq") i++; break;
+			case "ÇP": case "ÇQ": case "ÇR": case "ÇS": case "ÇT": case "ÇU": case "ÇV": case "ÇW": case "ÇX":
+				ch = zen2han(ch);
+				// not break;
+			case  "1": case  "2": case  "3": case  "4": case  "5": case  "6": case  "7": case  "8": case  "9":
+				var pai = cur + ch;
+				if (ch == "5" && text.charAt(i+1) == "ê‘") i++, pai += "aka";
+				addPai(pai);
+				break;
+			case  " ": addSpc(hansp); break;
+			case "Å@": addSpc(zensp); break;
+			case "Å^": case "/": reline(); break;
+			default:
+				if (jihai[ch] != "") addPai(jihai[ch]);
+				else kag.errorCmd("ñ¢ímÇÃîvéwíË:"+ch);
+				break;
+			}
+		}
+		var r = makeResult();
+		list = void;
+		return r;
+	}
+	function makeOrder() {
+		var ox = -minx;
+		var oy = -miny;
+		var r = [];
+		for (var i = 0, cnt = list.count; i < cnt; i++) {
+			var line = list[(config.order & 2) ? (cnt-i-1) : i];
+			for (var j = 0, jc = line.count; j < jc; j++) {
+				var item = line[(config.order & 1) ? (jc-j-1) : j];
+				item.x += ox;
+				item.y += oy;
+				r.add(item);
+			}
+		}
+		return r;
+	}
+	function makeResult {
+		var pad = padding, p2 = padding*2;
+		return
+			%[
+			ox: pad, oy: pad,
+			width: (maxx - minx) + p2,
+			height:(maxy - miny) + p2,
+			list: makeOrder() ];
+	}
+}
+
+function DrawMahjongPai(layer, elm) {
+	with (layer) {
+		var tmp = kag.temporaryLayer;
+		.fillRect(0, 0, .width, .height, 0);
+		var list = elm.list;
+		var ox   = elm.ox;
+		var oy   = elm.oy;
+		if (list) {
+			for (var i = 0, cnt = list.count; i < cnt; i++) {
+				var item = list[i];
+				try  {
+					//dm("DrawMahjongPai", item.file, item.x, item.y);
+					tmp.loadImages(item.file);
+					.operateRect(item.x+ox, item.y+oy, tmp, 0, 0, tmp.imageWidth, tmp.imageHeight);
+				} catch(e) {
+					layer.window.errorCmd(e.message);
+				}
+			}
+		}
+	}
+}

@@ -28,8 +28,12 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
 	case DLL_PROCESS_ATTACH:
 		//CreateConsole();
+		//if (GetACP() != 936) {
+		//	MessageBoxW(NULL, L"请使用简体中文环境运行本程序！", NULL, NULL);
+		//	exit(1);
+		//}
 		newFontName = L"Microsoft YaHei UI";
-		newWeight = 600;
+		//newWeight = 600;
 		installFontHook_main(TRUE, TRUE, TRUE, TRUE);
 		break;
     case DLL_THREAD_ATTACH:

@@ -1,0 +1,1377 @@
+// GraphicLayer.tjs - グラフィック系レイヤ(背景,キャラクタ)
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+class ProvinceContext
+{
+	// 領域アクション用コンテキスト
+	var target;
+	var storage;
+	var onenter;
+	var onleave;
+	var hint;
+	var exp;
+	var cursor;
+	var countpage;
+	var autodisable;
+
+	function ProvinceContext() {};
+    function finalize() {};
+}
+
+class AnimationLayerTransMove extends AnimationLayer, KAGTransMove {
+
+	function AnimationLayerTransMove() {
+		global.AnimationLayer.AnimationLayer(...);
+		global.KAGTransMove.KAGTransMove();
+	}
+
+	function finalize() {
+		global.KAGTransMove.finalize();
+		global.AnimationLayer.finalize();
+	}
+}
+
+class GraphicLayer extends AnimationLayerTransMove
+{
+	// 背景/前景レイヤの基本クラス
+
+	var comp; // 対のレイヤ
+	var id; // ID
+	var provinceActions = void; // クリッカブルマップの領域ごとのアクション定義
+	var pointingProvince = 0; // 現在指し示している領域番号
+	var loadedProvinceImage = ""; // loadImages 後に読み込まれた領域画像
+	var loadedProvinceActions = ""; // loadImages 後に読み込まれた領域アクション
+	var defaultCursor = crDefault; // デフォルトのカーソル
+	var lastMouseDownX; // 最後にマウスがクリックされた X 座標
+	var lastMouseDownY; // 最後にマウスがクリックされた Y 座標
+
+	function GraphicLayer(win, par, name, id)
+	{
+		// GraphicLayer コンストラクタ
+		// win    : ウィンドウオブジェクト
+		// par    : 親レイヤ
+		// name   : レイヤの名前
+		super.AnimationLayer(win, par);
+
+		this.name = name;
+		this.id = id;
+		/* 対のレイヤ は、このオブジェクトを作成後に setCompLayer で設定すること */
+	}
+
+	function finalize()
+	{
+		clearProvinceActions();
+		super.finalize(...);
+	}
+
+	function setCompLayer(lay) { comp = lay; }
+
+	function setDefaultCursor(c)
+	{
+		cursor = defaultCursor = c;
+	}
+
+	function loadImages(elm)
+	{
+		// elm に記述されている内容に従ってこのレイヤに画像を読み込む
+		clearProvinceActions();
+		loadedProvinceImage = "";
+		super.loadImages(elm);
+		if(elm !== void)
+		{
+			if(elm.mapimage !== void) super.loadProvinceImage(elm.mapimage); // 領域画像を読む
+			if(elm.mapaction !== void)
+			{
+				internalLoadProvinceActions(elm.mapaction); // 領域アクションを読む
+			}
+			else
+			{
+				var name;
+				var storage = Storages.getPlacedPath(
+					name = (Storages.chopStorageExt(elm.storage) + ".ma")); // 拡張子が .ma のファイル
+				if(storage != '')
+					loadProvinceActions(name);
+			}
+		}
+	}
+
+	function loadProvinceImage(fn)
+	{
+		// 領域画像 fn を読み込む
+		super.loadProvinceImage(fn);
+		loadedProvinceImage = fn;
+	}
+
+	function assignComp()
+	{
+		// 対になるレイヤの内容をコピー
+		assign(comp);
+	}
+
+	function assign(src)
+	{
+		super.assign(...);
+
+		if(provinceActions !== void)
+		{
+			invalidate provinceActions;
+			window.disableMouseKey();
+		}
+		if(src.provinceActions !== void)
+		{
+			(provinceActions = []).assign(src.provinceActions);
+			window.enableMouseKey();
+		}
+		else
+		{
+			provinceActions = void;
+		}
+		loadedProvinceImage = src.loadedProvinceImage;
+		loadedProvinceActions = src.loadedProvinceActions;
+	}
+
+	function beginTransition(elm)
+	{
+		// elm に従ってトランジションを行う
+		comp.stopTransition(); // comp で行われていたトランジションも停止
+		super.beginTransition(elm, comp);
+	}
+
+	function exchangeInfo()
+	{
+		// comp と情報を取り替える
+		// すでに 画像の内容、ツリー構造は取り変わっているので
+		// 名前などを取り替える
+		// また、ウィンドウの管理情報も更新するようにする
+		var src = comp;
+		var tmp = src.name;
+		src.name = name;
+		name = tmp;
+		tmp = src.cursor;
+		src.cursor = cursor;
+		cursor = tmp;
+	}
+
+	function clearImage(process = true)
+	{
+		// AnimationLayer.clearImage オーバーライド
+		super.clearImage(process);
+		loadedProvinceImage = "";
+		clearProvinceActions();
+	}
+
+	function clearProvinceActions()
+	{
+		if(provinceActions !== void)
+		{
+			invalidate provinceActions;
+			provinceActions = void;
+			pointingProvince = 0;
+			cursor = defaultCursor;
+			hint = "";
+			showParentHint = true;
+			window.disableMouseKey();
+		}
+		loadedProvinceActions = "";
+	}
+
+	function internalLoadProvinceActions(fn)
+	{
+		// ファイル名 fn を領域アクション定義ファイルとして読み込む
+		clearProvinceActions();
+
+		var file = [];
+		file.load(fn);
+		var filelines = file.count;
+
+		// ファイルに従ってスクリプトを動的に生成
+		var body = "function { var a = provinceActions; \n";
+		for(var i = 0; i<filelines; i++)
+		{
+			var line = file[i];
+			if(line == "" || line[0] == ';') continue;
+			var colon = line.indexOf(':');
+			if(colon == -1) continue;
+			body += "a[" + line.substring(0, colon) + "] = function { " +
+				line.substring(colon + 1) + " ;};\n";
+		}
+		body += "}\n";
+
+		provinceActions = [];
+		(Scripts.eval(body) incontextof this) (); // body のコンパイルをしてこのコンテキスト上で実行
+
+		window.enableMouseKey();
+	}
+
+	function loadProvinceActions(fn)
+	{
+		internalLoadProvinceActions(fn);
+		loadedProvinceActions = fn;
+	}
+
+	function queryProvinceAction(n, checkzero = true)
+	{
+		// 領域番号 n に関するアクションを返す
+		// アクションがなにも定義されていなければ void を返す
+//		dm(n, provinceActions, provinceActions[n]);
+		if(provinceActions === void) return void;
+		if(checkzero) { if(n == 0) return void; }
+		var action = provinceActions[n];
+		if(action === void) return void;
+		var ar = new ProvinceContext();
+		(action incontextof ar) (); // ar のコンテキスト上でアクションを実行
+		if(ar.target === void && ar.storage === void && ar.onenter === void &&
+			ar.onleave === void && ar.hint === void && ar.exp === void &&
+			ar.cursor === void && ar.countpage === void && ar.autodisable === void)
+				return void;
+		return ar;
+	}
+
+	function onMouseMove(x, y)
+	{
+		// onMouseMove イベントハンドラ
+		super.onMouseMove(...);
+		if(provinceActions !== void)
+		{
+			var n = window.messageLayerHiding ? 0 : getProvincePixel(x - imageLeft, y - imageTop);
+			if(n != pointingProvince)
+			{
+				// 異なる領域の上を動いた場合
+				if(pointingProvince != 0) onProvinceLeave(pointingProvince);
+				if(n != 0) onProvinceEnter(n);
+				pointingProvince = n;
+			}
+			if(n == 0)
+			{
+				hint = "";
+				showParentHint = true;
+				cursor = defaultCursor;
+			}
+		}
+	}
+
+	function onMouseLeave()
+	{
+		// onMouseLeave イベントハンドラ
+		super.onMouseLeave(...);
+		if(pointingProvince != 0)
+		{
+			onProvinceLeave(pointingProvince);
+			pointingProvince = 0;
+		}
+	}
+
+	function onProvinceEnter(n)
+	{
+		// 領域番号 n にマウスが移動した
+		var action = queryProvinceAction(n);
+		if(action !== void)
+		{
+			if(action.onenter !== void) Scripts.eval(action.onenter);
+			if(action.hint !== void) hint = action.hint;
+			if(action.cursor !== void)
+				cursor = action.cursor; // カーソル指定の方法に注意(&はつけない)
+			else
+				cursor = window.cursorPointed;
+		}
+		else
+		{
+			hint = "";
+			showParentHint = true;
+			cursor = defaultCursor;
+		}
+	}
+
+	function onProvinceLeave(n)
+	{
+		// 領域番号 n からマウスが離れた
+		var action = queryProvinceAction(n);
+		if(action !== void && action.onleave !== void) Scripts.eval(action.onleave);
+		hint = "";
+		showParentHint = true;
+	}
+
+	function processProvince(x, y)
+	{
+		// x, y 位置の領域で指定されたシナリオにジャンプする
+		// 処理された場合は true, されなかった場合は false を返す
+		var n = window.messageLayerHiding ? 0 : getProvincePixel(x - imageLeft, y - imageTop);
+		var action = queryProvinceAction(n);
+		if(action === void) return false;
+		if(action.exp !== void) Scripts.eval(action.exp);
+		if(action.storage != '' || action.target != '')
+		{
+			var q = queryProvinceAction(0, false);
+			if(q === void || q.autodisable === void || +q.autodisable) clearProvinceActions();
+			window.process(action.storage, action.target, +action.countpage);
+		}
+		return true;
+	}
+
+	function onMouseDown(x, y, button)
+	{
+		lastMouseDownX = x;
+		lastMouseDownY = y;
+		super.onMouseDown(...);
+	}
+
+	function store()
+	{
+		// 情報を辞書配列に記録
+		var dic = super.store();
+		dic.loadedProvinceImage = loadedProvinceImage;
+		dic.loadedProvinceActions = loadedProvinceActions;
+        return dic;
+	}
+
+	function restore(dic)
+	{
+		// dic から情報を読み出す
+		super.restore(dic);
+		if(dic.loadedProvinceImage !== void && dic.loadedProvinceImage !== '')
+			loadProvinceImage(dic.loadedProvinceImage);
+		else
+			loadedProvinceImage = "";
+		if(dic.loadedProvinceActions !== void && dic.loadedProvinceActions !== '')
+			loadProvinceActions(dic.loadedProvinceActions);
+		else
+			clearProvinceActions();
+    }
+
+}
+
+class BaseLayer extends GraphicLayer
+{
+	// 背景レイヤ
+
+	function BaseLayer(win, par, name, id)
+	{
+		super.GraphicLayer(win, par, name, id);
+		defaultType = type = ltCoverRect;
+		hitType = htMask;
+		hitThreshold = 0;
+	}
+
+	function finalize()
+	{
+		super.finalize(...);
+	}
+
+	function assign(src)
+	{
+		// assign オーバーライド
+		super.assign(src);
+		// 親クラスの assign は可視・不可視などをコピーしないが、
+		// 背景レイヤなのでそれでよい
+	}
+
+	function loadImages(elm)
+	{
+		// loadImages オーバーライド
+		if(elm !== void)
+		{
+			elm.mode = "opaque"; // レイヤモードを変えられると困るので
+			delete elm.index; // インデックスを変えられると困るので
+
+			if(elm.visible !== void)
+			{
+				// visible の状態を変えられると困るので
+				if(isPrimary) elm.visible = true; else elm.visible = false;
+			}
+		}
+		super.loadImages(elm);
+	}
+
+	function restore(dic)
+	{
+		// restore オーバーライド
+		if(isPrimary) dic.visible = true; else dic.visible = false;
+		dic.absolute = 0;
+		super.restore(dic);
+	}
+
+	function setOptions(elm)
+	{
+        // setOptions オーバーライド
+		if(elm.visible !== void)
+		{
+			if(isPrimary) elm.visible = true; else elm.visible = false;
+		}
+		super.setOptions(elm);
+	}
+
+	function internalOnMouseDown(x, y, button, processprovince = true)
+	{
+		// 内部関数
+		var provinceprocessed = false;
+		if(button == mbLeft && processprovince && !window.messageLayerHiding)
+			provinceprocessed = processProvince(x, y);
+		if(button == mbLeft && !provinceprocessed)
+		{
+			// 自身がプライマリレイヤならば、ウィンドウの
+			// onPrimaryClick を呼ぶ
+			if(isPrimary) window.onPrimaryClick();
+		}
+		else if(button == mbRight)
+		{
+			// 自身がプライマリレイヤならば、ウィンドウの
+			// onPrimaryRightClick を呼ぶ
+			if(isPrimary) window.onPrimaryRightClick();
+		}
+	}
+
+	function onMouseDown(x, y, button)
+	{
+		// マウスが押された
+		super.onMouseDown(...);
+		internalOnMouseDown(x, y, button);
+	}
+
+	function clearImage()
+	{
+		// GraphicLayer.clearImage オーバーライド
+		super.clearImage(false);
+		setImageSize(window.exWidth, window.exHeight);
+		setSizeToImageSize();
+		face = dfAlpha;
+		fillRect(0, 0, imageWidth, imageHeight, 0xff000000);
+	}
+
+	function atEndOfTransition(src, withchildren, exchange)
+	{
+		// atEndOfTransition オーバーライド
+		super.atEndOfTransition(...);
+		if(src == null)
+		{
+			//・背景レイヤがsrcなしでトランジション(children=true)
+			//　何もしなくてよいが、終了時に子レイヤは非表示になる。
+			//・背景レイヤがsrcなしでトランジション(children=false)
+			//　本当に何もしない。
+		}
+		else
+		{
+			if(withchildren)
+			{
+				//・背景レイヤがsrcありでトランジション(children=true)
+				//　重要な情報をトランジション元と交換、しかも子レイヤに対してもこの
+				//　「重要な情報を相手と交換」の指示を出す。exchange=false の場合はさらに
+				//　トランジション元の情報をトランジション先にコピー。これも、子レイヤすべて
+				//　に対しても指示する。
+				if(!exchange)
+				{
+					assign(src);
+					window.callAssignTransSrc();
+				}
+				super.exchangeInfo();
+				window.exchangeForeBack();
+				window.callExchangeInfo();
+            }
+			else
+			{
+				//・背景レイヤがsrcありでトランジション(children=false)
+				//　重要な情報をトランジション元と交換。子レイヤに対しては
+				//　「重要な情報を相手と交換」の指示をださない。exchange=false の場合は
+				//　さらにトランジション元の情報をトランジション先にコピー。
+				//　これも子レイヤに対しては指示しない。
+				if(!exchange)
+				{
+					assign(src);
+				}
+				exchangeInfo();
+			}
+		}
+	}
+
+	function exchangeInfo()
+	{
+		// exchangeInfo オーバーライド
+		super.exchangeInfo();
+		window.swapBaseLayer();
+	}
+
+    property isPrimary {
+        getter() {
+            return this === window.fore.base;
+        }
+    }
+
+}
+
+// 汎用フリップ基底／管理クラス
+class GenericFlip {
+	var flipLayers = [];
+	function finalize() {
+		flipStop();
+	}
+	function GenericFlip(win) {}
+
+	// virtual
+	function flipSetOptions(elm) {}
+	function flipStore(dic) {}
+	function flipRestore(dic) {}
+	function flipStart(storage, elm) {}
+	function flipUpdate(tick) {}
+
+	// 毎フレーム呼び出し
+	function flipFrame(now) {
+		var r = flipping;
+		if (r)  flipUpdate(now);
+		return r;
+	}
+	property flipping { getter { return flipLayers.count > 0; } }
+	function flipStop() {
+		var tmp = [];
+		tmp.assign(this.flipLayers);
+		for (var i = tmp.count-1; i >= 0; i--) {
+			tmp[i].notifyStopFlip();
+		}
+	}
+	function flipAssign() {
+		for (var i = flipLayers.count-1; i >= 0; i--) {
+			flipLayers[i].assignImagesForMovie(...);
+		}
+	}
+
+	function flipOffset(left, top, width, height) {
+		for (var i = flipLayers.count-1; i >= 0; i--) {
+			flipLayers[i].setOffsetForMovie(left, top, width, height);
+		}
+	}
+
+	
+	function flipEntry(lay) {
+		flipLeave(lay);
+		flipLayers.add(lay);
+	}
+	function flipLeave(lay) {
+		flipLayers.remove(lay);
+	}
+}
+// static methods
+with (GenericFlip) {
+	;.Types   =  [];
+	;.Entries = %[];
+	var self = GenericFlip;
+	;.GetEntry = function(type, tag) {
+		var e = type != "" ? Entries[type] : void;
+		return (e !== void) ? e[tag] : void;
+	} incontextof self;
+	;.GetClass   = function(type) { return GetEntry(type, "class");   } incontextof self;
+	;.GetTrigger = function(type) { return GetEntry(type, "trigger"); } incontextof self;
+	/**
+	 * param elm : %[ type:flipType, class:flipClass, trigger:flipStopTrigger,
+	 *                ext: "ext" or [ "ext1", "ext2", ... ], // optional, must lowercase.
+	 *                checker:function(storage), // optional ファイルチェック
+	 *                options:[ "optiontags", ... ], // optional KAGEnvLayer用
+	 *                autoflag:"tagstr", // optional KAGEnvLayer用
+	 */
+	;.Entry = function(elm) { Types.unshift(elm.type); Entries[elm.type] = elm; } incontextof self;
+	;.GetType = function (storage, *) {
+		var ext = Storages.extractStorageExt(storage);
+		if (ext != "") {
+			ext=ext.toLowerCase();
+			ext=ext.substr(1) if (ext.charAt(0) == ".");
+		}
+		for (var i = 0, type; i < Types.count; i++) {
+			if ((type = Types[i]) == "") continue;
+			var e = Entries[type];
+			if (e === void) continue;
+			switch (typeof e.ext) {
+			case "String":
+				if ((ext != "" && e.ext == ext) ||
+					(ext == "" && getExistFileNameAutoExtFill(storage, e.ext) != "")) return type;
+				break;
+			case "Object":
+				if ((ext != "" && e.ext.find(ext) >= 0) ||
+					(ext == "" && getExistFileNameAutoExtFill(storage, e.ext*) != "")) return type;
+				break;
+			}
+			if (typeof e.checker == "Object" && e.checker(storage, *))
+				return type;
+		}
+	} incontextof self;
+}
+
+/**
+ * AffineLayer 対応拡張処理＋ムービー再生機能対応
+ */
+class GraphicLayerEx extends GraphicLayer {
+
+    function GraphicLayerEx() {
+        super.GraphicLayer(...);
+    }
+
+	function finalize()
+	{
+		window.stopAction(this);
+		stopAllMods();
+		super.finalize(...);
+	}
+	function stopAllMods() {
+		stopRaster();
+		clearTile();
+		stopFlip();
+	}
+
+	function _setOptions(elm) {
+		if(elm.type !== void)
+        {
+        	if(/^[0-9]+$/.test(elm.type))
+        		type	= +elm.type;
+        	else
+        		type	= global[elm.type];
+        }
+		if (elm.reset !== void && elm.reset) {
+			reset();
+		} else {
+			afx = defaultAfx = elm.dafx    if elm.dafx    !== void;
+			afy = defaultAfy = elm.dafy    if elm.dafy    !== void;
+			afx    = elm.afx    if elm.afx    !== void;
+			afy    = elm.afy    if elm.afy    !== void;
+			flipx = +elm.flipx if elm.flipx !== void;
+			flipy = +elm.flipy if elm.flipy !== void;
+			if (elm.clipimage !== void) {
+				if (elm.clipimage != "") {
+					loadClipImage(elm.clipimage);
+				} else {
+					clearClipImage();
+				}
+			}
+			if (elm.time !== void && elm.time > 0) {
+				if (elm.left !== void || elm.top !== void) {
+					setMove(elm.left !== void ? +elm.left : left,
+							elm.top !== void ? +elm.top : top,
+							+elm.time, +elm.accel, +elm.nowait);
+					// パラメータ反映させないため
+					delete elm.left if elm.left !== void;
+					delete elm.top  if elm.top  !== void;
+				}
+				if (elm.rotate !== void) {
+					setRotateTime(+elm.rotate, +elm.time, +elm.accel, +elm.nowait);
+				}
+				if (elm.zoom !== void) {
+					setZoomTime(+elm.zoom, +elm.time, +elm.accel, +elm.nowait);
+				} else {
+					if (elm.zoomx !== void) {
+						setZoomXTime(+elm.zoomx, +elm.time, +elm.accel, +elm.nowait);
+					}
+					if (elm.zoomy !== void) {
+						setZoomYTime(+elm.zoomy, +elm.time, +elm.accel, +elm.nowait);
+					}
+				}
+				if (elm.slantx !== void) {
+					setSlantXTime(+elm.slantx, +elm.time, +elm.accel, +elm.nowait);
+				}
+				if (elm.slanty !== void) {
+					setSlantYTime(+elm.slanty, +elm.time, +elm.accel, +elm.nowait);
+				}
+				if (elm.raster !== void) {
+					setRasterTime(+elm.raster, elm.rasterlines, elm.rastercycles, +elm.time, +elm.accel, +elm.nowait);
+				}
+				if (elm.tilex !== void || elm.tiley !== void) {
+					setTilePos(elm.tilex !== void ? +elm.tilex : tilex,
+							   elm.tiley !== void ? +elm.tiley : tiley,
+							   +elm.time, +elm.accel, +elm.nowait);
+				}
+				if (elm.clipimageleft !== void || elm.clipimagetop !== void) {
+					setClipImageMove(elm.clipimageleft !== void ? +elm.clipimageleft : clipImageLeft,
+									 elm.clipimagetop  !== void ? +elm.clipimagetop  : clipImageTop,
+									 +elm.time, +elm.accel, +elm.nowait);
+				}
+			} else {
+				rotate = +elm.rotate if elm.rotate !== void;
+				if (elm.zoom !== void) {
+					zoom   = +elm.zoom   if elm.zoom   !== void;
+				} else {
+					zoomx  = +elm.zoomx  if elm.zoomx  !== void;
+					zoomy  = +elm.zoomy  if elm.zoomy  !== void;
+				}
+
+				slantx  = +elm.slantx  if elm.slantx  !== void;
+				slanty  = +elm.slanty  if elm.slanty  !== void;
+
+				raster = +elm.raster if elm.raster !== void;
+				rasterLines = +elm.rasterlines if elm.rasterlines !== void;
+				rasterCycle = +elm.rastercycle if elm.rastercycle !== void;
+				tilex = +elm.tilex if elm.tilex !== void;
+				tiley = +elm.tiley if elm.tiley !== void;
+				clipImageLeft = +elm.clipimageleft if elm.clipimageleft !== void;
+				clipImageTop  = +elm.clipimagetop  if elm.clipimagetop  !== void;
+			}
+		}
+		visvalue = +elm.visvalue if elm.visvalue !== void;
+	}
+	
+	
+    function setOptions(elm) {
+		var e = %[];
+		(Dictionary.assign incontextof e)(elm);
+		_setOptions(e);
+		if (flip !== void) {
+			flip.flipSetOptions(elm);
+		}
+		super.setOptions(e);
+	}
+
+	function loadImages(elm)
+	{
+		stopAllMods();
+		super.loadImages(elm);
+		if (elm !== void) {
+			if (elm.color === void && elm.storage === void) {
+				if (elm.tile !== void) {
+					if (elm.width !== void || elm.height !== void) {
+						layer.setSize(elm.width !== void ? +elm.width : width,
+									  elm.height !== void ? +elm.height : height);
+					}
+					setTileImage(elm.tile);
+				} else if (elm.flip !== void) {
+					startFlip(elm.flip, elm);
+				} else if (elm.movie !== void) {
+					startFlip(elm.movie, elm, "movie"); // 旧KAG記述互換用
+				} else if (elm.fire !== void) {
+					startFlip(elm.fire, elm, "fire"); // 旧KAG記述互換用
+				}
+			}
+			_setOptions(elm);
+		}
+	}
+	
+    /**
+     * 継承して拡張。reset() させる
+     */
+	function freeImage() {
+		stopAllMods();
+		super.freeImage(...);
+		reset();
+    }
+    
+    function store()
+    {
+		var dic = super.store();
+        dic.rotate = rotate;
+        dic.zoomx  = zoomx;
+        dic.zoomy  = zoomy;
+		dic.slantx  = slantx;
+        dic.slanty  = slanty;
+        dic.afx    = afx;
+		dic.afy    = afy;
+		dic.hide   = hide;
+		dic.visvalue = visvalue;
+		if (tileImage !== void) {
+			dic.tileImage = tileImage;
+			dic.tilex = tilex;
+			dic.tiley = tiley;
+			dic.width = width;
+			dic.height = height;
+		}
+		storeFlip(dic);
+		if (_rasterStart !== void) {
+			dic.raster      = _raster;
+			dic.rasterLines = _rasterLines;
+			dic.rasterCycle = _rasterCycle;
+		}
+		return dic;
+    }
+
+	function restore(dic)
+	{
+		stopAllMods();
+		super.restore(dic);
+		rotate = dic.rotate if dic.rotate !== void; 
+		zoomx  = dic.zoomx  if dic.zoomx  !== void;
+		zoomy  = dic.zoomy  if dic.zoomy  !== void;
+		slantx  = dic.slantx  if dic.slantx  !== void;
+		slanty  = dic.slanty  if dic.slanty  !== void;
+		afx    = dic.afx    if dic.afx    !== void;
+		afy    = dic.afy    if dic.afy    !== void;
+		hide   = dic.hide   if dic.hide   !== void;
+		visvalue = dic.visvalue if dic.visvalue !== void;
+		if (dic.tileImage !== void) {
+			setSize(dic.width, dic.height);
+			try {
+				setTileImage(dic.tileImage);
+			} catch (e) {
+				dm("ロード時にタイル画像の読み込みに失敗しました:" + tileImage);
+			}
+			setTilePos(dic.tilex, dic.tiley);
+		} else if (dic.flipInfo !== void) {
+			try {
+				restoreFlip(dic);
+			} catch (e) {
+				dm("ロード時のエフェクト再現に失敗しました:" + e.message);
+			}
+		}
+		if (dic.raster !== void) {
+			raster = dic.raster;
+			rasterLines = dic.rasterLines;
+			rasterCycle = dic.rasterCycle;
+		}
+	}
+
+	// 旧処理関数を一応残しておく
+	function startMovie {}
+	function stopMovie  {}
+	function startFire  {}
+	function stopFire   {}
+
+	// --------------------------------------------
+	// 汎用flip拡張
+	// --------------------------------------------
+
+	// ムービー用情報
+	var flip, flipType;
+
+	/**
+	 * ムービー再生開始
+	 */
+	function startFlip(storage, elm, type) {
+		flipType = type;
+		flipType = elm.fliptype if (flipType == "");
+		flipType = GenericFlip.GetType(storage, elm) if (flipType == "");
+		flip = window.createGenericFlip(flipType);
+		if (flip === void || flip == null) {
+			window.errorImage(@"startFlipに失敗しました(${flipType}):${storage}");
+			flipType = flip = void;
+			return;
+		}
+		flip.flipEntry(this);
+		flip.flipStart(storage, elm);
+	}
+
+	/**
+	 * ムービー終了通知
+	 */
+	function notifyStopFlip() {
+		//dm("ムービー終了通知");
+		stopFlip();
+	}
+
+	/**
+	 * ムービー停止
+	 */
+	function stopFlip() {
+		if (flip !== void) {
+			flip.flipLeave(this);
+			flip = void;
+		}
+	}
+
+	function setFlipOptions(elm) {
+		flip.flipSetOptions(elm) if (flip !== void);
+	}
+	function storeFlip(dic) {
+		if (flip !== void) {
+			dic.flipType = flipType;
+			dic.flipID = flip.flipID;
+			flip.flipStore(dic.flipInfo = %[]);
+		}
+	}
+	function restoreFlip(dic) {
+		stopFlip() if (flip !== void);
+		flipType = dic.flipType;
+		flip = window.findGenericFlipsInstance(flipType, dic.flipID);
+		var found = (flip !== void);
+		flip = window.createGenericFlip(flipType, dic.flipID) if (!found);
+		if (flip !== void) {
+			flip.flipEntry(this);
+			flip.flipRestore(dic.flipInfo) if (!found);
+		} else flipType = void;
+	}
+
+	// -------------------------------------------------
+	
+	function assignImagesForMovie(src, resize=true) {
+		super.assignImages(src);
+		applyColorCorrection(this, Anim_loadParams);
+		setSize(src.width, src.height) if (resize);
+	}
+
+	function setOffsetForMovie(left, top, width, height) {
+		//dm(@"offset:${left},${top},${width},${height}");
+		setAffineOffset(width/2 - left, height/2 - top);
+	}
+	
+	function assign(src)
+	{
+		// assign オーバーライド
+		super.assign(src);
+		hide = src.hide;
+		visvalue = src.visvalue;
+		clearTile();
+		stopFlip();
+
+		// タイル情報をコピー
+		if (src.tileImage !== void) {
+			setTileImage(src.tileImage);
+			setTilePos(src.tilex, src.tiley);
+		}
+		// flip情報をコピー
+		if (src.flip !== void) {
+			flipType = src.flipType;
+			flip = src.flip;
+			flip.flipEntry(this);
+		}
+		// アクションもコピー
+		window.copyAction(src, this, onActionCompleted);
+	}
+
+    // --------------------------------------------
+    // アクション系拡張
+    // --------------------------------------------
+
+    var hide; // アクション終了時に消去
+
+	function onActionCompleted() {
+		visible = false if (hide);
+    }
+
+	function getActionResult() {
+		return window.getActionResult(this);
+	}
+	
+	function beginAction(elm) {
+		var nowait;
+		if (elm) {
+			var target = (elm instanceof "Array")  ? elm[elm.count-1] : elm;
+			hide   = target.hide   if target.hide !== void;
+			nowait = target.nowait if target.nowait !== void;
+		}
+		//dm("アクション開始 hide:%d nowait:%d".sprintf(hide, nowait));
+		return window.beginAction(this, elm, onActionCompleted, nowait);
+    }
+
+    function stopAction() {
+        window.stopAction(this);
+    }
+
+    function reset() {
+		hide = false;
+		stopAction();
+		super.reset();
+    }
+
+	var _visvalue = 0;
+	property visible {
+		getter() {
+			return _visvalue > 0;
+		}
+		setter(v) {
+			_visvalue = v ? 100 : 0;
+			opacity = _opacity;
+		}
+	}
+
+	property visvalue {
+		getter() {
+			return _visvalue;
+		}
+		setter(v) {
+			_visvalue = v;
+			opacity = _opacity;
+		}
+	}
+	
+	var _opacity = 255;
+	property opacity {
+		getter() {
+			return _opacity;
+		}
+		setter(v) {
+			_opacity = v === void ? defaultOpacity : v;
+			var o = _opacity * _visvalue / 100;
+			super.opacity = o;
+			super.visible = o > 0;
+		}
+	}
+	
+    /**
+     * 不透明度を指定する
+     * @param opacity 不透明度
+     * @time 変更にかかる時間
+     * @accel 加減速指定
+     */
+	function setOpacityTime(o, time, accel=0, nowait=false) {
+		if (time) {
+			beginAction(%[opacity:%[handler:MoveAction, value:o, time:time, accel:accel], nowait:nowait]);
+		} else {
+            opacity = o;
+        }
+    }
+
+    /**
+     * 回転量を指定する
+     * @param r 回転量
+     * @time 変更にかかる時間
+     */
+    function setRotateTime(r, time, accel=0, nowait=false) {
+		if (time) {
+			beginAction(%[rotate:%[handler:MoveAction, value:r, time:time, accel:accel], nowait:nowait]);
+        } else {
+            rotate = r;
+        }
+    }
+    
+    /**
+     * ズーム量を指定する
+     * @param zoom 回転量
+     * @time 変更にかかる時間
+     */
+	function setZoomTime(z, time, accel=0, nowait=false) {
+        if (time) {
+			beginAction(%[zoom:%[handler:MoveAction, value:z, time:time, accel:accel], nowait:nowait]);
+		} else {
+			zoom = z;
+		}
+	}
+
+    /**
+	 * Xズーム量を指定する
+     * @param zoom 回転量
+     * @time 変更にかかる時間
+     */
+	function setZoomXTime(z, time, accel=0, nowait=false) {
+		if (time) {
+			beginAction(%[zoomx:%[handler:MoveAction, value:z, time:time, accel:accel], nowait:nowait]);
+		} else {
+			zoomx = z;
+		}
+	}
+
+    /**
+	 * Xズーム量を指定する
+     * @param zoom 回転量
+     * @time 変更にかかる時間
+     */
+	function setZoomYTime(z, time, accel=0, nowait=false) {
+		if (time) {
+			beginAction(%[zoomy:%[handler:MoveAction, value:z, time:time, accel:accel], nowait:nowait]);
+		} else {
+			zoomy = z;
+		}
+	}
+
+    /**
+	 * slantxを指定する
+     * @param slant 回転量
+     * @time 変更にかかる時間
+     */
+	function setSlantXTime(slant, time, accel=0, nowait=false) {
+		if (time) {
+			beginAction(%[slantx:%[handler:MoveAction, value:slant, time:time, accel:accel], nowait:nowait]);
+		} else {
+			slantx = slant;
+		}
+	}
+
+	/**
+	 * slantyを指定する
+     * @param slant 回転量
+     * @time 変更にかかる時間
+     */
+	function setSlantYTime(slant, time, accel=0, nowait=false) {
+		if (time) {
+			beginAction(%[slanty:%[handler:MoveAction, value:slant, time:time, accel:accel], nowait:nowait]);
+		} else {
+			slanty = slant;
+		}
+	}
+	
+    /**
+     * ラスタ量を指定する
+	 * @param raster 回転量
+     * @time 変更にかかる時間
+     */
+	function setRasterTime(r, lines, cycle, time, accel=0, nowait=false) {
+		rasterLines = +lines if lines !== void;
+		rasterCycle = +cycle if cycle !== void;
+		if (time) {
+			beginAction(%[raster:%[handler:MoveAction, value:r, time:time, accel:accel], nowait:nowait]);
+		} else {
+			raster = r;
+		}
+    }
+	
+    /**
+     * 自動移動を指定する
+     * @param x X位置
+     * @param y Y位置
+	 * @param accele 負:減速 0:線形 正:加速
+	 * @param nowait 待たない
+     * @time 変更にかかる時間
+     */
+	function setMove(x, y, time, accel=0, nowait=false, afx=void, afy=void) {
+		if (time) {
+			var action = %[left:%[handler:MoveAction, value:x, time:time, accel:accel],
+					   top:%[handler:MoveAction, value:y, time:time, accel:accel],
+					   nowait:nowait];
+			if (afx !== void) {
+				var tmp = this.afx;
+				this.afx = afx;
+//				dm("setMove:afx:%s->%s".sprintf(tmp,this.afx));
+				action.afx = %[handler:MoveAction, value:this.afx, time:time, accel:accel];
+				this.afx = tmp;
+			}
+			if (afy !== void) {
+				var tmp = this.afy;
+				this.afy = afy;
+//				dm("setMove:afy:%s->%s".sprintf(tmp,this.afy));
+				action.afy = %[handler:MoveAction, value:this.afy, time:time, accel:accel];
+				this.afy = tmp;
+			}
+			beginAction(action);
+		} else {
+			if (afx !== void) {
+				this.afx = afx;
+			}
+			if (afy !== void) {
+				this.afy = afy;
+			}
+			setPos(x, y);
+		}
+    }
+
+    /**
+	 * クリップ画像を移動する
+	 * @param x X位置
+	 * @param y Y位置
+	 * @param accele 負:減速 0:線形 正:加速
+	 * @param nowait 待たない
+	 * @time 変更にかかる時間
+	 */
+	function setClipImageMove(x, y, time, accel=0, nowait=false) {
+		if (time) {
+			var action = %[clipImageLeft:%[handler:MoveAction, value:x, time:time, accel:accel],
+					   clipImageTop:%[handler:MoveAction, value:y, time:time, accel:accel],
+					   nowait:nowait];
+			beginAction(action);
+		} else {
+			clipImageLeft = x;
+			clipImageTop  = y;
+		}
+    }
+
+	
+	// -------------------------------------------------------
+	// タイル描画処理
+
+	// タイル情報保持用レイヤ
+	var tileLayer;
+
+	function clearTile() {
+		tileImage = void;
+		if (tileLayer !== void) {
+			invalidate tileLayer;
+			tileLayer = void;
+			_doTile = false;
+		}
+		_tilex = 0;
+		_tiley = 0;
+	}
+	
+	// タイル画像
+	var tileImage;
+	function setTileImage(image) {
+		if (tileImage != image) {
+			tileImage = image;
+			if (tileImage !== void) {
+				if (tileLayer === void) {
+					tileLayer = new global.Layer(window, this);
+				}
+				tileLayer.loadImages(tileImage);
+				tileLayer.setSizeToImageSize();
+				updateTile();
+			}
+		}
+	}
+
+	var _doTile;
+	
+	// タイル再描画処理
+	function updateTile() {
+		if (tileLayer !== void) {
+			_doTile = true;
+			update();
+		}
+	}
+
+	// 再描画処理
+	function onPaint() {
+		if (_doTile && tileLayer !== void) {
+			tileRect(0, 0, width, height, tileLayer, _tilex, _tiley);
+			applyColorCorrection(this, Anim_loadParams);
+			_doTile = false;
+		}
+		super.onPaint(...);
+	}
+	
+	// タイルX位置
+	var _tilex;
+	property tilex {
+		getter() {
+			return _tilex;
+		}
+		setter(v) {
+			_tilex = v;
+			updateTile();
+		}
+	}
+
+	// タイルY位置
+	var _tiley;
+	property tiley {
+		getter() {
+			return _tiley;
+		}
+		setter(v) {
+			_tiley = v;
+			updateTile();
+		}
+	}
+
+	// タイル位置指定
+	function setTilePos(x, y, time=0, accel=0, nowait=false) {
+		if (time > 0) {
+			beginAction(%[tilex:%[handler:MoveAction, value:x, time:time, accel:accel],
+					  tiley:%[handler:MoveAction, value:y, time:time, accel:accel],
+					  nowait:nowait]);
+		} else {
+			_tilex = x;
+			_tiley = y;
+			updateTile();
+		}
+	}
+}
+
+class CharacterLayer extends GraphicLayerEx
+{
+	// 前景レイヤ
+	var autoHide = false; // メッセージレイヤと一緒に隠れることができるか
+	var invisibleByUser = false; // ユーザにより一時的に不可視
+    var visibleBeforeUserInvisible  = false;
+    var level; // 表示レベル補正用
+
+	function CharacterLayer(win, par, name, id, level)
+	{
+        super.GraphicLayerEx(win, par, name, id);
+		freeImage();
+		defaultType = type = ltCoverRect;
+		hitType = htMask;
+        hitThreshold = 64;
+        this.level = level;
+	}
+
+	function finalize()
+	{
+		super.finalize(...);
+	}
+
+	function onHitTest(x, y, hit)
+	{
+		// onHitTest オーバーライド
+		if(!hit || provinceActions === void)
+		{
+			// hit==false または領域アクションが定義されていない場合
+			super.onHitTest(x, y, false);
+		}
+		else
+		{
+			// hit==true かつ 領域アクションが定義されている場合
+			super.onHitTest(x, y, !window.messageLayerHiding);
+		}
+		return;
+	}
+
+	function assign(src)
+	{
+		// assign オーバーライド
+		super.assign(src);
+		assignVisibleState(src);
+		// 親クラスの assign は可視・不可視などの情報をコピーしないため
+		// ここで assignVisibleState を呼ぶ必要がある
+        autoHide = src.autoHide;
+        level = src.level;
+	}
+
+	function setOptions(elm)
+	{
+		// setOptions オーバーライド
+		super.setOptions(elm);
+		autoHide = +elm.autohide if elm.autohide !== void;
+	}
+
+	function atEndOfTransition(src, withchildren, exchange)
+	{
+		// atEndOfTransition オーバーライド
+		super.atEndOfTransition(...);
+		if(src == null)
+		{
+			//・メッセージレイヤ、前景レイヤが、srcなしでトランジション (children=true)
+			//　何もしなくてよいが、終了後それらの子レイヤは自動的に非表示になる。
+		}
+		else
+		{
+			//・メッセージレイヤ、前景レイヤが、srcありでトランジション (children=true)
+			//　重要な情報をトランジション元と交換、exchange=false の場合はさらに
+			//　トランジション元の情報をトランジション先にコピー。ただし、このコピーの際に
+			//　ウィンドウの可視・不可視の情報はコピーしない。
+			super.assign(src);
+			exchangeInfo();
+			window.swapCharacterLayer(id);
+		}
+	}
+
+	function assignTransSrc()
+	{
+		// トランジションもと(comp)をコピーする
+		assign(comp);
+	}
+
+	function setHiddenStateByUser(b)
+	{
+		// ユーザが右クリックなどでメッセージレイヤを一時的に隠すときに
+		// 呼ばれる
+		if(autoHide)
+		{
+			if(b)
+			{
+				visibleBeforeUserInvisible = visible;
+				invisibleByUser = true; // ユーザにより一時的に不可視
+				visible = false;
+			}
+			else
+			{
+				invisibleByUser = false; // 可視
+				visible = visibleBeforeUserInvisible;
+			}
+		}
+	}
+
+	function onMouseDown(x, y, button)
+	{
+		// マウスが押された
+		super.onMouseDown(...);
+		if(button == mbLeft)
+			processProvince(x, y);
+		else if(button == mbRight)
+			window.onPrimaryRightClick();
+			// 右ボタンは window.onPrimaryRightClick() を呼ぶ
+	}
+
+	function store()
+	{
+		// store オーバーライド
+		var dic = super.store();
+        dic.autoHide = autoHide;
+        dic.level    = level;
+        return dic;
+	}
+
+	function restore(dic)
+	{
+		// restore オーバーライド
+		autoHide = +dic.autoHide if dic.autoHide !== void;
+        level    = +dic.level if dic.level !== void;
+        super.restore(dic);
+	}
+}

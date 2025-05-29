@@ -1,0 +1,700 @@
+// SelectLayer.tjs - 選択肢レイヤ
+// Copyright (C)2001-2008, W.Dee and contributors  改変・配布は自由です
+
+/**
+ * 選択肢処理用ボタン
+ */
+class SelectButtonLayer extends ButtonLayer
+{
+    var owner; // セレクトレイヤ本体
+
+    var onclick; // クリック時に実行するもの
+    var onenter; // マウスが入ってきたときに実行するもの
+    var onleave; // マウスが出ていったときに実行するもの
+    var storage; // 処理終了後のジャンプ先
+    var target;  // 処理終了後のジャンプ先
+	var tag;     // ボタン固有名称（フラグ用）
+	var text;    // 表示したテキスト
+	var drawopt; // 描画オプション
+	var message; // メッセージテキスト（再描画用）
+	var ui;
+
+    /**
+     * メッセージの描画
+     */
+    function drawMessage(message) {
+        var cnt = Butt_showFocusImage ? 4 : 3;
+        var tw = font.getTextWidth(message);
+        var th = font.getTextHeight(message);
+        var y = (height-th)>>1;
+        //dm("サイズ:" + width + " ," + height);
+        var dx = (width-tw)>>1;
+        for (var i=0;i<cnt;i++) {
+            var x = i*width + dx;
+            //dm("メッセージ:" + x);
+			owner.drawTextToLayer(this, x, y, message, i, drawopt);
+        }
+    }
+    
+    /**
+     * コンストラクタ
+     * @param owner   選択レイヤ
+     * @param message 表示するメッセージを指定
+     */
+    function SelectButtonLayer(owner, message, drawopt) {
+		_enabled   = super.enabled;
+		_focusable = super.focusable;
+
+        this.owner = owner;
+		this.drawopt = drawopt;
+		this.message = message;
+		this.__gdiplusfontapp = owner.fontAppearance.gdiplus
+			if (                owner.fontAppearance.gdiplus !== void);
+        
+        // レイヤ初期化
+        super.ButtonLayer(owner.window, owner.window.primaryLayer);
+
+		if (owner.uibutton !== void)
+			(Dictionary.assignStruct incontextof (ui = %[]))(owner.getUIInfo(this, drawopt), true);
+
+		redraw();
+	}
+	function redraw() {
+		// 文字初期化
+		font.face   = owner.fontFace !== void ? owner.fontFace : owner.window.chDefaultFace;
+		font.bold   = owner.fontBold;
+		font.italic = owner.fontItalic;
+		font.height = owner.fontSize;
+
+		var hasimg = true;
+		with (owner) {
+			// 画像がある場合はロード
+			if (.normalImage   != "") loadButtons(.normalImage, .overImage, .onImage, .focusImage);
+			else if (.graphic  != "") loadImages(.graphic, .graphickey);
+			else if (ui     !== void) loadUIInfo(ui);
+			else hasimg = false;
+			if (hasimg) {
+				modifyOpacity(.frameOpacity);
+				drawMessage(message);
+			} else {
+				// ない場合は組み込みボタンとして処理
+				width        = .selectWidth;
+				height       = .selectHeight;
+				captionColor = .selectColor;
+				color        = .selectBaseColor;
+				caption      = message;
+			}
+		}
+    }
+
+    function finalize() {
+        super.finalize(...);
+	}
+
+	// 不透明度を調整
+	function modifyOpacity(opac) {
+		if (opac >= 255) return;
+		opac = 0 if (opac < 0);
+		var origFace = face;
+		face = dfAlpha;
+		// frameOpacityを適用する
+		colorRect(0, 0, imageWidth, imageHeight, 0, -255 + opac);
+		face = origFace;
+	}
+
+	function onMouseEnter()
+	{
+		if(onenter !== void) Scripts.eval(onenter);
+		super.onMouseEnter(...);
+		_ignoreFocusJump = true;
+        focus();
+		_ignoreFocusJump = void;
+	}
+
+	function onMouseLeave()
+	{
+        if(onleave !== void) Scripts.eval(onleave);
+        super.onMouseLeave(...);
+		window.focusedLayer = null if (focused);
+	}
+
+	function onMouseDown(x, y, button, shift)	{
+        if (button == mbRight) {
+			releaseCapture();
+            window.onPrimaryRightClick();
+        }
+        if (this isvalid) super.onMouseDown(...);
+    }
+
+	function onButtonClick() { owner.onButtonClick(this); }
+    function onExecute(x, y, button, shift)	{
+        if (nodeEnabled && button == mbLeft) {
+			onButtonClick();
+        }
+        if (this isvalid) super.onExecute(...);
+	}
+
+	function onKeyDown(key, shift, process)
+	{
+		// キーが押された
+		if (window.preProcessKeys(key, shift)) return;
+		switch (key) {
+		case VK_SPACE: case VK_RETURN:
+			onButtonClick() if (nodeEnabled && !(shift && ssRepeat));
+			break;
+		case VK_ESCAPE:
+			return window.processKeys(key, shift);
+		}
+		if (this isvalid) super.onKeyDown(...);
+	}
+
+	var _ignoreFocusJump;
+	function onFocus(prevfocused, direction)
+	{
+		// キー操作によるフォーカス変動の場合にマウスカーソルも移動
+		if(!_ignoreFocusJump) {
+			with (getButtonHotSpot()) cursorX = .x, cursorY = .y;
+			releaseCapture();
+        }
+		return super.onFocus(...);
+    }
+	function getButtonHotSpot() {
+		return %[ x:(width>>1), y:(height>>1) ];
+	}
+
+	var     _forceDisabled = false;
+	property forceDisabled { getter { return _forceDisabled; } setter (v) {
+		_forceDisabled = v;
+		enabled   = _enabled;
+		focusable = _focusable;
+	} }
+	property enabled   { getter { return _enabled   && !_forceDisabled; } setter(v) { super.enabled   = ((_enabled   = v) != 0) && !_forceDisabled; } }
+	property focusable { getter { return _focusable && !_forceDisabled; } setter(v) { super.focusable = ((_focusable = v) != 0) && !_forceDisabled; } }
+	var     _enabled;
+	var     _focusable;
+}
+
+/**
+ * 選択ボタン取得用
+ */
+function getSelectButtonLayer()
+{
+    return new SelectButtonLayer(...);
+}
+
+/**
+ * 選択肢処理用ロジック
+ * KAG用に特化しています
+ */
+class SelectLayer {
+
+    var msgoff = false;
+    var msgon  = false;
+    var fadeTime;
+    
+    var window;
+    
+    var left;
+    var top;
+    var width;
+    var height;
+    
+    // 選択肢項目の属性
+    var selectWidth  = 400;
+    var selectHeight = 50;
+    var selectColor  = 0xffffff;
+    var selectBaseColor = 0x888888;
+    var fontSize     = 24;
+
+    // 画像データ
+    var graphic;
+    var graphickey;
+    var normalImage;
+    var overImage;
+    var onImage;
+    var focusImage;
+	var uibutton; // uiload用
+	var uiname = "select";
+	var uinameSelected = void; //過去に選択済みの場合のUI(voidの場合は通常のuinameを使用)
+	var frameOpacity = 255; // 不透明度
+
+    // フォント
+    var fontFace;
+    var fontBold;
+    var fontItalic;
+    var fontShadow;
+    var fontEdge;
+    var fontColor       = 0xffffff;
+	var fontDisabledColor = void;
+    var fontSelectedColor = void;
+    var fontEdgeColor   = 0x0080ff;
+    var fontShadowColor = 0000000;
+	var fontShadowOffsetX = 2;
+	var fontShadowOffsetY = 2;
+	var fontShadowWidth   = 0;
+    var fontEdgeEmphasis = 512;
+    var fontEdgeExtent = 0;
+	// 選択時にフォントの色を変更する場合の値(voidなら変更しない)
+	var otherFontColors       = %[];
+	var otherFontEdgeColors   = %[];
+	var otherFontShadowColors = %[];
+
+	// for GDI+
+	var fontAppearance = %[ gdiplus:void, contexts:[] ];
+
+    // 効果音
+    var enterse;
+    var leavese;
+    var clickse;
+    var entersebuf;
+    var leavesebuf;
+    var clicksebuf;
+
+    var opense;
+    var closese;
+    var opensebuf;
+    var closesebuf;
+    
+	function setOptions(elm) {
+
+        // 選択肢領域指定
+        left   = +elm.left if elm.left !== void;
+        top    = +elm.top  if elm.top  !== void;
+        width  = +elm.width if elm.width !== void;
+        height = +elm.height if elm.height !== void;
+        
+        // 画像指定
+        normalImage = elm.normal if elm.normal !== void;
+        overImage   = elm.over   if elm.over   !== void;
+        onImage     = elm.on     if elm.on     !== void;
+        focusImage  = elm.focus  if elm.focus  !== void;
+        graphic     = elm.graphic    if elm.graphic !== void;
+        graphickey  = elm.graphickey if elm.graphickey !== void;
+		frameOpacity=+elm.opacity if (elm.opacity !== void);
+
+        // サイズ指定
+        selectWidth  = +elm.selectwidth  if elm.selectwidth  !== void;
+        selectHeight = +elm.selectheight if elm.selectheight !== void;
+        selectColor = +elm.selectcolor if elm.selectcolor !== void;
+        selectBaseColor = +elm.selectbasecolor if elm.selectbasecolor !== void;
+
+        // フォント指定
+        fontFace   =  elm.fontface if elm.fontface !== void;
+        fontSize   = +elm.size if elm.size !== void;
+        fontColor  = +elm.color if elm.color !== void;
+		fontSelectedColor = +elm.selectedcolor if (elm.selectedcolor !== void);
+		fontDisabledColor = +elm.disabledcolor if (elm.disabledcolor !== void);
+
+        fontItalic = +elm.italic if elm.italic !== void;
+        fontShadow = +elm.shadow if elm.shadow !== void;
+        fontEdge   = +elm.edge   if elm.edge   !== void;
+        fontBold   = +elm.bold   if elm.bold   !== void;
+        fontEdgeColor = +elm.edgecolor     if elm.edgecolor !== void;
+		fontEdgeEmphasis = +elm.edgeemphasis if elm.edgeemphasis !== void;
+		fontEdgeExtent = +elm.edgeextent if elm.edgeextent !== void;
+
+        fontShadowColor = +elm.shadowcolor if elm.shadowcolor !== void;
+		fontShadowOffsetX = +elm.shadowoffsetx if elm.shadowoffsetx !== void;
+		fontShadowOffsetY = +elm.shadowoffsety if elm.shadowoffsety !== void;
+		fontShadowWidth   = +elm.shadowwidth   if elm.shadowwidth   !== void;
+
+		// 通常状態以外の色指定
+		otherFontColors.over  = +elm.overcolor   if elm.overcolor   !== void;
+		otherFontColors.on    = +elm.oncolor     if elm.oncolor     !== void;
+		otherFontColors.focus = +elm.focuscolor  if elm.focuscolor  !== void;
+		otherFontEdgeColors.over  = +elm.overedgecolor   if elm.overedgecolor   !== void;
+		otherFontEdgeColors.on    = +elm.onedgecolor     if elm.onedgecolor     !== void;
+		otherFontEdgeColors.focus = +elm.focusedgecolor  if elm.focusedgecolor  !== void;
+		otherFontShadowColors.over  = +elm.overshadowcolor   if elm.overshadowcolor   !== void;
+		otherFontShadowColors.on    = +elm.onshadowcolor     if elm.onshadowcolor     !== void;
+		otherFontShadowColors.focus = +elm.focusshadowcolor  if elm.focusshadowcolor  !== void;
+
+        // 効果音指定
+        enterse = elm.enterse if elm.enterse !== void;
+        leavese = elm.leavese if elm.leavese !== void;
+        clickse = elm.clickse if elm.clickse !== void;
+        entersebuf = elm.entersebuf if elm.entersebuf !== void;
+        leavesebuf = elm.leavesebuf if elm.leavesebuf !== void;
+        clicksebuf = elm.clicksebuf if elm.clicksebuf !== void;
+
+        opense = elm.opense if elm.opense !== void;
+        closese = elm.closese if elm.closese !== void;
+        opensebuf = elm.opensebuf !== void ? elm.opensebuf : this.opensebuf;
+        closesebuf = elm.closesebuf !== void ? elm.closesebuf : this.closesebuf;
+        
+        // メッセージ窓を消去するかどうか
+        msgoff = +elm.msgoff if elm.msgoff !== void;
+        msgon  = +elm.msgon  if elm.msgon  !== void;
+
+        // フェード時間
+        fadeTime = +elm.fadetime if elm.fadetime !== void;
+
+		// uiload用
+		uiname = elm.uiname if (elm.uiname != "");
+		uinameSelected = elm.uinameselected if (elm.uinameselected !== void);
+		if (elm.uistorage !== void) {
+			uibutton = void;
+			if (Storages.isExistentStorage(elm.uistorage+".csv")) {
+				var r = uiload;
+				r = uiloadParse(%[ storage:elm.uistorage ]);
+				uibutton = r.result;
+			}
+		}
+
+		// フォントの色を再設定
+		createFontColorList();
+    }
+
+    /**
+     * 選択肢UI名取得
+     */
+	function getUIName(num, cnt, tag = uiname) {
+		return @"${tag}${num+1}_${cnt}";
+	}
+    /**
+     * UILoader用の情報を返す
+     */
+	function getUIInfo(sel, opt) {
+		var tag = uiname;
+		/**/tag = uinameSelected if (opt.selected && uinameSelected != "");
+		var name, num = selects.find(sel), cnt = selects.count;
+		if (num < 0) name = tag;
+		else {
+			name = getUIName(num, cnt, tag);
+			name = tag if (uibutton[name] === void);
+		}
+		var ret = uibutton[name];
+		if (ret === void) throw new Exception(@"選択肢UI「${name}」が見つかりません");
+		return ret;
+	}
+
+	/**
+	 * フォントの色を再設定
+	 */
+	function createFontColorList() {
+		var list = fontAppearance.contexts;
+		list.clear();
+		for (var ted = 0; ted < 2; ted++) {
+			var col = (!ted || fontSelectedColor === void) ? fontColor : fontSelectedColor;
+			for (var sel = 0; sel < 4; sel++) list.add(%[
+			color:         getFontColor(sel, col,             otherFontColors),
+			edgeColor:     getFontColor(sel, fontEdgeColor,   otherFontEdgeColors),
+			shadowColor:   getFontColor(sel, fontShadowColor, otherFontShadowColors),
+			edge:          fontEdge,
+			edgeEmphasis:  fontEdgeEmphasis,
+			edgeExtent:    fontEdgeExtent,
+			shadow:        fontShadow,
+			shadowWidth:   fontShadowWidth,
+			shadowOffsetX: fontShadowOffsetX,
+			shadowOffsetY: fontShadowOffsetY,
+				]);
+		}
+	}
+
+    /**
+     * フォントの色を取得する
+     */
+	function getFontColor(sel, normal, cols) {
+		with (cols) {
+			switch (sel) { // 色がない場合はbreakせずにそのまま下に突き抜ける
+			case 3: if (.focus !== void) return .focus; // フォーカス
+				/**/if (.over  !== void) return .over;  // フォーカス（オーバーで代用）
+			case 1: if (.on    !== void) return .on;    // オン
+			case 2: if (.over  !== void) return .over;  // オーバー
+			}
+		}
+		return normal; // 通常
+	}
+    /**
+     * エフェクトつき文字描画(SelectButtonLayerから呼ばれる)
+     */
+	function drawTextToLayer(lay, x, y, text, sel, opt) {
+		sel += 4 if (opt.selected);
+		var ref = fontAppearance.contexts[sel], context = %[];
+		if (ref === void) return;
+		(Dictionary.assign incontextof context)(ref, true);
+		var col = (opt.disabled && fontDisabledColor !== void) ? fontDisabledColor : context.color;
+
+		// MessageLayer.drawTextToLayerに投げるためのhack
+		context.antialiased = true; //window.chDefaultAntialiased;
+		drawText(context, lay, x, y, text, col);
+		invalidate context;
+	}
+	function drawText(context, *) {
+		return (MessageLayer.drawTextToLayer incontextof context)(*);
+	}
+
+    // 登録済み選択肢
+    var selects = [];
+
+    /**
+     * コンストラクタ
+     */
+    function SelectLayer(window) {
+        this.window = window;
+        left   = 0;
+        top    = 0;
+        width  = window.primaryLayer.width;
+        height = window.primaryLayer.height;
+		fontAppearance.gdiplus = new global.MessageLayer.GdiPlusFontApp() if (typeof global.Layer.drawPathString != "undefined");
+		var num = window.numSEBuffers;
+		entersebuf = num - 2;
+		leavesebuf = num - 2;
+		clicksebuf = num - 1;
+		opensebuf  = num - 1;
+ 		closesebuf = num - 1;
+	}
+
+    function finalize() {
+		stopAction();
+        clearButtons();
+		invalidate fontAppearance.gdiplus if (fontAppearance.gdiplus !== void);
+    }
+
+    /**
+     * 個々の選択肢レイヤのプロパティ変更
+     */
+	function setInnerProps(prop, value) {
+		for (var i = selects.count-1; i >= 0; i--) {
+			var select = selects[i];
+			select[prop] = value;
+		}
+	}
+
+    /**
+     * 不透明度変更処理
+     * 関連レイヤもあわせて制御
+     */
+	function setInnerOpacity(v) { setInnerProps("opacity", v) if (v !== void); }
+
+    /**
+     * 表示状態変更処理
+     * 関連レイヤもあわせて制御
+     */
+	function setInnerVisible(v) { setInnerProps("visible", v) if (v !== void); }
+
+    // 不透明度
+    var _opacity;
+    property opacity {
+        setter(v) {
+			setInnerOpacity(_opacity = v);
+        }
+        getter() {
+            return _opacity;
+        }
+    }
+
+    // 表示状態
+    var _visible = false;
+    property visible {
+        setter(v) {
+			setInnerVisible(_visible = !!v);
+        }
+        getter() {
+            return _visible;
+        }
+    }
+	var _enabled = true;
+	property enabled {
+		setter(v) {
+			setInnerProps("enabled", v);
+		}
+		getter {
+			return _enabled;
+		}
+	}
+
+	// アクションラッパ
+	function beginAction(act, comp) {
+		window.beginAction(this, act, comp, true);
+	}
+	function stopAction()  {
+		window.stopAction(this);
+	}
+	function doneActFadeIn() {
+		enabled = true;
+	}
+
+    /**
+     * visible に応じてフェードも自動調整する
+     */
+	function setVisibleTime(v, time, done=void) {
+		v = !!v;
+		if (v == visible) return false;
+		stopAction();
+		if (+time <= 0) {
+			visible = v;
+			opacity = 255;
+			enabled = true;
+			return false;
+		}
+		_visible = v;
+		enabled = false;
+		opacity = v ? 0 : 255;
+		beginAction(%[ opacity: %[ handler:MoveAction, start:_opacity, value:v ? 255 : 0, time:time ] ], done);
+		setInnerVisible(true);
+		return true;
+	}
+
+    /**
+     * ボタン消去
+     */
+    function clearButtons() {
+        for (var i=0; i<selects.count;i++) {
+            var select = selects[i];
+            invalidate select;
+        }
+        selects.clear();
+    }
+
+	/**
+	 * ボタン再描画
+	 */
+	function redrawButtons() {
+		for (var i = selects.count-1; i >= 0; i--)
+			selects[i].redraw();
+	}
+
+    /**
+     * 選択肢を追加
+     */
+    function addSelect(elm) {
+
+        var enterse    = elm.enterse !== void ? elm.enterse : this.enterse;
+        var leavese    = elm.leavese !== void ? elm.leavese : this.leavese;
+        var clickse    = elm.clickse !== void ? elm.clickse : this.clickse;
+        var entersebuf = elm.entersebuf !== void ? elm.entersebuf : this.entersebuf;
+        var leavesebuf = elm.leavesebuf !== void ? elm.leavesebuf : this.leavesebuf;
+        var clicksebuf = elm.clicksebuf !== void ? elm.clicksebuf : this.clicksebuf;
+
+		var select = getSelectButtonLayer(elm);
+        select.name = "選択肢ボタン" + elm.text;
+        
+        select.onenter = MessageLayer.createSoundExpression(elm.onenter, enterse, entersebuf);
+        select.onleave = MessageLayer.createSoundExpression(elm.onleave, leavese, leavesebuf);
+        select.onclick = MessageLayer.createSoundExpression(elm.exp,     clickse, clicksebuf),
+        select.storage = elm.storage;
+        select.target  = elm.target;
+		select.tag     = elm.tag;
+		select.text    = elm.text;
+        
+        selects.add(select);
+    }
+	function getSelectButtonLayer(elm) {
+		var r = global.getSelectButtonLayer(this, elm.text, elm);
+		r.forceDisabled = elm.disabled;
+		return r;
+	}
+
+    /*
+     * 親の差し替え
+     */
+    function setParent(parent, absolute) {
+        for (var i=0; i<selects.count;i++) {
+			with (selects[i]) {
+				.parent   = parent;
+				.absolute = absolute + 4 + i;
+			}
+        }
+    }
+
+    /**
+     * 選択肢座標取得
+     */
+	function getSelectPositions(count) {
+		var ret = [];
+		if (uibutton !== void) {
+			// uiloadで位置情報がある場合はそちらを優先する
+			for (var i=0; i<count; i++) {
+				var info = uibutton[getUIName(i, count)];
+				if (info === void) break;
+				with (info) ret.add([ .x + .width/2, .y + .height/2 ]);
+			}
+			if (ret.count == count) return ret;
+			ret.clear();
+		}
+		var x = left + width / 2;
+		var h = height / (count + 1);
+		for (var i=0, y=top+h; i<count; i++, y+=h) ret.add([ x, y ]);
+		return ret;
+	}
+    
+    /**
+     * 選択処理開始
+     */
+    function start(parent, absolute) {
+		setParent(...);
+		var cnt = selects.count;
+		var pos = getSelectPositions(cnt);
+		for (var i=0; i<cnt; i++) {
+			with (selects[i]) {
+				var xy = pos[i];
+				.setPos(xy[0] - .width/2, xy[1] - .height/2);
+			}
+		}
+		setVisibleTime(true, fadeTime, doneActFadeIn);
+		playSE(opense, opensebuf);
+    }
+
+	/**
+	 * 選択肢終了
+	 */
+	function end(select) {
+		var elm;
+		if (select) with (select) elm = %[ tag:.tag, text:.text, storage:.storage, target:.target ];
+		window.processGo();
+		window.insertTag("doneselect", elm !== void ? elm : %[]);
+		if (setVisibleTime(false, fadeTime)) {
+			window.insertTag("wact", %[ target:this ]);
+		}
+	}
+
+    /**
+     * 完了（doneselectタグから呼ばれる）
+     */
+    function done() {
+		playSE(closese, closesebuf) if (visible);
+		visible = false;
+		clearButtons();
+		invisibleByUser = false;
+    }
+
+	/**
+	 * 効果音
+	 */
+	function playSE(se, buf) {
+		kag.se[buf].play(%[storage:se]) if (se != "");
+	}
+
+    /**
+     * 処理終了
+     */
+    function onButtonClick(sel) {
+		var select = (sel && typeof sel == "Object" && sel isvalid) ? sel : %[];
+		Scripts.eval(select.onclick) if select.onclick != '';
+		end(select);
+	}
+
+	var invisibleByUser = false; // ユーザにより一時的に不可視
+	var visibleBeforeUserInvisible  = false;
+
+    function setHiddenStateByUser(b)
+	{
+        // ユーザが右クリックなどでメッセージレイヤを一時的に隠すときに
+		// 呼ばれる
+		if(b && !invisibleByUser)
+		{
+			visibleBeforeUserInvisible = visible;
+			invisibleByUser = true; // ユーザにより一時的に不可視
+			visible = false;
+		}
+		else if (!b && invisibleByUser)
+		{
+			invisibleByUser = false; // 可視
+			visible = visibleBeforeUserInvisible;
+		}
+	}
+
+	function lockFocus()   { setInnerProps("focusable", false); }
+	function unlockFocus() { setInnerProps("focusable", true);  }
+}

@@ -1,0 +1,71 @@
+class GraphicNoiseController extends GenericFlip, Layer {
+	var FLIP  = global.GenericFlip;
+	var SUPER = global.Layer;
+
+	var interval = 16;
+
+	function GraphicNoiseController(win) {
+		FLIP.GenericFlip(win);
+		var prim = win.primaryLayer;
+		SUPER.Layer(win, prim);
+		setImageSize(prim.width, prim.height);
+		setSizeToImageSize();
+		name = "GraphicNoiseController";
+	}
+	function finalize() {
+//		try { window.stopAction(this); } catch {}
+		//Debug.notice("ノイズ停止", name);
+		SUPER.finalize(...);
+		FLIP.finalize();
+	}
+
+	var basetime, lastTick;
+	function resetTime() {
+		basetime = lastTick = System.getTickCount();
+	}
+	function flipUpdate(tick) {
+		var	diff = tick - lastTick;
+		if (diff > interval) {
+			flipDraw();
+			lastTick = tick;
+		}
+	}
+	function flipDraw() {
+		generateWhiteNoise();
+		flipAssign(this);
+	}
+
+	function flipStart(param, elm) {
+		interval = (int)param;
+
+		name = "ノイズ:" + interval;
+
+		flipSetOptions(elm);
+		resetTime();
+
+		flipDraw();
+	}
+	function flipSetOptions(elm) {
+		width    = +elm.noisewidth     if elm.noisewidth    !== void;
+		height   = +elm.noiseheight    if elm.noiseheight   !== void;
+		fillRect(0, 0, width, height, 0xFF000000);
+	}
+}
+
+// 登録
+GenericFlip.Entry(
+	%[
+		"type"     => "noiseinterval",         // 登録タグ
+		"class"    => GraphicNoiseController,  // コントローラクラス
+		"trigger"  => "noisestop",             // 停止時に投げるトリガー名
+//		"ext"      => "png",                   // 判定処理（拡張子文字列or配列）
+//		"checker"  => void,                    // 判定処理（関数）
+		"options"  =>                          // 使用するオプション値（KAGEnvLayer用）
+		[
+			"noisewidth",
+			"noiseheight",
+			], 
+//		"autoflag" => "",                  // 自動フラグタグ名（KAGEnvLayer用）
+//		"dtstore"  => true,                // 復帰フラグ（KAGEnvLayer用）
+		]);
+

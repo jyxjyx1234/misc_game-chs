@@ -1,0 +1,943 @@
+KAGLoadScript('YAML.tjs');
+
+/**
+ * ワールド拡張
+ * ◇フック一覧
+ * グローバルに以下のメソッドがあった場合はフックとして呼び出します
+ * setTimeHook(time, elm)     時間変更時フック
+ * setStageHook(stage, elm)   ステージ変更時フック
+ */
+
+/**
+ * 空の辞書
+ */
+var EMPTY = %[];
+
+class EnvGraphicLayer extends GraphicLayerEx
+{
+	var owner;
+	var ownerenv;
+
+	var xoffset; // 表示補正X
+	var yoffset; // 表示補正Y
+	var levelz;  // 表示用Z位置
+	var levelxoffset; // Z補正後の表示補正X
+	var levelyoffset; // Z補正後の表示補正Y
+
+	var noshiftMode;  // シフト補正なし
+	var nocameraMode; // カメラ補正なし
+
+	var originx;
+	var originy;
+
+	function EnvGraphicLayer(win, par, owner) {
+		this.owner = owner;
+		this.ownerenv  = owner.env;
+		super.GraphicLayerEx(win, par, owner.name, 0);
+		defaultAfx = "center";
+		defaultAfy = "center";
+		freeImage();
+		type = ltAlpha;
+		hitType = htMask;
+		hitThreshold = (typeof ownerenv.defaultHitThreshold != "undefined") ?
+			/**/          (int)ownerenv.defaultHitThreshold : 256;
+		noshiftMode   = owner.noshiftMode;
+		nocameraMode  = owner.nocameraMode | owner.noshiftMode;
+		levelz  = owner.levelz !== void ? owner.levelz : 100;
+		xoffset = 0;
+		yoffset = 0;
+		levelxoffset = 0;
+		levelyoffset = 0;
+		
+		hint = name if (ownerenv.setHintForDebug);
+	}
+
+	function finalize()	{
+		super.finalize(...);
+	}
+
+	// assign オーバーライド
+	function assign(src) {
+		if (src instanceof "EnvGraphicLayer") {
+			_left = src._left;
+			_top  = src._top;
+			__zoomx = src.__zoomx;
+			__zoomy = src.__zoomy;
+			rotate = src.rotate;
+			xoffset = src.xoffset;
+			yoffset = src.yoffset;
+			levelz   = src.levelz;
+			levelxoffset = src.levelxoffset;
+			levelyoffset = src.levelyoffset;
+			noshiftMode  = src.noshiftMode;
+			nocameraMode = src.nocameraMode;
+			originx = src.originx;
+			originy = src.originy;
+		}
+		super.assign(src);
+		assignVisibleState(src);
+	}
+
+	/**
+	 * オフセット情報更新用
+	 */
+	function updateOffsetInfo() {
+	}
+
+	// ---------------------------------------------
+
+	function onActionCompleted() {
+		super.onActionCompleted(...);
+		//dm(name + ":アクション終了:" + inTransition);
+		if (!inTransition) {
+			owner.doneTransition(this);
+		}
+	}
+	
+	function onTransitionCompleted() {
+		super.onTransitionCompleted(...);
+		//dm(name + ":トランジション終了:" + window.isInAction(this));
+		if (!window.isInAction(this)) {
+			owner.doneTransition(this);
+		}
+	}
+	
+	function beginLayerTransition(elm) {
+		(global.AnimationLayerTransMove.beginTransition incontextof this)(elm, elm.src);
+		// 入れ替え処理を排除
+	}
+
+	function atEndOfTransition(src, withchildren, exchange)	{
+		// 入れ替え処理を排除
+	}
+
+	var _left = 0;
+	property left {
+		getter() {
+			return _left;
+		}
+		setter(v) {
+			_left = +v;
+			recalcPosition();
+		}
+	}
+
+	var _top = 0;
+	property top {
+		getter() {
+			return _top;
+		}
+		setter(v) {
+			_top = v;
+			recalcPosition();
+		}
+	}
+
+	var __zoomx = 100;
+	var __zoomy = 100;
+
+	property zoom {
+		getter() {
+			return __zoomx;
+		}
+		setter(v) {
+			__zoomx = +v;
+			__zoomy = +v;
+			recalcPosition();
+		}
+	}
+
+	property zoomx {
+		getter() {
+			return __zoomx;
+		}
+		setter(v) {
+			__zoomx = +v;
+			recalcPosition();
+		}
+	}
+
+	property zoomy {
+		getter() {
+			return __zoomy;
+		}
+		setter(v) {
+			__zoomy = +v;
+			recalcPosition();
+		}
+	}
+
+	var __rotate = 0;
+	property rotate {
+		getter() {
+			return __rotate;
+		}
+		setter(v) {
+			__rotate = +v;
+			recalcPosition();
+		}
+	}
+	
+	function setPos(left, top, width, height) {
+		this.width  = width if width !== void;
+		this.height = height if height !== void;
+		_left = left;
+		_top  = top;
+		recalcPosition();
+	}
+
+	// ----------------------------------------------------------
+	// 再配置調整用
+	// ----------------------------------------------------------
+
+	// 特殊アライン処理
+	function align(value) {
+		if (nocameraMode) {
+			return Math.round(value);
+		} else {
+			var cz = (real)ownerenv.camerazoom / 100.0;
+			var z  = +levelz / 100.0;
+			var ratio = z * cz;
+			return Math.round(value * ratio)/ratio;
+		}
+	}
+	
+	/**
+	 * 配置位置調整
+	 */
+	function recalcPosition() {
+		var cz = nocameraMode ? 1 : (real)ownerenv.camerazoom / 100.0;
+		var cr = nocameraMode ? 0 : ownerenv.camerarotate;
+		var cx = nocameraMode ? 0 : ownerenv.camerax;
+		var cy = nocameraMode ? 0 : -ownerenv.cameray;
+		var cox = nocameraMode ? 0 : ownerenv.cameraox;
+		var coy = nocameraMode ? 0 : -ownerenv.cameraoy;
+		var z  = nocameraMode ? 1 : +levelz / 100.0;
+		var sx = noshiftMode  ? 0 : ownerenv.shiftx;
+		var sy = noshiftMode  ? 0 : ownerenv.shifty;
+		//dm(name + ":位置情報:%d,%d pos:%d,%d cx:%d,%d%,%f z:%f sx:%d,%d af:%d,%d off:%d,%d loff:%d,%d".sprintf(originx, originy, left, top, cx, cy, cz, z, sx, sy, afx, afy, xoffset, yoffset, levelxoffset, levelyoffset));
+		var l = (int)(cox * (1-z*cz)) + (((left - cx) * z +(int)(xoffset * z)) + +levelxoffset) * cz - sx;
+		var t = (int)(coy * (1-z*cz)) + (((-top - cy) * z +(int)(yoffset * z)) + +levelyoffset) * cz - sy;
+		//dm(name + ":位置再計算:" + l + "," + t);
+		if (cr != 0) {
+			var angle = cr * Math.PI * 2 / 360;
+			var s = Math.sin(angle);
+			var c = Math.cos(angle);
+			var L = l*c - t*s;
+			var T = l*s + t*c;
+			l = L;
+			t = T;
+		}
+		super.left = originx + l;
+		super.top  = originy + t;
+		super.zoomx = __zoomx * cz;
+		super.zoomy = __zoomy * cz;
+		super.rotate = __rotate - cr;
+	}
+
+	function getCenterCamera(xpos,ypos) {
+		var cox = ownerenv.cameraox;
+		var coy = -ownerenv.cameraoy;
+		var z   = +levelz / 100.0;
+		return %[x:+levelxoffset/z + (int)(cox/z - cox) + (int)xoffset + xpos,
+			     y:+levelyoffset/z + (int)(coy/z - coy) + (int)yoffset + ypos,
+			 zoom:10000.0/+levelz];
+	}
+};
+
+/**
+ * 鍵の内容を表示する
+ * @param name 名称
+ * @param dict 辞書オブジェクト
+ */
+function showKeys(name, dict) {
+    if (kag.debugLevel >= tkdlVerbose) {
+        name += ":";
+        if (dict) {
+            var array = [];
+            array.assign(dict);
+            for (var i=0; i<array.count; i+= 2) {
+                if (i != 0) {
+                    name += ",";
+                }
+                name += (array[i] + ":" + array[i+1]);
+            }
+            dm(name);
+        }
+    }
+}
+
+/*
+ * 分割パラメータの前側を取得
+ * @param value パラメータ
+ */
+function getTo(value)
+{
+    var p;
+	if (typeof value == "String") {
+		if ((p = value.indexOf(":")) > 0) {
+			return value.substring(0, p);
+		} else  if (p == 0) {
+			return void;
+		}
+	}
+	return value;
+}
+
+/*
+ * 分割パラメータの後側を取得
+ * @param value パラメータ
+ */
+function getFrom(value) {
+	var p;
+	if (typeof value == "String") {
+		if ((p = value.indexOf(":")) >= 0) {
+			return value.substring(p+1);
+		}
+	}
+	return void;
+}
+
+/**
+ * 相対位置指定の判定。
+ * 指定値が "%" で終わっていたら最大値への相対での指定とみなす
+ * 指定値が "@" ではじまっていたら現在値への相対の指定とみなす
+ * @param base  現在値
+ * @param value 指定値
+ * @param valueBase 指定の最大値
+ */
+function calcRelative(base, value, valueBase) {
+    if (value === void) {
+        return value;
+    } else {
+        if (typeof value == "String") {
+			var lastch = value.charAt(value.length-1);
+            // 相対指定の場合
+            if (value.charAt(0) == '@') {
+                value = value.substring(1);
+                // %指定の場合
+                if (valueBase !== void && lastch == '%') {
+                    value = valueBase * (int)value.substring(0,value.length - 1) / 100;
+                }
+                return (int)base + (int)value;
+            } else {
+                // %指定の場合
+                if (valueBase !== void && lastch == '%') {
+                    value = valueBase * (int)value.substring(0,value.length - 1) / 100;
+                }
+            }
+        }
+        return (int)value;
+    }
+}
+
+var transitionName = %[
+	"universal" => true,
+	"crossfade" => true,
+	"scroll" => true,
+	"wave" => true,
+	"mosaic" => true,
+	"turn" => true,
+	"rotatezoom" => true,
+	"rotatevanish" => true,
+	"rotateswap" => true,
+	"ripple" => true,
+
+	// 以下 extNagano用
+	"3duniversal" => true,
+	"blurfade" => true,
+	"scanline" => true,
+	"zoomfade" => true,
+	"rgbfade" => true,
+	"spin" => true,
+	"flutter" => true,
+	"book" => true,
+	"imagewipe" => true,
+	"honeyturn" => true,
+	"morphing" => true,
+	"multiripple" => true,
+	];
+
+var transitionParam = %[
+	"laytrans" => true, // レイヤトランジション駆動用
+	"blacktrans" => true, // 暗転トランジション駆動用
+	"begin" => true,
+	"end" => true,
+	"bwait" => true,
+	"color" => true,
+	"btime" => true,
+	"time" => true,
+	"rule" => true,
+	"vague" => true,
+	"from" => true,
+	"stay" => true,
+	"wavetype" => true,
+	"maxh" => true,
+	"maxomega" => true,
+	"bgcolor1" => true,
+	"bgcolor2" => true,
+	"mosaic" => true,
+	"maxsize" => true,
+	"turn" => true,
+	"bgcolor" => true,
+	"factor" => true,
+	"accel" => true,
+	"twistaccel" => true,
+	"twist" => true,
+	"centerx" => true,
+	"centery" => true,
+	"rwidth" => true,
+	"roundness" => true,
+	"speed" => true,
+	"maxdrift" => true,
+	"msgoff" => true,
+	"charoff" => true,
+	"transwait" => true,
+	"showaction" => true,
+	"hideaction" => true,
+	"wait" => true,
+
+	// 以下 extNagano用
+//	"time" => true, //重複
+//	"rule" => true, //重複
+	"type" => true,
+	"speed1" => true,
+	"accel1" => true,
+	"bound1" => true,
+	"speed2" => true,
+	"accel2" => true,
+	"bound2" => true,
+	"exponent" => true,
+	"blur1" => true,
+	"blur1x" => true,
+	"blur1y" => true,
+	"blur2" => true,
+	"blur2x" => true,
+	"blur2y" => true,
+	"prerender" => true,
+	"zoom1" => true,
+	"zoom2" => true,
+	"delayr" => "delayR", // 別名に変更
+	"delayg" => "delayG", // 別名に変更
+	"delayb" => "delayB", // 別名に変更
+	"delaya" => "delayA", // 別名に変更
+	"delayR" => true,
+	"delayG" => true,
+	"delayB" => true,
+	"delayA" => true,
+	"type1" => true,
+	"type2" => true,
+	"back" => true,
+	"alpha" => true,
+	"slip" => true,
+	"dir" => true,
+	"size" => true,
+	"order" => true,
+	"before" => true,
+	"after" => true,
+	"count" => true,
+	"wavecount" => true,
+//	"rwidth" => true, //重複
+//	"maxdrift" => true, //重複
+//	"roundness" => true, //重複
+	"delaylast" => true,
+    ];
+
+var actionParam = %[
+    "time" => true,
+    "delay" => true,
+	"nowait" => true,
+	"start" => true,
+	"startx" => true,
+	"starty" => true,
+	"x" => true,
+    "y" => true,
+    "toptime" => true,
+    "vibration" => true,
+    "xvibration" => true,
+    "yvibration" => true,
+    "waittime" => true,
+    "cycle" => true,
+    "distance" => true,
+    "falltime" => true,
+    "zoom" => true,
+    "angvel" => true,
+    "angle" => true,
+    "showtime" => true,
+    "hidetime" => true,
+    "intime" => true,
+    "outtime" => true,
+    "opacity" => true,
+    ];
+
+KAGLoadScript('KAGEnvBase.tjs');
+KAGLoadScript('KAGEnvImage.tjs');
+KAGLoadScript('KAGEnvLayer.tjs');
+KAGLoadScript('KAGEnvEvent.tjs');
+KAGLoadScript('KAGEnvStage.tjs');
+KAGLoadScript('KAGEnvLevelLayer.tjs');
+KAGLoadScript('KAGEnvSimpleLayer.tjs');
+KAGLoadScript('KAGEnvCharacter.tjs');
+KAGLoadScript('KAGEnvBGM.tjs');
+KAGLoadScript('KAGEnvSE.tjs');
+KAGLoadScript('KAGEnvironment.tjs');
+property KAGEnvPlayer { getter() { KAGLoadScript("KAGEnvPlayer.tjs"); return global.KAGEnvPlayer; } }
+
+/*
+ クラス継承関係
+  クラス名                親クラス                       使用用途
+ ----------------------------------------------------------------
+ EmotionLayer             EnvGraphicLayer               エモレイヤ
+ EnvCharacterGraphicLayer EnvGraphicLayer               KAGEnvCharacter用createLayerターゲット
+ KAGEnvImage                                            環境画像の基底クラス(レイヤの実体はtargetLayerに持つ)
+ KAGEnvStage              KAGEnvImage                   背景レイヤの制御用
+ KAGEnvLayer              KAGEnvImage                   中間クラス(Event/SimpleLayerの親)
+ KAGEnvEvent              KAGEnvLayer                   イベント絵レイヤ
+ KAGEnvLevelLayer                                       前景レイヤのレベル制御用(レイヤの実体は持たない)
+ KAGEnvCharacter          KAGEnvImage, KAGEnvLevelLayer キャラ
+ KAGEnvSimpleLayer        KAGEnvLayer, KAGEnvLevelLayer 汎用layer
+*/
+
+/**
+ * KAG 用ワールド拡張プラグイン
+ */
+class KAGWorldPlugin extends KAGPlugin
+{
+	var player;
+
+	// プレイヤが動作しているかどうか
+	property playerWorking {
+		getter() { return player !== void && player.working; }
+	}
+
+	// プレイヤが動作しているかどうか
+	property playerConverting {
+		getter() { return player !== void && player.converting; }
+	}
+
+	var kag;
+	var env;
+	var tagHandlers = %[];
+	var destroyTrigger;
+
+	function KAGWorldPlugin(kag) {
+		super.KAGPlugin();
+		this.kag = kag;
+		env = new KAGEnvironment(kag);
+		destroyTrigger = new AsyncTrigger(env.destroy, '');
+		destroyTrigger.cached = true;
+
+		// 各種playerフラグを初期化
+		restoreSystemVariables();
+
+		// 強制のっとり
+		// 本来別機構をつくるべき
+		with (kag) {
+			.tagHandlers["quake"]           = env.quake;
+			.tagHandlers["dispname"]        = env.dispname;
+			.tagHandlers["afterpage"]       = env.afterpage;
+			.tagHandlers["afterline"]       = env.afterline;
+		}
+
+		// 環境情報制御
+		tagHandlers["pushenv"] = env.pushenv;
+		tagHandlers["popenv"]  = env.popenv;
+		tagHandlers["restoreenv"] = env.restoreenv;
+		
+		// 複製系コマンド
+		tagHandlers["allchar"]    = env.allchar;
+		tagHandlers["alllayer"]   = env.alllayer;
+		tagHandlers["allfore"]    = env.allfore;
+		tagHandlers["allbase"]    = env.allbase;
+		tagHandlers["allimage"]   = env.allimage;
+		tagHandlers["allse"]      = env.allse;
+		tagHandlers["freearea"]   = env.freearea;
+		
+		// 一斉トランジション用
+		tagHandlers["begintrans"] = env.beginTrans;
+		tagHandlers["endtrans"]   = env.endTrans;
+		
+		// 専用コマンド割り当て
+		tagHandlers["dellay"]     = env.delLayer;
+		tagHandlers["dellayer"]   = env.delLayer;
+		tagHandlers["delchar"]    = env.delCharacter;
+		
+		tagHandlers["msgoff"]     = env.msgoff;
+		tagHandlers["msgon"]      = env.msgon;
+		
+		// 内部利用コマンド
+		tagHandlers["beginenvtrans"]   = env.beginEnvTrans;
+
+		tagHandlers["twait"]           = env.doTalkWait;
+		tagHandlers["showtwait"]       = env.showTalkWait;
+		tagHandlers["*"]               = env.doTalkWait;
+
+		// 内部機能
+		tagHandlers["laytrans"]   = env.laytrans;
+		tagHandlers["alltrans"]   = env.alltrans;
+		tagHandlers["breaktrans"] = env.breaktrans;
+		tagHandlers["wchvoice"] = function(elm) { var ch = elm.target; if (ch !== void) { return ch.waitVoice(elm, this); return 0; }} incontextof kag;
+
+		// プレイヤー系機能
+		tagHandlers["scenestart"] = scenestart incontextof this;
+		tagHandlers["scenestarttext"] = scenestarttext incontextof this;
+		tagHandlers["sceneplay"]  = sceneplay incontextof this;
+		tagHandlers["scenecheck"]  = scenecheck incontextof this;
+
+		addTag(kag, tagHandlers);
+	}
+
+	// exstand用機能追加拡張用
+	function addTag() {
+	}
+
+	function finalize() {
+		if (destroyTrigger) {
+			destroyTrigger.cancel();
+			invalidate destroyTrigger;
+		}
+		invalidate player if player !== void;
+		invalidate env;
+    }
+
+	// -----------------------------------------------------------------
+
+	var checkSkipOnNextPlay = false; // 次のsceneplayタグで既読自動スキップチェックをするかどうか
+	function initPlayer() {
+		if (player !== void && (player.forceReadOnly != playerReadOnly)) {
+			invalidate player;
+			player = void;
+		}
+		if (player === void) {
+			player = new KAGEnvPlayer(kag, env, playerReadOnly);
+		}
+	}
+	
+	// シーン再生開始タグ
+	function scenestart(elm) {
+		initPlayer();
+		checkSkipOnNextPlay = true;
+		return player.start(elm);
+	}
+
+	// テキスト再生開始タグ
+	function scenestarttext(elm) {
+		initPlayer();
+		return player.starttexttag(elm);
+	}
+	
+	// シーン再生タグ
+	function sceneplay(elm) {
+		if (player !== void) {
+			if (checkSkipOnNextPlay) {
+				checkSkipOnNextPlay = false;
+				kag.checkSkipOnReadedLabel();
+			}
+			return player.play(elm);
+		}
+		return 0;
+	}
+	
+	// シーンチェックタグ
+	function scenecheck(elm) {
+		if (player !== void) {
+			return player.check(elm);
+		}
+		return 0;
+	}
+	
+	// -----------------------------------------------------------------
+	
+    function onStore(f, elm) {
+		// プレイヤーの保存処理が動いてない場合は環境を保存
+		if (player === void || !player.onStore(f)) {
+			var dic = f.env = %[];
+			env.onStore(dic);
+		}
+    }
+
+	function onRestore(f, clear, elm) {
+		// プレイヤーの復帰処理が動いてない場合は環境を復帰
+		if (f.scenePlayer !== void) {
+			initPlayer();
+		}
+		if (player === void || !player.onRestore(f)) {
+			if (f.env !== void) {
+				env.onRestore(f.env, clear, elm);
+				env.updateAll();
+			}
+		}
+	}
+
+	// トランジション前呼び出し
+	function onPreTransition() {
+		env.prepareTransition();
+	}
+	
+	// トランジション完了時
+	function onExchangeForeBack() {
+		env.onExchangeForeBack();
+	}
+	
+	// 全アクション・トランジション終了時コールバック
+	function onAllActionTransitionCompleted() {
+		destroyTrigger.trigger();
+	}
+
+	// リセット時コールバック
+	function onResetAll() {
+		if (player !== void) {
+			player.reset();
+		} else {
+			env.resetEnv();
+			env.updateAll();
+		}
+	}
+
+	// ボイスボリューム変更時コールバック
+	function onVoiceVolumeUpdate() {
+		env.resetAllVoiceVolume();
+	}
+
+	// ボイススピード変更時コールバック
+	function onVoiceSpeedUpdate() {
+		env.updateVoiceSpeed();
+	}
+
+	// ボイス再生されている場合はボイス待ちのトリガを返す
+	function checkVoiceWait() {
+		if (env.playVoiceCount > 0) {
+			return "env_voice";
+		}
+	}
+	
+	// SE停止時コールバック
+	function onSeStop(id) {
+		env.onSeStop(id);
+	}
+
+	function onBGMStop() {
+		env.onBGMStop();
+	}
+
+	// アクション停止時コールバック
+	function onStopAction(all) {
+		env.onStopAction(all);
+		kag.addFastTag("env");
+	}
+
+	// delay処理解放時
+	function onDoneDelay() {
+		env.onDoneDelay();
+	}
+	
+	// 画面同期要求コールバック
+	function onSync() {
+		env.destroy();
+		player.onSync() if player !== void;
+		env.setRedraw();
+		env.updateAll();
+	}
+
+	// レイヤ特殊コマンド実行要求コールバック
+	function onLayerCommand(elm) {
+		env.onLayerCommand(elm);
+	}
+
+	// レイヤ消去要求コールバック
+	function onClear(base) {
+		if (base == kag.fore) {
+			env.onClear();
+			kag.addFastTag("env");
+		}
+	}
+
+	// 不明コマンドハンドラ
+	function onUnknown(tagName, elm) {
+		var func = tagHandlers[tagName];
+		if (func !== void) {
+			return func(elm);
+		}
+		return env.unknown(tagName, elm);
+	}
+
+	// 選択開始
+	function onSelectStart(info) {
+		if (player !== void) { 
+			return player.onSelectStart(...);
+		}
+	}
+	
+	// 選択通知
+	function onSelect(text) {
+		if (player !== void) { 
+			return player.onSelect(...);
+		}
+	}
+	
+	// シナリオ遷移のっとり
+	function onNext() {
+		if (player !== void) { 
+			checkSkipOnNextPlay = true;
+			return player.onNext(...);
+		}
+	}
+
+	// kagが遷移した場合に呼ばれるコールバック
+	function onProcess(usingExtraConductor) {
+		player.onProcess(usingExtraConductor) if player !== void;
+	}
+
+	// 現在実行中位置情報の差し替え
+	function getCurrentInfo() {
+		if (playerWorking || playerConverting) {
+			return player.getCurrentInfo();
+		}
+	}
+
+	// 未読判定の差し替え
+	function getCurrentRead() {
+		if (playerWorking) {
+			return player.curRead;
+		}
+	}
+
+	// ページ名の差し替え
+	function getCurrentPageName() {
+		if (playerWorking) {
+			return player.title;
+		}
+	}
+
+	/**
+	 * シナリオ実行系をのっとるための口
+	 * @param execFile 実行用スクリプト(内部で scenestart/sceneplay を呼ぶ必要がある
+	 * @param storage 対象ストレージ
+	 * @param target 対象ターゲット(ラベルまたは行番号)
+	 */
+	function onScenarioExec(execFile, storage, target) {
+		if (playerExecMode) {
+			with (kag) {
+				.setConductorToMain();
+				.conductor.clear();
+				tf.storage = storage;
+				tf.target  = target;
+				.process(execFile);
+			}
+			return true;
+		}
+	}
+	
+	/**
+	 * ラベル・業指定ジャンプ指示
+	 * @param line 行番号またはラベル
+	 */
+	function onSkipToLine(line) {
+		if (playerWorking) {
+			player.initEnv();
+			player.startScene("", line);
+			kag.processGo();
+			return true;
+		}
+	}
+
+	// 選択肢まで戻る用履歴情報
+
+	function isSetToRecordHistory() {
+		return playerWorking;
+	}
+	
+	function isHistoryOfStoreAlive() {
+		if (playerWorking) {
+			return player.isHistoryOfStoreAlive();
+		}
+	}
+
+	function onRecordHistoryOfStore() {
+		if (playerWorking) {
+			return player.onRecordHistoryOfStore();
+		}
+	}
+
+	function onGoBackHistoryOfStore() {
+		if (playerWorking) {
+			return player.onGoBackHistoryOfStore();
+		}
+	}
+
+	function getHistoryOfStorePage() {
+		if (playerWorking) {
+			return player.getHistoryOfStorePage();
+		}
+	}
+
+	// ----------------------------------------------------------
+	
+	// プレイヤ実行処理を乗っ取るフラグ true ならメニューの実行処理系をのっとる
+	var playerExecMode;
+	// DB強制書き込み禁止
+	var playerReadOnly;
+
+	// kag.saveSystemVariables() 時に playerExecMode を保存する
+	function onSaveSystemVariables() {
+		with (kag.scflags) {
+			.playerExecMode = playerExecMode;
+			.playerReadOnly  = playerReadOnly;
+		}
+	}
+	// scflagsから playerExecMode を復帰させる
+	function restoreSystemVariables() {
+		// playerExecMode 初期値を設定
+		if (kag.scflags !== void) with (kag.scflags) {
+			playerExecMode  = .playerExecMode;
+			playerReadOnly  = .playerReadOnly;
+		}
+		// 未定義の場合のデフォルト値
+		playerExecMode  = envPlayerConvertEnabled   if (playerExecMode  === void && typeof global.envPlayerConvertEnabled   != "undefined");
+		playerReadOnly  = envPlayerReadOnlyEnabled  if (playerReadOnly  === void && typeof global.envPlayerReadOnlyEnabled  != "undefined");
+
+		updateMenuItemChecked();
+	}
+
+	// メニュー系の処理
+	var _menuItemName = "convertModeMenuItem";
+	var _patchMenuItemName = "convertModePatchMenuItem";
+	var _readonlyMenuItemName = "convertModeReadOnlyMenuItem";
+	function updateMenuItemChecked() {
+		if (typeof kag[_menuItemName] == "Object") {
+			/**/   kag[_menuItemName].checked = playerExecMode;
+		}
+		if (typeof kag[_readonlyMenuItemName] == "Object") {
+			/**/   kag[_readonlyMenuItemName].checked = playerReadOnly;
+		}
+	}
+	function togglePlayerExecMode()  { playerExecMode  = !playerExecMode;  updateMenuItemChecked(); }
+	function togglePlayerReadOnly()  { playerReadOnly  = !playerReadOnly;  updateMenuItemChecked(); }
+
+	// ------------------------------------------------------------------
+
+	/**
+	 * 全リスト済みシナリオのコンバート処理
+	 * @param clean true なら一度クリアしてからコンバート
+	 */
+	function convertAll(clean) {
+		initPlayer();
+		convertClean() if (clean);
+		player.convertAll();
+	}
+
+	/**
+	 * 全リスト済みシナリオのクリア処理
+	 */
+	function convertClean() {
+		initPlayer();
+		player.convertClean();
+	}
+
+@if (KAGENV_OVERLAYER)
+	function onUpdateEffect(f, elm)
+    {
+		env.over.opacity = env.over.opacity;
+	}
+@endif
+};

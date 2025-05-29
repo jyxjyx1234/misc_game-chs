@@ -1,0 +1,808 @@
+KAGLoadScript("TextRender.tjs");
+setSystemMenuStorage("backlog.ks");
+with (SystemScript) {
+	.script("backlog");
+	.add("backlog.sysfrom.game",  "*sysfrom_game");
+	.add("backlog.from.game",     "*start");
+	.add("game.from.backlog",     "backlog*return");
+}
+with (SystemHook) {
+	.add("backlog.leave", "dialog.done");
+}
+with (SystemConfig) {
+	.toggleBacklog = true;
+}
+with (MyYesNoDialog.instance) {
+	.yesnoMap["ジャンプしますか？"] = "AskJump";
+	.defaultFocusItem.AskJump = "yes";
+}
+with (SystemActionBase) {
+	.origBacklog =  .backlog;
+	.orig_backlog = ._backlog;
+	.backlog  = function(bykey, tag, key, *) {
+//		if (!world_object.playerWorking) return origBacklog(...);
+		if (SystemHook.currentState == "backlog" && checkByKey_(bykey) && key == VK_PRIOR) return;
+		_tglSubMode("backlog", "toggleBacklog", _backlog, "showHistoryMenuItem", bykey, tag, key, *);
+		return true;
+	};
+	._backlog = function (bykey, tag, key) {
+//		if (!world_object.playerWorking) return orig_backlog(...);
+		if (kag.inStable) {
+			switch (SystemHook.currentState) {
+			case "backlog": kag.onPrimaryRightClick(); break;
+			case "game":    startSubSystem(true, "backlog.sysfrom.game"); break;
+			}
+		}
+	};
+}
+class        BacklogBase {
+	function BacklogBase(elm, basename, trans) { // basename="backlog", time=kag.historyLayer.fadeTime) {
+		if (basename != "") with (SystemTransManager.instance) {
+			.set(@"${basename}.*", trans); //%[ method:"crossfade", time:time ]);
+		}
+		var isExMode = (typeof global.world_object == "Object") && world_object.playerWorking;
+		_playerObject    = isExMode ? world_object.player : kag.historyLayer;
+		_jumpEnabled     = isExMode && (typeof _playerObject.goToHistory == "Object");
+		_snapshotEnabled = isExMode && (typeof _playerObject.getSnapshot == "Object");
+
+		backupCurrentMessageVisibleState();
+		_render = new TextRender();
+		_render.setDefaultFromMessageLayer(_curmes);
+		setHistoryMenuChecked(true);
+		init(elm);
+	}
+//	property playerObject { getter { return world_object.player; } }
+//	property playerObject { getter { return kag.historyLayer; } }
+	property playerObject { getter { return _playerObject; } }
+
+	var _playerObject;
+	var _jumpEnabled, _snapshotEnabled;
+
+	var _render;
+	var _snapshot;
+	var _textBlocks = %[];
+	function finalize() {
+		kag.removeHook("keyDown", onKeyDown);
+		setHistoryMenuChecked(false);
+		removeBlockBaseLayer();
+		invalidate _snapshot if (_snapshot);
+		invalidate _render if (_render);
+	}
+
+	function setHistoryMenuChecked(chk) {
+		try { kag.showHistoryMenuItem.checked = kag.historyShowing = chk; } catch {}
+	}
+	function onShow() {
+		setMessageLayerVisible(true);
+		lastWheelTick = 0;
+		kag.current.addWheel(%[ func:"Current.prop('onWheel')" ]);
+		kag.addHook("keyDown", onKeyDown);
+	}
+	function onHide() {
+		stopSliderAction();
+		kag.stopAction(this);
+		kag.removeHook("keyDown", onKeyDown);
+		setMessageLayerVisible(false);
+	}
+	function setMessageLayerVisible(v) {
+		kag.setMessageLayerHiddenState(v, true);
+		if (v) {
+			kag.current.visible = true;
+		} else {
+			restoreCurrentMessageVisibleState();
+			kag.current.clearWheel();
+			kag.current.comp.visible = false;
+		}
+	}
+
+	var lastWheelTick, wheelCloseTime = 200;
+	function onWheel(shift, delta, x, y) {
+		// ウィンドウのホイール操作メッセージがここに流される
+		var currenttick = System.getTickCount();
+		/* くるくる回しているうちにいきなり履歴が閉じたりしないような仕掛け */
+		if (delta < 0 && currenttick - lastWheelTick > wheelCloseTime && !canScrollDown) close();
+		else doWheelScroll(delta);
+		lastWheelTick = currenttick;
+	}
+	function close() {
+		if (kag.inStable) kag.process("", "*back");
+		else kag.onPrimaryClick();
+	}
+
+	var _curmes, _curmesvis;
+	function backupCurrentMessageVisibleState() {
+		_curmes    = kag.current;
+		_curmesvis = _curmes.visible;
+	}
+	function restoreCurrentMessageVisibleState() {
+		var sel = (_curmes.parent == kag.fore.base) ? _curmes.comp : _curmes;
+		sel.visible = _curmesvis;
+	}
+
+	function init(elm) {
+		with (elm) {
+			lineStep  = .linestep  if (.linestep  !== void);
+			pageStep  = .pagestep  if (.pagestep  !== void);
+			longStep  = .longstep  if (.longstep  !== void);
+			blockStep = .blockstep if (.blockstep !== void);
+			blockBaseName = .basename if (.basename !== void);
+			blockLeftMargin = .marginleft if (.marginleft !== void);
+			blockRightMargin = .marginright if (.marginright !== void);
+
+			blockBaseName = .basename if (.basename !== void);
+		}
+	}
+	function setup(elm, ui) {
+		// ヒストリアイテム個数
+		blockCount = getBlockCount();
+
+		// 配置ベースレイヤを決定
+		blockBaseLayer = createBlockBaseLayer();
+
+		// デフォルトパラメータの決定
+		dispHeight  = blockBaseLayer.height if (dispHeight === void);
+		blockHeight = dispHeight\5 if (blockHeight === void);
+		blockStep   = blockHeight  if (blockStep === void);
+		blockLeftMargin = 0 if (blockLeftMargin === void);
+		blockRightMargin = 0 if (blockRightMargin === void);
+
+		lineStep    = blockStep    if (lineStep === void);
+		pageStep    = (dispHeight \ blockStep) * blockStep if (pageStep === void);
+		longStep    = pageStep * 100 if (longStep === void);
+
+		var min = dispHeight \ blockStep;
+		dispButtonMax = (dispHeight - min*blockStep)\blockHeight + min + 1;
+		//dm("backlog.setup", dispButtonMax, dispHeight, blockHeight, blockStep);
+
+		// UI位置保存
+		if (ui !== void) {
+			_jumpButtonOffset    = getUIOffset(ui, jumpButtonName);
+			_vreplayButtonOffset = getUIOffset(ui, vreplayButtonName);
+		}
+
+		// スクロール範囲の決定
+		_scrollMax = getScrollMax();
+		scrollMin = longStep > 0 ? (scrollMax - longStep) : 0;
+	}
+	function getScrollMax(cnt = blockCount) {
+		var r = 0;
+		if (cnt > 0) {
+			r = (blockStep * (cnt-1)) + blockHeight - dispHeight;
+			if (r < 0) r = 0;
+			else {
+				r = ((r + blockStep -1) \ blockStep) * blockStep;
+			}
+		}
+		return r;
+	}
+	function createBlockBaseLayer() {
+		var base;
+		base = kag.current.names[blockBaseName] if (blockBaseName != "");
+		//dm("blockBase", blockBaseName, base);
+		base = kag.current if (base === void);
+		var ret = new global.Layer(base.window, base.parent);
+		with (ret) {
+			.name = "blockBaseLayer";
+			.hasImage = false;
+			.setPos(base.left, base.top, base.width, base.height);
+			.absolute = base.absolute;
+			.hitType = htMask;
+			.hitThreshold = 256;
+			.visible = true;
+		}
+		return ret;
+	}
+	function removeBlockBaseLayer() {
+		invalidateAllBlockButtons();
+		clearAllTextBlocks();
+		invalidate blockBaseLayer if (blockBaseLayer);
+		blockBaseLayer = void;
+	}
+
+
+	function onUiload(elm) {}
+	function onUiloaded(elm, ui) {
+		// 初期化
+		setup(...);
+		// 開始時は最終行を表示
+		scroll = _scrollMax;
+	}
+
+	function getUIOffset(ui, name) {
+		var a, b;
+		if ((a = ui[name]) === void || (b = ui[blockBaseName]) === void) return %[];
+		return %[ x:(a.x - b.x), y:(a.y - b.y) ];
+	}
+
+
+	function clearAllTextBlocks() {
+		var ext = [];
+		ext.assign(_textBlocks);
+		for (var i = 1, cnt = ext.count; i < cnt; i+= 2) {
+			if (ext[i] !== void) invalidate ext[i];
+		}
+		(Dictionary.clear incontextof _textBlocks)();
+	}
+	function updateTextBlock(pos) {
+		var list = getTextBlockViewList(pos), update = %[], ret;
+		hideAllBlockButton();
+		if (list !== void) {
+			for (var i = list.count-1; i >= 0; i--) {
+				var id = list[i];
+				if (id == "" || update[id] !== void) {
+					dm((id == "" ? "空ID" : ("多重ID:"+id)), pos);
+					continue;
+				}
+				var bk;
+				if (_textBlocks[id] !== void) {
+					bk = update[id] = _textBlocks[id];
+					delete            _textBlocks[id];
+				} else {
+					bk = update[id] = createTextBlock(id);
+				}
+				if (bk !== void) {
+					setTextBlockPos(id, bk, pos, i);
+					ret = bk.blockInfo;
+				}
+			}
+			clearAllTextBlocks();
+			(Dictionary.assign incontextof _textBlocks)(update, false);
+		} else {
+			clearAllTextBlocks();
+		}
+		return ret;
+	}
+	function getTextBlockViewList(pos) {
+		var num = pos \ blockStep;
+		if (pos - num * blockStep >= blockHeight) num++; // 行間から開始する場合は次の番号
+
+		var r = [], y = num * blockStep, bottom = pos + dispHeight;
+		while (y < bottom && num < blockCount) r.add(num++), y += blockStep;
+		return r;
+	}
+	function createTextBlock(id) {
+		var info = getBlockInfo(id);
+		if (info === void) return void;
+		var lay = createBlockLayer(info);
+		drawTextBlock(lay, info);
+		return lay;
+	}
+	function setTextBlockPos(id, lay, pos, n) {
+		lay.top = id * blockStep - pos;
+		showBlockButton(...);
+	}
+	function createBlockLayer(info) {
+		var base = blockBaseLayer;
+		var lay = new KAGLayer(kag, base);
+		with (lay) {
+			.blockInfo = info;
+
+			.name = info.id;
+			.left = blockLeftMargin;
+			.setSize(base.width - blockLeftMargin, blockHeight);
+			.hitType = htProvince;
+			.visible = true;
+			.absolute = _blockLayerAbsolute;
+		}
+		return lay;
+	}
+	function drawTextBlock(lay, info) {
+		with (lay) {
+			//.fillRect(0, 0, .width, .height, 0x80FFFFFF);
+			lay.font.face = kag.chDefaultFace;
+			_render.draw(lay, 0, _render.defaultRubySize, .width - blockRightMargin, .height, getTextBlockText(info));
+		}
+	}
+	function getTextBlockText(info) { with (info) return (.name != "" ? dispNameFilter(.disp != "" ? .disp : .name) : "") + .text; }
+	function getBlockCount { try { return playerObject.getHistoryCount(...); } catch {} }
+	function getBlockInfo  { try { return playerObject.getHistoryData(...);  } catch {} }
+
+	var _blockButtonInfoList = [];
+	function hideAllBlockButton(first) {
+		_blockButtonInfoList.clear();
+		var btns = kag.current.buttons;
+		if (first) {
+			for (var i = 0; i < dispButtonMax; i++) {
+				setButtonProp(jumpButtonName+i,    "parent",  blockBaseLayer, btns);
+				setButtonProp(vreplayButtonName+i, "parent",  blockBaseLayer, btns);
+				setButtonProp(jumpButtonName+i,    "absolute", _jumpButtonAbsolute,    btns);
+				setButtonProp(vreplayButtonName+i, "absolute", _vreplayButtonAbsolute, btns);
+				setButtonProp(jumpButtonName+i,    "left", _jumpButtonOffset.x,    btns);
+				setButtonProp(vreplayButtonName+i, "left", _vreplayButtonOffset.x, btns);
+			}
+		}
+		for (var i = 0; i < dispButtonMax; i++) {
+			setButtonProp(jumpButtonName+i,    "visible", false, btns);
+			setButtonProp(vreplayButtonName+i, "visible", false, btns);
+		}
+	}
+	function invalidateAllBlockButtons {
+		if (!blockBaseLayer) return;
+		//[XXX]
+		try {
+			var tmp = kag.temporaryLayer;
+			with (blockBaseLayer) {
+				.hasImage = true;
+				tmp.setSize(.width, .height);
+				tmp.piledCopy(0, 0, blockBaseLayer, 0, 0, .width, .height);
+				kag.current.operateRect(.left, .top, tmp, 0, 0, .width, .height, omAuto, .opacity);
+			}
+		} catch {}
+		kag.current.clearSystemButtons();
+	}
+	function showBlockButton(id, lay, pos, i) {
+		var info = lay.blockInfo;
+		var btns = kag.current.buttons;
+		_blockButtonInfoList[i] = id;
+
+		var top = id * blockStep - pos;
+		setButtonProp(jumpButtonName+i,    "top", top + _jumpButtonOffset.y,    btns);
+		setButtonProp(vreplayButtonName+i, "top", top + _vreplayButtonOffset.y, btns);
+		setButtonProp(jumpButtonName+i,    "visible", true, btns) if (_jumpEnabled);
+		setButtonProp(vreplayButtonName+i, "visible", true, btns) if (info.voice !== void);
+	}
+
+	var _scrollMin;
+	property scrollMin {
+		getter { return _scrollMin; }
+		setter(v) {
+			if (v < 0) v = 0;
+			else if (v > _scrollMax) v = _scrollMax;
+			_scrollMin = v;
+		}
+	}
+
+	var _scrollMax;
+	property scrollMax {
+		getter { return _scrollMax; }
+		setter(v) {
+			if (v < 0) v = 0;
+			_scrollMax = v;
+			updateButtonState();
+			scroll = _scroll;
+		}
+	}
+	var _scroll, _topCaption;
+	property scroll {
+		getter { return _scroll; }
+		setter(v) {
+			if (!isvalid this) return;
+			var max = _scrollMax;
+			if (v < 0) v = 0;
+			else if (v > max) v = max;
+			if (_scroll === void || _scroll != v) {
+				var old = _scroll;
+				var now = _scroll = (int)v;
+				if (old === void) {
+					onScrollInit();
+				} else {
+					onScrollTop()      if (old >  0    && now == 0);
+					onScrollBottom()   if (old <  max  && now == max);
+					onScrollUnTop()    if (old == 0    && now >  0);
+					onScrollUnBottom() if (old == max  && now <  max);
+				}
+				checkSliderMin (now);
+				updateSliderPos(now);
+				var info = updateTextBlock(now);
+				if (info !== void && _topCaption != info.title) {
+					_topCaption = info.title;
+					updateCaption(_topCaption);
+				}
+			}
+		}
+	}
+	property canScroll     { getter { return _scrollMax > 0; } }
+	property canScrollUp   { getter { return _scrollMax > 0 && _scroll > 0; } }
+	property canScrollDown { getter { return _scrollMax > 0 && _scroll < _scrollMax; } }
+
+	function onScrollTop()      { updateUpButton(false);   }
+	function onScrollUnTop()    { updateUpButton(true);    }
+	function onScrollBottom()   { updateDownButton(false); }
+	function onScrollUnBottom() { updateDownButton(true);  }
+	function onScrollInit()     { updateButtonState(); hideAllBlockButton(true); }
+	function updateButtonState() {
+		updateUpButton  (canScrollUp);
+		updateDownButton(canScrollDown);
+		updateSlider();
+	}
+	function updateCaption {}
+
+	function updateUpButton  (en) { setButtonProp(  upButtonList, "enabled", en); }
+	function updateDownButton(en) { setButtonProp(downButtonList, "enabled", en); }
+	function updateSlider() {
+		var names = setButtonProp(sliderName, "enabled", canScroll);
+		setButtonProp(sliderName, "min", scrollMin, names);
+		setButtonProp(sliderName, "max", scrollMax, names);
+		setButtonProp(sliderName, "step", pageStep, names);
+	}
+	function checkSliderMin(pos) {
+		if (pos <= scrollMin && scrollMin > 0) {
+			var old = scrollMin;
+			scrollMin -= longStep;
+			runOnceDelayedTrigger(sliderMinMove);
+		}
+	}
+	function sliderMinMove() {
+		if (!isvalid this) return;
+		var target = stopSliderAction();
+		if (target !== void) {
+			var old = target.min;
+			var act = %[ min:%[ handler:MoveAction, start:old, value:scrollMin, time:getScrollTime(old - scrollMin), accel:scrollAccel ] ];
+			kag.beginAction(target, act,, true);
+		}
+	}
+	function stopSliderAction(names = kag.current.names) {
+		var target  = names[sliderName];
+		if (target !==  void) kag.stopAction(target);
+		return target;
+	}
+	var _sliderUpdating;
+	function updateSliderPos(pos) {
+		if (!canScroll || _sliderUpdating) return;
+		_sliderUpdating = true;
+		setButtonProp(sliderName, "position", pos);
+		_sliderUpdating = false;
+	}
+	function onSliderChanged(pos, drag) {
+		if (!canScroll || _sliderUpdating) return;
+		_sliderUpdating = true;
+		kag.stopAction(this);
+		scroll = pos;
+		_sliderUpdating = false;
+	}
+	function setButtonProp(name, prop, value, names = kag.current.names) {
+		if (typeof name == "Object") {
+			for (var i = name.count-1; i >= 0; i--)
+				setButtonProp(name[i], prop, value, names);
+		} else if (name != "") {
+			var target = names[name];
+			if (target !== void) target[prop] = value;
+		}
+		return names;
+	}
+
+	// 機能ボタンの UIパーツ名デフォルト
+	var sliderName     =   "slider";
+	var   upButtonList = [ "up",   "pageup",   "top" ];
+	var downButtonList = [ "down", "pagedown", "end" ];
+
+	var lineStep;
+	var pageStep;
+	var longStep;    // １回に表示する最大
+
+	var blockCount;  // ブロックのトータル個数
+	var blockStep;   // ブロックの配置間隔
+	var blockHeight; // ブロックの高さ blockHeight < blockStep であること
+	var blockLeftMargin; // ブロック左マージン
+	var blockRightMargin; // ブロック右マージン
+
+	var dispHeight;
+	var dispButtonMax;
+	var blockBaseLayer;
+	var blockBaseName     = "scroll";
+	var jumpButtonName    = "jump";
+	var vreplayButtonName = "vreplay";
+	var _jumpButtonOffset;
+	var _vreplayButtonOffset;
+	var _blockLayerAbsolute = 0;
+	var _jumpButtonAbsolute = 1000;
+	var _vreplayButtonAbsolute = 1000;
+
+	var scrollAccel = -1;
+
+	function scrollDown()  { doScroll( lineStep); }
+	function scrollUp()    { doScroll(-lineStep); }
+	function nextPage()    { doScroll( pageStep); }
+	function prevPage()    { doScroll(-pageStep); }
+	function endPage()     { doScroll( scrollMax); }
+	function topPage()     { doScroll(-scrollMax); }
+	function prevStop()    { if (_jumpEnabled) doScrollToStop("Prev"); else topPage(); }
+	function nextStop()    { if (_jumpEnabled) doScrollToStop("Next"); else endPage(); }
+
+	function doWheelScroll(delta) {
+		doScroll(-(int)(delta*blockStep/120));
+	}
+	function doScrollToStop(dir) {
+		var pos;
+		try {
+			pos = playerObject[@"get${dir}HistoryPagePoint"](scroll \ blockStep) * blockStep;
+		} catch {
+			return;
+		}
+		if (pos < 0) pos = 0;
+		else if (pos > scrollMax) pos = scrollMax;
+		startScrollAction(scroll, pos, getScrollTime(pos-scroll)*3) if (scroll != pos);
+	}
+
+	function doScroll(move) {
+		kag.stopAction(this);
+		var to,  from = scroll;
+		/**/to = from + move;
+		if (to < scrollMin) to = scrollMin;
+		else if (to > scrollMax) to = scrollMax;
+		startScrollAction(from, to, getScrollTime(to-from)) if (from != to);
+	}
+	function getScrollTime(dist) { return 200; }
+	function startScrollAction(from, to, time) {
+		if (time <= 0) scroll = to;
+		else {
+			kag.stopAction(this);
+			_scrollTargetPos = to;
+			var act = %[ scroll:%[ handler:MoveAction, start:from, value:to, time:time, accel:scrollAccel ] ];
+			kag.beginAction(this, act, onScrollActionStop, true);
+		}
+	}
+	var _scrollTargetPos;
+	function getScrollActionTargetPos() {
+		return _scrollTargetPos !== void ? _scrollTargetPos : scroll;
+	}
+	function onScrollActionStop() {
+		if (!isvalid this) return;
+		//dm("onScrollActionStop", _scrollTargetPos, scroll);
+		_scrollTargetPos = void;
+	}
+
+	function onKeyDown(key, sft) {
+		if (kag.currentDialog === void) switch (key) {
+		case VK_HOME:  topPage();    return true;
+		case VK_END:   endPage();    return true;
+		case VK_UP:    scrollUp();   return true;
+		case VK_DOWN:  scrollDown(); return true;
+		case VK_PRIOR:
+		case VK_LEFT:  prevPage();   return true;
+		case VK_NEXT:
+		case VK_RIGHT: nextPage();   return true;
+		case VK_RETURN:
+		case VK_ESCAPE: close(); return true;
+		}
+	}
+	
+
+
+	function vreplay(num) {
+		var info = getBlockInfo(_blockButtonInfoList[num]);
+		if (info !==  void && (typeof info.voice != "undefined")) onPlayVoice(info.voice);
+	}
+	function onPlayVoice(voice) {
+		try {
+			switch (typeof voice) {
+			case "String":
+				Scripts.eval(voice); if (voice != "");
+				break;
+			case "Object":
+				var sel = (typeof kag.playAllVoice == "Object") ? kag : world_object.env;
+				sel.stopAllVoice();
+				sel.playAllVoice(voice);
+				break;
+			}
+		} catch {}
+	}
+
+	var _jumpMessage = "ジャンプしますか？";
+	var _jumpTarget;
+	function jump(num, *) {
+		if (!(isvalid this) || !_jumpEnabled) return;
+		showJumpView(num, true);
+		internalJump(num, _blockButtonInfoList[num], *);
+	}
+	function internalJump(num, target, ask = true) {
+		if (ask) askYesNo(_jumpMessage, "確認", onJump, onJumpCancel, target);
+		else onJump(target);
+	}
+	function onJumpCancel() {
+		hideJumpView(void, false);
+	}
+	function onJump(target) {
+		_jumpTarget = target;
+		_curmesvis = false;
+		//kag.current.clearSystemButtons();
+		removeBlockBaseLayer();
+		kag.process(,"*jump",, true); 
+	}
+	function invokeJump() {
+		kag.setConductorToMain();
+		playerObject.goToHistory(_jumpTarget);
+		terminator.invoke();
+	}
+
+	function showJumpView(num, fix) {
+		if (!(isvalid this) || !_snapshotEnabled) return;
+		if (fix !== void) _fixJumpView = fix;
+		else if (_fixJumpView) return;
+		var id = _blockButtonInfoList[num];
+		if (_snapshot === void) {
+			_snapshot = new global.Layer(kag, kag.current.parent);
+			with (_snapshot) {
+				.name = "snapshotLayer";
+				.setPos(0, 0, kag.scWidth, kag.scHeight);
+				.absolute = kag.current.absolute-1;
+				.hitType = htMask;
+				.hitThreshold = 256;
+				.visible = false;
+				.sceneID = -1;
+			}
+		}
+		if (_snapshot.sceneID != id) {
+			var info = getBlockInfo(id);
+			playerObject.getSnapshot(_snapshot, info.state) if (info !== void);
+			_snapshot.sceneID = id;
+		}
+		_snapshot.visible = true;
+	}
+
+	var _fixJumpView;
+	function hideJumpView(num, fix) {
+		if (!(isvalid this) || !_snapshotEnabled) return;
+		if (fix !== void) _fixJumpView = fix;
+		else if (_fixJumpView) return;
+		if (_snapshot) {
+			_snapshot.visible = false;
+		}
+	}
+
+}
+
+																
+////////////////////////////////////////////////////////////////
+
+
+class HistoryTextStore
+{
+	// dummy variables
+	var fontName;
+	var fontBold;
+	var fontHeight;
+	var lineHeight;
+	var verticalView;
+	var everypage;
+	var autoReturn;
+	var maxLines;
+
+	// dummy properties
+	property parent    { setter(v){} getter{} }
+	property absolute  { setter(v){} getter{} }
+	property name      { setter(v){} getter{} }
+	property everypage { setter(v){} getter{} }
+	// proxy property
+	property visible { getter { return window.historyShowing; } }
+
+	// dummy functions
+	function setOptions {}
+	function dispInit   {}
+	function dispUninit {}
+//	function fontUpdate {}
+	function windowMouseWheel {}
+
+	// public variables
+	var storeState = !SystemConfig.DisableBacklogStoreState;
+	var maxPages   =  SystemConfig.BacklogStorePages > 0 ? SystemConfig.BacklogStorePages : 100;
+	var fadeTime   = 300;
+
+	var stored;
+	var currentInfo = %[];
+	var _currentText = "";
+	property currentText { getter { return _currentText.replace(/\n/g, ""); } setter(v) { _currentText = v; } }
+	property currentName { getter {
+		var r;
+		if (currentInfo) {
+			r = currentInfo.disp;
+			r = currentInfo.name if (r == "");
+		}
+		return r;
+	} }
+
+	// local variables
+	var window;
+	var data = [];
+
+	function HistoryTextStore(win, par) {
+		window = win;
+	}
+	function finalize() {}
+
+	function clear() {
+		data.clear();
+		repage(true);
+	}
+
+	function repage(force) {
+		if (stored || force) {
+			stored = false;
+			_currentText = "";
+			currentInfo = %[];
+		}
+	}
+
+	function autoReline() { reline(); }
+	function reline(pagebreak) {
+		if (stored) {
+			if (!pagebreak) {
+				currentInfo.text += "\n";
+				_currentText += "\n";
+			} else {
+				data.add(currentInfo);
+				data.shift() if (data.count > maxPages);
+			}
+		}
+	}
+
+	function store(ch, isgraph) {
+		stored = true;
+		_currentText += ch;
+		if (isgraph && storeGraph(ch)) return;
+		currentInfo.text += ch;
+	}
+	function storeGraph(ch) {
+	}
+
+	function storeName(name, elm) {
+		if (name != "") with (currentInfo) {
+			.disp = name;
+			.name = (elm !== void && elm.name != "") ? elm.name : name if (.name == "");
+		}
+	}
+	function setNewAction(act) { currentInfo.voice = act if (act != ""); }
+	function clearAction() {}
+
+	function preIndent   { currentInfo.text += "%@";  }
+	function beginIndent { currentInfo.text += "\\i"; }
+	function endIndent(done) {
+		if (!done) /**/    currentInfo.text += "\\r";
+	}
+
+	function save() {
+		if (!storeState) return void;
+		var dic = %[];
+		(dic.data = []).assignStruct(data);
+		return dic;
+	}
+	function load(dic) {
+		if (!storeState) return;
+		if (dic !== void && dic.data !== void)
+			data.assignStruct(dic.data);
+	}
+
+
+	function getHistoryCount    { return data.count; }
+	function getHistoryData(id) { return data[id];   }
+
+	function onDispName(elm, ch) {
+		currentInfo.name = ch.name;
+@if (ENABLE_LOGFACE)
+		storeFace(...);
+@endif
+	}
+
+@if (ENABLE_LOGFACE)
+	function checkStoreFace(elm, ch) {
+		return (elm.disp == "" || ((string)elm.disp).indexOf("？") < 0);
+	}
+	function storeFace(elm, ch) {
+		if (checkStoreFace(...)) with (currentInfo) {
+			.chara = ch.name;
+			.face  = ch.face;
+			.pose  = ch.pose;
+			.dress = ch.dress;
+		}
+	}
+@endif
+}
+
+global.HistoryLayer = HistoryTextStore;
+addKagHandler("historyopt", function { return 0; }, false);
+
+with (KAGEnvironment) {
+	// バージョンにより内部仕様が違う
+	if (typeof .dispname == "Object") {
+		._backlogHook_onDispName = function(elm) {
+			if (elm.name != "" && !skipNoDisp) {
+				var ch = getCharacter(elm.name);
+				if (ch !== void) try {
+					kag.historyLayer.onDispName(elm, ch);
+				} catch {}
+			}
+			return _backlogHook_onDispName(...);
+		} incontextof null;
+		.dispname <-> ._backlogHook_onDispName;
+	}
+}

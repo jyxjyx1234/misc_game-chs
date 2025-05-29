@@ -1,0 +1,215 @@
+// --------------------------------------------------------
+// シーン回想モード
+// --------------------------------------------------------
+
+// システムメニューとして登録
+setSystemMenuStorage("scenemode.ks");
+
+
+// ----------------------------------------------------------------------------
+// シーンモード用クラス
+
+class SceneGalleryMode extends GalleryMode
+{
+	var button;
+	function SceneGalleryMode(elm) {
+		button = new GalleryButton(this, elm);
+		super.GalleryMode(button, elm, getSelfClass());
+		setCaptionOptions(elm);
+	}
+	function finalize() {
+		invalidate button if (button !== void);
+		super.finalize(...);
+	}
+	function getSelfClass() { return .SceneGalleryMode; }
+
+	function getTrimString(str) { return (typeof str == "String") ? str.trim() : str; }
+
+	// ラベルとシナリオファイルを取得する
+	function getSceneLabel(str, def = "") {
+		var scene, label, skipto;
+		if (typeof str == "String" && str != "") {
+			var ast = str.indexOf("*");
+			if (ast < 0) scene = str.trim();
+			else {
+				var div = str.split("*");
+				scene  = getTrimString(div[0]);
+				label  = getTrimString(div[1]);
+				skipto = getTrimString(div[2]);
+			}
+		}
+		scene = def if (scene == "");
+		return %[ storage:filterScenarioFile(scene), target:label, skipto:skipto ];
+	}
+	function filterScenarioFile(file) { return Storages.chopStorageExt(file); }
+
+	// フラグ用のラベルか名前を取得する
+	function getSceneFlag(tag, storage) {
+		var ret = "", at;
+		if (typeof tag == "String" && (at = tag.indexOf("@")) >= 0) {
+			ret = tag.substr(at+1).trim();
+		} else {
+			ret = getSceneLabel(tag, storage);
+			ret = "" if (ret.target == "");
+		}
+		return ret;
+	}
+
+	// csvファイルデフォルト
+	function getDefaultCsvFile() { return "scenelist.csv"; }
+
+	// csv読み込み
+	function doLine(columns, lineNo) {
+		if (super.doLine(...)) return true;
+		var info = %[];
+		with (info) {
+			.thumb  = columns[0];
+			.orig   = columns[1];
+			.thumb  = .thumb.trim() if (typeof .thumb === "String");
+			.orig   = .orig.trim()  if (typeof .orig  === "String");
+			.scene  = getSceneLabel(columns[2]);
+			.flag   = getSceneFlag( columns[3], .scene.storage);
+			.comment= columns[4];
+		}
+		items.add(info);
+		return true;
+	}
+
+	// GalleryModeから委譲
+	function getThumbnail(pos) { return items[pos].thumb; }
+	function getOriginal(pos)  { return items[pos].orig; }
+
+	function isSeen(num) {
+		var flagname, info = items[num];
+		if (info === void) return null;
+		with (info) {
+			if (.scene.storage == "") return false; // 回想がない（空白）
+			if (.flag          == "") return true;  // フラグ設定がない（常にON）
+			if (typeof .flag == "String") flagname = .flag;
+			else flagname = ('trail_' + .flag.storage).toLowerCase() + '_' + .flag.target;
+		}
+		return tf.allseen || sf[flagname];
+	}
+
+	/**
+	 * 開いている割合を調べる
+	 * @return %[ seen:見た枚数, total:全体枚数, percent:パーセント ];
+	 */
+	function getSeenCounts() {
+		var total = 0, seen = 0;
+		for (var i = count-1; i >= 0; i--) {
+			var flag = isSeen(i);
+			switch (flag) {
+			case null: break;
+			default:
+				total++;
+				seen++ if (flag);
+				break;
+			}
+		}
+		return %[ seen:seen, total:total, percent:(total > 0) ? seen*100/total : 0 ];
+	}
+
+	var selected;
+	function onSelect(num) {
+		selected = num;
+	}
+
+	var defaultScenarioExt = [ ".ks", ".txt" ];
+	function fixScenarioExt(storage) {
+		if (storage != "") with (Storages) {
+			// 拡張子補完処理
+			if (.extractStorageExt(storage) == "") {
+				var ext = defaultScenarioExt;
+				ext = [ ext ] if (typeof ext == "String");
+				for (var i = 0; i < ext.count; i++) {
+					if (.isExistentStorage(storage + ext[i])) {
+						storage += ext[i];
+						break;
+					}
+				}
+			}
+		}
+		return storage;
+	}
+	function view() {
+		var num  = selected;
+		var info = items[num];
+		var target, skipto, storage, endscn, endlbl;
+		with (info.scene) target=.target, skipto=.skipto, storage=fixScenarioExt(.storage);
+		if (typeof info.flag == "Object")
+			with (info.flag) endlbl=.skipto, endscn=fixScenarioExt(.storage);
+		@if (DEBUG)
+		if (checkLabelExist(storage, target) ||
+			checkLabelExist(storage, skipto)) storage="scenemode.ks", target="error", skipto=void;
+		@endif
+
+		loadFunction(%[
+		doneStorage : 'scenemode.ks', // 終了時のジャンプ先
+		doneTarget  : '*endrecollection',
+		storage     : storage,
+		target      : (target == "") ? void : ("*" + target),
+		skipto      : (skipto == "") ? void : ("*" + skipto),
+		endlabel    : (endlbl == "") ? void : ("*" + endlbl),
+		endstorage  : endscn
+			]);
+
+		return (page+1)*1000 + num; // ページと位置を保存： +1するのは0にならないようにするため
+	}
+	@if (DEBUG)
+	function checkLabelExist(storage, label) {
+		if (label == "") return;
+		label = "*"+label;
+		var parser = new KAGParser(), error = false;
+		try {
+			parser.loadScenario(storage);
+			parser.goToLabel(label);
+		} catch { error = true; }
+		invalidate parser;
+		if (error) {
+			editCurrentLineScenario(storage, 0);
+			kag.errorCmd(@"scenemode:${storage}に${label}がありません");
+			return true;
+		}
+	}
+	@endif
+	function enter(num) { drawCaption(items[num].comment); }
+	function leave()    { drawCaption(); }
+
+	// キャプション関連
+	var caption, captionOptions = [], captionAlign = 5;
+	var captionFontFace, captionFontSize, captionFontBold;
+	function drawCaption(str) {
+		if (caption === void || caption.length === 0) return;
+		var target = kag.current.names[caption];
+		if (target === void) return;
+
+		with (target) .fillRect(0, 0, .imageWidth, .imageHeight, 0);
+		if (typeof str === "String" && str.length > 0) {
+			with (target.font) {
+				.face   = captionFontFace if (captionFontFace !== void);
+				.height = captionFontSize if (captionFontSize !== void);
+				.bold   = captionFontBold if (captionFontBold !== void);
+			}
+			drawButtonCaptionWithAlign(target, 0, 0, captionAlign, str, captionOptions*);
+		}
+	}
+	function setCaptionOptions(elm) {
+		if (elm.caption === void) return;
+		caption         =  elm.caption;
+		captionFontFace =  elm.captionFontFace if (elm.captionFontFace !== void);
+		captionFontSize = +elm.captionFontSize if (elm.captionFontSize !== void);
+		captionFontBold = +elm.captionFontBold if (elm.captionFontBold !== void);
+		captionOptions  =  elm.captionOptions  if (elm.captionOptions !== void);
+		captionAlign    = +elm.captionAlign    if (elm.captionAlign   !== void);
+	}
+
+	function update() {
+		drawCaption();
+		super.update(...);
+	}
+}
+
+// ページ位置保存用
+SceneGalleryMode.lastPage = 0;
+

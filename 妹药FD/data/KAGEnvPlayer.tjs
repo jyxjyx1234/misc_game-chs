@@ -1,0 +1,2253 @@
+Plugins.link("psbfile.dll") if (typeof global.PSBFile == "undefined");
+
+/**
+ * パース処理/スナップショット処理用のKAGEnv
+ */
+class KAGEnvForParse extends KAGEnvironment {
+
+	// パーサ
+	var parser;
+	// スナップショット取得用レイヤ
+	var baseLayer;
+
+	// ダミーSEオブジェクト
+	var dummySE;
+
+	function KAGEnvForParse(kag) {
+		super.KAGEnvironment(kag);
+		baseLayer = new Layer(kag, kag.primaryLayer);
+		baseLayer.name = "EnvPlayerスナップ用";
+		baseLayer.setSize(kag.scWidth, kag.scHeight);
+		dummySE = new SESoundBuffer(kag, -1);
+	}
+
+	function finalize {
+		invalidate baseLayer if (baseLayer);
+		invalidate dummySE   if (dummySE);
+		super.finalize(...);
+	}
+
+	// 描画先をKAG以外にする
+	property foreBase {
+		getter() {
+			return baseLayer;
+		}
+	}
+
+	// 描画先をKAG以外にする
+	property backBase {
+		getter() {
+			return baseLayer;
+		}
+	}
+
+	/**
+	 * スナップショットを取得する
+	 * @param layer 格納先レイヤ。画面サイズまで拡大される
+	 */
+	function getSnapshot(layer) {
+		with (layer) {
+			.setSize(baseLayer.width, baseLayer.height);
+			.face = dfAlpha;
+			.piledCopy(0,0,baseLayer,0,0,.width,.height);
+		}
+	}
+
+	var sflags = [];
+	
+	function clearSFlags() {
+		sflags.clear();
+	}
+
+	function setSFlag(name) {
+		sflags.add(name);
+	}
+
+	// 次コマンドにタグ割り込みさせるための口
+	function addTag() {
+		if (parser !== void) {
+			parser.addTag(...);
+		}
+	}
+	function getSEOBJ(id) {
+		return dummySE;
+	}
+};
+
+function convertSceneText(array)
+{
+	if (array !== void) {
+		var ret = %[];
+		ret.name  = array[0];
+		ret.disp  = array[1];
+		ret.text  = array[2];
+		var voice = array[3];
+		if (typeof voice == "String") {
+			ret.voice = [%[name:ret.name, voice:voice]];
+		} else {
+			ret.voice = voice;
+		}
+		ret.flag  = array[4];
+		ret.state = array[5];
+		//dm(@"ボイス展開:${ret.voice}");
+		return ret;
+	}
+}
+
+/**
+ * シナリオデータ参照用クラス
+ */
+class StorageData {
+
+	var storage;
+	var data;
+	var sceneMap = %[];
+
+	function StorageData(storage) {
+		this.storage = storage;
+		var path = storage + ".scn";
+		if (Storages.isExistentStorage(path)) {
+			data = new PSBFile(path);
+			var scenes = data.root.scenes;
+			if (scenes !== void) {
+				var count = scenes.count;
+				for (var i=0;i<count;i++) {
+					var scene = scenes[i];
+					if (scene.label != "") {
+						sceneMap[scene.label] = scene;
+					}
+				}
+			}
+		}
+	}
+
+	function finalize() {
+		if (data) {
+			invalidate data;
+		}
+	}
+
+	property hash {
+		getter() {
+			return data !== void && data.root.hash !== void ? data.root.hash : void;
+		}
+	}
+
+	function findScene(label) {
+		if (data && data.root.scenes) {
+			if (label == "") {
+				return data.root.scenes[0];
+			}
+			return sceneMap[label];
+		}
+	}
+
+	function findSceneLine(line) {
+		if (data && data.root.scenes) {
+			var scenes = data.root.scenes;
+			var count = scenes.count;
+			for (var i=0;i<count-1;i++) {
+				var scene = scenes[i];
+				var nscene = scenes[i+1];
+				if (line < nscene.firstLine) {
+					return scene;
+				}
+			}
+			if (count > 0) {
+				return scenes[count-1];
+			}
+		}
+	}
+
+	/**
+	 * テキスト情報を取得
+	 * @param label ラベル
+	 * @param idx インデックス
+	 * @param title タイトル情報をあわせて埋めて返す
+	 */
+	function getText(label, idx, title=false) {
+		var scene = findScene(label);
+		if (scene) {
+			var texts = scene.texts;
+			if (texts !== void) {
+				var ret = convertSceneText(texts[idx-1]);
+				if (ret !== void && title) {
+					ret.title = scene.title;
+				}
+				return ret;
+			}
+		}
+	}
+}
+
+/**
+ * シーン再生特化型プレイヤー
+ * 事前パースした特殊シナリオデータを再生する
+ *
+ * @scenestart storage=実行対象シナリオ target=処理対象ターゲット(数値を指定するとその行に進む) point=ジャンプ先ポイント
+ * 処理を開始する
+ * @sceneplay
+ * 処理実行(無限呼び出し)
+ */
+class KAGEnvPlayer
+{
+	var kag;      //< KAG参照
+	var env;      //< 処理対象環境
+	var parseEnv; //< パース処理用環境
+	var parser;   //< パーサ
+	var converting;
+	var readonlydb; //< DBが読み取り専用(0:書き込み可, 1:XP3アーカイブ内, -1:ファイルが読み取り専用)
+	var forceReadOnly = false;
+
+	var scenePath = System.exePath  +"data/scenario/"; // シーンデータ格納先
+	var dependFile = System.exePath + "setup/sceneparser/depend.txt"; // 依存情報データ格納先
+	var sceneList = "!scnlist.txt"; // 処理対象シナリオ一覧
+
+	// パーサの初期化
+	function initParser() {
+		var listpath = Storages.getPlacedPath(sceneList);
+		readonlydb = (listpath.indexOf(">") >= 0 || forceReadOnly);
+		if (parser !== void && !readonlydb) {
+			parser.loadDepend(dependFile);
+			parser.initDepend(getFileList());
+		}
+	}
+
+	/**
+	 * コンストラクタ
+	 */
+	function KAGEnvPlayer(kag, env, forceReadOnly) {
+		this.kag = kag;
+		this.env = env;
+		this.forceReadOnly = forceReadOnly;
+		parseEnv = new KAGEnvForParse(kag);
+		if (typeof global.SceneParser == "Object") {
+			parser = new SceneParser(parseEnv, scenePath);
+		}
+		initParser();
+	}
+
+	/**
+	 * ファイナライザ
+	 */
+	function finalize() {
+		clearInfo();
+		clearHistory();
+		clearHistoryOfStore();
+		if (debugWindowEnabled) {
+			if (parser !== void && !readonlydb) {
+				dm("データダンプ");
+				parser.saveDepend(dependFile);
+			}
+		}
+		if (parser !== void) {
+			invalidate parser;
+		}
+	}
+
+	function errorCmd() {
+		kag.errorCmd(...);
+	}
+
+	// ----------------------------------------------
+	// システム用ファンクション群
+	// ----------------------------------------------
+
+	function clearTag() {
+		kag.cancelDelay();
+		kag.conductor.pendings.clear();
+	}
+	
+	function addTagSimple(name) {
+		kag.conductor.enqueueTag(%[tagname:name]);
+	}
+	
+	function addTag(elm) {
+		kag.conductor.enqueueTag(elm);
+	}
+
+	/**
+	 * 既読情報
+	 * シーンごとに保持
+	 */
+	property readed {
+		getter() {
+			var r = kag.sflags.envPlayerSceneReaded;
+			if (r === void) {
+				r = %[];
+				kag.sflags.envPlayerSceneReaded = r;
+			}
+			return r;
+		}
+	}
+
+	/**
+	 * シーン全体が既読
+	 */
+	function isReadedScene() {
+		return curSceneName !== void && readed[curSceneName] >= textcount;
+	}
+
+	
+	/**
+	 * 既読状態取得
+	 * @param id テキストID
+	 * @return 既読状態
+	 */
+	function getReaded(id) {
+		if (curSceneName !== void && id != 0) {
+			return readed[curSceneName.toLowerCase()] >= id;
+		}
+		return false;
+	}
+	
+	/**
+	 * 既読設定
+	 * @param id テキストID
+	 */
+	function setReaded(id) {
+		if (curSceneName !== void && id != 0) {
+			if (id > readed[curSceneName]) {
+				readed[curSceneName.toLowerCase()] = id;
+				//dm(@"既読設定:${curScene}:${id}");
+			}
+		}
+	}
+
+	// -------------------------------
+
+	var SAVE_POINT = 0; // セーブポイント
+	var SAVE_STATE = 1; // セーブ用の状態
+	var SAVE_TEXT  = 2; // このセーブポイントで保存されるテキストID
+	var SAVE_FORCE = 3; // 強制保存指定
+	var SAVE_LINE  = 4; // 行番号
+	var SAVE_TEXTFLAG = 5;
+	var SAVE_LABEL = 6;
+
+	var TEXTFLAG_LINE   = 0x01;
+	var TEXTFLAG_NOER   = 0x02;
+	var TEXTFLAG_NOWAIT = 0x04;
+	var TEXTFLAG_EVENT  = 0x08; // イベント絵が表示されるタイミング検知用
+	var TEXTFLAG_STAGE  = 0x10; // 舞台絵が変更されるタイミング検知用
+	var TEXTFLAG_NOTEXT = 0x20; // テキストを表示しない
+
+	var scnStorage; // 実行中ストレージデータ
+	var scenario;  // 実行中シーン参照
+	var title;     // タイトル
+	var textcount; // 最大テキスト数
+	var spcount;   // 最大セーブポイント数
+	var startline; // 開始行
+	var lastline;  // 最大行
+
+	// シーン名からストレージ名を返す
+	function getStorage(sceneName) {
+		if (sceneName !== void) {
+			var n = sceneName.indexOf("*");
+			if (n >= 0) {
+				return sceneName.substr(0,n);
+			} else {
+				return sceneName;
+			}
+		}
+	}
+
+	// シーン名からラベル名を返す
+	function getLabel(sceneName) {
+		if (sceneName !== void) {
+			var n = sceneName.indexOf("*");
+			if (n >= 0) {
+				return sceneName.substr(n);
+			} else {
+				return "";
+			}
+		}
+	}
+
+	/**
+	 * 参照中シーンの行情報の取得
+	 * @param cur カーソル位置
+	 * @return 行情報
+	 */
+	function getLine(cur) {
+		if (scenario !== void) {
+			var lines = scenario.lines;
+			if (lines !== void) {
+				return lines[cur];
+			}
+		}
+		return void;
+	}
+
+	/**
+	 * 参照中シーンのテキスト情報の取得
+	 * @param idx テキストID
+	 */
+	function getText(idx) {
+		if (scenario !== void) {
+			var texts = scenario.texts;
+			idx--;
+			if (texts !== void) {
+				return convertSceneText(texts[idx]);
+			}
+		}
+	}
+
+	// 実行情報
+	var curSceneName; // 実行中のシーン名
+	var curPoint;     // 保存ポイント
+	var curState;     // 現在ステート(保存ポイントまたは表示中テキスト)
+	var cur;          // 実行ポイント
+
+	var curTextId;    // 現在のテキストID
+	var curRead;      // 現在のテキスト既読情報
+	var curText;      // 現在のテキストデータ
+	var curLine;      // 現在のテキストの元の行
+
+	// 現在のストレージ名
+	property curStorage { getter() { return getStorage(curSceneName); }}
+	property curLabel { getter() { return getLabel(curSceneName); }}
+
+	// 動作中かどうか
+	property working {
+		getter() {
+			return curSceneName !== void;
+		}
+	}
+
+	/**
+	 * 進行情報クリア
+	 */
+	function clearInfo() {
+		if (scenario) {
+			scenario = void;
+			clearScenePoint();
+		}
+		textcount = 0;
+		spcount = 0;
+		startline = 0;
+		lastline = 0;
+		curSceneName = void;
+		curPoint = void;
+		curState = void;
+		curTextId = void;
+		curRead = false;
+		curText = void;
+		curLine  = void;
+		cur = 0;
+	}
+	
+	/**
+	 * 情報クリア
+	 */
+	function clear() {
+		clearInfo();
+		clearHistory();
+		clearHistoryOfStore();
+		env.initEnv();
+		env.updateAll();
+		if (scnStorage !== void) {
+			invalidate scnStorage;
+			scnStorage = void;
+		}
+	}
+
+	/**
+	 * 情報リセット
+	 */
+	function reset() {
+		clearInfo();
+		clearHistory();
+		clearHistoryOfStore();
+		env.resetEnv();
+		env.updateAll();
+	}
+
+	// --------------------------------------------------------------
+
+	function getFileList(file = this.sceneList) {
+		var list = [];
+		var ret = [];
+		list.load(file);
+		var count = list.count;
+		for (var i=0;i<count;i++) {
+			var name = list[i];
+			if (name != "" && name.charAt(0) != "#" && name.indexOf(":") < 0) {
+				//dm("name:" + name);
+				name = Storages.extractStorageName(name.trim());
+				ret.add(name) if (name != "-");
+			}
+		}
+		return ret;
+	}
+
+	function internalConvertOne(storage, pwin, prefix) {
+		var canceled = false, rethrow;
+		converting = true;
+		// プログレスウィンドウの指定がない場合は作成する
+		var nopwin = (pwin === void);
+		if (nopwin) pwin = getProgressWindow([ storage ]);
+		var overlay = (typeof kag.setOverlayBitmap == "Object" && typeof kag.temporaryLayer == "Object") ? kag.temporaryLayer : void;
+		if (overlay) with (overlay) {
+			var w = kag.innerWidth, h = kag.innerHeight, type = .type;
+			.setImageSize(w, h);
+			.type = ltOpaque;
+			.fillRect(0, 0, w, h, 0);
+			if (!pwin) {
+				drawTextKinsokuRect(overlay, @'"${storage}"を変換中...',
+									%[ x:0, y:0, w:w, h:h, halign:0, valign:0, color:0xFFFFFF, fontface:"ＭＳ Ｐゴシック", fontheight:32 ]);
+			}
+			kag.setOverlayBitmap(overlay);
+			.type = type;
+			if (typeof System.breathe == "Object") System.breathe();
+		}
+		try {
+			// !pwin は null でも void でも真になる
+			parser.prepare("parsermacro.ks", "parseroption.txt");
+			if (!pwin) parser.parse(storage);
+			else {
+				pwin.caption = prefix + storage;
+				parser.parse(storage, pwin.progress, pwin.offset);
+			}
+		} catch (e) {
+			// ユーザーキャンセル判定
+			canceled = (e.message == "UserCanceled");
+			// キャンセル以外は後始末後に例外を再送する
+			if (!canceled) rethrow = e;
+		}
+		// 後始末
+		if (overlay) {
+			kag.setOverlayBitmap();
+			overlay.setImageSize(1,1);
+		}
+		// pwinを自分で作成した場合は破棄
+		if (nopwin && pwin) invalidate pwin;
+		converting = false;
+
+		// 例外再送
+		if (rethrow !== void) throw rethrow;
+
+		return canceled;
+	}
+
+	/**
+	 * プログレスウィンドウを取得する
+	 * @param list 捜査対象のファイルリスト
+	 * @return ウィンドウオブジェクト（失敗時はvoid）
+	 */
+	function getProgressWindow(list) {
+		if (typeof global.CreateSceneParserProgress == "Object")
+			return global.CreateSceneParserProgress(...);
+	}
+
+	/**
+	 * 全ファイルの変換を実行
+	 */
+	function convertList(list, pwin) {
+		var count = list.count;
+
+		dm("-- 変換開始 --");
+		for (var i=0;i<count;i++) {
+			var name = list[i];
+			try {
+				if (parser.isNeedParse(name)) {
+					dm(@"変換中:${name}");
+					// プログレスウィンドウを作成する
+					if (pwin === void) {
+						pwin = getProgressWindow(list);
+						if (pwin === void) pwin = null; // 作成に失敗した場合は再度作成しないように
+					}
+					clearStorage();
+					if (internalConvertOne(name, pwin, "[%d/%d]: ".sprintf(i+1, count))) break;
+				}
+				if (pwin) pwin.next();
+			} catch (e) {
+				dm(name + ":シナリオ変換エラー:" + e.message);
+			}
+		}
+		dm("-- 変換完了 --");
+
+		if (pwin) invalidate pwin;
+	}
+
+	/**
+	 * 該当ファイルだけ変換
+	 * @param storage 処理対象シナリオ名
+	 */
+	function convertOne(storage) {
+		dm(@"変換実行:${storage}:${Scripts.getTraceString()}");
+		if (!readonlydb && parser !== void) {
+			//依存情報再検索
+			parser.initDepend(getFileList());
+			//依存ファイル検索・1階層だけ
+			var dlist = parser.getAllDependStorageList(storage,false);
+			convertList(dlist);
+			parser.saveDepend(dependFile);
+		}
+	}
+
+	// 全ファイル変換
+	function convertAll() {
+		if (!readonlydb && parser !== void) {
+			var list = getFileList();
+			var pwin = getProgressWindow(list);
+			if (pwin === void) pwin = null;
+			parser.initDepend(list);
+			//依存ファイル検索
+			var dlist = [];
+			var dmap = %[];
+			var count = list.count;
+			for (var i=0;i<count;i++) {
+				parser.getAllDependStorageList(list[i], true, dlist, dmap);
+			}
+			convertList(dlist, pwin);
+			parser.saveDepend(dependFile);
+		}
+	}
+
+	/**
+	 * 全ファイルの変換結果消去
+	 */
+	function convertClean() {
+		clear();
+		if (readonlydb) {
+			System.inform("DBは読み取り専用です。クリーンアップできません");
+		} else {
+			if (parser !== void) {
+				// パースしてるファイルを全削除
+				var list = parser.getTargetList();
+				for (var i=0;i<list.count;i++) {
+					Storages.deleteFile(scenePath + list[i] + ".scn");
+				}
+				Storages.deleteFile(dependFile);
+				// [XXX] パス再構築（fstatのdeleteFileは吉里吉里のパスキャッシュに残るバグがある）
+				var dummy = System.exePath + "dummy/";
+				Storages.addAutoPath(dummy);
+				Storages.removeAutoPath(dummy);
+			}
+		}
+		initParser();
+	}
+
+	// -----------------------------------------------------------------------------
+	// 再生処理
+	// -----------------------------------------------------------------------------
+
+	// シーンを直接起動
+	function startText(scene, idx) {
+		try {
+			loadScene(scene);
+			goToText(idx);
+		} catch (e) {
+			clearInfo();
+			throw e;
+		}
+	}
+
+	/**
+	 * シーンファイルをチェックして読み込む
+	 * @param storage ストレージ名
+	 * @param target ラベル名または行番号
+	 * @param point ポイント指定またはポイントラベル指定(targetがラベル名だった場合のみ有効)
+	 */
+	function startScene(storage, target, point) {
+		storage = Storages.extractStorageName(storage).toLowerCase();
+		try {
+			if (storage == "") {
+				storage = curStorage;
+			}
+			if (debugWindowEnabled && parser !== void) {
+				convertOne(storage);
+			}
+			if (target != "" && ((string)target).charAt(0) != "*") {
+				// ターゲットが数値指定＝行指定
+				loadSceneLine(storage, +target);
+				goToLine(+target);
+			} else {
+				loadScene(storage + target);
+				// ラベルでのスキップ停止判定
+				kag.checkSkipToLabel(curLabel);
+				// 状態復帰のため0番ポイントにジャンプ
+				goToPoint(point === void ? 0 : point);
+			}
+		} catch (e) {
+			clearInfo();
+			throw e;
+		}
+	}
+
+	function initScenario() {
+		if (scenario) {
+			title     = scenario.title;
+			textcount = scenario.texts.count;
+			spcount   = scenario.spCount;
+			startline = scenario.startLine;
+			lastline  = scenario.lastLine;
+			curRead = getReaded(1);
+		}
+	}
+
+	function clearStorage() {
+		if (scnStorage !== void)  {
+			invalidate scnStorage;
+			scnStorage = void;
+		}
+		if (storageCache !== void) {
+			invalidate storageCache;
+			storageCache = void;
+		}
+	}
+
+	function initStorage(storage) {
+		if (scnStorage === void || scnStorage.storage != storage) {
+			clearStorage();
+			scnStorage = new StorageData(storage);
+		}
+	}
+
+	/**
+	 * シーンファイルを行指定で読み込む
+	 * @param storage シナリオファイル
+	 * @parma line 行番号
+	 */
+	function loadSceneLine(storage, line) {
+		clearInfo();
+		initStorage(storage);
+		scenario = scnStorage.findSceneLine(line);
+		initScenario();
+		if (scenario) {
+			curSceneName = storage + scenario.label;
+		}
+	}
+
+	/**
+	 * シーンファイルを読み込む
+	 * @param sceneName シーン名
+	 */
+	function loadScene(sceneName) {
+		clearInfo();
+		curSceneName = sceneName;
+		initStorage(curStorage);
+		scenario = scnStorage.findScene(curLabel);
+		initScenario();
+	}
+
+	/**
+	 * 指定セーブポイントまで移動
+	 * @param point ポイント番号またはポイント用ラベル
+	 */
+	function goToPoint(point) {
+		var newcur = 0;
+		var obj;
+
+		if (typeof point == "Integer") {
+			// 数値指定ポイント
+			while ((obj = getLine(newcur)) !== void) {
+				if (typeof obj == "Object" && typeof obj[SAVE_POINT] == "Integer" && obj[SAVE_POINT] >= point) {
+					restore(obj[SAVE_STATE]);
+					cur = newcur;
+					return;
+				}
+				newcur++;
+			}
+		} else {
+			// ラベル名指定ポイント
+			while ((obj = getLine(newcur)) !== void) {
+				if (typeof obj == "Object" && typeof obj[SAVE_POINT] == "Integer" && obj[SAVE_LABEL] == point) {
+					restore(obj[SAVE_STATE]);
+					cur = newcur;
+					return;
+				}
+				newcur++;
+			}
+		}
+		askYesNo(@"error:セーブデータの不整合が検出されました。正常動作は保障されませんが。該当シーンの冒頭から再開しますか？",
+				 "確認",
+				 function(param) { cur=0; } incontextof this,
+				 function(param) { clearInfo(); } incontextof this);
+	}
+
+	/**
+	 * 指定テキストまで移動
+	 * @param text テキストID
+	 */
+	function goToText(text) {
+		dm(@"テキスト:${text}までジャンプ");
+		var newcur = 0;
+		var obj;
+		while ((obj = getLine(newcur)) !== void) {
+			if (typeof obj == "Object" && typeof obj[SAVE_POINT] == "Integer" && obj[SAVE_TEXT] >= text) {
+				restore(obj[SAVE_STATE]);
+				cur = newcur;
+				//dm("テキストジャンプ完了");
+				return;
+			}
+			newcur++;
+		}
+		askYesNo(@"error:指定テキスト ${text} まで移動できません。該当シナリオの冒頭から再開しますか？",
+				 "確認",
+				 function(param) { cur=0; } incontextof this,
+				 function(param) { clearInfo(); } incontextof this);
+	}
+
+	/**
+	 * 指定行まで移動
+	 * @param line 行番号
+	 */
+	function goToLine(line) {
+		//dm(@"行:${line}までジャンプ");
+		var newcur = 0;
+		line = +line;
+		var obj;
+		while ((obj = getLine(newcur)) !== void) {
+			//dm(@"jumping...${newcur}");
+			switch (typeof obj) {
+			case "Object":
+				//dm(@"obj:${obj[SAVE_LINE]}");
+				if (typeof obj[SAVE_POINT] == "Integer" && obj[SAVE_LINE] >= line) {
+					restore(obj[SAVE_STATE]);
+					cur = newcur;
+					return true;
+				}
+				break;
+			case "String":
+				// 行移動のときはフラグもたてる
+				env.setSFlag(obj);
+				break;
+			}
+			newcur++;
+		}
+		askYesNo(@"error:指定行 ${line} まで移動できません。該当シナリオの冒頭から再開しますか？",
+				 "確認",
+				 function(param) { cur=0; } incontextof this,
+				 function(param) { clearInfo(); } incontextof this);
+	}
+
+	// -------------------------------------------------------------
+
+	/**
+	 * セーブ処理
+	 * @param f 保存用変数
+	 */
+	function onStore(f) {
+		if (curSceneName !== void && curPoint !== void) {
+			//dm("保存処理:%s:%d".sprintf(curStorage, curPoint));
+			f.scenePlayer = %[scene:curSceneName, point:curPoint];
+			storeHistory(f.scenePlayer);
+			storeHistoryOfStore(f.scenePlayer);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * ロード処理
+	 * @param f 保存用変数
+	 */
+	function onRestore(f) {
+		if (f.scenePlayer !== void) {
+			clear();
+			restoreHistory(f.scenePlayer);
+			restoreHistoryOfStore(f.scenePlayer);
+			loadScene(f.scenePlayer.scene);
+			if (f.scenePlayer.point !== void) {
+				goToPoint(f.scenePlayer.point);
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// -------------------------------------------------------------
+	// キャプチャ処理
+	// -------------------------------------------------------------
+
+	/**
+	 * 該当保存情報の画面表示を取得する
+	 * @param layer  格納先レイヤ
+	 * @param 保存情報オブジェクト。省略時は現在の状態
+	 * @return 取得成功したら true
+	 */
+	function getSnapshot(layer, obj=curState) {
+		switch (typeof obj) {
+		case "Integer":
+			// テキスト
+			{
+				var text = getText(obj);
+				if (text !== void) {
+					return getSnapshot(layer, text.state);
+				}
+			}
+			break;
+		case "Octet":
+			parseEnv.onRestore((new PSBFile(obj)).root,,,false); // XXX プラグイン系の復帰はさせない。画面が乱れる可能性あり
+			parseEnv.update(,false);
+			parseEnv.getSnapshot(layer);
+			return true;
+		case "Object":
+			parseEnv.onRestore(obj,,,false);  // XXX プラグイン系の復帰はさせない。画面が乱れる可能性あり
+			parseEnv.update(,false);
+			parseEnv.getSnapshot(layer);
+			return true;
+		}
+		return false;
+	}
+
+	// -------------------------------------------------------------
+	// 履歴処理
+	// -------------------------------------------------------------
+
+	// 履歴データ参照用
+	var storageCache;
+
+	// テキスト情報取得
+	function getTextData(sceneName, idx, title=false) {
+		var storage = getStorage(sceneName);
+		var label   = getLabel(sceneName);
+		if (storageCache === void || storageCache.storage !== void) {
+			storageCache = new StorageData(storage);
+		}
+		return changeAlias(storageCache.getText(label, idx, title));
+	}
+
+	// 履歴データリスト
+	// 履歴データ
+	// startNo 開始番号
+	// scene   シーンID
+	// flags   シーン冒頭での変数状態
+	// num     データ個数
+	// 選択肢の場合
+	// text    選択肢テキスト
+	// それ以外の場合
+	// idx     開始テキストidx
+	var histories = [];
+
+	// 履歴データの末尾
+	property lastHistory {
+		getter() {
+			var c = histories.count;
+			if (c > 0) {
+				return histories[c-1];
+			}
+		}
+	}
+
+	/**
+	 * 履歴データの削除
+	 */
+	function clearHistory() {
+		histories.clear();
+		if (storageCache !== void) {
+			invalidate storageCache;
+			storageCache = void;
+		}
+	}
+
+	/**
+	 * 履歴情報を保存
+	 */
+	function storeHistory(f) {
+		if (histories.count > 0) {
+			f.histories = [];
+			f.histories.assignStruct(histories);
+		}
+	}
+
+	/**
+	 * 履歴情報を復帰
+	 */
+	function restoreHistory(f) {
+		if (f.histories !== void) {
+			histories.clear();
+			histories.assignStruct(f.histories);
+		}
+	}
+
+	/**
+	 * 履歴にテキストを追加
+	 */
+	function addHistory(idx) {
+		if (histories.count == 1 && histories[0].num == 1) {
+			// 最初の記録は登録
+			onRecordHistoryOfStore();
+		}
+		var startNo = 0;
+		if (histories.count > 0) {
+			var last = lastHistory;
+			if (last.text === void && curSceneName == last.scene && idx == last.idx + last.num) {
+				last.num++;
+				return;
+			}
+			startNo = last.startNo + last.num;
+		}
+		// 新規の履歴データ
+		var flags = %[];
+		(Dictionary.assignStruct incontextof flags)(kag.flags);
+		histories.push(%[startNo:startNo, scene:curSceneName, title:title, idx:idx, num:1, flags:flags]);
+	}
+
+	// 選択肢開始時のフラグ情報
+	var selectFlags;
+
+	/**
+	 * 履歴に選択肢を追加
+	 */
+	function addHistorySelect(text) {
+		if (histories.count == 1 && histories[0].num == 1) {
+			// 最初の記録を登録
+			onRecordHistoryOfStore();
+		}
+		// 新規の履歴データ
+		var startNo = 0;
+		if (histories.count > 0) {
+			var last = lastHistory;
+			startNo = last.startNo + last.num;
+		}
+		histories.push(%[startNo:startNo, scene:curSceneName, title:title, text:"選択肢:" + text, num:1, flags:selectFlags]);
+	}
+
+	/**
+	 * 履歴総数を返す
+	 * @return 記録されている履歴テキストの行数
+	 */
+	function getHistoryCount() {
+		if (histories.count > 0) {
+			with (lastHistory) {
+				return .startNo + .num;
+			}
+		}
+		return 0;
+	}
+
+	function changeAlias(text) {
+		var ret = %[];
+		if (text) {
+			(Dictionary.assign incontextof ret)(text);
+			if (ret.disp === void && ret.name != "") {
+				var ch = env.getCharacter(ret.name);
+				if (ch !== void) {
+					var alias = ch.init.nameAlias;
+					ret.disp = (alias.charAt(0) == "&" ? Scripts.eval(alias.substr(1)) : alias) if (alias != "");
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * 履歴情報を取得する
+	 * @param pos 取得履歴番号
+	 * @return テキストデータの辞書
+	 * title タイトル
+	 * id テキストID
+	 * scene テキストの該当シーン
+	 * point テキストの該当ポイント
+	 * name  名前
+	 * disp  表示名
+	 * text  テキスト
+	 * voice ボイス情報(配列)
+	 * flag  フラグ
+	 * state 画面情報(辞書)。画面画像が必要な場合はこれを getSnapshot() に渡すと取得できます
+	 */
+	function getHistoryData(pos) {
+		var count = getHistoryCount();
+		if (pos >= 0 && pos < count) {
+			var i=0;
+			var h;
+			while (true) {
+				h = histories[i];
+				if (h.startNo + h.num > pos) {
+					break;
+				}
+				i++;
+			}
+			if (h.text !== void) {
+				// 選択肢部
+				var ret = %[];
+				ret.text = h.text;
+				ret.state = getLastState(h.scene);
+				ret.title = h.title;
+				return ret;
+			} else {
+				// 履歴テキスト部
+				var ret = getTextData(h.scene, h.idx + (pos - h.startNo), true);
+				return ret;
+			}
+		}
+	}
+
+	/**
+	 * 履歴での「前のページ」の先頭位置を取得
+	 * ・タイトルが変わる位置
+	 * ・選択肢位置
+	 * @param pos 現在位置の履歴番号
+	 * @return 前ページの先頭の履歴番号
+	 */
+	function getPrevHistoryPagePoint(pos) {
+		var count = getHistoryCount();
+		if (pos >= 0 && pos < count) {
+			var i=0;
+			var h;
+			while (true) {
+				h = histories[i];
+				if (h.startNo + h.num >= pos) { // 次のシーンの先頭だった場合は前のシーンに繰り込み
+					break;
+				}
+				i++;
+			}
+			var title = h.title;
+			// 先頭ページ
+			while (i>0) {
+				// 選択肢部ならそこで戻る
+				if (h.text !== void) {
+					return h.startNo;
+				}
+				var prev = histories[i-1];
+				if (prev.title != title) {
+					// シーン変わり目なら先頭に
+					return h.startNo;
+				}
+				i--;
+				h = histories[i];
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * 履歴での「次のページ」の先頭位置を取得
+	 * ・タイトルが変わる位置
+	 * ・選択肢位置
+	 * @param pos 現在位置の履歴番号
+	 * @return 次ページの先頭の履歴番号
+	 */
+	function getNextHistoryPagePoint(pos) {
+		var count = getHistoryCount();
+		if (pos >= 0 && pos < count) {
+			var i=0;
+			var h;
+			while (true) {
+				h = histories[i];
+				if (h.startNo + h.num > pos) {
+					break;
+				}
+				i++;
+			}
+			var title = h.title;
+			// 先頭ページ
+			while (i<histories.count-1) {
+				var next = histories[i+1];
+				if (next.text !== void || next.title != title) {
+					// 次が選択肢またはタイトルが違うならそこまでジャンプ
+					return h.startNo + h.num;
+				}
+				i++;
+				h = histories[i];
+			}
+		}
+		return count-1;
+	}
+
+	/**
+	 * 履歴中から該当テキストの位置をさがす
+	 * @param scene シーン
+	 * @param idx テキストID
+	 * @return 履歴位置。みつからない場合は void
+	 */
+	function findHistoryPoint(sceneName, idx) {
+		for (var i=histories.count-1;i>=0;i--) {
+			var h = histories[i];
+			dm(@"履歴検索確認情報 ${scene}:${h.scene} ${idx}:${h.idx}");
+			if (h.scene == sceneName && h.idx !== void) {
+				if (h.idx <= idx && idx < h.idx+h.num) {
+					return h.startNo + (idx - h.idx);
+				}
+			}
+		}
+	}
+
+	// -------------------------------------------------------------------
+
+	function initEnv() {
+		env.initEnv();
+		env.updateAll();
+		env.msgoff(EMPTY);
+		//[XXX] メッセージレイヤを消す他KAG初期化
+		with (kag) {
+			.clearLayers(kag.fore);
+			.stopQuake();
+			.movies[0].stop();
+			.setHistoryOptions(%[enabled:true]);
+			.nowaitMode = false;
+			.textWriteEnabled = true;
+			.noeffectEnabled = true;
+			.clickSkipEnabled = true;
+			.setDelay(%[speed:"user"]);
+		}
+	}
+
+	/**
+	 * 履歴をさかのぼる
+	 * @param pos ジャンプ先履歴番号
+	 */
+	function goToHistory(pos) {
+		initEnv();
+		var count = getHistoryCount();
+		if (pos >= 0  && pos < count) {
+			var i=0;
+			var h;
+			while (true) {
+				h = histories[i];
+				if (h.startNo + h.num > pos) {
+					break;
+				}
+				i++;
+			}
+			while (histories.count > i+1) {
+				histories.pop();
+			}
+			// 該当ブロックのデータを処理
+			if (h.flags !== void) {
+				(Dictionary.assignStruct incontextof kag.flags)(h.flags); // ブロック冒頭の変数状態に戻す
+			}
+			h.num = (pos - h.startNo);
+			var scene = h.scene;
+			if (h.text !== void) {
+				if (h.num <= 0) {
+					// 空なので消しておく
+					histories.pop();
+				}
+				// シーン末尾にジャンプ
+				loadScene(scene);
+				goToPoint(spcount);
+			} else {
+				var idx   = h.idx + h.num;
+				if (h.num <= 0) {
+					// 空なので消しておく
+					histories.pop();
+				}
+				// 目的部のテキストの位置までジャンプ
+				dm(@"履歴ジャンプ:${scene}:${idx}");
+				loadScene(scene);
+				goToText(idx);
+			}
+			clearTag();
+			addTagSimple("sceneplay");
+		}
+		resetHistoryOfStore();
+		kagProcessGo();
+	}
+
+	// -------------------------------------------------------------
+	// 選択肢まで戻る系機能
+	// -------------------------------------------------------------
+
+	// 登録要望があった部分の履歴番号を記録する
+	var historyOfStore = [];
+
+	function clearHistoryOfStore() {
+		historyOfStore.clear();
+	}
+
+	/**
+	 * 履歴情報を保存
+	 */
+	function storeHistoryOfStore(f) {
+		if (historyOfStore.count > 0) {
+			f.historyOfStore = [];
+			f.historyOfStore.assignStruct(historyOfStore);
+		}
+	}
+
+	/**
+	 * 履歴情報を復帰
+	 */
+	function restoreHistoryOfStore(f) {
+		if (f.historyOfStore !== void) {
+			historyOfStore.clear();
+			historyOfStore.assignStruct(f.historyOfStore);
+		}
+	}
+
+	// 履歴記録位置を実際の履歴にあわせて切り詰める
+	function resetHistoryOfStore() {
+		var pos = getHistoryCount() - 1;
+		while (historyOfStore.count > 0) {
+			var last = historyOfStore[historyOfStore.count - 1];
+			if (last <= pos) {
+				break;
+			}
+			historyOfStore.pop();
+		}
+	}
+
+	// 履歴記録があるかどうか
+	function isHistoryOfStoreAlive() {
+		//dm(@"履歴記録確認:" + historyOfStore.count);
+		return historyOfStore.count > 0;
+	}
+
+	// 履歴記録に現在の履歴位置を登録
+	function onRecordHistoryOfStore() {
+		var pos = getHistoryCount() - 1;
+		if (pos >= 0) {
+			var count = historyOfStore.count;
+			if (count == 0 || historyOfStore[count-1] != pos) {
+				historyOfStore.push(pos);
+			}
+		}
+		//dm(@"履歴位置記録:${pos}:${historyOfStore.count}");
+		return true;
+	}
+
+	// 最後の履歴位置に戻る
+	function onGoBackHistoryOfStore() {
+		var pos = historyOfStore.pop();
+		//dm(@"履歴位置に戻る:${pos}");
+		if (pos !== void) {
+			// XXX extraコンダクタに制御依頼するほうが妥当説
+			//kag.clearLayers(kag.fore); // ->kagProcessGo内に移動
+			goToHistory(pos);
+		}
+		return true;
+	}
+
+	// 最後の履歴のタイトル名取得
+	function getHistoryOfStorePage() {
+		var c = historyOfStore.count;
+		if (count > 0) {
+			var data = getHistoryData(historyOfStore[count-1]);
+			if (data !== void) {
+				return data.title;
+			}
+		}
+		return "不明タイトル";
+	}
+
+	// -------------------------------------------------------------
+	// シーンプレイヤー処理
+	// -------------------------------------------------------------
+
+	// シーンプレイヤ用ポイント情報
+	// PSBデータなシナリオデータを参照してる形になるので要注意
+	// これを直接参照する場合は以下の注意が必要
+	// ポイント値 points[pos][SAVE_POINT];
+	// テキスト値 points[pos][SAVE_TEXT];
+	// フラグ値   points[pos][SAVE_TEXTFLAG];
+	var points = [];
+
+	// シーンプレイヤ用情報のクリア
+	function clearScenePoint() {
+		points.clear();
+	}
+
+	/**
+	 * シーンプレイヤー用のポイント情報を初期化
+	 * 関連機能を使う場合はまずこれを呼び出して情報を初期化すること。
+	 */
+	function initScenePoint() {
+		clearScenePoint();
+		var lines;
+		if (scenario === void || (lines = scenario.lines) === void) {
+			return;
+		}
+		var count = lines.count;
+		// 個別のポイント情報を取得
+		// テキストがある部分だけ
+		for (var i=0;i<count;i++) {
+			var obj = lines[i];
+			if (typeof obj == "Object" && typeof obj[SAVE_POINT] == "Integer" && obj[SAVE_TEXT] !== void) {
+				points.add(obj);
+			}
+		}
+	}
+
+	/**
+	 * @return シーンプレイヤー用のポイント数
+	 * XXX textcount と一致するはず
+	 */
+	function getScenePointCount() {
+		return points.count;
+	}
+
+	/**
+	 * @return シーンプレイヤー用の現在位置
+	 * XXX curTextId と一致するはず
+	 */
+	function getCurrentScenePoint() {
+		var i = curPoint;
+		if (i !== void && i < points.count) {
+			var point = points[i][SAVE_POINT];
+			if (point == curPoint) {
+				return i;
+			} else if (point < curPoint) {
+				var count = points.count;
+				while (i < count) {
+					if (points[i][SAVE_POINT] == curPoint) {
+						return i;
+					}
+					i++;
+				}
+				return points.count > 0 ? points.count - 1 : 0;
+			}
+		} else {
+			i = points.count - 1;
+		}
+		while (i >= 0)  {
+			if (points[i][SAVE_POINT] <= curPoint) {
+				return i;
+			}
+			i--;
+		}
+		return 0;
+	}
+
+	/**
+	 * 指定ポイント部の情報を返す
+	 * point セーブ用ポイント位置
+	 * flag  フラグ
+	 * 他テキストデータと同様のデータ
+	 * @param pos 位置
+	 * @param text テキスト情報も含める
+	 */
+	function getScenePointData(pos, text=false) {
+		if (pos >= 0 && pos < points.count) {
+			var save = points[pos];
+			var ret;
+			if (text && pos >= 0 && pos < points.count) {
+				ret = changeAlias(getText(save[SAVE_TEXT]));
+				ret.title = title;
+			} else {
+				ret = %[];
+			}
+			ret.point = save[SAVE_POINT];
+			ret.flag  = save[SAVE_TEXTFLAG];
+			return ret;
+		}
+	}
+
+	/**
+	 * 指定シーンポイントまで移動
+	 * @param pos 移動先
+	 * @return 移動できたらtrue
+	 */
+	function goToScenePoint(pos) {
+		if (pos < 0 || pos >= points.count) {
+			// 範囲外
+			return false;
+		}
+		// 移動したい先のポイント位置
+		var target = points[pos][SAVE_POINT];
+		if (target <= curPoint) {
+			// 履歴中にあるかさがす
+			//dm("さかのぼり先テキスト:" + points[pos][SAVE_TEXT]);
+			var pos = findHistoryPoint(curSceneName, points[pos][SAVE_TEXT]);
+			if (pos !== void) {
+				//dm("履歴さかのぼりポイント:" + pos);
+				goToHistory(pos);
+				initScenePoint(); // [XXX] goToHistory中のloadSceneでscenePointが消える
+				return true;
+			} else {
+				//dm("履歴さかのぼり失敗:履歴をクリア");
+				clearHistory();
+				clearHistoryOfStore();
+			}
+		} else {
+			// スキップ相当処理
+			//dm("スキップ処理開始");
+			var newcur = cur;
+			var obj;
+			while ((obj = getLine(newcur++)) !== void) {
+				// 既読設定
+				setReaded(curTextId);
+				curRead = getReaded(curTextId+1);
+				if (typeof obj == "Object" && typeof obj[SAVE_POINT] == "Integer") {
+					//dm(@"ポイントチェック:${target}:${obj[SAVE_POINT]}");
+					if (obj[SAVE_POINT] >= target) {
+						//dm("到達したのでぬける");
+						break;
+					}
+				}
+				switch (typeof obj) {
+				case "Integer":
+					// 履歴に追加＆既読フラグたて
+					curState = curTextId = obj;
+					curRead = getReaded(curTextId);
+					addHistory(curTextId);
+					break;
+				case "String":
+					// 行移動のときはフラグもたてる
+					env.setSFlag(obj);
+					break;
+				}
+			}
+			//dm("スキップ処理終了");
+		}
+		// 強制ジャンプ
+		initEnv();
+		goToPoint(target);
+		clearTag();
+		addTagSimple("sceneplay");
+		resetHistoryOfStore();
+		kagProcessGo();
+		return true;
+	}
+
+	// コピペイクナイので一カ所に集約
+	function kagProcessGo() {
+		kag.nextRecordHistory = false; // XXX 選択肢からジャンプしたときに余分に保存されるのを防止
+		kag.historyLayer.clear();      // XXX ヒストリレイヤに現在のテキスト持ってるのでそれをクリア
+		kag.conductor.delaytags.clear();
+		kag.processGo();
+	}
+
+	function getAllFlagPoint(flag) {
+		var ret = [];
+		for (var i = 0, cnt=points.count; i < cnt; i++) {
+			if ((points[i][SAVE_TEXTFLAG] & flag)) ret.add(i);
+		}
+		return ret;
+	}
+
+	function getNextFlagPoint(pos, flag) {
+		pos = getCurrentScenePoint() if pos === void;
+		dm("getNextAt:" + pos);
+		var count = points.count;
+		for (var i=pos+1;i<count;i++) {
+			if ((points[i][SAVE_TEXTFLAG] & flag)) {
+				dm("result:" + i);
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	function getPrevFlagPoint(pos, flag) {
+		pos = getCurrentScenePoint() if pos === void;
+		dm("getPrevAt:" + pos);
+		var count = points.count;
+		for (var i=pos-1;i>=0;i--) {
+			if ((points[i][SAVE_TEXTFLAG] & flag)) {
+				dm("result:" + i);
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * ステージ切り替えのScenePoint一覧を取得
+	 * @return 舞台変更切れ目位置のScenePointリスト
+	 */
+	function getStageChangeScenePointList() {
+		return getAllFlagPoint(TEXTFLAG_STAGE);
+	}
+
+	/**
+	 * @param pos 調査位置(省略時は現在実行位置)
+	 * @return 次の舞台変更切れ目位置
+	 *         見つからなかった場合は-1
+	 */
+	function getNextStageChange(pos) {
+		return getNextFlagPoint(pos, TEXTFLAG_STAGE);
+	}
+
+	/**
+	 * @param pos 調査位置(省略時は現在実行位置)
+	 * @return 前の舞台変更切れ目位置
+	 *         見つからなかった場合は-1
+	 */
+	function getPrevStageChange(pos) {
+		return getPrevFlagPoint(pos, TEXTFLAG_STAGE);
+	}
+
+
+	/**
+	 * イベント表示のScenePoint一覧を取得
+	 * @return イベント表示位置のScenePointリスト
+	 */
+	function getEventScenePointList() {
+		return getAllFlagPoint(TEXTFLAG_EVENT);
+	}
+
+	/**
+	 * @param pos 調査位置(省略時は現在実行位置)
+	 * @return 次のイベント絵開始位置
+	 *         見つからなかった場合は-1
+	 */
+	function getNextEvent(pos) {
+		return getNextFlagPoint(pos, TEXTFLAG_EVENT);
+	}
+
+	/**
+	 * @param pos 調査位置(省略時は現在実行位置)
+	 * @return 前のイベント絵開始位置
+	 *         見つからなかった場合は-1
+	 */
+	function getPrevEvent(pos) {
+		return getPrevFlagPoint(pos, TEXTFLAG_EVENT);
+	}
+
+	/**
+	 * 該当テキストのシーンポイントを返す
+	 */
+	function findScenePointOfText(text) {
+		// 移動したい先のポイント位置
+		var count = points.count;
+		if (count > 0) {
+			var pos = text >= points.count ? count-1: (int)text;
+			var target = points[pos][SAVE_TEXT];
+			if (target == text) {
+				// 現在位置
+				return pos;
+			} else if (target < text) {
+				// 後ろむきに探す
+				for (var i=pos;i<count;i++) {
+					if (text >= points[i][SAVE_TEXT]) {
+						return i;
+					}
+				}
+			} else {
+				// 前向きに探す
+				for (var i=pos-1;i>=0;i--) {
+					if (text <= points[i][SAVE_TEXT]) {
+						return i;
+					}
+				}
+				// 先頭
+				return 0;
+			}
+			// 末尾
+			return count - 1;
+		}
+	}
+
+	/**
+	 * @returnシーンの既読位置を返す
+	 */
+	function getReadedScenePoint() {
+		return findScenePointOfText((int)readed[curSceneName]);
+	}
+
+	// -------------------------------------------------------------
+	// 検索処理
+	// -------------------------------------------------------------
+
+	// 履歴データリスト
+	// 履歴データ
+	// scene   シーンID
+	// idx     開始テキストidx
+	var searchResult;
+
+	/**
+	 * 検索処理実行
+	 */
+	function doSearch(text) {
+		clearSearch();
+		// XXX 検索処理を再構築する
+		return searchResult;
+	}
+
+	/**
+	 * 検索データの削除
+	 */
+	function clearSearch() {
+		if (searchResult !== void) {
+			searchResult.clear();
+			searchResult = void;
+		}
+	}
+
+	/**
+	 * 検索前初期化
+	 */
+	function initSearch() {
+		clearInfo();
+		clearHistory();
+		clearHistoryOfStore();
+	}
+
+	/**
+	 * 検索総数を返す
+	 * @return 検索結果の総数
+	 */
+	function getSearchCount() {
+		return searchResult !== void ? searchResult.count : 0;
+	}
+
+	/**
+	 * 検索情報を取得する
+	 * @param pos 取得検索番号
+	 * @return テキストデータの辞書
+	 * title タイトル
+	 * id テキストID
+	 * scene テキストの該当シーン
+	 * point テキストの該当ポイント
+	 * name  名前
+	 * disp  表示名
+	 * text  テキスト
+	 * voice ボイス情報(配列)
+	 * flag  フラグ
+	 * state 画面情報(辞書)。画面画像が必要な場合はこれを getSnapshot() に渡すと取得できます
+	 */
+	function getSearchData(pos) {
+		var count = getSearchCount();
+		if (pos >= 0 && pos < count) {
+			var r = searchResult[pos];
+			var ret = getTextData(r.scene, r.idx, true);
+			return ret;
+		}
+	}
+
+	/**
+	 * 該当サーチ結果のジャンプ用情報
+	 * これの値をそのまま scenestarttext タグに渡してください
+	 */
+	function getSearchPosition(pos) {
+		var count = getSearchCount();
+		if (pos >= 0  && pos < count) {
+			var ret = %[scene:r.scene, idx:r.idx];
+			clearSearch();
+			return ret;
+		}
+	}
+
+	/**
+	 * 検索結果位置にジャンプする
+	 * @param pos ジャンプ先検索番号
+	 */
+	function goToSearch(pos) {
+		initEnv();
+		var count = getSearchCount();
+		if (pos >= 0  && pos < count) {
+			var r = searchResult[pos];
+			var scene = r.scene;
+			var idx   = r.idx;
+			clearSearch();
+			loadScene(scene);
+			goToText(idx);
+			clearTag();
+			addTagSimple("sceneplay");
+		}
+		kagProcessGo();
+	}
+
+	// -------------------------------------------------------------
+	// KAG コマンド
+	// -------------------------------------------------------------
+
+	/**
+	 * 開始処理用タグ
+	 * elm.storage ストレージ指定
+	 * elm.target ラベルまたは行番号
+	 * elm.point ポイント番号またはポイントラベル
+	 */
+	function start(elm) {
+		clear();
+		startScene(elm.storage, elm.target, elm.point);
+		return 0;
+	}
+
+	/**
+	 * テキスト開始処理用タグ
+	 * elm.scene シーン番号
+	 * elm.idx テキスト番号
+	 */
+	function starttexttag(elm) {
+		clear();
+		startText(elm.scene, elm.idx);
+		return 0;
+	}
+
+	// --------------------------------------------------------------
+	// 実行処理
+	// --------------------------------------------------------------
+
+	// 状態復帰処理
+	function restore(obj) {
+		switch (typeof obj) {
+		case "Integer":
+			// テキスト
+			{
+				var text = getText(obj);
+				if (text !== void) {
+					restore(text.state);
+				}
+			}
+			break;
+		case "Octet":
+			env.onRestore((new PSBFile(obj)).root);
+			env.updateAll();
+			break;
+		case "Object":
+			env.onRestore(obj);
+			env.updateAll();
+			break;
+		}
+	}
+
+	// 実行必須コマンド
+	var dotags = %[cancelskip:true];
+
+	function extractSelect(seltype, sellist) {
+		var c = sellist.count;
+		if (c > 0) {
+			//dm("選択肢展開:" + seltype);
+			var text = "";
+			var addtag = seltype == 2 ? "mseladd" : "seladd";
+			var seltag = seltype == 2 ? "mselect" : "select";
+			for (var j=0;j<c;j++) {
+				var sel = sellist[j];
+				var noframe = ((string)sel.text).charAt(0) == "@";
+				var text = noframe ? sel.text.substr(1) : sel.text;
+				addTag(%[tagname:addtag,
+					 storage:sel.storage,
+					 target:sel.target,
+					 exp:sel.exp, eval:sel.eval,
+					 onceflag:sel.onceflag,
+					 tag:sel.tag,
+					 noframe:noframe,
+					 text:text]);
+			}
+			//dm(@"選択肢展開:${seltag}");
+			addTagSimple(seltag);
+			sellist.clear();
+		}
+	}
+
+	/**
+	 * メイン実行処理
+	 */
+	function play(elm) {
+
+		// 終了
+		if (scenario === void) {
+			return 0;
+		}
+
+		// 既読設定
+		setReaded(curTextId);
+		curRead = getReaded(curTextId+1);
+
+		if (cur == 0) {
+			//dm("シーン前処理実行");
+			var eval = scenario.preevals;
+			var count = eval !== void ? eval.count : 0;
+			for (var i=0;i<count;i++) {
+				//dm("評価実行:" + eval[i]);
+				Scripts.eval(eval[i]);
+			}
+		}
+
+		// 次の行
+		var obj = getLine(cur++);
+
+		// シーン終端
+		if (obj === void) {
+			//dm("シーン後処理実行");
+			var eval = scenario.postevals;
+			var count = eval !== void ? eval.count : 0;
+			for (var i=0;i<count;i++) {
+				//dm("評価実行:" + eval[i]);
+				Scripts.eval(eval[i]);
+			}
+			// 次シーン・選択肢展開
+			var nextList = scenario.nexts;
+			var count = nextList !== void ? nextList.count : 0;
+			if (count == 0) {
+				//dm("次シーンが無いので終了");
+				clearInfo();
+				return 0;
+			}
+			// 選択肢開始時のフラグ情報を維持しておく
+			selectFlags = %[];
+			(Dictionary.assignStruct incontextof selectFlags)(kag.flags);
+			var sellist = [];
+			var seltype = 0;
+			for (var i=0;i<count;i++) {
+				var next = nextList[i];
+				if (next.type != seltype) {
+					extractSelect(seltype, sellist);
+					seltype = 0;
+				}
+				if (next.type < 0) {
+					addTag(%[tagname:"exit", storage:next.storage, target:next.target, exp:next.exp, eval:next.eval]);
+				} else if (next.type == 0) {
+					addTag(%[tagname:"next", storage:next.storage, target:next.target, exp:next.exp, eval:next.eval]);
+				} else {
+					seltype = next.type;
+					sellist.add(next);
+				}
+			}
+			extractSelect(seltype, sellist);
+			return 0;
+		}
+
+		switch (typeof obj) {
+		case "Integer":
+			// テキスト
+			curState = curTextId = obj;
+			curRead = getReaded(curTextId);
+			addHistory(curTextId);
+			if (kag.skipNoDisp) {
+				kag.currentNameTarget = void;
+				kag.stopAllActions();
+				kag.stopAllTransitions();
+			} else {
+				curText = getText(curTextId);
+				if (curText === void) {
+					errorCmd("未知のテキストID:%d\n".sprintf(curTextId));
+				} else {
+					extractText(curText);
+				}
+				kag.updateDebugInfo();
+			}
+			break;
+		case "String":
+			// 既読フラグ処理
+			env.setSFlag(obj);
+			break;
+		case "Object":
+			if (typeof obj[SAVE_POINT] == "Integer") {
+				// セーブポイント処理
+				curPoint = obj[SAVE_POINT];
+				curState = obj[SAVE_STATE];
+				curLine  = obj[SAVE_LINE];
+				// 未読でのスキップ停止判定
+				if (kag.skipMode == SKIP_STOP) {
+					var id = obj[SAVE_TEXT];
+					if (id !== void) {
+						if (!(kag.allskip || getReaded(id))) {
+							kag.cancelSkip();
+						}
+					}
+				}
+				// セーブ処理相当
+				if (!kag.skipNoDisp || obj[SAVE_FORCE] !== void) {
+					kag.pushHistoryOfStore();
+					kag.storeFlags(true);
+					kag.storeLabelPassed = true;
+					kag.setMenuAccessibleAll();
+				}
+			} else {
+				// コマンドタグ
+				if (!kag.skipNoDisp || dotags[obj[0]]) {
+					extractTag(obj);
+				}
+			}
+			break;
+		}
+		addTagSimple("sceneplay");
+		return 0;
+	}
+
+	/**
+	 * チェック処理
+	 */
+	function check(elm) {
+		// 終了
+		if (curSceneName === void) {
+			return 0;
+		}
+		// 次の行
+		var obj = getLine(cur++);
+		if (obj === void) {
+			return 0;
+		}
+		switch (typeof obj) {
+		case "Object":
+			if (typeof obj[SAVE_POINT] == "Integer") {
+				//restore(obj[SAVE_STATE]);
+			} else {
+				if (!kag.skipNoDisp || dotags[obj[0]]) {
+					extractTag(obj);
+				}
+			}
+			break;
+		}
+		addTagSimple("scenecheck");
+		return 0;
+	}
+
+	/**
+	 * タグ情報を再構築
+	 * 配列になっているタグを復元する
+	 * @param obj タグ情報
+	 */
+	function extractTag(obj) {
+		var tagname = obj[0];
+		if (tagname == "") {
+			return;
+		}
+		var elm = %[];
+		var count = obj.count;
+		var i=1;
+		for (;i<count;i++) {
+			var id = obj[i];
+			if (id === 0) {
+				i++;
+				break;
+			}
+			elm[id] = true;
+		}
+		for (;i<count;i+=2) {
+			elm[obj[i]] = obj[i+1];
+		}
+		elm.tagname = tagname;
+		addTag(elm);
+	}
+
+	var currentRuby;
+	var currentRubyCount;
+	var currentText;
+
+	function processRuby(text) {
+		if (text.length > 0) {
+			var p;
+			if ((p = text.indexOf(",")) >= 0) {
+				// ルビ側に対象文字数指定が存在する
+				currentRuby      = text.substr(0,p);
+				currentRubyCount = +text.substr(p+1);
+			} else {
+				currentRuby = text;
+				currentRubyCount = 0;
+			}
+		}
+	}
+
+	function processCh(ch) {
+		currentText += ch;
+		if (currentRubyCount > 0) {
+			currentRubyCount--;
+			return;
+		}
+		if (currentRuby != "") {
+			addTag(%[tagname:"ruby", text:currentRuby]);
+		}
+		addTag(%[tagname:"ch", text:currentText]);
+		currentRuby = "";
+		currentText = "";
+	}
+
+	/**
+	 * テキストをタグに展開
+	 * @param id テキストID
+	 */
+	function extractText(text) {
+
+		var flag = text.flag;
+
+		if ((flag & TEXTFLAG_NOTEXT)) {
+
+			// XXX 単独のボイス再生処理が無いのでとりあえずこれで逃げる
+			kag.textWriteEnabled = false;
+			// 名前を表示
+			addTag(%[tagname:"dispname", name:text.name, disp:text.disp, voice:text.voice]);
+
+		} else {
+
+			kag.textWriteEnabled = true;
+
+			currentRubyCount = 0;
+			currentRuby = void;
+			currentText = "";
+
+			// メッセージ窓を移動させる細工のある特定の作品においてmsgonされると困るためカットできるようにする
+			@if (!KAGENVPLAYER_NO_MSGON_BEFORE_DISPNAME)
+			// メッセージ窓を出す
+			addTagSimple("msgon");
+			@endif
+
+			// 名前を表示
+			addTag(%[tagname:"dispname", name:text.name, disp:text.disp, voice:text.voice]);
+
+			var indentCharacter = void;
+			var indentLevel = 0;
+
+			// テキストを展開
+			var t = text.text;
+			var l = t.length;
+			var firstCh = true;
+			//dm("表示テキスト:" + t);
+			for (var i=0;i<l;) {
+				var ch = t.charAt(i++);
+				// エスケープコマンド
+				if (ch == "\\") {
+					if (i < l) {
+						ch = t.charAt(i++);
+					}
+					switch (ch) {
+					case "\\":
+						break;
+					case "k":
+						addTag(%[tagname:"l"]);
+					default:
+						continue;
+					}
+				}
+				if (ch == "\n") {
+					// 改行処理
+					addTagSimple("r");
+				} else if (ch == "%") {
+					// フォントコマンド
+					if (i < l) {
+						ch = t.charAt(i++);
+						if (/[0-9]/.test(ch)) {
+							var value = ch;
+							while (i < l) {	ch = t.charAt(i); if (!/[0-9]/.test(ch)) break; value += ch; i++; }
+							value = +value;
+							value = value ? string(value) : "default";
+							addTag(%[tagname:"font", size:value]);
+						} else {
+							// 暫定XXX
+							switch (ch) {
+								//case "b": bold = true; break;
+								//case "i": italic = true; break;
+								//case "n": bold = false, italic = false; break;
+								//case "s": shadow = true; break;
+								//case "e": edge = true; break;
+							case "r": addTagSimple("resetfont"); break;
+							default: break;
+							}
+						}
+					}
+				} else if (ch == "[") {
+					// ルビ処理
+					var text = "";
+					while (i<l && (ch = t.charAt(i++)) != "]") {
+						text += ch;
+					}
+					processRuby(text);
+				} else {
+					// 自動インデント処理
+					var indentBeginIdx = -1, indentEndIdx = -1;
+					if (kag.autoIndent) {
+						indentBeginIdx = kag.autoIndentBeginCharacters.indexOf(ch);
+						indentEndIdx   = kag.autoIndentEndCharacters  .indexOf(ch);
+					}
+					if (kag.autoIndent < 0 && firstCh && indentBeginIdx >= 0) {
+						addTag(%[tagname:"preindent", text:ch ]);
+					}
+
+					// キャラ追加
+					processCh(ch);
+
+					// 自動インデント後処理
+					if (indentBeginIdx >= 0) {
+						if (firstCh) {
+							indentCharacter = kag.autoIndentBeginCharacters.charAt(indentBeginIdx);
+							addTagSimple("indent");
+						}
+						indentLevel++;
+					} else if (indentEndIdx >= 0) {
+						if (indentLevel == 1) {
+							var pair = kag.autoIndentBeginCharacters.indexOf(indentCharacter);
+							addTagSimple("endindent") if (pair == indentEndIdx);
+						}
+						indentLevel--;
+					}
+
+					firstCh = false;
+				}
+			}
+		}
+
+		// 待ち処理のエントリ
+		if (!(flag & TEXTFLAG_NOWAIT)) {
+			if ((flag & TEXTFLAG_LINE)) {
+				addTag(%[tagname:"l", voicewait:true]);
+				addTagSimple("afterline");
+			} else {
+				if ((flag & TEXTFLAG_NOER)) {
+					kag.noErOnce = true;
+				}
+				addTag(%[tagname:"p", nosave:true]);
+			}
+		}
+	}
+
+	// -----------------------------------------------------------
+
+	// 現在実行中情報
+	function getCurrentInfo() {
+		if (converting) {
+			// 変換中はパーサの情報を返す
+			return parser.getCurrentInfo();
+		}
+		return %[
+		file:curStorage,
+		line:curLine,
+		label:curLabel,
+		lineStr:curText !== void ? curText.text : "",
+			];
+	}
+
+	// -------------------------------------------------------------
+
+	/**
+	 * KAG側で選択肢処理が開始されたときのコールバック
+	 */
+	function onSelectStart(selectInfos) {
+		var text;
+		for (var i=0;i<selectInfos.count;i++) {
+			var sel = selectInfos[i];
+			if (sel.eval == "" || Scripts.eval(sel.eval)) {
+				if (text != "") {
+					text += "/";
+				}
+				text += sel.text;
+			}
+		}
+		if (text != "" && kag.historyWriteEnabled) {
+			kag.historyLayer.clear();
+			kag.historyLayer.store("選択肢:" + text);
+		}
+	}
+
+	/*
+	 * KAG側で選択肢処理が実行された時のコールバック
+	 */
+	function onSelect(text)  {
+		if (working) {
+			dm("選択肢完了:" + text);
+			addHistorySelect(text);
+		}
+	}
+
+	/*
+	 * KAG側で next で遷移が実行されたときにそれを乗っ取る処理
+	 */
+	function onNext(file, label) {
+		if (working) {
+			//dm(@"次シーン呼び出し指定 storage:${file} target:${label}");
+			startScene(file, label);
+			// 呼び出し確定してるので一度キューをクリアして次に進める
+			clearTag();
+			addTagSimple("sceneplay");
+			//dm("呼び出し処理完了");
+			return true;
+		}
+	}
+
+	/**
+	 * KAG側で非表示スキップが終わったときに
+	 * 呼び出される処理
+	 */
+	function onSync() {
+		//dm("onSync:" + curState);
+		if (curState !== void) {
+			restore(curState);
+		}
+	}
+
+	/**
+	 * KAG側で遷移がおこった場合の呼び返し
+	 * 状態をクリアする
+	 */
+	function onProcess(usingExtraConductor) {
+		if (!usingExtraConductor) {
+			clearInfo();
+		}
+	}
+};

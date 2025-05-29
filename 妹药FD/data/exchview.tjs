@@ -1,0 +1,1445 @@
+//-------------------------------------------------------------
+
+with (SystemConfig) {
+	var set = function (key, val) {
+		if (typeof this[key] == "undefined")
+			/**/   this[key] = val;
+	} incontextof SystemConfig;
+
+	set("ExChViewCaptureFileBase", typeof global.ENV_GameName == "String" ? global.ENV_GameName : "capture");
+	set("ExChViewCaptureCaption",  "画面キャプチャ");
+//	set("ExChViewAskRClickBack", false);// obsolete
+	set("ExChViewRClickJumpTarget", "*view"); // *view, *back_rclick, *askquit のうちどれか
+	set("ExChViewPropObjects", [
+		"bg"  => "ExCVStageObject",
+		"ch"  => "ExCVCharObject",
+		"pop" => "ExCVPopupObject",
+		"hide"=> "ExCVHideMesOnView",
+		"drag"=> "ExCVDragObject",
+		]);
+	set("ExChViewDefines",   "exchview.ini");
+
+	set("ExChViewSelectPanel", ""); // *changestage, *changetime 用パネルクラス
+
+	// for char object module options
+	set("ExChViewDefaultDiffName", "基本");
+	set("ExChViewDefaultCharState", %[ ypos:0, xpos:0, opacity:255, front:true, "出"=>true ]);
+	set("ExChViewCharLockedOpac", 256\4);
+	set("ExChViewCharEmptyOnFirst", true);
+	set("ExChViewCharUseOldPoseState", false);
+
+	// for popup object options
+	set("ExChViewPopupPos", [ 4, 4, 640, 32 ]);
+//	set("ExChViewPopupImage", "exchview_popup");
+	set("ExChViewPopupText", "左ドラッグで移動できます（右クリックで終了）");
+	set("ExChViewPopupOnce", true);
+	set("ExChViewPopupParam",
+		%[
+		x:4, y:4, w:640-8, h:32-8,
+		fontface:global.SystemDefaultFontFace,
+		fontheight: 24,
+		color:0xFFFFFF, param: [ 255, true, 2048, 0, 2, 0, 0 ] ]);
+
+	// for drag object options
+	set("ExChViewDragCurCharOnNoView", true);
+}
+class ExCVUtil {
+	property env { getter {
+		try { return world_object.env; } catch {}
+	} }
+	property hasKagEnvChar { getter {
+		return (typeof global.KAGEnvCharacter) == "Object";
+	} }
+
+	// グローバルフラグアクセス用ラッパー
+	@if (! EXCHVIEW_GLOBALFLAG_IS_TF)
+	function getGlobalFlag(tag)   { return sf["exchview"+tag];     }
+	function setGlobalFlag(tag,v) {        sf["exchview"+tag] = v; }
+	@endif
+	@if (  EXCHVIEW_GLOBALFLAG_IS_TF)
+	function getGlobalFlag(tag)   { return tf["exchview"+tag];     }
+	function setGlobalFlag(tag,v) {        tf["exchview"+tag] = v; }
+	@endif
+
+	// 辞書操作ユーティリティ
+	function copyArray(src, array = [], sft = 0) {
+		with (array) {
+			.assign(src);
+			for (var i = 0; i < sft; i++) .shift();
+			.remove("",   true);
+			.remove(void, true);
+		}
+		return array;
+	}
+	function copyDic(src, ov) {
+		var ret = %[];
+		(Dictionary.assignStruct incontextof ret)(src);
+		(Dictionary.assign       incontextof ret)(ov, false) if (ov !== void);
+		return ret;
+	}
+
+	// 配列順繰り
+	function roundList(list, idx, dir) {
+		var cnt = list.count;
+		idx += dir;
+		while (idx < 0) idx += cnt;
+		return idx % cnt;
+	}
+
+	function getIndex(list, val) { return list ? list.find(val) : -1; }
+}
+
+//-------------------------------------------------------------
+class        ExCVPropObjectBase extends ExCVUtil {
+	function ExCVPropObjectBase(owner, name) {
+		this.owner = owner;
+		this.name  = name;
+	}
+	function finalize {}
+	var owner, name;
+	var propTable = [];
+
+	function _debugCheckProp(prop) {
+		if (propTable.find(prop) < 0) {
+			dm("! 未定義のプロパティです", name, prop);
+			return true;
+		}
+	}
+	function _getPropItem(prop, tag, force) {
+		@if (DEBUG)
+			if (!force && _debugCheckProp(prop)) return;
+		@endif
+		if (tag == "") return this[@"cur${prop}"];
+		var method = @"get${prop}${tag}";
+		if (typeof this[method] == "Object")
+			return this[method]();
+	}
+	function _setPropItem(prop, val, force) {
+		@if (DEBUG)
+			if (!force && _debugCheckProp(prop)) return;
+		@endif
+		this[@"cur${prop}"] = val;
+	}
+	function invoke(method, *) {
+		if (typeof this[method] == "Object")
+			return this[method](*);
+	}
+	function callHook(  method, *) {
+		var r;
+		if (typeof this[method] == "Object")
+			r =    this[method](*);
+		if (r === void) r = ownerCallback(...);
+		return r;
+	}
+	function ownerCallback(method, *) {
+		if (typeof owner[method] == "Object")
+			return owner[method](this, *);
+	}
+	function setProp(prop, val, force) {
+		var list = _getPropItem(prop, "List", force);
+		if (list === void) {
+			dm("! プロパティがありません", name, prop);
+			return;
+		}
+		var idx, dir = 0;
+		switch (val) {
+		case "up":
+		case "down":
+			dir = (val == "down") ? -1 : 1;
+			idx = list.find(_getPropItem(prop,, force));
+			if (idx < 0) idx = 0;
+			else idx = roundList(list, idx, dir);
+			break;
+		default:
+			idx = (int)+val;
+			if (idx < 0 || idx >= list.count) idx = 0;
+			break;
+		}
+		var old = _getPropItem(prop,, force);
+		var fix = callHook(@"on${prop}Change", old, list, idx, dir);
+		if (fix !== void) idx = fix;
+		var now = list[idx];
+		_setProp(prop, now, old, force);
+	}
+	function _setProp(prop, now, old, force) {
+		callHook("onBeforeSetProp", prop, now, old);
+		_setPropItem(prop, now, force) if (typeof this[@"cur${prop}"] != "undefined");
+		callHook(@"on${prop}Changed", now, old);
+		callHook("onAfterSetProp",  prop, now, old);
+		ownerCallback("onPropChanged", name, prop, now);
+	}
+	function getProp(prop) { return _getPropItem(...); }
+}
+class        ExCVCharObject extends ExCVPropObjectBase {
+	function ExCVCharObject { super.ExCVPropObjectBase(...); }
+	function finalize { super.finalize(...); }
+
+	var propTable = [ "Char", "Dress", "Diff", "Face", "Level" ];
+	var curChar, curDress, curDiff, curFace, curLevel;
+
+	var charNames  =  [];
+	var charDress  = %[];
+	var charDiffs  = %[];
+	var charSubDress = %[];
+	var charSubDiffs = %[];
+
+	var levelNums   = [];
+	var levelZpos;
+	var curDiffList = [];
+	var curFaceList = [];
+	var charRedraw, charDelete;
+
+	var lastChar, lockedOpac;
+	function onInit() {
+		lockedOpac = SystemConfig.ExChViewCharLockedOpac;
+	}
+	function onLoadHead(line, num) {
+		var zpos = !hasKagEnvChar;
+		if (zpos) levelZpos = [];
+		for (var i = 1, p = env.positions; i < line.count; i++) {
+			var name = line[i], succeeded = false;
+			if (name == "") continue;
+			if (p[name] !== void) {
+				if        ( zpos && p[name].zpos  !== void) {
+					var level = levelNums.count;
+					levelNums.add(level);
+					levelZpos[level] = p[name].zpos;
+					succeeded = true;
+				} else if (!zpos && p[name].level !== void) {
+					levelNums.add((int)p[name].level);
+					succeeded = true;
+				}
+			}
+			dm("! 不明なレベル名", num, name) if (!succeeded);
+		}
+		//dm("char", levelNums*) if (levelNums.count > 0);
+		lastChar = void;
+	}
+	function onLoadInfo(line, num) {
+		var name = line[1];
+		if (name != "") {
+			if (charDress[name] !== void) dm("! 多重定義char", num, name);
+			else {
+				var dresses = charDress[name] = copyArray(line, [], 2);
+				charDiffs[name] = [ SystemConfig.ExChViewDefaultDiffName ];
+				charNames.add(name);
+				lastChar = name;
+				//dm(name, dresses.join(", "));
+			}
+		} else if (line.count > 2) {
+			if (lastChar == "") dm("! キャラ指定なし", num);
+			else {
+				var diffs = copyArray(line, charDiffs[lastChar], 2);
+				//dm(lastChar, diffs.join(", "));
+			}
+		}
+	}
+	function onLoadEnd() {
+		lastChar = void;
+		setupSubList();
+
+		charNames.unshift(void) if (SystemConfig.ExChViewCharEmptyOnFirst);
+		curChar = getGlobalFlag("Char");
+		curChar = void if (curChar == "" || charNames === void || charNames.find(curChar) < 0);
+		clearCurrentCharState(curChar != "");
+		if (curChar != "") {
+			curDress = getGlobalFlag("CharDress");
+			curDiff  = getGlobalFlag("CharDiff");
+			curFace  = getGlobalFlag("CharFace");
+		}
+
+		// レベル指定初期値
+		curLevel = getGlobalFlag("Level");
+		curLevel = void if (getLevelIndex() < 0);
+		if (curLevel === void && hasKagEnvChar) try {
+			curLevel = env.envinfo.defaultLevel;
+		} catch {}
+	}
+	function setupSubList() {
+		for (var i = charNames.count-1; i >= 0; i--) {
+			var name = charNames[i];
+			makeSubList(charSubDress, name, charDress[name]);
+			makeSubList(charSubDiffs, name, charDiffs[name]);
+			//dm("subdress", StructToString(charSubDress));
+			//dm("subdiffs", StructToString(charSubDiffs));
+		}
+	}
+	// 服装や差分の定義に | の組み合わせで複数マップされる場合のテーブルを作成する
+	function makeSubList(map, name, list) {
+		for (var i = list.count-1; i >= 0; i--) {
+			var tag = list[i], idx;
+			if (tag == "" || (idx=tag.indexOf("|")) < 0) continue;
+			var sub = %[], defval;
+			if (idx == 0) {
+				// 冒頭が | の場合は bit binding モード
+				tag = tag.substr(1);
+				sub.bitmode = true;
+			}
+			var div = tag.split("|",,true);
+			for (var n = div.count-1; n >= 0; n--) {
+				if (div[n] == "") div[n] = void;
+				else {
+					if (div[n].charAt(0) == "*") {
+						div[n] = defval = div[n].substr(1);
+					}
+				}
+			}
+			div.remove(void, true);
+			if (defval == "")
+				defval = div[0];
+
+			sub.list = div;
+			sub.defval = list[i] = defval;
+
+			if (sub.bitmode) {
+				var bit = 0;
+				for (var n = 1, cnt = div.count; n < cnt; n<<=1) bit++;
+				sub.bitmode = bit;
+				//dm("bitmode", tag, bit);
+			}
+
+			if (map[name] === void)
+				map[name] = %[];
+
+			var ent = map[name];
+			if (ent[defval] !== void)
+				dm("! submap conflict", name, tag, defval);
+
+			/**/ent[defval] = sub;
+			for (var n = div.count-1; n >= 0; n--) {
+				var item = div[n];
+				if (item == defval) continue;
+				if (ent[item] !== void)
+					dm("! submap conflict", name, tag, item);
+				/**/ent[item] = defval;
+			}
+		}
+	}
+
+	// List Getters
+	function getCharList  { return charNames; }
+	function getDressList { return (curChar  != "") ? charDress[curChar] : void; }
+	function getDiffList  { return (curChar  != "") ? charDiffs[curChar] : void; }
+	function getFaceList  { return (curChar  != "") ? curFaceList : void; }
+	function getLevelList { return levelNums;  }
+
+	// Enabled Getters
+	function makeEnabledList(list) {
+		if (list === void) return;
+		var r = [];
+		for (var i = 0; i < list.count; i++) {
+			r[i] = (list[i] != "" && list[i] != "-");
+		}
+		return r;
+	}
+	function getDressEnabled { return makeEnabledList(getDressList()); }
+	function getDiffEnabled  {
+		var list = getDiffList();
+		var r = makeEnabledList(list);
+		if (r !== void && list !== void && curDiffList !== void) {
+			var map = %[];
+			for (var i = 0; i < curDiffList.count; i++)
+				map[curDiffList[i]] = true;
+			for (var i = 0; i < list.count; i++)
+				if (list[i] != "" && !map[list[i]]) r[i] = false;
+		}
+		return r;
+	}
+
+	// Index Getters
+	function getCharIndex  { return getIndex(getCharList(),  curChar); }
+	function getFaceIndex  { return getIndex(getFaceList(),  curFace); }
+	function getLevelIndex { return getIndex(getLevelList(), curLevel); }
+	function getDiffIndex  { return getIndexWithSubMap(getDiffList (), curDiff,  getSubDiffMap ); }
+	function getDressIndex { return getIndexWithSubMap(getDressList(), curDress, getSubDressMap); }
+	function getSubDiffIndex  { return _getSubIndex(curDiff,  getSubDiffMap);  }
+	function getSubDressIndex { return _getSubIndex(curDress, getSubDressMap); }
+
+	function getIndexWithSubMap(list, tag, submap) {
+		var r = getIndex(list, tag);
+		if (r >= 0) return r;
+		var sub = submap(curChar, tag);
+		if (sub !== void) return getIndex(list, sub.defval);
+		return -1;
+	}
+	function getSubDiffMap (ch=curChar, diffs=curDiff ) { return _getSubMap(charSubDiffs, ch, diffs); }
+	function getSubDressMap(ch=curChar, dress=curDress) { return _getSubMap(charSubDress, ch, dress); }
+	function _getSubMap(map, ch, tag) {
+		if (ch == "" || tag == "") return;
+		var sub = map[ch];
+		if (sub !== void) {
+			var r = sub[tag];
+			if (typeof r == "String" && r != "") r = sub[r];
+			return r;
+		}
+	}
+
+	function _getSubIndex(tag, sub) {
+		if (typeof sub == "Object" &&
+			sub instanceof "Function") sub = sub(curChar, tag);
+		if (sub !== void) return getIndex(sub.list, tag);
+		return -1;
+	}
+	function _setSubIndex(prop, tag, idx, sub) {
+		if (sub === void) sub = this[@"setSub${prop}Map"](curChar, tag);
+		if (sub !== void) {
+			var set;
+			if (!sub.bitmode) set = sub.list[idx];
+			else {
+				var n = getIndex(sub.list, tag);
+				if (n >= 0) {
+					n ^= (1<<idx);
+					set = sub.list[n];
+				}
+			}
+			_setProp(prop, set, tag) if (set != "");
+		}
+	}
+	function getSubMap {
+		var sub;
+		if ((sub=getSubDressMap(curChar, curDress)) !== void) return sub;
+		if ((sub=getSubDiffMap (curChar, curDiff )) !== void) return sub;
+	}
+	function getSubIndex {
+		var sub;
+		if ((sub=getSubDressMap(curChar, curDress)) !== void) return _getSubIndex(curDress, sub);
+		if ((sub=getSubDiffMap (curChar, curDiff )) !== void) return _getSubIndex(curDiff,  sub);
+		return -1;
+	}
+	function setSubIndex(idx) {
+		var sub;
+		if ((sub=getSubDressMap(curChar, curDress)) !== void) return _setSubIndex("Dress", curDress, idx, sub);
+		if ((sub=getSubDiffMap (curChar, curDiff )) !== void) return _setSubIndex("Diff",  curDiff,  idx, sub);
+	}
+
+	function getCharacter(name = curChar) {
+		if (name == "") return;
+		try { // バージョンにより取得方法が異なる
+			return hasKagEnvChar ? env.characters[name] :  env.objects[name];
+		} catch {}
+	}
+	function getCharacterOptions(ch) {
+		if (!hasKagEnvChar) return ch.getOptions();
+		if (SystemConfig.ExChViewCharUseOldPoseState) {
+			// KAGEnvCharacter時
+			var dress = ch.dress;
+			var pose  = ch.pose;
+			var face  = ch.face;
+			if (typeof ch.diff == "undefined") try {
+				if (pose == "") pose = ch.init.defaultPose;
+				if (ch.poses !== void && pose != "") {
+					var poseInfo = ch.poses[pose];
+					if (poseInfo !== void) {
+						if (dress == "") dress = poseInfo.defaultDress;
+						if (face  == "") face  = poseInfo.defaultFace;
+					}
+				}
+			} catch {}
+			return %[ dress:dress, diff:pose, face:face, level:ch.level ];
+		}
+	}
+	function getCharacterDress(ch, opt) { return opt ? opt.dress : ch.dress; }
+	function getCharacterDiff (ch, opt) { return opt ? opt.diff  : ch.diff; }
+	function getCharacterFaceAliasList(ch, opt) {
+		// [TODO] 新方式でのfgAliasListの取得方法
+		return opt ? void : ch.getStandInfo(ch.pose).fgAliasList;
+	}
+	function getCharacterFace (ch, opt) {
+		var face = opt ? opt.face : ch.face;
+		// 組み合わせの場合はエイリアス検索
+		if (face != "" && face.indexOf(":") >= 0) {
+			var chk  = face.split(":");
+			var list = getCharacterFaceAliasList(ch, opt);
+			if (list) for (var i = 0; i < list.count; i++) {
+				var tag = list[i].name;
+				var grp = list[i].value, found = true;
+				for (var j = 0; j < grp.count; j++) {
+					found &&= (chk.find(grp[j]) >= 0);
+					if (!found) break;
+				}
+				if (found) {
+					face = tag;
+					break;
+				}
+			}
+		}
+		return face;
+	}
+	function getCharacterLevel(ch, opt) {
+		if (!opt || hasKagEnvChar) return ch.level;
+		var zpos  = ch.getPropValue("zorder");
+		var level = levelZpos.find(zpos);
+		return level >= 0 ? level : 0;
+	}
+	function getCharacterDiffList(ch, opt) {
+		if (!opt) try { return ch.getDiffNames(false); } catch {}
+		else if (hasKagEnvChar) try { return ch.getPoseNames(false); } catch {}
+		else if         (ch.imageSource instanceof "StandAffineSourceLayer") {
+			try { return ch.imageSource._standImage.getPoseNames(false); } catch {}
+		}
+		return []; // fail safe
+	}
+	function getCharacterFaceList(ch, opt) {
+		var list;
+		if (!opt || hasKagEnvChar) try { list = ch.getFaceNames(true); } catch {}
+		else if         (ch.imageSource instanceof "StandAffineSourceLayer") {
+			try { list = ch.imageSource._standImage.getFaceNames(true); } catch {}
+		}
+		var r = [];
+		if (list) for (var i = 0, cnt = list.count; i < cnt; i++) {
+			r.add(list[i]) if (list[i].indexOf("_") < 0);
+		}
+		return r;
+	}
+
+	function updateCurrentCharState() {
+		clearCurrentCharState(true);
+		var ch = getCharacter();
+		if (ch === void) return;
+		var opt  = getCharacterOptions(ch);
+		internalUpdateCurrentCharState(ch, opt);
+	}
+	function internalUpdateCurrentCharState(ch, opt) {
+		curDress = getCharacterDress(ch, opt);
+		curDiff  = getCharacterDiff (ch, opt);
+		curFace  = getCharacterFace (ch, opt);
+		curLevel = getCharacterLevel(ch, opt);
+		setGlobalFlag("CharDress",  curDress);
+		setGlobalFlag("CharDiff",   curDiff);
+		setGlobalFlag("CharFace",   curFace);
+
+		curDiffList.assign(getCharacterDiffList(ch, opt));
+		curFaceList.assign(getCharacterFaceList(ch, opt));
+		ownerCallback("onUpdateCurrentCharState", curFaceList);
+	}
+	function clearCurrentCharState(gfnoclear) {
+		curDress = curDiff = curFace = void; //curLevel = void;
+		curDiffList.clear();
+		curFaceList.clear();
+		if (!gfnoclear) {
+			setGlobalFlag("CharDress", void);
+			setGlobalFlag("CharDiff",  void);
+			setGlobalFlag("CharFace",  void);
+		}
+	}
+	function onBeforeSetProp(prop, val) {
+		if (charRedraw === void) {
+			charRedraw = copyDic(SystemConfig.ExChViewDefaultCharState);
+			var ch = getCharacter(prop == "Char" ? val : curChar);
+			if (ch !== void) with (charRedraw) {
+				delete .xpos;
+				.ypos = ch.ypos;
+			}
+			clearCurrentCharState();
+		}
+	}
+
+//	function onCharChange   {}
+//	function onDressChange  {}
+	function onDiffChange(old, list, idx, dir) {
+		if (!curDiffList.count) return;
+		for (var i = list.count-1; i >= 0; i--) {
+			if (curDiffList.find(list[idx]) >= 0) break;
+			idx = roundList(list, idx, dir);
+		}
+		return idx;
+	}
+//	function onFaceChange   {}
+//	function onLevelChange  {}
+
+	function onCharChanged(now, old) {
+		//dm("onCharChanged", now, old);
+		if (now != "" && now == old) onCharDoubleClick();
+		clearCurrentCharState();
+		setGlobalFlag("Char",  curChar);
+	}
+	function onCharDoubleClick { lock(); }
+	function onDressChanged { charRedraw.dress = curDress; }
+	function onDiffChanged  { charRedraw.diff  = curDiff; }
+	function onFaceChanged  { charRedraw.face  = curFace; }
+	function onLevelChanged {
+		setGlobalFlag("Level", curLevel);
+		if (hasKagEnvChar) charRedraw.level = curLevel;
+		else if (curLevel !== void && levelZpos) {
+			charRedraw.zpos = levelZpos[+curLevel];
+		}
+	}
+
+	function remove() {
+		charDelete = curChar;
+		curChar = void;
+		clearCurrentCharState();
+	}
+	var _lockedMap = %[];
+	function getCharState(name, forceShow, elm = %[]) {
+		if (elm) addTagParam(elm, "opacity", forceShow ? 255 : lockedOpac);
+		return elm;
+	}
+	function makeElement(tagname, elm) {
+		if (typeof global.insertTagParam == "Object")
+			/**/   global.insertTagParam(elm, "tagname", tagname);
+		return elm;
+	}
+	function addTagParam(elm, name, value = true) {
+		if (typeof global.addTagParam == "Object")
+			/**/   global.addTagParam(elm, name, value);
+		else elm[name] = value;
+	}
+	function lock() {
+		if (curChar != "") {
+			var state = (_lockedMap[curChar] = !_lockedMap[curChar]);
+			if(!state) delete _lockedMap[curChar];
+			updateLockMarks();
+		}
+	}
+	function isLocked(name = curChar) { return name != "" && !!_lockedMap[name]; }
+	function foreachLocked(cb, *) { foreach(_lockedMap, cb, *); }
+	function onViewStart(elm) {
+		var ins = kag.insertTag;
+		foreachLocked(function (k, v, d, ins) {
+			if (k != "" && v && k != curChar) ins(k, getCharState(k, -1));
+		} incontextof this, ins);
+		if (curChar != "") ins(curChar, getCharState(curChar, -1));
+	}
+	function onViewEnd(elm) {
+		var ins = kag.insertTag;
+		foreachLocked(function (k, v, d, ins) {
+			if (k != "" && v && k != curChar) ins(k, getCharState(k,  0));
+		} incontextof this, ins);
+		if (curChar != "") ins(curChar, getCharState(curChar, 1));
+	}
+
+	function onRedraw(add) {
+		//dm("onRedraw", curChar, charRedraw ? StructToString(charRedraw) : void);
+		if (charDelete != "") {
+			delete _lockedMap[charDelete];
+			add(charDelete, %[ "delete"=>true ]);
+			charDelete = void;
+		}
+		foreachLocked(function (k, v, d, add) {
+			//dm("lockedMap", k);
+			if (k != "" && v && k != curChar) {
+				add(k, getCharState(k, 0, makeElement(k, %[ show:true ])));
+			}
+		} incontextof this, add);
+		if (curChar != "") {
+			var elm = getCharState(curChar, 1, makeElement(curChar, %[ show:true ]));
+			if (charRedraw !== void) {
+				ownerCallback("replaceCharRedraw", curChar, charRedraw);
+				(Dictionary.assign incontextof elm)(charRedraw, false);
+				// [XXX] pose使用時
+				if (SystemConfig.ExChViewCharUseOldPoseState && typeof elm.diff != "undefined") with (elm) {
+					.pose = .diff;
+					delete .diff;
+				}
+			}
+			add(curChar, elm);
+		}
+		charRedraw = void;
+	}
+	function onRedrawed() {
+		updateCurrentCharState();
+	}
+
+	function updateLockMarks(names = kag.current.names) {
+		for (var list = getCharList(), i = list.count-1; i >= 0; i--) {
+			setButtonVisible(names["lock"+i], isLocked(list[i])) if (list[i] != "");
+		}
+	}
+	function onUpdateButton(names) {
+		var hasChar = (curChar != "");
+		setButtonVisible(names.remove, hasChar);
+		setButtonVisible(names.lock,   hasChar, hasChar ? isLocked(curChar) : void);
+		setButtonVisible(names.style,  hasChar);
+		for (var i = 0; i < propTable.count; i++) {
+			var tag  = propTable[i];
+			var idx  = _getPropItem(tag, "Index");
+			if (idx === void) idx = -1;
+			var base = ((string)tag).toLowerCase();
+			//dm("updateButton", tag, idx, _getPropItem(tag));
+			var vis = getButtonVisible(tag, hasChar);
+			toggleButtonIndex(names, base, idx, vis, _getPropItem(tag, "Enabled"));
+			var cb = @"on${tag}ButtonUpdated";
+			if (typeof this[cb] == "Object") this[cb](names, base, hasChar);
+		}
+		var idx = getSubIndex(), sub = getSubMap(), base = "sub";
+		if (idx < 0) {
+			toggleButtonIndex(names, base, -1, hasChar, []);
+			foreachButtons(function (btn, n, idx) { btn.opacity = 128; }, names, base);
+		} else {
+			var bit = sub.bitmode;
+			if (bit > 0) {
+				var ens = [];
+				for (var i = 0; i < bit; i++) ens.add(true);
+				toggleButtonIndex(names, base, -1, hasChar, ens);
+				foreachButtons(function (btn, n, idx) { with (btn) {
+					.opacity = .enabled ? 255 : 128;
+					.toggle = !!(idx & (1<<n));
+				} }, names, base, idx);
+			} else {
+				toggleButtonIndex(names, base, idx, hasChar, makeEnabledList(sub.list));
+				foreachButtons(function (btn, n, max) { with (btn) {
+					.opacity = .enabled ? 255 : 128;
+					.enabled = false if (.toggle);
+				} }, names, base, sub.list.count);
+			}
+		}
+		updateLockMarks(names);
+	}
+	function getButtonVisible(tag, hasChar) {
+		return (tag == "Char") ? void : hasChar;
+	}
+	function onFaceButtonUpdated(names, base, hasChar) {
+		if (hasChar) {
+			var list = getFaceList();
+			foreachButtons(function (btn, n, max) {
+				btn.visible = n < max;
+			}, names, base, list ? list.count : 0);
+		}
+	}
+	function foreachButtons(cb, names, base, *) {
+		for (var n = 0, btn; ((btn = names[base + n]) !== void); n++) cb(btn, n, *);
+	}
+	function toggleButtonIndex(*) { // names, base, idx, vis, ens
+		foreachButtons(function (btn, n, idx, vis, ens) {
+			btn.toggle = (n === idx);
+			btn.visible = vis    if (vis !== void);
+			btn.enabled = ens[n] if (ens !== void);
+		}, *);
+	}
+	function setButtonVisible(lay, vis, tgl) {
+		if (lay) with (lay) {
+			.visible = vis;
+			.toggle  = tgl if (tgl !== void);
+		}
+	}
+}
+
+//-------------------------------------------------------------
+class        ExCVStageObject extends ExCVPropObjectBase {
+	function ExCVStageObject { super.ExCVPropObjectBase(...); }
+	function finalize { super.finalize(...); }
+
+	var propTable = [ "Stage", "Time" ];
+	var curStage, curTime;
+	var stageNames =  [];
+	var stageTimes = %[];
+	var stageSelList = [];
+	var stageSelHead = [];
+
+	function onLoadHead(line) {
+		copyArray(line, stageSelHead, 1);
+	}
+	function onLoadInfo(line, num) {
+		var stage = (line[1] != "") ? line[1].trim() : void;
+		if (stage == "") dm("! 不明なstage", num);
+		else if (stageTimes[stage] !== void) dm("! 多重定義stage", num, stage);
+		else if (stage != "-") {
+			var times = stageTimes[stage] = copyArray(line, [], 2);
+			stageNames.add(stage);
+			stageSelList.add(stage);
+			//dm("stage", stage, times.join(", "));
+		} else {
+			stageSelList.add(void);
+		}
+	}
+	function onLoadEnd() {
+		// 初期ステージを決定
+		curStage = getGlobalFlag("Stage");
+		curStage = stageNames[0] if (curStage == "" || getStageIndex() < 0);
+
+		// 初期時間指定があれば設定
+		var times = getTimeList();
+		curTime = getGlobalFlag("Time");
+		curTime = void if (times === void || getTimeIndex() < 0);
+	}
+
+	// List Getters
+	function getStageList  { return stageNames; }
+	function getTimeList   { return (curStage != "") ? stageTimes[curStage] : void; }
+	function getSelectList { return stageSelList; }
+	function getSelectHead { return stageSelHead; }
+
+	// Index Getters
+	function getStageIndex { return getIndex(getStageList(),  curStage); }
+	function getTimeIndex  { return getIndex(getTimeList(),   curTime ); }
+
+	function setRandom() {
+		var rnd = (int)(defaultRandomGenerator.random() * stageNames.count);
+		setProp("Stage", rnd);
+		if (curStage != "") {
+			var times = getTimeList();
+			rnd = (int)(defaultRandomGenerator.random() * times.count);
+			setProp("Time", rnd);
+		}
+	}
+
+	function onStageChanged() {
+		var times = getTimeList();
+		curTime = (times !== void) ? times[0] : void;
+
+		setGlobalFlag("Stage", curStage);
+		setGlobalFlag("Time",  curTime);
+	}
+	function onTimeChanged() {
+		setGlobalFlag("Time",  curTime);
+	}
+
+	function onRedraw(add) {
+		if (curStage != "") {
+			var elm = (curTime != "") ? %[ stime:curTime ] : %[];
+			add(curStage, elm);
+		}
+	}
+}
+
+class        ExCVPopupObject extends ExCVPropObjectBase {
+	function ExCVPopupObject { super.ExCVPropObjectBase(...); }
+	function finalize {
+		invalidate popup if (popup);
+		super.finalize(...);
+	}
+
+	var popup, mode, layers = [], once = SystemConfig.ExChViewPopupOnce, showed = false;
+	function onInit() {
+		popup = new KAGLayer(kag, kag.primaryLayer);
+		if (popup) with (popup) {
+			.hitType = htMask;
+			.hitThreshold = 256;
+			.name = "ポップアップ通知";
+			var pos  = SystemConfig.ExChViewPopupPos;
+			var img  = SystemConfig.ExChViewPopupImage;
+			var text = SystemConfig.ExChViewPopupText;
+			var prm  = SystemConfig.ExChViewPopupParam;
+
+			if (pos !== void) .setPos(pos*);
+			if (img !=  ""  ) .loadImages(img);
+			if (text != ""  ) {
+				if (prm instanceof "Function") prm = prm(popup);
+				if (prm !== void) drawTextKinsokuRect(popup, text, prm);
+			}
+			.visible = false;
+			.absolute = kag.current.absolute;
+		}
+	}
+
+	function onViewStart(elm) {
+		if (popup && !elm.capture && !(once && showed)) {
+			kag.stopAction(popup);
+			popup.visible = true;
+			kag.beginAction(popup, [
+				%[  opacity:  %[ handler:MoveAction, start:(popup.opacity=0), value:255, time:200 ] ], 
+				%[  opacity:  %[ handler:MoveAction, start:255,  value:0,    time:200, delay:1500 ] ] ],, true);
+			showed = true;
+		}
+		for (var i = layers.count-1, ins = kag.insertTag; i >= 0; i--) {
+			ins(layers[i], %[ show:true ]);
+		}
+	}
+	function onLoadHead(line) {
+		mode = (line[1] !== void) ? +line[1] : 1;
+		if (!mode && popup) {
+			invalidate popup;
+			popup = void;
+		}
+	}
+	function onLoadInfo(line) {
+		if (line[1] != "") layers.add(line[1]);
+	}
+	function onViewEnd(elm) {
+		if (popup && !elm.capture) {
+			kag.stopAction(popup);
+			popup.visible = false;
+			if (mode == 1) {
+				invalidate popup;
+				popup = void;
+			}
+		}
+		for (var i = layers.count-1, ins = kag.insertTag; i >= 0; i--) {
+			ins(layers[i], %[ hide:true ]);
+		}
+	}
+}
+
+class        ExCVHideMesOnView extends ExCVPropObjectBase {
+	function ExCVHideMesOnView { super.ExCVPropObjectBase(...); }
+	function finalize { super.finalize(...); }
+	function onViewStart() {
+		try { kag.current.visible = false; } catch {}
+	}
+	function onViewEnd() {
+		try { kag.current.visible = true; } catch {}
+	}
+}
+
+class        ExCVDragObject extends ExCVPropObjectBase {
+	function ExCVDragObject { super.ExCVPropObjectBase(...); }
+	function finalize {
+		try { env.defaultHitThreshold = origenvht; } catch {}
+		super.finalize(...);
+	}
+	var _onView, _lockFirst, origenvht;
+	function onInit() {
+		origenvht = env.defaultHitThreshold;
+		env.defaultHitThreshold = 64;
+		owner.dragmask.defaultCursor = crSizeAll;
+	}
+	function onViewStart() {
+		_onView = _lockFirst = true;
+		owner.dragmask.defaultCursor = void;
+	}
+	function onViewEnd()   {
+		_onView = false;
+		owner.dragmask.defaultCursor = crSizeAll;
+	}
+	function setStageDragParam(elm, info) {
+		var w = info.width, h = info.height;
+		if (w <= kag.scWidth && h <= kag.scHeight) return false;
+		with (elm) {
+			.free   = true;
+			.width  = w;
+			.height = h;
+			.zoom = (info.zoom !== void) ? info.zoom : 100;
+			.range  = true;
+			.lock = 16 if (_lockFirst);
+		}
+		return true;
+	}
+	function getCursorPosLayer() {
+		var lay;
+		// [XXX]
+		owner.dragmask.visible = false;
+		with (kag.sysbase) lay = .getLayerAt(.cursorX, .cursorY, true);
+		owner.dragmask.visible = true;
+		return lay;
+	}
+	function getDragTarget(elm) {
+		return internalGetDragTarget(elm, getCursorPosLayer());
+	}
+	function internalGetDragTarget(elm, lay) {
+		if (!_onView && SystemConfig.ExChViewDragCurCharOnNoView) {
+			return owner.invoke("ch.getCharacter");
+		}
+		var target, r;
+		if      ((r = getCharacterLayerOwner(lay)) !== void) target = r;
+		else if ((r = getStageLayerSize(lay)) !== void) {
+			target  = setStageDragParam(elm, r) ? r.target : void;
+		}
+		return target;
+	}
+	function _getEnvImageOwner(lay) {
+		if (lay && typeof lay.owner == "Object") {
+			var target =  lay.owner;
+			if (target && target instanceof "KAGEnvImage")
+				return target;
+		}
+	}
+	function getCharacterLayerOwner(lay) {
+		if (hasKagEnvChar) {
+			if (lay && typeof lay.owner == "Object" &&
+				lay.owner &&  lay.owner instanceof "KAGEnvCharacter") {
+				return lay.owner;
+			}
+		} else {
+			var target = _getEnvImageOwner(lay);
+			if (target && !(target.classFlag & FLAG_STAGE)) return target;
+		}
+	}
+	function getStageLayerSize(lay) {
+		if (hasKagEnvChar) {
+			var stage = env.stage;
+			var lay = stage.targetLayer;
+			return lay ? %[ target:stage, width:lay.width, height:lay.height ] : void;
+		} else {
+			var target = _getEnvImageOwner(lay);
+			if (target && (target.classFlag & FLAG_STAGE)) {
+				var zoom = 100;
+				try { zoom = target.getPropValue("zoomx"); } catch {}
+				return %[ target:target, width:lay.imageWidth, height:lay.imageHeight, zoom:zoom ];
+			}
+		}
+	}
+	function getDragTargetCoef(target) {
+		var coef = 1;
+		if (hasKagEnvChar) {
+			if (typeof target.targetLayer == "Object" &&
+				typeof target.targetLayer.updateOffsetInfo == "Object") with (target.targetLayer) {
+					.updateOffsetInfo();
+					coef = .levelz / 100 if (.levelz > 0);
+				}
+		} else {
+			try { coef = target.getPropValue("zorder") / 100; } catch {}
+		}
+		return coef;
+	}
+	function getDragTargetPos(target) {
+		if (hasKagEnvChar) {
+			return %[ x:(int)target.xpos, y:(int)target.ypos ];
+		} else {
+			var x = target.getPropValue("left");
+			var y = target.getPropValue("top" );
+			return %[ x:x, y:y ];
+		}
+	}
+	function setDragTargetPos(target, x, y) {
+		with (target) {
+			if (hasKagEnvChar) {
+				.xpos = x;
+				.ypos = y;
+				.reposition = true;
+				sync();
+			} else {
+				.doCommand("left", x);
+				.doCommand("top",  y);
+				.setRedraw();
+				.update();
+			}
+		}
+	}
+	function setupDragParam(elm, target) {
+		with (elm) {
+			.target  = target;
+			var coef = .coef = getDragTargetCoef(target);
+			if (.range) setupDragRange(elm, coef);
+		}
+		with (getDragTargetPos(target)) elm.xpos=.x, elm.ypos=.y;
+	}
+	function setupDragRange(elm, coef) {
+		with (elm) {
+			var sw = kag.scWidth, sh = kag.scHeight;
+			var w = elm.width, h = elm.height, z = elm.zoom;
+			if (z !== void) {
+				z /= 100;
+				w *= z;
+				h *= z;
+			}
+			var horz = (int)Math.round((w-sw)/(coef*2));
+			.minx = -horz;
+			.maxx =  horz;
+			var vert = (int)Math.round((h-sh)/(coef*2));
+			.miny = -vert;
+			.maxy =  vert;
+			dm("setupDragRange", w, h, z, coef, .minx, .maxx, .miny, .maxy);
+		}
+	}
+
+	function onDragStart(elm, sft) {
+		elm.free = !!(sft & ssShift);
+		elm.yrev = -1;
+		var target;
+		target = getDragTarget(elm);
+		var r = target !== void;
+		if (r) setupDragParam(elm, target);
+		return r;
+	}
+	function onDragging(elm, dx, dy) {
+		var target = elm.target;
+		if (target !== void) with (elm) {
+			var lock = .lock;
+			if (lock > 0) {
+				if (Math.abs(dx) < lock && Math.abs(dy) < lock) return;
+				.lock = 0;
+				_lockFirst = false;
+			}
+			var z = 1/*kag.zoomDenom / kag.zoomNumer*/, coef = .coef;
+			dy *= .yrev;
+			var xpos = .xpos + (int)(dx * z / coef);
+			var ypos = .ypos + (int)(dy * z / coef);
+			if (.range) {
+				xpos = .minx if (xpos < .minx);
+				xpos = .maxx if (xpos > .maxx);
+				ypos = .miny if (ypos < .miny);
+				ypos = .maxy if (ypos > .maxy);
+			}
+			setDragTargetPos(target, xpos, ypos);
+		}
+	}
+	function sync() {
+		env.setRedraw();
+		env.updateAll();
+	}
+}
+
+//-------------------------------------------------------------
+//-------------------------------------------------------------
+class        ExtraCharaViewBase extends ExCVUtil {
+	function ExtraCharaViewBase {
+		dragmask = new ExChViewDragMaskLayer(this, kag, kag.primaryLayer);
+		createPropTargets();
+		invokeObjects("onInit");
+		loadInfo();
+	}
+	function finalize {
+		if (isvalid this) {
+			for (var i = 0, cnt = propObjects.count; i < cnt; i+=2) {
+				var tag = propObjects[i];
+				if (tag != "" && propTargets[tag]) {
+					try { invalidate   propTargets[tag]; } catch {}
+				}
+			}
+			invalidate dragmask if (dragmask);
+		}
+	}
+	var dragmask;
+	var propTargets = %[];
+	var propObjects = SystemConfig.ExChViewPropObjects;
+
+	function createPropTargets() {
+		for (var i = 0, cnt = propObjects.count; i < cnt; i+=2) {
+			var tag = propObjects[i], cls = propObjects[i+1];
+			if (tag == "") continue;
+			if (typeof cls == "String" && cls != "") {
+				if (typeof global[cls] != "undefined") cls = global[cls];
+				else try { cls = Scripts.eval(cls); } catch(e) {
+					dm("! 未知のpropObject", tag, cls, e.message);
+					continue;
+				}
+			}
+			if (typeof cls == "Object") {
+				var target;
+				if      (cls instanceof "Class"   ) target = new cls(this, tag);
+				else if (cls instanceof "Function") target =     cls(this, tag);
+				else if (cls) target = cls;
+				propTargets[tag] = target;
+			} else {
+				dm("! 未知のpropObject", tag);
+			}
+		}
+	}
+	function invokeObjects(*) {
+		var r = 0;
+		for (var i = 0, cnt = propObjects.count; i < cnt; i+=2) {
+			var tag = propObjects[i];
+			if (tag != "") {
+				r |= callMethod(propTargets[tag], *);
+			}
+		}
+		return r;
+	}
+	function callMethod(obj, method, *) {
+		if (obj !== void) return obj.invoke(method, *);
+	}
+	function getModule(div) {
+		if (!div.count) return this;
+		var target = propTargets;
+		while (target && div.count > 0) {
+			var name = div.shift();
+			if (name == "" || typeof target[name] != "Object" || !target[name]) {
+				dm("! 対象が見つかりませんでした", sel, val);
+				return;
+			}
+			target = target[name];
+		}
+		return target;
+	}
+	function invoke(sel, *) {
+		var div = sel.split(".",, true);
+		var method = div.pop();
+		var target = getModule(div);
+		if(!target) return;
+		if (target !== this) return callMethod(target, method, *);
+		if (typeof this[prop] == "Object") return this[method](*);
+	}
+	function setProp(sel, val) {
+		var div = sel.split(".",, true);
+		var prop = div.pop();
+		var target = getModule(div);
+		if(!target) return;
+		if (target !== this) return callMethod(target, "setProp", prop, val);
+		//dm("setPropThis", prop, val, typeof this[prop]);
+		this[prop] = val if (typeof this[prop] != "undefined");
+	}
+	function getProp(sel) {
+		var div = sel.split(".",, true);
+		var prop = div.pop();
+		var target = getModule(div);
+		if(!target) return;
+		if (target !== this) return callMethod(target, "getProp", prop);
+		if (typeof this[prop] != "undefined") return this[prop];
+	}
+
+
+	function loadInfo(file = SystemConfig.ExChViewDefines) {
+		invokeObjects("onLoadBegin", file);
+
+		var line, parser = new CSVParser(this, # "\t");
+		parser.initStorage(file);
+		var lastTarget;
+		while ( (line = parser.getNextLine()) !== void ) {
+			if (!line.count || line[0].charAt(0) == "#") continue;
+			var num = parser.currentLineNumber;
+			var head = line[0];
+			if (head != "") {
+				lastTarget = propTargets[head];
+				if (lastTarget !== void) {
+					callMethod(lastTarget, "onLoadHead", line, num);
+				} else {
+					dm("! 不明なコマンド", num, head);
+				}
+			} else {
+				if (lastTarget !== void) {
+					callMethod(lastTarget, "onLoadInfo", line, num);
+				} else {
+					dm("! 不明な行", num, line*);
+				}
+			}
+		}
+		invokeObjects("onLoadEnd");
+	}
+
+	function redraw(elm) {
+		var add = kag.addTag;
+		invokeObjects("onRedraw", add);
+		add("dialog", %[ action:"redrawed" ]);
+	}
+	function redrawed(elm) {
+		invokeObjects("onRedrawed");
+	}
+
+	var _focusOnUpdate;
+	function beforeUpdate() {
+		_focusOnUpdate = void;
+		try {
+			// [XXX]
+			with (kag.current) if (.lastKeyLink >= 0) {
+				var name = .links[.lastKeyLink].object.name;
+				var sgks = kag.getKeyState;
+				var process = sgks(VK_LEFT) || sgks(VK_UP) || sgks(VK_RIGHT) ||
+					sgks(VK_DOWN) || sgks(VK_TAB) || sgks(VK_RETURN);
+				dm("beforeUpdate", process, name);
+				_focusOnUpdate = name if (process);
+			}
+		} catch {}
+	}
+	function updateDragMask {
+		dragmask.init(kag.current);
+	}
+	function updateButton() {
+		// ボタンの選択・有効無効を更新する
+		invokeObjects("onUpdateButton", kag.current.names);
+		try {
+			// 再フォーカス
+			if (_focusOnUpdate != "") with (kag.current) {
+				var target = .names[_focusOnUpdate];
+				if (target) {
+					.setFocusToLink(target.linkNum, true);
+				}
+			}
+		} catch {}
+		_focusOnUpdate = void;
+	}
+
+	function onViewStart(elm) {
+		invokeObjects("onViewStart", elm);
+	}
+	function onViewEnd(elm)   {
+		invokeObjects("onViewEnd", elm);
+	}
+	function onDragStart(sft) {
+		//dm("onDragStart", sft);
+		var elm = %[];
+		return invokeObjects("onDragStart", elm, sft) ? elm : void;
+	}
+	function onDragging(elm, dx, dy) {
+		invokeObjects("onDragging", elm, dx, dy);
+	}
+	function onUiload(elm) {
+		elm.transparent = true;
+		invokeObjects("onUiload", elm);
+	}
+	function onUiloaded(elm, ui) {
+		invokeObjects("onUiloaded", elm, ui);
+	}
+
+	function canArraySelect(arr) { return arr && arr.count > 1; }
+	function canStageSelect { return canArraySelect(invoke("bg.getStageList")); }
+	function canTimeSelect  { return canArraySelect(invoke("bg.getTimeList"));  }
+
+	function getRclickJumpTarget {
+		var r = SystemConfig.ExChViewRClickJumpTarget;
+		if (r == "") r = "*back_rclick";
+		return r;
+	}
+	function doAskRclickQuit { return SystemConfig.ExChViewAskRClickBack; }
+	function askQuit() {
+		askYesNo("AskTitle", "確認", askQuitOK, askQuitCancel);
+	}
+	function askQuitCancel() { go("*update"); }
+	function askQuitOK()     { go("*back2"); }
+	function go(target) { kag.process('exchview.ks', target); }
+
+	// 画面キャプチャ
+	function captureScreen() {
+		try {
+			kag.lockSnapshot();
+			if (kag.snapshotLayer !== void) {
+				kag.captureSnapshot(,,, false);
+
+				if (typeof global.Layer.saveLayerImagePng == "undefined") {
+					try {
+						Plugins.link("layerExSave.dll");
+					} catch {}
+				}
+
+				// 入出力ファイル選択
+				var ext = (typeof global.Layer.saveLayerImagePng == "Object") ? "png" : "bmp";
+				var elm = %[
+				filter: [
+					@"${ext}ファイル(*.${ext})|*.${ext}", 
+					"すべてのファイル(*.*)|*.*"
+					],
+				defaultExt:@".${ext}",
+				initialDir: System.personalPath,
+
+				title:SystemConfig.ExChViewCaptureCaption,
+				save:true
+					];
+				var name = SystemConfig.ExChViewCaptureFileBase;
+				var date = new Date();
+				if (date !== void) with (date) {
+					name += "%04d%02d%02d_%02d%02d%02d".sprintf(
+						.getYear(),  .getMonth()+1, .getDate(),
+						.getHours(), .getMinutes(), .getSeconds());
+				}
+				elm.name = elm.initialDir + "/" +name;
+				if (Storages.selectFile(elm)) {
+					try {
+						if (ext == "bmp") kag.snapshotLayer.saveLayerImage   (elm.name, "bmp24");
+						else {
+							try { (global.Layer.fillAlpha   incontextof kag.snapshotLayer)(); } catch {}
+							(global.Layer.saveLayerImagePng incontextof kag.snapshotLayer)(elm.name);
+						}
+					} catch (e) {
+						System.inform(e.message);
+					}
+				}
+			}
+			kag.freeSnapshot();
+		} catch (e) {
+			dm(e.message);
+		}
+	}
+
+}
+
+SystemScript.script( "exchview");
+SystemHook.add(      "exchview.leave", "dialog.done");
+setSystemMenuStorage("exchview.ks");
+/*
+SystemConfig.ExChViewUIStorage = "exchview";
+var ExtraCharaViewClass = ExtraCharaViewBase;
+Dialog.add(%[   name:"exchview", start:ExtraCharaViewClass, storage: SystemConfig.ExChViewUIStorage ]);
+ */
+
+addKagHandler("exchview_panel", function(elm) {
+	var panel = SystemConfig.ExChViewSelectPanel;
+	if (panel != "") {
+		elm["class"] = panel;
+		return tagHandlers.panel(elm);
+	}
+	return 0;
+}, true);
+addKagHandler("extramode_bg", function(elm) {
+	var elm = %[], tag, get = ExtraCharaView.getGlobalFlag;
+	if ((tag = get("Stage")) != "") elm.stage = tag;
+	if ((tag = get("Time" )) != "") elm.stime = tag;
+	insertTag("stage", elm);
+	return 0;
+}, true);
+
+
+
+//--------------------------------------------------------------
+
+class ExChViewDragMaskLayer extends Layer {
+	var owner, dragging;
+	var basex, basey, lastdir;
+	function ExChViewDragMaskLayer(owner, win, par) {
+		super.Layer(win, par);
+		this.owner = owner;
+		hasImage = false;
+		name = "ドラッグマスク";
+		dragging = void;
+	}
+	function finalize() { super.finalize(...); }
+
+	function init(target) {
+		parent   = target.parent;
+		absolute = target.absolute-1;
+		setPos(0, 0, parent.width, parent.height);
+		hitType = htMask;
+		hitThreshold = 0;
+		visible = true;
+	}
+	function onMouseDown(x, y, btn, sft) {
+		if (btn == mbRight) {
+			var r = super.onMouseDown(...);
+			releaseCapture();
+			window.onPrimaryRightClick();
+			return r;
+		} else if (btn == mbLeft) {
+			dragging = owner.onDragStart(sft);
+			if (dragging !== void) with (dragging) {
+				if      ( .xonly && !.yonly) cursor = crSizeWE;
+				else if (!.xonly &&  .yonly) cursor = crSizeNS;
+				else                         cursor = crSizeAll;
+				basex = x;
+				basey = y;
+				lastdir = void;
+			} else {
+				window.onPrimaryClick();
+				cursor = defaultCursor;
+			}
+		}
+		return super.onMouseDown(...);
+	}
+	function onMouseMove(x, y) {
+		if (dragging !== void) with (dragging) {
+			var dx = (x - basex);
+			var dy = (y - basey);
+			if (.xonly || .yonly) {
+				if (.xonly) dy = 0;
+				if (.yonly) dx = 0;
+			} else if (!.free) {
+				if (dx || dy) {
+					if (lastdir === void) {
+						lastdir = Math.abs(dx) > Math.abs(dy);
+						cursor = lastdir ? crSizeWE : crSizeNS;
+					}
+					else if (lastdir) {
+						if (Math.abs(dy) > Math.abs(dx*2)) {
+							lastdir = false;
+							cursor  = crSizeNS;
+						}
+					} else {
+						if (Math.abs(dx) > Math.abs(dy*2)) {
+							lastdir = true;
+							cursor  = crSizeWE;
+						}
+					}
+				}
+				if (lastdir) dy = 0;
+				else dx = 0;
+			}
+			owner.onDragging(dragging, dx, dy);
+		}
+	}
+	function onMouseUp(x, y, btn, sft) {
+		dragging = void;
+		cursor = defaultCursor;
+		return super.onMouseDown(...);
+	}
+
+	var _defcur;
+	property defaultCursor {
+		getter { return _defcur !== void ? _defcur : window.cursorDefault; }
+		setter(v) {
+			if (v === void) v = window.cursorDefault;
+			var reset = (cursor == _defcur);
+			_defcur = v;
+			if (reset) cursor = v;
+		}
+	}
+}
+
+//--------------------------------------------------------------

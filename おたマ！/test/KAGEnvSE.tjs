@@ -1,0 +1,248 @@
+/**
+ * 環境SEオブジェクト
+ */
+class KAGEnvSE extends KAGEnvBase {
+
+    /**
+     * コンストラクタ
+     */
+	function KAGEnvSE(env, id) {
+		super.KAGEnvBase(env, "se" + id);
+		this.id = id;
+		count = 0;
+	}
+	
+	var id;
+	var filename;  // 参照しているファイル名
+	var loop;      // ループしてるか
+	var volume;    // ボリューム指定
+	var count; // 参照されたカウント値
+	
+	var play;
+	var stop;
+	var fade;
+
+    /**
+     * セーブ処理
+     */
+    function onStore(f) {
+		f.filename  = filename if filename !== void && loop;
+		f.loop      = loop   if loop !== void && loop != false;
+		f.volume    = volume if volume !== void && volume != 100;
+		//f.count     = count  if count != 0;
+	}
+
+	function onRestore(f) {
+		if (f !== void) {
+			env.getSEOBJ(id).stop(); // 確実に止める（onStopでfilename=voidにされるので注意）
+			filename = f.filename;
+			loop  = f.loop !== void ? f.loop : false;
+			count = f.count !== void ? f.count : 0;
+			if (f.filename != "" && f.loop) {
+				setPlay(f.filename, %[loop:f.loop]);
+				if (f.volume !== void) {
+					fade = %[] if (fade === void);
+					fade.volume = volume = f.volume;
+				}
+			}
+		}
+	}
+
+	/**
+	 * 停止時通知
+	 */
+	function onStop() {
+		filename = void;
+		loop = false;
+	}
+
+	// --------------------------------------------------------------------
+
+	
+    /**
+     * 再生処理
+     * @param param 再生対象ファイル
+     */
+	function setPlay(param, elm) {
+		if (param !== void) {
+			stop = void;
+			if (kag.skipMode<SKIP_STOP || elm.loop) { // XXX skipNoDisp 対策だけどなんか別スタイルを考えたほうがよさそうたぶんsync判定が妥当
+				filename = param;
+				loop = elm.loop;
+				play = %[];
+				(Dictionary.assign incontextof play)(elm, false);
+				if (play.fade === void && play.time === void) {
+					fade = %[];
+					fade.volume = volume = 100;
+				}
+			} else {
+				stop = 0 if (loop);
+				play = void;
+			}
+			doflag = true;
+		}
+    }
+
+    /**
+     * 停止処理
+     * @param param フェードアウト時間
+     */
+	function setStop(param, elm) {
+		play = void;
+		fade = void;
+		filename = void;
+		loop = void;
+		var time;
+		if (elm !== void && elm.time !== void) {
+			time = +elm.time;
+		} else {
+			time = +param;
+		}
+		stop = time;
+		doflag = true;
+    }
+
+    /**
+     * 音量フェード
+     * @param param フェード時間
+     */
+	function setFade(param, elm) {
+		fade = %[];
+		fade.volume = volume = +param;
+		fade.time   = elm.time;
+    }
+
+    var secommands = %[
+    tagname : null, 
+    taglist : null, 
+    storage : setPlay incontextof this,
+    play : setPlay incontextof this,
+    stop : setStop incontextof this,
+    fade : setFade incontextof this,
+    loop : null,
+    time : null,
+    start : null,
+    canskip : null,
+    buf : null,
+    filename : null,
+    nosync : null,
+	sync : null,
+	wait : null,
+	delayrun : null,
+        ];
+
+    var doflag;
+
+    /**
+     * コマンドの実行
+     * @param cmd コマンド
+     * @param param パラメータ
+     * @param elm 他のコマンドも含む全パラメータ
+     * @return 実行が行われた場合 true
+     */
+    function doCommand(cmd, param, elm) {
+        var func;
+        if ((func = secommands[cmd]) !== void) {
+            if (func != null) {
+                func(param, elm);
+            }
+            return true;
+        }
+        // 再生コマンドとみなす
+		setPlay(cmd, elm);
+        return true;
+    }
+
+	function command(elm) {
+		doflag = false;
+		foreach(elm, doCommand);
+		var tagname = elm.tagname;
+		if (!doflag && checkTagNamePlay(tagname)) {
+			setPlay(tagname, elm); 
+		}
+	}
+
+	function checkSync(elm) {
+		syncCommand = true if (elm.wait || elm.sync);
+	}
+	
+	// タグ名をファイル名とみなして再生できるかどうか
+	function checkTagNamePlay(tagname) {
+		switch (tagname) {
+		case "se":
+		case "allse":
+			// 標準タグなので無効
+			return false;
+
+		default:
+			// ループSEの場合は同じタグ名による再度再生をさせいない
+			if (loop && filename == tagname)
+				return false;
+			break;
+		}
+		return true;
+	}
+
+	function update(skipMode) {
+		var se = env.getSEOBJ(id);
+		var fading = 0;
+		if (fade !== void) {
+			if (fade.time === void || fade.time == 0 || play !== void) {
+				se.volume = fade.volume;
+			} else {
+				se.fade(fade);
+				fading = 1;
+			}
+			fade = void;
+		}
+		if (play !== void) {
+			var origName = filename; // [XXX]再生中の効果音に再度再生するとonStopが呼ばれfilename=voidにされるので
+			if (skipMode<SKIP_STOP || play.loop || !env.isNoSE()) {
+				var time = +play.time;
+				if (time > 0)  {
+					if (se.volume <= 1) se.volume = 100;
+					se.fadeIn(%[ storage:filename, loop:play.loop, time:time, start:play.start]);
+				} else {
+					se.play(%[ storage:filename, loop:play.loop, start:play.start]);
+				}
+				fading = 2; // sync時は停止待ち扱い
+				filename = origName;
+				loop = play.loop;
+			} else {
+				se.stop() if loop;
+			}
+			play = void;
+		}
+		if (stop !== void) {
+			if (skipMode == SKIP_NONE && stop > 0) {
+				se.fadeOut(%[time:stop]);
+				fading = 2;
+			} else {
+				se.stop();
+			}
+			stop = void;
+		}
+		return fading;
+	}
+	
+	function sync(elm, skipMode) {
+		var fading = update(skipMode);
+		// 待ちチェック
+		var wait = elm.wait !== void ? +elm.wait : elm.sync !== void ? 0 : void;
+		if (wait == 1) {
+			wait = 0;
+		}
+		if (wait !== void) {
+			var canskip = elm.canskip !== void ? +elm.canskip : true;
+			switch(fading) {
+			case 1:
+				env.addFastTag("wf", %[buf:id, canskip:canskip, wait:wait]);
+				break;
+			default:
+				env.addFastTag("ws", %[buf:id, canskip:canskip, wait:wait]);
+				break;
+			}
+		}
+	}
+
+};

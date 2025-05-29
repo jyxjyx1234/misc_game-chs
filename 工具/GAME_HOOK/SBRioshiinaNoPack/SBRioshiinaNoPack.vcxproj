@@ -102,10 +102,18 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
     <TargetName>SBRioshiina</TargetName>
+    <IncludePath>$(SolutionDir)LIB;$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\CHS\misc_game-chs\工具\CHS_PACK\CHS_PACK_LIB</IncludePath>
+    <LibraryPath>C:\src\vcpkg\packages\zlib_x86-windows-static\lib;$(SolutionDir)LIB;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);D:\CHS\misc_game-chs\工具\CHS_PACK\CHS_PACK_LIB</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_for_others|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
     <TargetName>SBRioshiina</TargetName>
+    <IncludePath>$(SolutionDir)LIB;$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\CHS\misc_game-chs\工具\CHS_PACK\CHS_PACK_LIB</IncludePath>
+    <LibraryPath>C:\src\vcpkg\packages\zlib_x86-windows-static\lib;$(SolutionDir)LIB;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);D:\CHS\misc_game-chs\工具\CHS_PACK\CHS_PACK_LIB</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)LIB;$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\CHS\misc_game-chs\工具\CHS_PACK\CHS_PACK_LIB</IncludePath>
+    <LibraryPath>C:\src\vcpkg\packages\zlib_x86-windows-static\lib;$(SolutionDir)LIB;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);D:\CHS\misc_game-chs\工具\CHS_PACK\CHS_PACK_LIB</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,6 +122,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)LIB</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -214,6 +223,7 @@
     <ClCompile Include="text_process.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\CHS_PACK\CHS_PACK_LIB\CHS_PACK_LIB.h" />
     <ClInclude Include="..\LIB\convert.h" />
     <ClInclude Include="..\LIB\detours.h" />
     <ClInclude Include="..\LIB\HookTitle.h" />

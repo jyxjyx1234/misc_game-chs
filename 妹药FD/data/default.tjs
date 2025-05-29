@@ -1,0 +1,161 @@
+// 麻雀牌配置用コンフィグ
+with (SystemConfig) {
+	.MahjongPaiOrderConfig = %[
+		//               ファイル名接頭      接尾             描画順   次の牌offset    次の行offset    牌の大きさ
+		"さらし"   => %[ prefix:"mj_pai_",   suffix:"",       order:0, nx: 36, ny:  0, lx:  0, ly: 60, w:36, h:54 ],
+		"対面"     => %[ prefix:"mj_pai_v_", suffix:"",       order:0, nx:-36, ny:  0, lx:  0, ly:-60, w:36, h:54 ],
+		"下家"     => %[ prefix:"mj_pai_r_", suffix:"",       order:1, nx:  0, ny:-30, lx: 55, ly:  0, w:49, h:42 ],
+		"上家"     => %[ prefix:"mj_pai_l_", suffix:"",       order:0, nx:  0, ny: 30, lx:-55, ly:  0, w:49, h:42 ],
+		"自分"     => %[ prefix:"mj_pai_",   suffix:"_small", order:0, nx: 36, ny:  0, lx:  0, ly: 60, w:36, h:54 ],
+		"自分大"   => %[ prefix:"mj_pai_",   suffix:"_large", order:0, nx: 46, ny:  0, lx:  0, ly: 76, w:46, h:69 ],
+		"対面鳴き" => %[ prefix:"mj_pai_",   suffix:"",       order:0, nx: 49, ny:  0, lx:  0, ly: 60, w:36, h:54 ],
+		// alias
+		"大"   => "自分大",
+		"自席" => "自分",		"自席大" => "自分大",
+		"正面" => "対面",
+		"右席" => "下家",
+		"左席" => "上家",
+		];
+	.MahjongPaiOrderDefault = "自分"; // デフォルト時の設定
+
+	// 字牌ファイル名
+	.MahjongPaiJihai = %[
+		"東" => "ji_ton",
+		"南" => "ji_nan",
+		"西" => "ji_syaa",
+		"北" => "ji_pei",
+		"白" => "ji_haku",
+		"發" => "ji_hatsu",
+		"中" => "ji_chun",
+		"伏" => "fuse",
+		"裏" => "fuse",
+		"空" => "kara",
+		"→" => "arrow_right",
+		"←" => "arrow_left",
+		"↑" => "arrow_up",
+		"↓" => "arrow_down",
+		];
+
+	// スペースのデフォルト間隔
+	.MahjongPaiHanSpcDefault = 18; // 半角
+//	.MahjongPaiZenSpcDefault = 32; // 全角
+	.MahjongPaiZenSpcDefault = 36; // 全角
+
+	// レイヤの上下左右の余白（移動時にゴミが残る対策）
+	.MahjongPaiPadding = 4;
+
+	.voiceNames = [
+		"ユキ",
+		"アル",
+		"真央",
+		"心音",
+		"一真",
+		"真菜美",
+		"優子",
+		"鈴",
+
+		"クシミ",
+		"莉都",
+		"星華",
+		"和奏",
+		"白雪",
+		"小夜璃",
+		"陽太",
+		"慶一",
+		"小太郎",
+		"クラウス",
+		"麻里香",
+		"媛子",
+		"深弥",
+		"朱美",
+
+		"春奈",
+		"さくや",
+		"翔子",
+		"いろは",
+		"銀子",
+		"皐月",
+		"沙智子",
+		"朱音",
+		"美里",
+
+//		"礼次",
+//		"タマ",
+
+		"その他男",
+		"その他女" ];
+}
+
+// 環境初期化処理
+function initialEnvironment(isFirst = false, tag)
+{
+	var all = (tag == "" || tag == "all");
+
+	if (all || tag == "voice") {
+		setVoiceAll(true, 100);						// 全キャラボイスON
+	}
+
+	if (all || tag == "system") {
+		// 音の有効
+		kag.waveenable  = true;
+		kag.bgmenable   = true;
+		kag.seenable    = true;
+		kag.voiceenable = true;
+
+		// 音量設定
+		kag.wavevolume  = 100;
+		kag.bgmvolume   = 70;
+		kag.sevolume    = 90;
+		kag.voicevolume = 90;
+
+		// スピード
+		kag.textspeed   = 50; // 10 - (kag.chSpeeds.normal / (kag.chSpeeds.slow / 10));
+		kag.autospeed   = 50; // 10 - (kag.autoModePageWaits.medium / (kag.autoModePageWaits.slow / 10));
+
+		kag.allskip     = false;				// 未読スキップ (true:有効, false:無効)
+		kag.drawspeed   = 1;					// エフェクトスピード
+		kag.chDefaultFace = global.MessageDefaultFontFace; //"ＭＳ ゴシック";	// フォント
+
+		kag.voicecut = true;					// ボイスをカットを有効
+		kag.voicecutpage = true;				// カットするタイミング（true:ページ消去時にカット, false:名前表示時にカット)
+		kag.nosewhenskip = true;				// スキップ時の単発SE (true:鳴らさない, false:鳴らす)
+		kag.afterauto = true;					// 選択後の auto (true:継続, false:停止)
+		kag.afterskip = true;					// 選択後の skip (true:継続, false:停止)
+		kag.bgmdown   = false;					// 音声再生時にBGM音量を(true:下げる, false:下げない)
+
+		// 確認有無
+		with (kag.scflags) {
+			.confirmSave = true;
+			.confirmLoad = true;
+
+			.scnUpdatePopupEnabled = true;
+			.scnFragmentPopupEnabled = true;
+		}
+
+		// sf系
+		with (kag.sflags) {
+			.windowOpac = 192;
+			.MahjongBattleMode = 0;				// 麻雀対戦(-1:常に麻雀なし, 1:常に麻雀あり, 0:毎回確認)
+		}
+	}
+
+	// 初回起動時(savedataがない)のみの初期化処理
+	if (isFirst) {
+		// DSoundセカンダリバッファを常に再生成
+		setDefaultSystemArgument("wsrecreate", "yes");
+
+		// パッドリピート間隔
+		setDefaultSystemArgument("padinterval", 70);
+
+		// フレーム上限を設定
+		setDefaultSystemArgument("contfreq", 60);
+
+		// VistaではダブルバッファをDirect3Dに
+		setDefaultSystemArgument("dbstyle", "d3d") if (checkWindowsVersion("vista"));
+
+		// 仮想フルスクリーン固定
+		setDefaultSystemArgument("fullscreenmode", "pseudoall");
+	}
+
+}
+
