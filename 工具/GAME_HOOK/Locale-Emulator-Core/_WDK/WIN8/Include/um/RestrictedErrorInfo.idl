@@ -1,0 +1,36 @@
+cpp_quote("#include <winapifamily.h>")
+
+#pragma region Desktop Family
+cpp_quote("#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)")
+
+//  Copyright (c) Microsoft Corporation. All rights reserved.
+
+import "oaidl.idl";
+
+cpp_quote("#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) */")
+#pragma endregion
+
+#pragma region Application Family
+cpp_quote("#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)")
+
+[
+    uuid(82BA7092-4C88-427D-A7BC-16DD93FEB67E),
+    pointer_default(unique),
+    object
+]
+interface IRestrictedErrorInfo : IUnknown
+{
+    HRESULT GetErrorDetails(
+                [out] BSTR * description,
+                [out] HRESULT * error,
+                [out] BSTR * restrictedDescription,
+                [out] BSTR * capabilitySid
+            );
+
+    HRESULT GetReference(
+                [out] BSTR * reference
+            );
+};
+
+cpp_quote("#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) */")
+#pragma endregion

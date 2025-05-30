@@ -1,0 +1,1 @@
+chs_pack pack trans NETIDOL_CHS.CPK HoukagoJosou

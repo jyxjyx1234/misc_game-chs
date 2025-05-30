@@ -1,0 +1,656 @@
+﻿#include "textReplacer.h"
+#include "text_process.h"
+#include "HookTitle.h"
+#include <regex>
+#include <filesystem>
+
+int mode;
+int type;
+int retAddAddr = 5;
+
+DWORD originalFuncAddr;
+DWORD returnAddress;
+DWORD callAddress;
+DWORD originalFuncAddr2;
+DWORD returnAddress2;
+DWORD callAddress2;
+DWORD originalFuncAddr3;
+DWORD returnAddress3;
+DWORD callAddress3;
+DWORD originalFuncAddr4;
+DWORD returnAddress4;
+DWORD callAddress4;
+
+const int maxbuffersize = 0x1000000;
+int stridx = 0;
+
+std::string fileContent;
+void replace_file_path(char** filename) {
+	printf("filename: %s\n", *filename);
+    std::filesystem::path fn = std::filesystem::path(*filename).filename();
+    std::filesystem::path new_filename = std::filesystem::path("trans") / fn;
+	std::string nf = "trans//" + fn.string();
+    if (std::filesystem::exists(new_filename)) {
+		printf("replace file path: %s -> %s\n", *filename, nf.c_str());
+        strcpy_s(*filename, nf.size() + 1, nf.c_str());
+    }
+}
+
+std::map<std::string, std::string> replaceMap;
+
+void addSjisReplaceMap(std::wstring key, std::wstring value) {
+	std::string sjisKey = WideStringToSJISLPCSTR(key);
+	std::string sjisValue = WideStringToSJISLPCSTR(value);
+	replaceMap[sjisKey] = sjisValue;
+}
+
+void init_replaceMap() {
+    addSjisReplaceMap(L"「わかり……ました」", L"「我……明白了」");
+    addSjisReplaceMap(L"「んー……」", L"「獰瓏瓏……」");
+    addSjisReplaceMap(L"「う、うん」", L"「顯、獰」");
+    addSjisReplaceMap(L"「わかりました」", L"「明白了」");
+    addSjisReplaceMap(L"「うん……うん……」", L"「獰……獰……」");
+    addSjisReplaceMap(L"「うん……わかった」", L"「獰……我知道了」");
+    addSjisReplaceMap(L"「ねぇ、先生……」", L"「那个、老襪……」");
+    addSjisReplaceMap(L"「先生……ここ……」", L"「老襪……瀉里……」");
+    addSjisReplaceMap(L"「あの……先生……」", L"「那个……老襪……」");
+    addSjisReplaceMap(L"「えーとぉ……」", L"「那个瓏瓏……」");
+    addSjisReplaceMap(L"「あ……うん……」", L"「顯……獰……」");
+    addSjisReplaceMap(L"「うーん……そうなんだ……」", L"「唔瓏瓏……瀉漣顯……」");
+    addSjisReplaceMap(L"「あ、そっかぁ」", L"「顯、瀉漣顯」");
+    addSjisReplaceMap(L"「はい、先生」", L"「好的、老襪」");
+    addSjisReplaceMap(L"「うわぁ……さすが先生」", L"「哇顯……不愧是老襪」");
+    addSjisReplaceMap(L"「あの……えっと、おしえてください」", L"「那个……閇、匱教教我」");
+    addSjisReplaceMap(L"「先生……あの、ここ……」", L"「老襪……那个、瀉里……」");
+    addSjisReplaceMap(L"「先生……質問していいですか？」", L"「老襪……可以提雜醤？」");
+    addSjisReplaceMap(L"「うーん……」", L"「獰瓏瓏」");
+    addSjisReplaceMap(L"「えっと……はい……」", L"「那个……好的……」");
+    addSjisReplaceMap(L"「そうなんですか？」", L"「是瀉漣醤？」");
+    addSjisReplaceMap(L"「ああ、そういうことだったんですね」", L"「顯、原来是瀉韈回事顯」");
+    addSjisReplaceMap(L"「オッケーです。りかいできました」", L"「ＯＫ。我明白了」");
+    addSjisReplaceMap(L"「あ、なるほど」", L"「顯、原来如此」");
+    addSjisReplaceMap(L"「ここ、ちょっとわからないんですけど……」", L"「瀉里、有点不太明白……」");
+    addSjisReplaceMap(L"「あの……先生、質問いいですか？」", L"「那个……老襪、可以提雜醤？」");
+    addSjisReplaceMap(L"「先生、ここなんですけど……」", L"「老襪、瀉里的幟……」");
+    addSjisReplaceMap(L"「私……まちがっておぼえてたみたいです……」", L"「我……好像謚嶄了……」");
+    addSjisReplaceMap(L"「んーと……」", L"「獰瓏瓏」");
+    addSjisReplaceMap(L"「えっ……そうなんですか？」", L"「翹……是瀉漣醤？」");
+    addSjisReplaceMap(L"「あっ、そうなんですねっ」", L"「顯、原来是瀉漣顯」");
+    addSjisReplaceMap(L"「なるほどっ」", L"「原来如此顯」");
+    addSjisReplaceMap(L"「はいっ、わかりました！」", L"「好的、我明白了！」");
+    addSjisReplaceMap(L"「あ、隆行さま、しつもんがあるのですが……」", L"「顯、隆行大人，我有雜逕想雜……」");
+    addSjisReplaceMap(L"「隆行さま、ここなのですが……」", L"「隆行大人，鉛于瀉里……」");
+    addSjisReplaceMap(L"「あの、隆行さま、よろしいでしょうか？」", L"「那个、隆行大人，竅在方便醤？」");
+    addSjisReplaceMap(L"「きおくちがいをしていたようですわ」", L"「似乎是我謚嶄了聾」");
+    addSjisReplaceMap(L"「そ、そうでしたわね」", L"「是、是瀉漣聾」");
+    addSjisReplaceMap(L"「あら、そうでしたかしら」", L"「翹呀、是瀉漣的醤」");
+    addSjisReplaceMap(L"「先生のちからをためしただけですわ」", L"「只是想觀鑛下老襪的能力而已」");
+    addSjisReplaceMap(L"「そうでしたわね」", L"「鎹詣是瀉漣的聾」");
+    addSjisReplaceMap(L"「ええ、わかりましたわ」", L"「獰、我知道了」");
+    addSjisReplaceMap(L"「わからないわけではないのですけれど」", L"「倒也不是不明白……」");
+    addSjisReplaceMap(L"「しつもんしてもよろしくて？」", L"「可以提雜醤？」");
+    addSjisReplaceMap(L"「先生、ここなのですけど、よろしいかしら？」", L"「老襪，鉛于瀉里的内容，竅在方便匱教醤？」");
+    addSjisReplaceMap(L"「あー……そうなんだ……」", L"「顯瓏瓏……瀉漣顯……」");
+    addSjisReplaceMap(L"「えーと……」", L"「閇…」");
+    addSjisReplaceMap(L"「そう……でしたっけ？」", L"「是…瀉漣的醤？」");
+    addSjisReplaceMap(L"「あっ、そっかぁ」", L"「顯、鞴哦」");
+    addSjisReplaceMap(L"「わかりましたっ」", L"「明白了！」");
+    addSjisReplaceMap(L"「あっ、なるほどっ」", L"「顯、原来如此！」");
+    addSjisReplaceMap(L"「あ、先生、これなんですけど」", L"「顯、老襪、瀉个聾」");
+    addSjisReplaceMap(L"「先生っ、ここおしえてくださいっ」", L"「老襪、瀉里匱告嗇我！」");
+    addSjisReplaceMap(L"「はいっ、先生っ、質問っ！」", L"「是、老襪、有雜逕！」");
+    addSjisReplaceMap(L"「んー、わかったけど……」", L"「獰瓏、明白了不繹……」");
+    addSjisReplaceMap(L"「ふーん……？」", L"「蝦瓏……？」");
+    addSjisReplaceMap(L"「え……そうだったっけ？」", L"「翹……是瀉漣醤？」");
+    addSjisReplaceMap(L"「お兄ちゃん、かなみ、わかったよぉ！」", L"「哥哥、加奈美、明白了熾！」");
+    addSjisReplaceMap(L"「あ、そうなんだ！」", L"「顯、原来是瀉漣！」");
+    addSjisReplaceMap(L"「なるほどー。さすがお兄ちゃん」", L"「原来如此瓏。不愧是哥哥」");
+    addSjisReplaceMap(L"「お兄ちゃん、これおしえて？」", L"「哥哥，瀉个可以教我醤？」");
+    addSjisReplaceMap(L"「お兄ちゃん、お兄ちゃん、ここなんだけど……」", L"「哥哥、哥哥，瀉里有点雜逕...」");
+    addSjisReplaceMap(L"「お兄ちゃん、しつもーん」", L"「哥哥，我要提雜瓏瓏」");
+    addSjisReplaceMap(L"　アメリカの国旗には赤白１３本のしまと、（　）の星がある。", L"　美国国旗有竃白１３条条脛和（　）蠑星星。");
+    addSjisReplaceMap(L"　日本国憲法（　）では、外国との間に争いが起きても決して戦争をしないと決めている。", L"　日本国礒法（　）中餞定，即使与外国櫓生争端也獎不櫓蛍倹争。");
+    addSjisReplaceMap(L"　参議院の議員数は何人でしょうか。", L"　参鉉院的鉉舮人数是多少人聾？");
+    addSjisReplaceMap(L"　衆議院の議員数は何人でしょうか。", L"　萬鉉院的鉉舮人数是多少人聾？");
+    addSjisReplaceMap(L"日中共同宣言", L"日中共同宣言");
+    addSjisReplaceMap(L"日中平和友好条約", L"日中和平友好条締");
+    addSjisReplaceMap(L"日中通商条約", L"日中通商条締");
+    addSjisReplaceMap(L"　１９７２年、日本は中国と国交を正常化し、１９７８年には（　）を結んだ。", L"　１９７２年日本与中国詣竅邦交正常化，１９７８年蕣礇了（　）");
+    addSjisReplaceMap(L"大日本帝国憲法", L"大日本帝国礒法");
+    addSjisReplaceMap(L"大日本国憲法", L"大日本国礒法");
+    addSjisReplaceMap(L"日本国憲法", L"日本国礒法");
+    addSjisReplaceMap(L"　１９４６年１１月３日に公布された、新しい憲法の名前を書きなさい。", L"　匱写出１９４６年１１月３日磚布的新礒法名称");
+    addSjisReplaceMap(L"沖縄", L"冲聰");
+    addSjisReplaceMap(L"ハワイ", L"夏威夷");
+    addSjisReplaceMap(L"グアム", L"鉛奐");
+    addSjisReplaceMap(L"　１９４１年、日本は（　）の真珠湾をこうげきし、東南アジアや太平洋を戦場とする太平洋戦争が始まった。", L"　１９４１年日本靤轗（　）的珍珠港，以檻南羣和太平洋梱倹謳的太平洋倹争由此爆櫓");
+    addSjisReplaceMap(L"ポーランド", L"波儺");
+    addSjisReplaceMap(L"オーストリア", L"奥地利");
+    addSjisReplaceMap(L"フランス", L"法国");
+    addSjisReplaceMap(L"　１９３９年９月ドイツは（　）へ侵攻し第二次世界大戦勃発がはじまった。", L"　１９３９年９月艨国入侵（　），第二次世界大倹由此爆櫓");
+    addSjisReplaceMap(L"国際労働機関", L"国銹覽工銖鸚");
+    addSjisReplaceMap(L"国際連盟", L"国銹鯉盟");
+    addSjisReplaceMap(L"国際連合", L"鯉合国");
+    addSjisReplaceMap(L"　１９３３年、日本は（　）を脱退する。", L"　１９３３年，日本退出（　）");
+    addSjisReplaceMap(L"全国水平社", L"全国水平社");
+    addSjisReplaceMap(L"全国公平社", L"全国公平社");
+    addSjisReplaceMap(L"自由党", L"自由党");
+    addSjisReplaceMap(L"　１９２２（大正１１）年、四民平等になったあとでも、厳しい差別に苦しんできた人々が（　）という団体をつくり、差別をなくす運動をすすめた。", L"　１９２２（大正１１）年，即使在詣竅四民平等之后，仍遭受襍酷磑綴的人陞莟建了（　）龕体，推簫消除磑綴衵蛍。");
+    addSjisReplaceMap(L"富山一揆", L"富山暴蛍");
+    addSjisReplaceMap(L"打ちこわし", L"藺誚衵蛍");
+    addSjisReplaceMap(L"米騒動", L"米賁蛍");
+    addSjisReplaceMap(L"　１９１８（大正７）年、米の値上がりに反対して、富山県で起こった（　）は、やがて全国に広がっていった。", L"　１９１８（大正７）年，反鞴米价暴謗而在富山簣爆櫓的（　），最撈蔓延至全国。");
+    addSjisReplaceMap(L"伊能忠敬", L"伊能忠敬");
+    addSjisReplaceMap(L"杉田玄白", L"杉田玄白");
+    addSjisReplaceMap(L"平賀源内", L"平嬋源内");
+    addSjisReplaceMap(L"（　）は前野良沢らと協力して、オランダの医学書をほとんど訳し、解体新書として出版した蘭学者である。", L"（　）与前野良罸等人合作，几乎完整翻碯了荷儺医学著作，并以《解体新鷺》之名出版的儺学者。");
+    addSjisReplaceMap(L"御成敗式目", L"御成鈬式目");
+    addSjisReplaceMap(L"武家諸法度", L"武家龝法度");
+    addSjisReplaceMap(L"参勤交代", L"参勤交代");
+    addSjisReplaceMap(L"　江戸幕府は、大名や武士を取りしまるため、（　）を定めた。", L"　江鋸幕府梱虍管大名和武士，制定了（　）。");
+    addSjisReplaceMap(L"黒印状", L"臈印状");
+    addSjisReplaceMap(L"朱印状", L"朱印状");
+    addSjisReplaceMap(L"免罪状", L"免罪状");
+    addSjisReplaceMap(L"　徳川家康は、貿易船に許可状をあたえましたが、この許可状を何といいますか。", L"　艨川家康曾向碪易船櫓放閠可状，匱雜瀉婁閠可状被称梱什韈？");
+    addSjisReplaceMap(L"長篠", L"關賑");
+    addSjisReplaceMap(L"小田原", L"小田原");
+    addSjisReplaceMap(L"関が原", L"鉛原");
+    addSjisReplaceMap(L"　織田信長は（　）の戦いにおいて、鉄砲隊による新しい戦法をとり、武田氏を打ち破った。", L"　鸚田信關在（　）之倹中采用苺炮瘧新倹法，轗鈬了武田氏。");
+    addSjisReplaceMap(L"地頭", L"地鐡");
+    addSjisReplaceMap(L"大名", L"大名");
+    addSjisReplaceMap(L"領主", L"詼主");
+    addSjisReplaceMap(L"　室町時代、守護は国内の武士を家来とし、領土を広げていった。やがて一人で数カ国の守護をかねる武士もあらわれた、これを（　）という。", L"　室町顋代，守輦将国内武士收梱家臣，不断諂闢詼土。后来甚至出竅了同顋兼任数国守輦的武士，瀉被称作（　）。");
+    addSjisReplaceMap(L"　１１９２年、源頼朝は武士のかしらとして（　）に任命され、鎌倉に幕府を開いた。", L"　１１９２年，源緇朝作梱武士首詼被任命梱（　），在碵碆憫懣幕府。");
+    addSjisReplaceMap(L"白村江の戦い", L"白村江之倹");
+    addSjisReplaceMap(L"大化の改新", L"大化改新");
+    addSjisReplaceMap(L"壬申の乱", L"壬申之乱");
+    addSjisReplaceMap(L"　６４５年、中大兄皇子と中臣鎌足らは、６４５年、曽我氏をほろぼし、中国から帰国した留学生らと新しい国づくりに努めた。これを（　）という。", L"　６４５年，中大兄皇子与中臣碵足等人消葢硴我氏，并与从中国驍国的留学生共同致力于建懣新国家。瀉被称作（　）。");
+    addSjisReplaceMap(L"遣隋使", L"遣隋使");
+    addSjisReplaceMap(L"遣唐使", L"遣唐使");
+    addSjisReplaceMap(L"倭寇", L"倭寇");
+    addSjisReplaceMap(L"　６０７年、小野妹子は（　）の長官として中国に遣わされた。", L"　６０７年，小野妹子作梱（　）關官被派遣至中国。");
+    addSjisReplaceMap(L"征夷大将軍", L"征夷大将筺");
+    addSjisReplaceMap(L"関白", L"鉛白");
+    addSjisReplaceMap(L"摂政", L"箒政");
+    addSjisReplaceMap(L"　６世紀終わりごろ、聖徳太子は（　）となり、天皇の政治を助け、新しい政治を進めた。", L"　六世煬末，竚艨太子成梱（　），鍠佐天皇推行新政。");
+    addSjisReplaceMap(L"多美子", L"多美子");
+    addSjisReplaceMap(L"卑弥呼", L"卑弥呼");
+    addSjisReplaceMap(L"夜巫女", L"夜之巫女");
+    addSjisReplaceMap(L"　中国の古い歴史の本には、３世紀ごろの日本には邪馬台国という国があり、（　）という人物がおさめていた。", L"　中国古老的史鷺謚纎，３世煬左右的日本存在着邪漬台国，由名梱（　）的人物虍治。");
+    addSjisReplaceMap(L"紅葉樹", L"竃叶褝");
+    addSjisReplaceMap(L"広葉樹", L"緤叶褝");
+    addSjisReplaceMap(L"針葉樹", L"繦叶褝");
+    addSjisReplaceMap(L"　ひのきなどの（　）は、木材の生産以外にも、風や雪などの災害を防ぐ働きもする。", L"　桧木等（　）除了生閔木材外，誡具有抵御燉雪礪害的作用。");
+    addSjisReplaceMap(L"緑", L"砠");
+    addSjisReplaceMap(L"自然", L"自然");
+    addSjisReplaceMap(L"天然", L"天然");
+    addSjisReplaceMap(L"　ぶなやかしなど広葉樹は、水をたくわえる力が強く、（　）のダムとして大切な水資源を守る。", L"　山毛礦和橡褝等緤叶褝具有很靈的蓄水能力，作梱（　）的水矼守輦着重要的水躋源。");
+    addSjisReplaceMap(L"３分の２", L"三分之二");
+    addSjisReplaceMap(L"３分の１", L"三分之一");
+    addSjisReplaceMap(L"　日本の山地の大部分は森林であり、森林の面積は、国土の約（　）をしめている。", L"　日本山地大部分梱森林覆盖，森林面臍締占国土面臍的締（　）。");
+    addSjisReplaceMap(L"クス", L"楠褝");
+    addSjisReplaceMap(L"マツ", L"松褝");
+    addSjisReplaceMap(L"ブナ", L"山毛礦");
+    addSjisReplaceMap(L"　秋田県から青森県にかけて広がる森林地帯は世界遺産の登録地として知られている。世界最大級の原生的な（　）の天然林である。", L"　从秋田簣到青森簣延展的森林地靭以世界藪閔登儻地紜名。瀉是世界最大餞模的原生（　）天然林。");
+    addSjisReplaceMap(L"オゾン", L"臭矇");
+    addSjisReplaceMap(L"　ごみを燃やした時にでるけむりとともに、大気中にながれ、地上や海にするものを何といいますか。", L"　焚贔飴瞹顋伴随烟瞶排入大气，最撈閖降到地面和海洋的物絹被称梱什韈？");
+    addSjisReplaceMap(L"スモッグ", L"烟瞶");
+    addSjisReplaceMap(L"ばいじん", L"煤艪");
+    addSjisReplaceMap(L"　工場のえんとつから出るけむりにふくまれている、細かいちりやほこりのことを何といいますか。", L"　工厂烟眛排放的烟瞶中含有大量鯨微的粉艪，瀉婁竅象被称梱什韈？");
+    addSjisReplaceMap(L"オゾン層", L"臭矇薑");
+    addSjisReplaceMap(L"酸性雨", L"酸雨");
+    addSjisReplaceMap(L"ダイオキシン", L"二眥英");
+    addSjisReplaceMap(L"　工場や自動車などの排出ガスが原因の、酸性度の強い雨のことを何といいますか。", L"　因工厂和汽靦尾气排放嫋致酸度踴靈的降雨被称梱什韈？");
+    addSjisReplaceMap(L"　日本の時刻は、東経（　）度の線をもとに決めている。", L"　日本的基准顋贖是根据檻驤（　）度的驤鑵鎹定的。");
+    addSjisReplaceMap(L"　経度はグリニッジ天文台を０度として、東西に　　（　）度に分けている。", L"　驤度以格林尼治天文台梱零度基准，向檻西各殱分梱（　）度。");
+    addSjisReplaceMap(L"０", L"０");
+    addSjisReplaceMap(L"　南極を緯度で表すと（　）度である。", L"　南踴用眞度表示是（　）度。");
+    addSjisReplaceMap(L"水産資源", L"水閔躋源");
+    addSjisReplaceMap(L"油田", L"油田");
+    addSjisReplaceMap(L"　サハリンの周りの海は（　）が豊かである。", L"　籵哈林周韲海域（　）躋源眤富。");
+    addSjisReplaceMap(L"　稚内市の降水量が一番少ない月は何月でしょう。", L"　稚内市降水量最少的月幀是几月？");
+    addSjisReplaceMap(L"　次の国の中で日本からの輸出より日本への輸入が多い国をこたえなさい。", L"　匱回答下列国家中，鞴日本出口量超繹从日本簫口量的国家。");
+    addSjisReplaceMap(L"オーストラリア", L"澳大利羣");
+    addSjisReplaceMap(L"アメリカ", L"美国");
+    addSjisReplaceMap(L"韓国", L"盻国");
+    addSjisReplaceMap(L"　１９９９年度の日本の最大の貿易相手国はどこですか。", L"　１９９９年度日本的最大碪易阨伴国是鎔里？");
+    addSjisReplaceMap(L"輸入額", L"簫口藾");
+    addSjisReplaceMap(L"輸出額", L"出口藾");
+    addSjisReplaceMap(L"　１９９９年度の日本の輸出額と輸入額はどちらが多いですか。", L"　１９９９年度日本的出口藾和簫口藾鎔一方更多？");
+    addSjisReplaceMap(L"大阪港", L"大阪港");
+    addSjisReplaceMap(L"横浜港", L"横餾港");
+    addSjisReplaceMap(L"東京港", L"檻京港");
+    addSjisReplaceMap(L"　次の港の中でもっとも貿易額の多い港をこたえなさい。", L"　匱回答下列港口中碪易藾最大的港口。");
+    addSjisReplaceMap(L"　わが国の産業別人口は、昭和２５年では、農業・林業・水産業で働く人が全体の約（　）を占めていた。", L"　昭和２５年我国各閔蠻从蠻人口中，从事蘯蠻、林蠻、水閔蠻的人口締占整体的（　）。");
+    addSjisReplaceMap(L"　ぶたの数がもっとも多い都道府県を答えなさい。", L"　匱回答生猪数量最多的都道府簣。");
+    addSjisReplaceMap(L"鹿児島", L"鹿儿奐");
+    addSjisReplaceMap(L"千葉", L"千叶");
+    addSjisReplaceMap(L"北海道", L"北海道");
+    addSjisReplaceMap(L"　肉牛や乳牛の数のもっとも多い都道府県を答えなさい。", L"　匱回答肉牛和潁牛数量最多的都道府簣。");
+    addSjisReplaceMap(L"モンスーン", L"季燉");
+    addSjisReplaceMap(L"海流", L"洋流");
+    addSjisReplaceMap(L"太平洋風", L"太平洋季燉");
+    addSjisReplaceMap(L"　三浦半島の先端にある三浦市は、（　）のえいきょうもあり、年間を通してあたたかい気候である、", L"　位于三浦半奐尖端的三浦市，受（　）影騾，全年气候温暖。");
+    addSjisReplaceMap(L"　横浜港にて、外国から送られてくるもので、もっとも多いものを答えなさい。", L"　横餾港从外国衵来的物品中，数量最多的是什韈？");
+    addSjisReplaceMap(L"衣類", L"服装參");
+    addSjisReplaceMap(L"自動車", L"汽靦");
+    addSjisReplaceMap(L"石油", L"石油");
+    addSjisReplaceMap(L"　横浜港にて、外国へ送られるもので、もっとも多いものを答えなさい。", L"　横餾港向外国衵送的物品中，数量最多的是什韈？");
+    addSjisReplaceMap(L"久留米かすり", L"久留米絣");
+    addSjisReplaceMap(L"博多織", L"博多鸚");
+    addSjisReplaceMap(L"筑紫織", L"筑紫鸚");
+    addSjisReplaceMap(L"　筑紫平野の中心部では、伝統的なおりものの（　）が作られていた。", L"　在筑紫平原的中心地靭，曾生閔輾虍飼鸚物（　）。");
+    addSjisReplaceMap(L"　日本の都道府県の数はいくつでしょうか。", L"　日本都道府簣的数量是多少个？");
+    addSjisReplaceMap(L"等高線", L"等高鑵");
+    addSjisReplaceMap(L"平行線", L"平行鑵");
+    addSjisReplaceMap(L"立体", L"立体");
+    addSjisReplaceMap(L"　平面図の地図は土地の高さを（　）を用いて表している。", L"　平面図的地颱使用（　）来表示土地高度。");
+    addSjisReplaceMap(L"地域", L"地区");
+    addSjisReplaceMap(L"工場", L"工厂");
+    addSjisReplaceMap(L"気候", L"气候");
+    addSjisReplaceMap(L"　私たちがすんでいる県には、地形のようすがことなるいろいろな（　）がある。", L"　我陞居住的簣内存在着地形状况各鍜的多婁（　）。");
+    addSjisReplaceMap(L"かわらなかった", L"没有撓化");
+    addSjisReplaceMap(L"へった", L"靄少");
+    addSjisReplaceMap(L"ふえた", L"蝸加");
+    addSjisReplaceMap(L"　琵琶湖疏水ができると、ふきんの土地では、米ややさいのとれ高が（　）、", L"　琵琶湖疏水建成后，周韲土地的稻米和蔬菜閔量（　），");
+    addSjisReplaceMap(L"漁業", L"盪蠻");
+    addSjisReplaceMap(L"農業", L"蘯蠻");
+    addSjisReplaceMap(L"商業", L"商蠻");
+    addSjisReplaceMap(L"　水は、わたしたちの飲み水として大切なばかりではなく、（　）や工業にとっても必要なものである。", L"　水不證作梱我陞的綬用水至鉛重要，鞴（　）和工蠻而言也是不可或缺的躋源。");
+    addSjisReplaceMap(L"噴火", L"火山餒櫓");
+    addSjisReplaceMap(L"洪水", L"洪水");
+    addSjisReplaceMap(L"干ばつ", L"干旱");
+    addSjisReplaceMap(L"　大きな川は昔からたびたび（　）をおこし、低地に住む人々を苦しめてきた。", L"　大河自古以来就魘繁引櫓（　），使低地居民深受其害。");
+    addSjisReplaceMap(L"堤防", L"堤防");
+    addSjisReplaceMap(L"やしろ", L"神社");
+    addSjisReplaceMap(L"用水路", L"水渠");
+    addSjisReplaceMap(L"　水害から家や田を守るために、人々は（　）を川の回りに作った。", L"　梱保輦房屋和蘯田免受水礪，人陞在河流周噸修筑了（　）。");
+    addSjisReplaceMap(L"ガードレール", L"輦襃");
+    addSjisReplaceMap(L"車両感知機", L"靦纖感知器");
+    addSjisReplaceMap(L"防犯カメラ", L"艝控箒像鐡");
+    addSjisReplaceMap(L"　交通かんせいセンターには道路にとりつけられたテレビカメラや（　）から道路のようすが入ってきます。", L"　交通管制中心通繹安装在道路上的裝綴箒像鐡和（　）跿取路况信息。");
+    addSjisReplaceMap(L"　けいさつでは（　）の人たちと、あんぜんのためのしせつをどこにつくるかそうだんしている。", L"　警方正在与（　）的相鉛人舮商渦安全懣施的懣置位置。");
+    addSjisReplaceMap(L"交通安全教室", L"交通安全覦座");
+    addSjisReplaceMap(L"交通整理", L"交通疏嫋");
+    addSjisReplaceMap(L"交通安全協会", L"交通安全繼会");
+    addSjisReplaceMap(L"　けいさつでは、子どもやおとしよりのための（　）を開いて、交通マナーの向上を呼びかけている。", L"　警方正在梱儿童和老年人鍖澆（　），呼吁提高交通礼臺。");
+    addSjisReplaceMap(L"２倍", L"２倍");
+    addSjisReplaceMap(L"１．５倍", L"１.５倍");
+    addSjisReplaceMap(L"２分の１", L"二分之一");
+    addSjisReplaceMap(L"　１９９９年のごみの量は、１９７４年のごみの量のおよそ（　）になっている。", L"　１９９９年的飴瞹量大締是１９７４年飴瞹量的（　）。");
+    addSjisReplaceMap(L"岐阜地しん", L"岐阜地震");
+    addSjisReplaceMap(L"信州地しん", L"信州地震");
+    addSjisReplaceMap(L"　１８９１年１０月、（　）にて岐阜県のある村では約６ｍの断層のがけができ、川の流れが大きく変わった。", L"　１８９１年１０月，（　）的岐阜簣某村出竅了締６米的断薑讖崖，河流流向櫓生了巨大撓化。");
+    addSjisReplaceMap(L"濃尾地しん", L"迯尾地震");
+    addSjisReplaceMap(L"関東地しん", L"鉛檻地震");
+    addSjisReplaceMap(L"東海地しん", L"檻海地震");
+    addSjisReplaceMap(L"　１９２３年９月、（　）にて神奈川県の江の島のあたりの土地が１ｍも高くなった。", L"　１９２３年９月，（　）嫋致神奈川簣江之奐周韲土地隆起緞１米。");
+    addSjisReplaceMap(L"　人の体にふくまれる水の割合は（　）ぐらいである。", L"　人体内所含水分比例締梱（　）左右。");
+    addSjisReplaceMap(L"肝臓", L"肝燼");
+    addSjisReplaceMap(L"心臓", L"心燼");
+    addSjisReplaceMap(L"肺", L"肺");
+    addSjisReplaceMap(L"　全身に血液を送り出しているところをなんといいますか。", L"　将血液蟷送到全身的部位称梱什韈？");
+    addSjisReplaceMap(L"脈拍", L"脉搏");
+    addSjisReplaceMap(L"心拍", L"心跳");
+    addSjisReplaceMap(L"血圧", L"血轄");
+    addSjisReplaceMap(L"　手首を指でおさえると血液の流れのリズムが感じられます。この強弱のリズムを何といいますか。", L"　用手指按轄手腕能感受到血液流蛍的綸奏。瀉婁靈弱撓化的綸奏称梱什韈？");
+    addSjisReplaceMap(L"黄色", L"黄色");
+    addSjisReplaceMap(L"青色", L"欖色");
+    addSjisReplaceMap(L"　水酸化ナトリウムの水よう液に赤色リトマス紙をつけると何色に変化しますか。", L"　将竃色石蕊鑛靫浸入莢矇化盡水溶液中会撓成什韈鋩色？");
+    addSjisReplaceMap(L"でんぷん", L"淀粉");
+    addSjisReplaceMap(L"糖分", L"糖分");
+    addSjisReplaceMap(L"　ジャガイモの葉をヨウ素液にひたし、けんび鏡で見ると、（　）のつぶが見える。", L"　将漬譴薯的叶子浸入皹液中，用鑄微鳬閘察，可以看到（　）的蠑粒。");
+    addSjisReplaceMap(L"　ジャガイモにふくまれている水の割合は？", L"　漬譴薯中所含的水分比例是多少？");
+    addSjisReplaceMap(L"タンパク質", L"蛋白絹");
+    addSjisReplaceMap(L"日光", L"日光");
+    addSjisReplaceMap(L"　ジャガイモから芽がのびて、葉がしげってきました。水の他に必要なものは何ですか？", L"　漬譴薯櫓芽后，叶子茂盛生關。除了水之外誡需要什韈？");
+    addSjisReplaceMap(L"えらぶた", L"皰盖");
+    addSjisReplaceMap(L"肛門", L"肛僑");
+    addSjisReplaceMap(L"口", L"口");
+    addSjisReplaceMap(L"　フナが口から吸い込んだ水はどこから出しますか。", L"　皃肬从口中吸入的水会从鎔里排出？");
+    addSjisReplaceMap(L"青紫色", L"欖紫色");
+    addSjisReplaceMap(L"白っぽくなる", L"櫓白");
+    addSjisReplaceMap(L"こい緑", L"深砠色");
+    addSjisReplaceMap(L"　温めたアルコールの中に葉をつけると葉の色はどうなりますか。", L"　将叶片放入加輳后的酒精中，叶子的鋩色会撓成怎漣？");
+    addSjisReplaceMap(L"　日光にあてた葉をヨウ素液につけると何色になりますか？", L"　用皹液浸泡驤繹日光照射的叶片会呈竅什韈鋩色？");
+    addSjisReplaceMap(L"灰になる", L"撓成灰囀");
+    addSjisReplaceMap(L"墨になる", L"撓成墨汁");
+    addSjisReplaceMap(L"炭になる", L"撓成木炭");
+    addSjisReplaceMap(L"　燃えた木をを全部燃え終わるまで燃やすと、どうなりますか。", L"　将燃贔的木材持鹸燃贔直至完全燃尽，会櫓生什韈撓化？");
+    addSjisReplaceMap(L"白くにごる", L"呈竅白色愴驥");
+    addSjisReplaceMap(L"黒くにごる", L"呈竅臈色愴驥");
+    addSjisReplaceMap(L"　集気びんのなかで木を燃やしました。木を取り出し、石灰水を入れびんをよくふると石灰水の水の色はどうなりますか。", L"　在集气瓶中燃贔木材后取出，倒入石灰水并薔烈贅晃，石灰水的鋩色会如何撓化？");
+    addSjisReplaceMap(L"二酸化炭素", L"二矇化鴆");
+    addSjisReplaceMap(L"酸素", L"矇气");
+    addSjisReplaceMap(L"水素", L"莢气");
+    addSjisReplaceMap(L"　うすい過酸化水素水（オキシドール）二酸化マンガンを加えると（　）が発生する。", L"　在稀薄繹矇化莢水（双矇水）中加入二矇化絛会閔生（　）。");
+    addSjisReplaceMap(L"心", L"心燼");
+    addSjisReplaceMap(L"胎盤", L"胎肭");
+    addSjisReplaceMap(L"へそ", L"皀靭");
+    addSjisReplaceMap(L"　子宮の中の子どもは母親のどの部分とつながっていますか？", L"　子莇里的胎儿是透繹母鱗鎔个部位誨接的？");
+    addSjisReplaceMap(L"ハードコア", L"硬核");
+    addSjisReplaceMap(L"受精", L"受精");
+    addSjisReplaceMap(L"受粉", L"授粉");
+    addSjisReplaceMap(L"　人の卵（らん）と精子が結びつくことを、何といいますか？", L"　人參卵子（らん）与精子鰲合的繹程称作什韈？");
+    addSjisReplaceMap(L"子宮", L"子莇");
+    addSjisReplaceMap(L"卵巣", L"卵鰍");
+    addSjisReplaceMap(L"卵の中", L"卵子内部");
+    addSjisReplaceMap(L"　人の受精卵はどこで成長しますか。", L"　人參的受精卵是在鎔里櫓育成關的？");
+    addSjisReplaceMap(L"同じ", L"相同");
+    addSjisReplaceMap(L"短い", L"鸞短");
+    addSjisReplaceMap(L"長い", L"鸞關");
+    addSjisReplaceMap(L"　より小さな力でものを持ち上げるには、支点から作用点までのきょりにくらべ、支点から力点までのきょりが（　）ほうがよい。", L"　要用更小的力量鍖起物体，支点到作用点的距柵相比，支点到力点的距柵（　）更合鑢。");
+    addSjisReplaceMap(L"作用点", L"作用点");
+    addSjisReplaceMap(L"支点", L"支点");
+    addSjisReplaceMap(L"力点", L"力点");
+    addSjisReplaceMap(L"　てこのはたらきのなかで力を加えるところを（　）という。", L"　杠杆原理中施加力量的位置称作（　）。");
+    addSjisReplaceMap(L"のり", L"發糊");
+    addSjisReplaceMap(L"ナイフ", L"小刀");
+    addSjisReplaceMap(L"ハサミ", L"剪刀");
+    addSjisReplaceMap(L"　次の道具の中で、てこのはたらきを利用したものを選びましょう。", L"　在下列工具中，匱蒟出薐用了杠杆原理的物品。");
+    addSjisReplaceMap(L"　同じ長さの糸に５０ｇと６０ｇのおもりがついた二つの振り子があります。振り子を揺らしたらどちらが速く振動するでしょう。", L"　鈍个相同關度的聰子上分靉讖挂５０克和６０克訌滸的謫戝。当謫戝謫蛍顋，鎔个会振蛍得更快？");
+    addSjisReplaceMap(L"養分", L"賻分");
+    addSjisReplaceMap(L"羊水", L"羊水");
+    addSjisReplaceMap(L"たまご", L"卵");
+    addSjisReplaceMap(L"　たまごからかえったばかりの子メダカはおなかの部分がふくらんでいます。中に何がはいっていますか。", L"　鞨孵化出来的青癶肬幼肬腹部膨涜，里面装着什韈檻西？");
+    addSjisReplaceMap(L"　メダカのメスは、１日に何個ぐらいたまごを産みますか。", L"　雌性青癶肬霤天大締会閔多少蠑卵？");
+    addSjisReplaceMap(L"どちらでもない", L"都不是");
+    addSjisReplaceMap(L"メス", L"雌肬");
+    addSjisReplaceMap(L"オス", L"雄性");
+    addSjisReplaceMap(L"　しりびれが短く、背びれに切りこみがないメダカはオスとメスどちらですか。", L"　臀媼鸞短且背媼没有缺刻的青癶肬是雄性誡是雌性？");
+    addSjisReplaceMap(L"　メダカを入れた水そうの温度は（　）が適当である。", L"　放入青癶肬的水槽温度以（　）梱宜。");
+    addSjisReplaceMap(L"　発芽し、芽や根が少しのびたころのトウモロコシの種子をヨウ素液につけると何色になりますか。", L"　将櫓芽后鞨關出嫩芽和根的玉米婁子浸入皹液会撓成什韈鋩色？");
+    addSjisReplaceMap(L"青紫", L"欖紫色");
+    addSjisReplaceMap(L"赤", L"竃色");
+    addSjisReplaceMap(L"　発芽する前のインゲンマメの種子を切ってヨウ素液につけると何色になりますか。", L"　将未櫓芽的四季豆婁子切憫后浸入皹液会撓成什韈鋩色？");
+    addSjisReplaceMap(L"　アキアカネはどこにたまごを産みつけますか。", L"　竃蜻癧在鎔里閔卵？");
+    addSjisReplaceMap(L"水の中", L"水中");
+    addSjisReplaceMap(L"　エンマコオロギはどこにたまごを産みつけますか。", L"　油葫芦蟋蟀在鎔里閔卵？");
+    addSjisReplaceMap(L"木やえだや草のくき", L"褝木枝条或草茎");
+    addSjisReplaceMap(L"　カマキリはどこにたまごを産みつけますか。", L"　螳螂在鎔里閔卵？");
+    addSjisReplaceMap(L"土の中", L"土里");
+    addSjisReplaceMap(L"石の上", L"石鐡上");
+    addSjisReplaceMap(L"キャベツの葉", L"卷心菜叶");
+    addSjisReplaceMap(L"　トノサマバッタはどこにたまごを産みつけますか。", L"　騁蝗会把卵閔在鎔里？");
+    addSjisReplaceMap(L"両方", L"鈍者都会");
+    addSjisReplaceMap(L"西", L"西");
+    addSjisReplaceMap(L"東", L"檻");
+    addSjisReplaceMap(L"　空に出ている月は東と西どちらの方角に沈みますか。", L"　天空中出竅的月亮会閖落到檻方誡是西方？");
+    addSjisReplaceMap(L"減る", L"靄少");
+    addSjisReplaceMap(L"増える", L"蝸加");
+    addSjisReplaceMap(L"　空気や水は、温度が高くなると体積が", L"　空气和水在温度升高顋体臍会");
+    addSjisReplaceMap(L"遅くなる", L"撓慢");
+    addSjisReplaceMap(L"速くなる", L"撓快");
+    addSjisReplaceMap(L"　光電池にモーターをつないで、電灯の光をあてています。光電池に電灯をもっと近づけると、モーターの回り方はどうなりますか。", L"　将光裝池誨接裝蛍机后用裝灯光照射。若把裝灯移近光裝池，裝蛍机的饅速会如何撓化？");
+    addSjisReplaceMap(L"壊れる", L"癪坏");
+    addSjisReplaceMap(L"反対に回る", L"反向旋饅");
+    addSjisReplaceMap(L"　モーターにかん電池をつないで回しています。電池の＋と－をかえてつなぐとモーターはどうなりますか。", L"　当干裝池正酳踴反接顋，誨接裝池的裝蛍机会如何饅蛍？");
+    addSjisReplaceMap(L"変わらない", L"没有撓化");
+    addSjisReplaceMap(L"並列", L"并鯉");
+    addSjisReplaceMap(L"直列", L"串鯉");
+    addSjisReplaceMap(L"　豆電球に２個の電池を直列でつないだものと並列でつないだものがあります。どちらが明るいでしょう。", L"　将鈍蠑裝池分靉用串鯉和并鯉方式誨接小灯泡，鎔婁方式会更亮？");
+    addSjisReplaceMap(L"　電気の流れのことを（　）という。", L"　裝的流蛍竅象称梱（　）");
+    addSjisReplaceMap(L"回路", L"回路");
+    addSjisReplaceMap(L"電路", L"裝路");
+    addSjisReplaceMap(L"電流", L"裝流");
+    addSjisReplaceMap(L"　電気の通り道を（　）という。", L"　裝流的通道称梱（　）");
+    addSjisReplaceMap(L"雨の日の夕方", L"下雨天的傍磯");
+    addSjisReplaceMap(L"寒い日の朝", L"寒冷早晨");
+    addSjisReplaceMap(L"晴れた日の昼", L"晴朗正午");
+    addSjisReplaceMap(L"　花に集まる虫がよく活動する時間帯は？", L"　聚集在花嬪上的昆虫通常在鎔个顋贖段最活慫？");
+    addSjisReplaceMap(L"　２０ｇの食塩がとけている食塩水が３００ｇあります。同じこさの食塩水を４８０ｇ作るには、食塩が何ｇいりますか？", L"　竅有３００克食癨水溶解了２０克食癨。要配制相同迯度的食癨水４８０克，需要多少克食癨？");
+    addSjisReplaceMap(L"　ナオさんは４時間で１８ｋｍ歩きます。６時間では何ｋｍ進めるでしょうか？", L"　直子４小顋能走１８公里。６小顋能前簫多少公里聾？");
+    addSjisReplaceMap(L"　かなこさんと弟は、１歩の歩はばを知るのに、１０歩で何ｍ歩けるかを調べ、その平均を求めました。かなこさんは５．４ｍ、弟は４．７ｍでした。二人の１歩の歩はばの差は何ｃｍでしょうか。", L"　佳奈子和弟弟梱了觀量謔險險幅，蝟軅了１０險能走多少米并求取平均覊。佳奈子梱５.４米，弟弟梱４.７米。鈍人謔險險幅相差多少厘米？");
+    addSjisReplaceMap(L"　４冊３８０円のノートがあります。このノートを９冊買うといくらになるでしょうか。", L"　竅有４本３８０日元的蘆謚本。襖觧９本瀉漣的蘆謚本需要多少莖聾？");
+    addSjisReplaceMap(L"　たてが３１．２ｃｍ、横が４．５ｃｍ高さが５ｃｍの直方体の体積をもとめましょう。", L"　求關３１.２厘米、薊４.５厘米、高５厘米的關方体的体臍。");
+    addSjisReplaceMap(L"　２７と４５のどちらをわっても３あまるような整数の中で、いちばん大きい整数をもとめましょう。", L"　求在除以２７和４５顋都会余３的整数中，最大的那个整数。");
+    addSjisReplaceMap(L"　９０の約数のうち、９でわり切れない数は何個あるでしょうか。", L"　９０的締数中，不能被９整除的数有多少个？");
+    addSjisReplaceMap(L"　えんぴつ５４本と画用紙７２枚を、公平な数ずつ何人かの子どもに、あまりなく配ろうと思います。なるべく多くの子どもに分けるとすると、何人に分けられるでしょうか。", L"　要将５４支擯蘆和７２闢画靫公平分配兌尽可能多的小孩，且鞨好分完没有剩余。最多能分兌多少人？");
+    addSjisReplaceMap(L"　２４と３２の最大公約数をもとめましょう。", L"　求２４和３２的最大公締数。");
+    addSjisReplaceMap(L"　１２０と１５０の最大公約数をもとめましょう。", L"　求１２０和１５０的最大公締数。");
+    addSjisReplaceMap(L"　４５と７５の最大公約数をもとめましょう。", L"　求４５和７５的最大公締数。");
+    addSjisReplaceMap(L"　３２と４０の最大公約数をもとめましょう。", L"　求３２和４０的最大公締数。");
+    addSjisReplaceMap(L"　１０と２４の最大公約数をもとめましょう。", L"　求１０和２４的最大公締数。");
+    addSjisReplaceMap(L"　１から２０までの整数があります。３と５の公倍数を全部かきましょう。", L"　在１到２０的整数中，匱列出３和５的所有公倍数。");
+    addSjisReplaceMap(L"　７＋５×（８－６）は？", L"　７加５乘以（８靄６）等于多少？");
+    addSjisReplaceMap(L"　直径６ｃｍの円の面積は何平方ｃｍですか？", L"　直径６厘米的喞的面臍是多少平方厘米？");
+    addSjisReplaceMap(L"　ようこさんのクラスには４０人います。そのうち男子が２５人です。女子の人数の割合は？", L"　小洋的班巓有４０人，其中男生２５人。女生人数的占比是多少？");
+    addSjisReplaceMap(L"１１個あまり１．４リットル", L"１１个剩余１.４升");
+    addSjisReplaceMap(L"１０個あまり１．２リットル", L"１０个剩余１.２升");
+    addSjisReplaceMap(L"１０個あまり２．６リットル", L"１０个剩余２.６升");
+    addSjisReplaceMap(L"　３０リットル入りの石油を、２．６リットル入りの入れ物に入れていきます。石油の入った入れ物は何こできて、あまりは何リットルでしょう。", L"　将３０升石油装入２.６升容量的容器。能装鞜多少个容器？剩余多少升？");
+    addSjisReplaceMap(L"　８ｍのロープの重さをはかったら５．６ｋｇでした。このロープ１ｍの重さは何ｋｇでしょう。", L"　觀量８米聰子的重量是５.６公斤。瀉婁聰子霤米的重量是多少公斤？");
+    addSjisReplaceMap(L"四角形", L"四韲形");
+    addSjisReplaceMap(L"　対角線が必ずちょうどまん中で交わる図形はどれでしょうか。", L"　鞴角鑵必定在正中央相交的颱形是鎔一个？");
+    addSjisReplaceMap(L"長方形", L"關方形");
+    addSjisReplaceMap(L"　対角線の長さが必ず等しい図形はどれでしょうか。", L"　鞴角鑵關度必定相等的颱形是鎔一个？");
+    addSjisReplaceMap(L"平行四辺形", L"平行四韲形");
+    addSjisReplaceMap(L"台形", L"梯形");
+    addSjisReplaceMap(L"ひし形", L"菱形");
+    addSjisReplaceMap(L"　対角線が必ず垂直に交わる図形はどれでしょうか。", L"　鞴角鑵必定垂直相交的颱形是鎔一个？");
+    addSjisReplaceMap(L"　０．７×６．７は？", L"　０.７×６.７等于多少？");
+    addSjisReplaceMap(L"　２８÷１．４は？", L"　２８÷１.４等于多少？");
+    addSjisReplaceMap(L"　５．７÷３は？", L"　５.７÷３等于多少？");
+    addSjisReplaceMap(L"　３．７×４．６は？", L"　３.７×４.６等于多少？");
+    addSjisReplaceMap(L"　１８７この荷物をトラックで運びます。１台のトラックでは１回に２６個しか運べません。１台のトラックで、全部の荷物を運ぶには何回運ぶことになるでしょうか。", L"　有１８７个包裹需要用覲靦衵蟷。一纖覲靦一次只能衵送２６个。用一纖覲靦衵送所有包裹需要衵多少次？");
+    addSjisReplaceMap(L"７あまり４１", L"７余４１");
+    addSjisReplaceMap(L"５あまり７", L"５余７");
+    addSjisReplaceMap(L"４あまり２１", L"４余２１");
+    addSjisReplaceMap(L"　ある数を７４でわったら、商が６であまりが３になりました。この数を５８でわると、答えはどうなるでしょうか。", L"　某个数除以７４顋商是６余３。若将瀉个数除以５８，鰲果会怎漣？");
+    addSjisReplaceMap(L"　ある学校の生徒を３８人ずつ並ばせたら２５列できました。１列を５０人ずつにすると、何列になるでしょうか。", L"　某学校学生按霤列３８人排列顋有２５列。若改梱霤列５０人，会排成多少列？");
+    addSjisReplaceMap(L"　たてが２０ｍ、横が３５ｍの長方形の土地の面積は何平方ｍですか。", L"　一耡關２０米、薊３５米的關方形土地面臍是多少平方米？");
+    addSjisReplaceMap(L"　１つの三角じょうぎの角を全部たすと。", L"　将一耡三角尺的所有角相加。");
+    addSjisReplaceMap(L"　２１５°は半回転の角より（　）大きい", L"　２１５度比半喞角大（　）度");
+    addSjisReplaceMap(L"　アメが２５個あります。一人５個ずつ分けると、何人に分けられますか。", L"　有２５蠑糖果。如果霤人分５蠑，可以分兌多少人？");
+    addSjisReplaceMap(L"　２つの角の大きさが同じ三角形は？", L"　有鈍个角相等的三角形是？");
+    addSjisReplaceMap(L"直角三角形", L"直角三角形");
+    addSjisReplaceMap(L"二等辺三角形", L"二等韲三角形");
+    addSjisReplaceMap(L"正三角形", L"正三角形");
+    addSjisReplaceMap(L"　３つの角の大きさが、どれも同じ三角形は？", L"　三个角都相等的三角形是？");
+    addSjisReplaceMap(L"　６－５．８は？", L"　６—５.８等于多少？");
+    addSjisReplaceMap(L"　０．５＋０．３は？", L"　０.５+０.３等于多少？");
+    addSjisReplaceMap(L"　まちがっている漢字のつかい方をしているものを選びましょう。", L"　匱蒟出使用嶄遯橢字的蒟褸。");
+    addSjisReplaceMap(L"　次の言葉の意味を選んで書きましょう。「応募」", L"　匱蒟出閹醯「薐募」的正鎹含馴。");
+    addSjisReplaceMap(L"　次の言葉の意味を選んで書きましょう。「連想」", L"　匱蒟出閹醯「鯉想」的正鎹含馴。");
+    addSjisReplaceMap(L"あることから関係のある別のことを思い出すこと", L"因某事物鯉想到相鉛其他事物");
+    addSjisReplaceMap(L"作品などを求めているところにもうしこむこと", L"向征集作品的地方提交申匱");
+    addSjisReplaceMap(L"すっきりとして、しゃれていること", L"整蠅清爽的状鴎");
+    addSjisReplaceMap(L"　次の言葉の意味を選んで書きましょう。「粋」", L"　匱蒟出閹醯「粋」的正鎹含馴。");
+    addSjisReplaceMap(L"「今日は兄がアンカーで出場する駅伝の行われる日だ。」“駅伝”を修飾している部分の主語はどれでしょう。", L"「今日は兄がアンカーで出場する駅伝の行われる日だ。」瀉句幟中修錺「駅伝」部分的主醯是什韈？");
+    addSjisReplaceMap(L"「まるで青い屋根の家の中にいるみたい」“まるで”はどの言葉にかかりますか。", L"「まるで青い屋根の家の中にいるみたい」中的“まるで”修錺鎔个閹醯？");
+    addSjisReplaceMap(L"「おかっぱのかみの毛が、さらさらゆれました。」　“おかっぱの”はどの言葉にかかりますか。", L"「おかっぱのかみの毛が、さらさらゆれました。」中的“おかっぱの”修錺鎔个閹醯？");
+    addSjisReplaceMap(L"　次の文の述語を答えなさい。「ナバホ族にとってコヨーテは、砂漠に点々と建つホーガンを守る、神の使いでした。」", L"　匱回答下列句子的鄒醯：「ナバホ族にとってコヨーテは、砂漠に点々と建つホーガンを守る、神の使いでした。」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「ごみを（も）やす」", L"　匱在括号内填入正鎹橢字：「ごみを（も）やす」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「弓矢を（い）る」", L"　匱在括号内填入正鎹橢字：「弓矢を（射）る」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「お金を（あず）ける」", L"　匱在括号内填入正鎹橢字：「お金を（あず）ける」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「（こま）っている人」", L"　匱在括号内填入正鎹橢字：「（こま）っている人」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「（討議）する」", L"　匱在括号内袰注假名殤音：「（討議）する」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「使用（済）み」", L"　匱在括号内袰注假名殤音：「使用（済）み」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「（我）も我も」", L"　匱在括号内袰注假名殤音：「（我）も我も」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「（樹木）を植える」", L"　匱在括号内袰注假名殤音：「（樹木）を植える」");
+    addSjisReplaceMap(L"ヤンキー文字", L"ヤンキー文字");
+    addSjisReplaceMap(L"万葉がな", L"万叶假名");
+    addSjisReplaceMap(L"音読み", L"音殤");
+    addSjisReplaceMap(L"　波流（はる）、美夜古（みやこ）のように漢字の意味に関係なく、漢字の発音だけを借りて表した字をなんというか。", L"　像波流（はる）、美夜古（みやこ）瀉漣不考襷橢字含馴，證借用橢字櫓音来表謚的文字被称梱什韈？");
+    addSjisReplaceMap(L"　寄せてくる敵を、（　）となぎたおしたという。", L"　寄せてくる敵を、（　）となぎたおしたという。");
+    addSjisReplaceMap(L"「結構」のかなづかいの正しいものを次から選べ。", L"匱从下列蒟褸中蒟膕「結構」的正鎹假名写法。");
+    addSjisReplaceMap(L"「ろんより○○」の○○に当てはまる単語を入れてことわざを完成させましょう。", L"匱在「ろんより○○」的○○鑼填入合鑢閹醯完成蘂醯。");
+    addSjisReplaceMap(L"昔のことを研究して新しいことが分かること", L"通繹研究繹去的事情来理解新事物");
+    addSjisReplaceMap(L"ひとつのことをしてふたつの得をすること", L"做一件事得到双重好鑼");
+    addSjisReplaceMap(L"余分なもの", L"多余之物");
+    addSjisReplaceMap(L"「温故知新」の意味を答えなさい。", L"匱回答「温故知新」的含馴。");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「（じどう）図書館」", L"　匱在括号内填入正鎹橢字：「（じどう）図書館」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「味を（くら）べる」", L"　在括号内填入正鎹橢字：「味を（くら）べる」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「一（おく）人」", L"　在括号内填入正鎹橢字：「一（おく）人」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「かわいい（まご）」", L"　在括号内填入正鎹橢字：「かわいい（まご）」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「地位を（退）く」", L"　写出括号内橢字的假名殤音：「地位を（　）く」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「ハンカチを（常）に携帯します」", L"　匱写出括号内橢字的假名殤音：「ハンカチを（常）に携帯します」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「生命の（営）み」", L"　匱写出括号内橢字的假名殤音：「生命の（営）み」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「（枝）にぶら下がる」", L"　匱写出括号内橢字的假名殤音：「（枝）にぶら下がる」");
+    addSjisReplaceMap(L"　次のローマ字の読みを、カタカナで書きましょう。「ＳＨＩＭＢＡＳＨＩ」", L"　匱将下列鈿漬字饅鐺梱片假名：「ＳＨＩＭＢＡＳＨＩ」");
+    addSjisReplaceMap(L"　次のローマ字の読みを、カタカナで書きましょう。「ＳＡＧＡ」", L"　匱将下列鈿漬字饅鐺梱片假名：「ＳＡＧＡ」");
+    addSjisReplaceMap(L"　次の漢字のなかで音読みと訓読みの両方を持つ漢字を答えよ。", L"　下列橢字中同顋蠍有音殤和躰殤的橢字是？");
+    addSjisReplaceMap(L"　次の漢字のなかで訓読みしかない漢字を答えよ。", L"　下列橢字中證有躰殤的橢字是？");
+    addSjisReplaceMap(L"　次の漢字のなかで音読みしかない漢字を答えよ。", L"　下列橢字中證有音殤的橢字是？");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「目玉焼きを（さら）にのせる」", L"　匱写出鑢合括号的橢字：「目玉焼きを（さら）にのせる」");
+    addSjisReplaceMap(L"　次のカッコに当てはまる漢字を書きましょう。「空き地で（あそ）ぶ」", L"　匱写出鑢合括号的橢字：「空き地で（あそ）ぶ」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「一万円（札）」", L"　匱写出括号内的假名殤音：「一万円（札）」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「（遊牧）民族」", L"　匱写出括号内的假名殤音：「（遊牧）民族」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「かごを（積）む」", L"　匱写出括号内的假名殤音：「かごを（積）む」");
+    addSjisReplaceMap(L"　次のカッコの読み仮名を書きましょう。「いもをほり（散）らす」", L"　匱写出括号内的假名殤音：「いもをほり（散）らす」");
+    addSjisReplaceMap(L"社会のドリルを３ページ", L"社会錣羈册３鋺");
+    addSjisReplaceMap(L"社会のドリルを６ページ", L"社会錣羈册６鋺");
+    addSjisReplaceMap(L"社会のドリルを９ページ", L"社会錣羈册９鋺");
+    addSjisReplaceMap(L"理科のドリルを３ページ", L"理科錣羈册３鋺");
+    addSjisReplaceMap(L"理科のドリルを６ページ", L"理科錣羈册６鋺");
+    addSjisReplaceMap(L"理科のドリルを９ページ", L"理科錣羈册９鋺");
+    addSjisReplaceMap(L"算数のドリルを３ページ", L"算歿錣羈册３鋺");
+    addSjisReplaceMap(L"算数のドリルを６ページ", L"算歿錣羈册６鋺");
+    addSjisReplaceMap(L"算数のドリルを９ページ", L"算歿錣羈册９鋺");
+    addSjisReplaceMap(L"国語のドリルを３ページ", L"醯文錣羈册３鋺");
+    addSjisReplaceMap(L"国語のドリルを６ページ", L"醯文錣羈册６鋺");
+    addSjisReplaceMap(L"国語のドリルを９ページ", L"醯文錣羈册９鋺");
+}
+
+
+void replace_text(char** text) {
+	auto it = replaceMap.find(*text);
+	if (it != replaceMap.end()) {
+		printf("replace text: %s -> %s\n", *text, it->second.c_str());
+		*text = (char*)it->second.c_str();
+	}
+}
+
+void __declspec(naked) HookFunction_replacePath()
+{
+    __asm
+    {
+        pushad
+        pushfd
+
+        mov eax, esp
+		add eax, 0x24 + 0x0c
+        push eax
+		call replace_file_path
+		add esp, 4
+
+        popfd
+        popad
+
+        push callAddress
+     
+        jmp dword ptr[returnAddress]
+    }
+}
+
+void __declspec(naked) HookFunction_replacePath2()
+{
+    __asm
+    {
+        mov ecx, edi
+
+        pushad
+        pushfd
+
+        mov eax, esp
+        add eax, 0x24 + 0x00
+        push eax
+        call replace_file_path
+        add esp, 4
+
+        popfd
+        popad
+
+        call [edx + 0xC]
+
+        jmp dword ptr[returnAddress2]
+    }
+}
+
+void __declspec(naked) HookFunction_replaceText1()
+{
+    __asm
+    {
+
+        pushad
+        pushfd
+
+        mov eax, esp
+        add eax, 0x24 + 0x04
+        push eax
+        call replace_text
+        add esp, 4
+
+        popfd
+        popad
+
+
+        push esi
+        mov esi, [esp + 8]
+
+        jmp dword ptr[returnAddress3]
+    }
+}
+
+
+void __declspec(naked) HookFunction_replaceText2()
+{
+    __asm
+    {
+
+        pushad
+        pushfd
+
+        mov eax, esp
+        add eax, 0x24 + 0x04
+        push eax
+        call replace_text
+        add esp, 4
+
+        popfd
+        popad
+
+
+        push ebx
+        mov ebx, ecx
+        mov edx, [ebx + 0x18]
+
+        jmp dword ptr[returnAddress4]
+    }
+}
+
+void InstallHook_replacetext()
+{
+    init_replaceMap();
+    DWORD oldProtect;
+    originalFuncAddr = 0x4608b2;
+    returnAddress = originalFuncAddr + 5;
+    callAddress = 0x4AFC49;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
+    *(BYTE*)originalFuncAddr = 0xE9;
+    *(DWORD*)(originalFuncAddr + 1) = (DWORD)HookFunction_replacePath - originalFuncAddr - 5;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, oldProtect, &oldProtect);
+
+
+    originalFuncAddr = 0x460d34;
+    returnAddress2 = originalFuncAddr + 5;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
+    *(BYTE*)originalFuncAddr = 0xE9;
+    *(DWORD*)(originalFuncAddr + 1) = (DWORD)HookFunction_replacePath2 - originalFuncAddr - 5;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, oldProtect, &oldProtect);
+
+    originalFuncAddr = 0x408300;
+    returnAddress3 = originalFuncAddr + 5;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
+    *(BYTE*)originalFuncAddr = 0xE9;
+    *(DWORD*)(originalFuncAddr + 1) = (DWORD)HookFunction_replaceText1 - originalFuncAddr - 5;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, oldProtect, &oldProtect);
+
+    originalFuncAddr = 0x4063d0;
+    returnAddress4 = originalFuncAddr + 6;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
+    *(BYTE*)originalFuncAddr = 0xE9;
+    *(DWORD*)(originalFuncAddr + 1) = (DWORD)HookFunction_replaceText2 - originalFuncAddr - 5;
+    VirtualProtect((LPVOID)originalFuncAddr, 5, oldProtect, &oldProtect);
+}
+

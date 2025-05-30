@@ -1,0 +1,59 @@
+//  Copyright (c) Microsoft Corporation. All rights reserved.
+
+import "oaidl.idl";
+import "dxgi.idl";
+
+cpp_quote("#if (NTDDI_VERSION >= NTDDI_WIN8)")
+
+[
+    object,
+    uuid( f2e9edc1-d307-4525-9886-0fafaa44163c ),
+    local,
+    pointer_default(unique)
+]
+interface ISurfaceImageSourceNative: IUnknown
+{
+    HRESULT SetDevice([in, annotation("_In_")] IDXGIDevice *pDevice);
+    HRESULT BeginDraw([in, annotation("_In_")] RECT updateRect, [out, annotation("_Out_")] IDXGISurface** pSurface, [out, annotation("_Out_")] POINT* offset);
+    HRESULT EndDraw();
+};
+
+[
+    object,
+    uuid( dbf2e947-8e6c-4254-9eee-7738f71386c9 ),
+    local,
+    pointer_default(unique)
+]
+interface IVirtualSurfaceUpdatesCallbackNative: IUnknown
+{
+    HRESULT UpdatesNeeded();
+};
+
+[
+    object,
+    uuid( e9550983-360b-4f53-b391-afd695078691 ),
+    local,
+    pointer_default(unique)
+]
+interface IVirtualSurfaceImageSourceNative: ISurfaceImageSourceNative
+{
+	HRESULT Invalidate([in, annotation("_In_")]RECT updateRect);
+	HRESULT GetUpdateRectCount([out, annotation("_Out_")]DWORD *pCount);
+	HRESULT GetUpdateRects([out, size_is(count), annotation("_Out_writes_(count)")] RECT *pUpdates,[in, annotation("_In_")]DWORD count);
+	HRESULT GetVisibleBounds([out, annotation("_Out_")]RECT *pBounds);
+	HRESULT RegisterForUpdatesNeeded([in, annotation("_In_")]IVirtualSurfaceUpdatesCallbackNative *pCallback);
+	HRESULT Resize([in, annotation("_In_")]INT newWidth, [in, annotation("_In_")]INT newHeight);
+};
+
+[
+    object,
+    uuid( 43bebd4e-add5-4035-8f85-5608d08e9dc9 ),
+    local,
+    pointer_default(unique)
+]
+interface ISwapChainBackgroundPanelNative: IUnknown
+{
+    HRESULT SetSwapChain([in, annotation("_In_")] IDXGISwapChain *pSwapChain);
+};
+
+cpp_quote("#endif // NTDDI_VERSION >= NTDDI_WIN8")

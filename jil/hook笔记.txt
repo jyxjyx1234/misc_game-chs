@@ -1,0 +1,49 @@
+00406983                                                          | E8 A8040300               | call jii.436E30                                          |
+
+ecx+4 脚本内偏移
+ecx+8 脚本开头地址
+ecx+c 脚本大小 用脚本大小可以匹配脚本
+
+struct scrinfo{
+    int unk,
+    int offset,
+    int scr_start,
+    int scr_size
+}
+
+
+初始化：创建一个双层map：std::map<int, std::map<int, std::string>>
+通过脚本大小映射到map，再根据脚本内偏移找到对应的地址
+
+全局变量：
+char* oriscr; // 存储原本的脚本
+int ori_start;
+int trans_size;
+int new_end; // 覆盖后的末尾
+BOOL isChanged; // 判断是否处于脚本被修改的状态
+
+hook：
+
+if (!isChanged){
+    auto it = filemap.find(info->scr_size);
+    if (it != filemap.end){
+        auto transmap = it->second;
+        auto it = transmap.find(info->offset);
+        if (it != transmap.end){
+            std::string trans = it->second;
+            ori_start = info->offset;
+            trans_size = strlen(trans.c_str());
+            memcpy(oriscr, (char*)(info->scr_start+info->offset), trans_size);
+            memcpy((char*)(info->scr_start+info->offset), trans.c_str(), trans_size);
+            new_end = info->offset + trans_size;
+            isChanged = TRUE;
+        }
+    }
+}
+else{
+    if (offset == new_end){
+        memcpy((char*)(info->scr_start+ori_start), oriscr, trans_size);
+        info->offset = ori_start + strlen((char*)(info->scr_start+ori_start));
+        isChanged = false;
+    }
+}

@@ -1,0 +1,56 @@
+// cstring standard header
+#pragma once
+#ifndef _CSTRING_
+#define _CSTRING_
+#include <yvals.h>
+
+#ifdef _STD_USING
+ #undef _STD_USING
+  #include <string.h>
+ #define _STD_USING
+
+#else /* _STD_USING */
+ #include <string.h>
+
+ #ifndef RC_INVOKED
+  #if _GLOBAL_USING
+
+#if (_MSC_VER >= 1300)
+#pragma warning(push)
+#pragma warning(disable:4995) // Let us declare deprecated functions, even if we don't use them.
+#endif
+
+_STD_BEGIN
+using ::size_t; using ::memchr; using ::memcmp;
+using ::memcpy; using ::memmove; using ::memset;
+#if !defined(strcat)
+using ::strcat;
+#endif
+using ::strchr; using ::strcmp;
+using ::strcoll;
+#if !defined(strcpy)
+using ::strcpy;
+#endif
+using ::strcspn;
+using ::strerror; using ::strlen; using ::strncat;
+using ::strncmp; using ::strncpy; using ::strpbrk;
+using ::strrchr; using ::strspn; using ::strstr;
+using ::strtok; using ::strxfrm;
+_STD_END
+
+#if (_MSC_VER >= 1300)
+#pragma warning(pop)
+#endif
+
+  #endif /* _GLOBAL_USING */
+ #endif /* RC_INVOKED */
+
+#endif /* _STD_USING */
+#endif /* _CSTRING_ */
+
+/*
+ * Copyright (c) 1992-2004 by P.J. Plauger.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+ V4.03:0009 */
+/* 88bf0570-3001-4e78-a5f2-be5765546192 */ 
+

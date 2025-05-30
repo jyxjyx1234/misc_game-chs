@@ -1,0 +1,90 @@
+//
+// AudioMediaType.idl
+//
+//
+// Description:
+//
+//  IAudioMediaType definition
+//
+import "oaidl.idl";
+import "ocidl.idl";
+
+//
+// Include this for marshallable definition of WAVEFORMATEX
+//
+import "mmreg.h";
+
+//
+// UNCOMPRESSEDAUDIOFORMAT
+//
+
+cpp_quote( "#if !defined( _UNCOMPRESSEDAUDIOFORMAT_ )" )
+cpp_quote( "#define _UNCOMPRESSEDAUDIOFORMAT_" )
+
+typedef struct _UNCOMPRESSEDAUDIOFORMAT
+{
+    GUID      guidFormatType;
+    DWORD     dwSamplesPerFrame;
+    DWORD     dwBytesPerSampleContainer;
+    DWORD     dwValidBitsPerSample;
+    FLOAT     fFramesPerSecond;
+    DWORD     dwChannelMask;
+} UNCOMPRESSEDAUDIOFORMAT;
+
+cpp_quote( "#endif" )
+cpp_quote( "" )
+
+//////////////////////////////////////////////////////////////////////////////
+
+[
+    object,
+    uuid(4E997F73-B71F-4798-873B-ED7DFCF15B4D),
+    local
+]
+interface IAudioMediaType : IUnknown
+{
+    HRESULT IsCompressedFormat(
+        [out, annotation("__out")] BOOL* pfCompressed
+        );
+    HRESULT IsEqual(
+        [in, annotation("__in")] IAudioMediaType* pIAudioType,
+        [out, annotation("__out")] DWORD* pdwFlags
+        );
+    const WAVEFORMATEX* GetAudioFormat();
+    HRESULT GetUncompressedAudioFormat(
+        [out, annotation("__out")] UNCOMPRESSEDAUDIOFORMAT* pUncompressedAudioFormat
+        );
+};
+
+cpp_quote("//")
+cpp_quote("// CreateAudioMediaType")
+cpp_quote("//")
+
+cpp_quote("STDAPI CreateAudioMediaType(")
+cpp_quote("    const WAVEFORMATEX* pAudioFormat,")
+cpp_quote("    UINT32 cbAudioFormatSize,")
+cpp_quote("    IAudioMediaType** ppIAudioMediaType")
+cpp_quote("    );")
+
+
+cpp_quote("//")
+cpp_quote("// CreateAudioMediaTypeFromUncompressedAudioFormat")
+cpp_quote("//")
+
+cpp_quote("STDAPI CreateAudioMediaTypeFromUncompressedAudioFormat(")
+cpp_quote("    const UNCOMPRESSEDAUDIOFORMAT* pUncompressedAudioFormat,")
+cpp_quote("    IAudioMediaType** ppIAudioMediaType")
+cpp_quote("    );")
+
+//
+// IsEqual flags
+//
+
+// subtype match = format types match = iscompressed for both matches
+// format_data match = format blocks match exactly
+
+cpp_quote( "#define AUDIOMEDIATYPE_EQUAL_FORMAT_TYPES 0x00000002" )
+cpp_quote( "#define AUDIOMEDIATYPE_EQUAL_FORMAT_DATA  0x00000004" )
+cpp_quote( "#define AUDIOMEDIATYPE_EQUAL_FORMAT_USER_DATA  0x00000008" )
+cpp_quote( "" )
+

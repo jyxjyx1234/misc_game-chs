@@ -1,0 +1,120 @@
+from Lib import *
+import zlib
+from PIL import Image, ImageDraw, ImageFont
+
+def fake_LZSS_compress(data):
+    output = bytearray()
+    for i in range(0, len(data), 8):
+        output.append(0xff)
+        for j in range(8):
+            if i+j < len(data):
+                output.append(data[i+j])
+    return bytes(output)
+
+fonts = [0] + [ImageFont.truetype("攸望POP3体W12（简繁）.ttf", i) for i in range(1, 50)]
+
+not_found = []
+
+class FT_ENTRY:
+    def __init__(self, data : bytes):
+        self.text = (data[1:2] + data[0:1]).strip(b'\x00')
+        self.width = from_bytes(data[2:4])
+        self.height = from_bytes(data[4:6])
+        self.unk1 = from_bytes(data[6:8])
+        self.unk2 = from_bytes(data[8:10])
+        self.unk3 = from_bytes(data[10:12])
+        self.offset = from_bytes(data[12:16])
+        self.size = from_bytes(data[16:18])
+        self.unk4 = from_bytes(data[18:20])
+
+    def read_char(self, dataStart, data:BytesReader):
+        data.seek(dataStart + self.offset)
+        self.char_data = FT_CHAR(data.read(self.size), self.width, self.height)
+
+    def rebuild(self, replace_dict, new_offset):
+        try:
+            char = self.text.decode("932")
+        except:
+            return
+        new_text = replace_dict.get(char, char)
+        self.char_data.re_draw(new_text)
+        self.size = len(self.char_data.data)
+        self.offset = new_offset
+    
+    def to_bytes(self):
+        if len(self.text) == 1:
+            text = self.text + b'\x00'
+        else:
+            text = self.text[1:] + self.text[:1]
+        return text + to_bytes(self.width, 2) + to_bytes(self.height, 2) + to_bytes(self.unk1, 2) + to_bytes(self.unk2, 2) + to_bytes(self.unk3, 2) + to_bytes(self.offset, 4) + to_bytes(self.size, 2) + to_bytes(self.unk4, 2)
+        
+
+class FT_CHAR:
+    def __init__(self, data : bytes, width, height):
+        self.data:bytes = data
+        self.width = width
+        self.height = height
+    
+    def re_draw(self, new_char):
+        img = Image.new("L", (self.width, self.height), 0)
+        draw = ImageDraw.Draw(img)
+        font = fonts[self.height]
+        draw_width = font.getlength(new_char)
+        draw.text((self.width//2 - draw_width//2, 0), new_char, font=font, fill=255)
+        if img.tobytes() == b"\x00" * self.width * self.height:
+            not_found.append(new_char)
+            return
+        self.data = fake_LZSS_compress(img.tobytes())
+
+class FT_FILE:
+    def __init__(self, data : bytes):
+        data = BytesReader(data)
+        self.header = data.read(0x14)
+        self.charCount = from_bytes(data.read(4))
+        self.charDataLen = from_bytes(data.read(4))
+        self.entries = []
+        for i in range(self.charCount):
+            entry = FT_ENTRY(data.read(20))
+            self.entries.append(entry)
+        self.dataStart = 0x1c + self.charCount * 20
+        for char in self.entries:
+            char.read_char(self.dataStart, data)
+    
+    def rebuild(self, replace_dict):
+        new_offset = 0
+        i = 0
+        for char in self.entries:
+            print(f"{i}/{self.charCount}", end="\r")
+            char.rebuild(replace_dict, new_offset)
+            new_offset += char.size
+            i += 1
+        self.charDataLen = new_offset
+        
+    def to_bytes(self):
+        output = []
+        output.append(self.header)
+        output.append(to_bytes(self.charCount, 4))
+        output.append(to_bytes(self.charDataLen, 4))
+        for char in self.entries:
+            output.append(char.to_bytes())
+        for char in self.entries:
+            output.append(char.char_data.data)
+        return b"".join(output)
+      
+def main():   
+    os.makedirs("release", exist_ok=True)
+    replace_dict = open_json("replace.json")
+    add_replace = {
+        "歴": "歷",
+        "羽": "羽",
+        "益": "益",
+    }
+    replace_dict.update(add_replace)
+    for file in os.listdir("font"):
+        data = open_file_b(f"font\\{file}")
+        ft = FT_FILE(data)
+        ft.rebuild(replace_dict)
+        save_file_b(f"release\\{file}", ft.to_bytes())
+
+if __name__ == "__main__":
+    main()
