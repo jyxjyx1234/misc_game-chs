@@ -87,16 +87,10 @@ void install_LE() {
 	timezone = "Tokyo Standard Time";
 
 	const HMODULE hLoader = LoadLibraryA("LoaderDll.dll");
-	//if (hLoader == nullptr)
-	//{
-	//	MessageBox(nullptr, L"请放入完整补丁文件!", L"Error", MB_ICONERROR);
-	//	exit(0);
-	//}
 	if (GetACP() == 932)
 	{
 		return;
 	}
 	ML_PROCESS_INFORMATION processInfo;
-	relaunch(&processInfo, hLoader);
-	ExitProcess(0);
+	if (relaunch(&processInfo, hLoader)) ExitProcess(0);
 }

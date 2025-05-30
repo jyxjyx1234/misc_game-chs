@@ -106,7 +106,7 @@ def pack():
 		dst.write(struct.pack('B',0))
 
 # dump()
-dump()
+# dump()
 # pack()
 
 # def main():

@@ -37,7 +37,7 @@ dat = {
             "url": f"resources/{gamename} {modelname}.rar"
         }
     ],
-    "comment": "",
+    "comment": "- 20250530 更新了部分UI翻译和人名翻译。优化了补丁结构。优化了程序，无需手动再更换字体。",
     "idx": idx,
     "times": time.strftime("%Y-%#m-%#d %H:%M:%S", time.localtime())
 }

@@ -10,8 +10,6 @@ github主页：[https://github.com/jyxjyx1234](https://github.com/jyxjyx1234)
 
 # 使用方法
 
-需要设置中手动切换字体以刷新缓存，否则文本将会错乱！
-
 将补丁中的内容覆盖到游戏目录即可。从原EXE启动。
 
 如果启动不成功请先尝试安装 https://aka.ms/vs/17/release/vc_redist.x86.exe 后重启。
