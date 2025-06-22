@@ -1,0 +1,1 @@
+chs_pack pack trans Ryokan_CHS.CPK Ryokan

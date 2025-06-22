@@ -1,0 +1,1 @@
+chs_pack pack trans machi_CHS.CPK MACHI

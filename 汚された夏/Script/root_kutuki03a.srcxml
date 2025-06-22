@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xscript>
+	<debug editor="&quot;C:\Program&#32;Files&#32;(x86)\sakura\sakura.exe&quot;&#32;&quot;%src%&quot;&#32;-Y=%line%"
+	   src="D:\シロップ\町ぐるみの罠＋汚された夏セット版\汚された夏\完成データ\汚された夏\script\text\root_kutuki03a.txt"/>
+	<code>
+		<label @l="10" id="EventLabel_114"/>
+		<description @l="13" text="朽木の奴隷・２日目"/>
+		<eval @l="15" expr="f.numDay=8&#13;&#10;"/>
+		<msgshow @l="17" show="false"/>
+		<wait_chgmv/>
+		<bg @l="19" src="day08" time="2000"/>
+		<wait @l="21" time="500"/>
+		<wait_chgmv/>
+		<bg @l="23" src="black" time="2000"/>
+		<msgshow @l="25" show="true"/>
+		<wait_chgmv/>
+		<bg @l="28" src="bg07"/>
+		<bgm @l="31" src="bgm02" volume="1."/>
+		<char @l="34" id="miho" pos="auto" src="miho010"/>
+		<msg @l="36" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="38" char_id="-1" frame_id="-1" name="" text="月曜日の朝。" voices=""/>
+		<msg @l="39" char_id="-1" frame_id="-1" name=""
+		   text="私は珍しく清々しい気持ちでキャンパスを歩いていた。" voices=""/>
+		<msg @l="40" char_id="-1" frame_id="-1" name=""
+		   text="それというのも、土曜、日曜と朽木教授からの呼び出しが無かったからだ。" voices=""/>
+		<msg @l="42" char_id="0" frame_id="-1" name="美帆"
+		   text="(あきらめた‥‥‥わけじゃないだろうけど)" voices=""/>
+		<char @l="45" id="miho" pos="auto" src="miho110"/>
+		<msg @l="47" char_id="0" frame_id="-1" name="美帆"
+		   text="(でも、少しでも普通の生活に戻れるなら‥‥‥)" voices=""/>
+		<stopbgm @l="50" fadeout="1000"/>
+		<se @l="53" buf="1" src="携帯電話呼び出し音02（ループ）" volume="1."/>
+		<char @l="56" id="miho" pos="auto" src="miho014"/>
+		<msg @l="58" char_id="0" frame_id="-1" name="美帆" text="『‥‥！』" voices=""/>
+		<msg @l="60" char_id="-1" frame_id="-1" name=""
+		   text="カバンの中で鳴り響く携帯電話の着信音が、清々しさに満ちていた気持ちを一掃する。" voices=""/>
+		<msg @l="61" char_id="-1" frame_id="-1" name=""
+		   text="確認するまでもない‥‥朽木教授からのメールだ。" voices=""/>
+		<bgm @l="64" src="bgm03" volume="1."/>
+		<char @l="67" id="miho" pos="auto" src="miho116"/>
+		<msg @l="69" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="71" char_id="0" frame_id="-1" name="美帆" text="(何も落胆する事なんて無い‥‥)"
+		   voices=""/>
+		<msg @l="73" char_id="0" frame_id="-1" name="美帆"
+		   text="(教授の愛人になることを選んだあの日から、こうしてメールで呼び出されることが私の「普通」になったんだから‥‥)" voices=""/>
+		<msg @l="75" char_id="-1" frame_id="-1" name=""
+		   text="そう自分に言い聞かせながら‥‥私は教授室のある校舎に向かって歩き始めた。" voices=""/>
+		<stopbgm @l="77" fadeout="1000"/>
+		<clear @l="80" class="all"/>
+		<label @l="83" id="event_scene74"/>
+		<msgshow @l="86" show="true"/>
+		<se @l="90" buf="1" src="ノック" volume="1."/>
+		<msg @l="92" char_id="0" frame_id="-1" name="美帆" text="『‥‥失礼します。』" voices=""/>
+		<bgm @l="95" src="bgm03" volume="1."/>
+		<wait_chgmv/>
+		<bg @l="98" src="bg12"/>
+		<char @l="101" id="miho" pos="auto" src="miho116"/>
+		<msg @l="103" char_id="-1" frame_id="-1" name=""
+		   text="教授の返事を待つ事無く、私は急いで部屋の中へ入る。" voices=""/>
+		<msg @l="104" char_id="-1" frame_id="-1" name="" text="誰かに見られるのが嫌だった。"
+		   voices=""/>
+		<msg @l="105" char_id="-1" frame_id="-1" name=""
+		   text="一応学科の教授に質問をしに来ているという名目はある。" voices=""/>
+		<msg @l="106" char_id="-1" frame_id="-1" name=""
+		   text="問題なのは教授室に足しげく通う私の姿を見て、周囲の人たちがどのように思うのかということなのだ。" voices=""/>
+		<msg @l="108" char_id="0" frame_id="-1" name="美帆" text="『あの‥‥お待たせしました。』"
+		   voices=""/>
+		<clear @l="111" class="char"/>
+		<char @l="113" id="miho" pos="right" src="miho116"/>
+		<char @l="115" id="kutsu" pos="left" src="kutsu010"/>
+		<msg @l="117" char_id="-1" frame_id="-1" name="朽木"
+		   text="『よく来た。私からの呼び出しがなく週末は淋しかったかね？』" voices=""/>
+		<msg @l="119" char_id="-1" frame_id="-1" name=""
+		   text="教授はそれまで腰かけていた椅子からゆっくり立ち上がり、私を見遣る。" voices=""/>
+		<msg @l="120" char_id="-1" frame_id="-1" name=""
+		   text="彼の視線は私の「忠誠」を試そうとしていた。" voices=""/>
+		<char @l="123" id="miho" pos="right" src="miho016"/>
+		<msg @l="125" char_id="0" frame_id="-1" name="美帆" text="『さ、さびし‥‥かったです。』"
+		   voices=""/>
+		<msg @l="127" char_id="-1" frame_id="-1" name="" text="私はとっさに嘘を吐いた。"
+		   voices=""/>
+		<msg @l="128" char_id="-1" frame_id="-1" name=""
+		   text="この週末‥‥彼の呼び出しがなく、それなりに楽しく過ごしていた。" voices=""/>
+		<msg @l="129" char_id="-1" frame_id="-1" name=""
+		   text="どうせ呼び出しに怯えるくらいならばと、朝からずっと駅前を歩いては買い物やら食べ歩きやらをして、思い切り羽を伸ばしていた。"
+		   voices=""/>
+		<char @l="132" id="kutsu" pos="left" src="kutsu018"/>
+		<msg @l="134" char_id="-1" frame_id="-1" name="朽木"
+		   text="『それは結構‥‥ならば淋しかった分、たっぷりと犯してやろう。』" voices=""/>
+		<msg @l="136" char_id="-1" frame_id="-1" name=""
+		   text="朽木教授はそう言って口元を大きく歪め、私を見る。" voices=""/>
+		<msg @l="138" char_id="-1" frame_id="-1" name="朽木"
+		   text="『今日はキミにも選択をしてもらおう。』" voices=""/>
+		<char @l="141" id="miho" pos="right" src="miho115"/>
+		<msg @l="143" char_id="0" frame_id="-1" name="美帆" text="『‥‥選択ですか？』"
+		   voices=""/>
+		<char @l="146" id="kutsu" pos="left" src="kutsu010"/>
+		<msg @l="148" char_id="-1" frame_id="-1" name="朽木" text="『不服かね？』" voices=""/>
+		<msg @l="150" char_id="0" frame_id="-1" name="美帆" text="『いえ‥‥不服なんて、ありません。』"
+		   voices=""/>
+		<msg @l="152" char_id="-1" frame_id="-1" name=""
+		   text="例え不服があったとしても、それを口に出来るような権利は私にはない。" voices=""/>
+		<msg @l="154" char_id="-1" frame_id="-1" name="朽木" text="『よろしい。では選びたまえ。』"
+		   voices=""/>
+		<msg @l="156" char_id="-1" frame_id="-1" name=""
+		   text="そう言って彼は引き出しから二つのビニール袋‥‥に入った衣服を取り出して机の上に並べてみせた。" voices=""/>
+		<char @l="159" id="miho" pos="right" src="miho116"/>
+		<msg @l="161" char_id="0" frame_id="-1" name="美帆"
+		   text="『これ‥‥‥スクール水着と、テニスウェア？』" voices=""/>
+		<msg @l="163" char_id="-1" frame_id="-1" name=""
+		   text="二つのビニール袋には、それぞれスクール水着とテニスウェアが入っている。" voices=""/>
+		<msg @l="164" char_id="-1" frame_id="-1" name="" text="どちらも新品のようだ。"
+		   voices=""/>
+		<msg @l="166" char_id="-1" frame_id="-1" name="朽木"
+		   text="『キミに着せようと思い用意させたのだ。』" voices=""/>
+		<msg @l="168" char_id="-1" frame_id="-1" name="朽木"
+		   text="『どうだね？キミの為に用意したのだよ？どちらかを選びたまえ。』" voices=""/>
+		<stopbgm @l="171" fadeout="1000"/>
+		<msg @l="173" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="176" async="true" char_id="-1" frame_id="-1" name=""
+		   text="どちらを着る‥‥？" voices=""/>
+		<select @l="177">
+			<menu @l="180" label="EventLabel_115" text="スクール水着"/>
+			<menu @l="183" label="EventLabel_118" text="テニスウェア"/>
+		</select>
+		<label @l="189" id="EventLabel_115"/>
+		<bgm @l="192" src="bgm09" volume="1."/>
+		<msg @l="194" char_id="0" frame_id="-1" name="美帆" text="『じゃあ、水着を‥‥‥。』"
+		   voices=""/>
+		<msg @l="196" char_id="-1" frame_id="-1" name=""
+		   text="仕方なく‥‥私はスクール水着の入った袋を手に取る。" voices=""/>
+		<msg @l="198" char_id="-1" frame_id="-1" name="朽木"
+		   text="『くくっ、よかろう‥‥ではこれを着て机の上に横たわりたまえ。』" voices=""/>
+		<msg @l="200" char_id="0" frame_id="-1" name="美帆" text="『‥‥はい。』" voices=""/>
+		<msg @l="202" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="204" char_id="-1" frame_id="-1" name=""
+		   text="朽木教授の視線を感じながら、私は袋からスクール水着を取り出した。" voices=""/>
+		<msg @l="205" char_id="-1" frame_id="-1" name=""
+		   text="飾り気のないオーソドックスなスクール水着。まさかこんな状況で再び着ることになるなんて思ってもみなかった。" voices=""/>
+		<msg @l="206" char_id="-1" frame_id="-1" name=""
+		   text="覚悟はしてきた。‥‥が悔しさを堪えるために唇を噛み締める。" voices=""/>
+		<msg @l="207" char_id="-1" frame_id="-1" name=""
+		   text="震える手でブラウスのボタンを外し、スカートを落とす。背後から朽木教授のいやらしい視線が絡み付いてくる‥‥。" voices=""/>
+		<char @l="210" id="miho" pos="right" src="miho185"/>
+		<char @l="212" id="kutsu" pos="left" src="kutsu018"/>
+		<msg @l="214" char_id="-1" frame_id="-1" name="朽木" text="『ククク‥‥。』" voices=""/>
+		<msg @l="216" char_id="-1" frame_id="-1" name=""
+		   text="‥‥この部屋で処女を奪われたことを思い出す‥‥。哀しみと恐怖で下着にかかった手が震えて動かなくなる。" voices=""/>
+		<msg @l="218" char_id="-1" frame_id="-1" name="朽木"
+		   text="『どうした？私のことは気にせず着替えたまえ。』" voices=""/>
+		<msg @l="220" char_id="-1" frame_id="-1" name=""
+		   text="教授の勝ち誇ったような口調に、私の逆らえない状況を思い知らされえる。諦めて下着を一気に脱ぎ捨てた。" voices=""/>
+		<char @l="223" id="miho" pos="right" src="miho105"/>
+		<msg @l="225" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="227" char_id="-1" frame_id="-1" name=""
+		   text="食い入るような視線に恥辱感が増し、脚が震える。" voices=""/>
+		<msg @l="229" char_id="-1" frame_id="-1" name="朽木"
+		   text="『まったく、幼い顔立ちのくせにいい身体をしている。キミのような娘が愛人をしているとはな、可哀想に。くくくっ』" voices=""/>
+		<msg @l="231" char_id="-1" frame_id="-1" name=""
+		   text="私は浴びせられる言葉から、視線から逃れるように急いで水着を手に取る。" voices=""/>
+		<msg @l="233" char_id="0" frame_id="-1" name="美帆" text="(んっ‥‥すこし‥‥きついかな‥‥‥)"
+		   voices=""/>
+		<msg @l="235" char_id="-1" frame_id="-1" name=""
+		   text="素肌に吸い付くような布地の感触に少しだけ違和感を覚えながら、私はスクール水着に手足を通していく。" voices=""/>
+		<msg @l="236" char_id="-1" frame_id="-1" name=""
+		   text="水泳部をやめて以来水着を着ていなかったので、そう感じるのかもしれない。" voices=""/>
+		<msg @l="238" char_id="-1" frame_id="-1" name="朽木" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="240" char_id="0" frame_id="-1" name="美帆" text="『‥‥っ‥。』" voices=""/>
+		<msg @l="242" char_id="-1" frame_id="-1" name=""
+		   text="教授の視線から逃れるように手早く水着を身につけると、言われた通り机の上に横たわった。" voices=""/>
+		<clear @l="245" class="all"/>
+		<label @l="248" id="chart_line50"/>
+		<wait_chgmv/>
+		<ev @l="251" src="ev-008ax1y2"/>
+		<description @l="254" text="歪曲コスプレ遊戯(スクール水着)"/>
+		<bgm @l="257" src="bgm14" volume="1."/>
+		<msg @l="259" char_id="-1" frame_id="-1" name="朽木"
+		   text="『くくっ、スクール水着の触り心地は良い。』" voices=""/>
+		<msg @l="261" char_id="-1" frame_id="-1" name=""
+		   text="教授はピタッと貼りついたスクール水着の上から、指先を立てて私の身体を滑るかのように動かす。" voices=""/>
+		<msg @l="263" char_id="-1" frame_id="-1" name="朽木"
+		   text="『このナイロン質の肌触りがなんとも情欲をそそる‥‥それに、このぴちぴち感がたまらないな。』" voices=""/>
+		<msg @l="265" char_id="-1" frame_id="-1" name=""
+		   text="教授はそういって水着の上から胸やアソコをなで上げる。私は息を押し殺したままそれに耐え続ける。" voices=""/>
+		<msg @l="266" char_id="-1" frame_id="-1" name=""
+		   text="指が胸に添えられ、揉みしだかれる。薄い水着の布地を通して、感触が肌に伝わってくる。" voices=""/>
+		<msg @l="267" char_id="-1" frame_id="-1" name=""
+		   text="水着が小さいからか、サポーターを着けていないからか、胸の先端の膨らみがうっすらと浮かび上がっている。その位置を教授の指先がかすめるたびに、上半身に弱い電気を通されたような刺激が伝っていく。"
+		   voices=""/>
+		<msg @l="269" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥っ‥‥。』"
+		   voices="miho00960"/>
+		<msg @l="271" char_id="-1" frame_id="-1" name="朽木"
+		   text="『おや、ちょっと撫でられただけでもう乳首が勃ってきているんじゃないのかね。感度の良い子だ。』" voices=""/>
+		<msg @l="273" char_id="-1" frame_id="-1" name=""
+		   text="ふくよかな乳房は果実のようにみずみずしく、掌に吸い付くような感触を教授は得ていた。その快美感に口元がニヤつく。" voices=""/>
+		<msg @l="275" char_id="0" frame_id="-1" name="美帆" text="『ん、んんっ‥‥‥んぁぁっ。』"
+		   voices="miho10940"/>
+		<msg @l="277" char_id="-1" frame_id="-1" name=""
+		   text="上を向いても崩れない胸丘に息づく乳首はツンと誇らしげに立ち、水着の上からも分かるように隆起していた。教授はその先端をキュッと摘み上げる。"
+		   voices=""/>
+		<msg @l="279" char_id="0" frame_id="-1" name="美帆" text="『ん、あくっ‥‥。』"
+		   voices="miho09920"/>
+		<msg @l="281" char_id="-1" frame_id="-1" name="朽木"
+		   text="『こっちのほうもそろそろ破瓜の傷も癒えたんじゃないかな。』" voices=""/>
+		<msg @l="283" char_id="-1" frame_id="-1" name=""
+		   text="そう言って、水着に覆われた私の割れ目の形をなぞるように指を走らせてくる。嫌悪感で脚を閉じようとするが、教授の身体が脚の間に押し付けられているのでそれもままならない。"
+		   voices=""/>
+		<msg @l="284" char_id="-1" frame_id="-1" name=""
+		   text="処女を散らしたこの場所で、さらに陵辱を受けるとは‥‥" voices=""/>
+		<msg @l="285" char_id="-1" frame_id="-1" name=""
+		   text="柔らかな肉溝の中にグイグイと指を押し込み、秘裂の間へ水着を食い込ませていく。そして、さらに淫撫を強くしていった。" voices=""/>
+		<msg @l="287" char_id="-1" frame_id="-1" name="朽木"
+		   text="『くくくっ、もう濡れてきたのかね。嫌がっているフリをしても身体はちゃんと感じているんじゃないかね。』" voices=""/>
+		<msg @l="289" char_id="0" frame_id="-1" name="美帆" text="『ち、ちが‥‥‥んぁぁっ！』"
+		   voices="miho01770"/>
+		<msg @l="291" char_id="-1" frame_id="-1" name=""
+		   text="私の意志とは裏腹に、水着の下腹部を覆っている小さな布地には、濡れてくっきりと黒い染みが出来ていた。" voices=""/>
+		<msg @l="292" char_id="-1" frame_id="-1" name=""
+		   text="最初は触られるだけでピリピリとした痛みを感じていた陰唇は今はさほどでもなく、逆に甘美なものさえ覚えるようになっていた。"
+		   voices=""/>
+		<msg @l="294" char_id="-1" frame_id="-1" name="朽木"
+		   text="『さて、それじゃあ中身の方を味わうことにしようか。』" voices=""/>
+		<msg @l="296" char_id="-1" frame_id="-1" name=""
+		   text="笑みの含んだ顔でそうつぶやくと、朽木教授は割れ目に這わせていた指先で水着の布をずらして秘部を露出させる。" voices=""/>
+		<msg @l="297" char_id="-1" frame_id="-1" name=""
+		   text="そして、股間に顔を密着させ、鼻を鳴らしはじめた。" voices=""/>
+		<msg @l="299" char_id="-1" frame_id="-1" name="朽木"
+		   text="『おおっ、匂うぞ。なんとも言えん芳しい香りだ。』" voices=""/>
+		<msg @l="301" char_id="-1" frame_id="-1" name=""
+		   text="ナイロンの中に籠もっていた匂いは解放され、淫欲の馥郁な官能臭は教授の鼻腔を刺激した。" voices=""/>
+		<msg @l="303" char_id="0" frame_id="-1" name="美帆"
+		   text="『んぅっ‥‥‥ダ、ダメです‥‥‥‥‥‥こんな、んんっ！』" voices="miho10110"/>
+		<msg @l="305" char_id="-1" frame_id="-1" name=""
+		   text="そして、教授はねっとりと陰唇を舐めだした。舌の先端を尖らせて狭い蜜壺の中をまるでドリルのように挿入していく。" voices=""/>
+		<msg @l="306" char_id="-1" frame_id="-1" name=""
+		   text="左右の頬に密着する腿肉の心地よさを満喫しながら、貪るようなクンニを行う。" voices=""/>
+		<msg @l="308" char_id="-1" frame_id="-1" name="朽木"
+		   text="『ククク‥‥。キミのここはもう私のモノが待ち遠しくて仕方がないみたいだよ。』" voices=""/>
+		<msg @l="310" char_id="-1" frame_id="-1" name=""
+		   text="そして‥‥硬く熱くなった肉棒の先端を露出した秘部の入口に当てられた。" voices=""/>
+		<msg @l="311" char_id="-1" frame_id="-1" name=""
+		   text="処女を散らされた時の身を裂かれるような激痛が蘇り、秘裂の中がジクッと疼きだす。" voices=""/>
+		<msg @l="313" char_id="0" frame_id="-1" name="美帆"
+		   text="『い、いやっ‥‥‥‥‥あっ‥‥んんっっ！！』" voices="miho10270"/>
+		<msg @l="315" char_id="0" frame_id="-1" name="美帆" text="『んっ‥‥。』"
+		   voices="miho07860"/>
+		<msg @l="317" char_id="-1" frame_id="-1" name=""
+		   text="蜜の滴り始めた割れ目を強引に押し開くような感じで怒張したモノが侵入してくる。" voices=""/>
+		<msg @l="318" char_id="-1" frame_id="-1" name=""
+		   text="身体の中から拡張されるような鈍痛が走り、蜜壺を押し広げるようなきつい圧迫感が下腹部を襲う。" voices=""/>
+		<msg @l="320" char_id="0" frame_id="-1" name="美帆" text="『ひぃ――――。』"
+		   voices="miho04860"/>
+		<msg @l="322" char_id="-1" frame_id="-1" name="朽木"
+		   text="『馴染むまでは苦しいかもしれぬが‥‥なに、じきに慣れる。』" voices=""/>
+		<msg @l="324" char_id="-1" frame_id="-1" name=""
+		   text="教授はそう言ってゆっくりと腰を動かして、秘所の具合を確かめている。" voices=""/>
+		<msg @l="326" char_id="0" frame_id="-1" name="美帆"
+		   text="『いっ‥‥ああ、あああっっ‥‥‥んくっ。』" voices="miho11020"/>
+		<msg @l="328" char_id="-1" frame_id="-1" name=""
+		   text="ピリピリとこめかみに痛みが走る。耐えるために何かを握り締めたい。" voices=""/>
+		<msg @l="330" char_id="0" frame_id="-1" name="美帆"
+		   text="『せめて、手を解いてください‥‥‥暴れたりはしませんから。』" voices="miho07880"/>
+		<msg @l="332" char_id="-1" frame_id="-1" name="朽木"
+		   text="『それもじきに良くなる。拘束されるという事で最大の悦楽を感じさせてくれるのだよ。』" voices=""/>
+		<msg @l="334" char_id="0" frame_id="-1" name="美帆" text="『よく‥‥わかりません。』"
+		   voices="miho07890"/>
+		<msg @l="336" char_id="-1" frame_id="-1" name="朽木" text="『ならば身を任せているといい。』"
+		   voices=""/>
+		<msg @l="338" char_id="-1" frame_id="-1" name=""
+		   text="教授は楽しげに囁いて、ゆっくりと腰の律動を早めていく。" voices=""/>
+		<msg @l="339" char_id="-1" frame_id="-1" name=""
+		   text="腰の動きに伴い熱く脈動した塊がくちゅり、と膣内の浅い部分を擦り上げた。" voices=""/>
+		<msg @l="341" char_id="0" frame_id="-1" name="美帆" text="『あっ‥‥ん、んんっ‥‥‥。』"
+		   voices="miho07910"/>
+		<msg @l="343" char_id="-1" frame_id="-1" name=""
+		   text="私の口からは‥‥自然と淫靡な吐息が漏れていた。" voices=""/>
+		<msg @l="344" char_id="-1" frame_id="-1" name="" text="そうして、慌てて口をつぐむ。"
+		   voices=""/>
+		<msg @l="346" char_id="-1" frame_id="-1" name="朽木"
+		   text="『我慢する事は無い、キミも遠慮なく感じたまえ。』" voices=""/>
+		<msg @l="348" char_id="0" frame_id="-1" name="美帆"
+		   text="『そんな、ことっ‥‥‥んっ‥‥ああっ‥‥‥‥。』" voices="miho07920"/>
+		<msg @l="350" char_id="-1" frame_id="-1" name=""
+		   text="蜜で潤った花唇を熱い肉が行き来するたびに、それまで感じた事の無かった甘い痺れが沸き起こる。" voices=""/>
+		<msg @l="352" char_id="0" frame_id="-1" name="美帆" text="(わたし‥‥感じてるの‥‥‥‥？)"
+		   voices="miho07930"/>
+		<msg @l="354" char_id="0" frame_id="-1" name="美帆"
+		   text="(こんな、スクール水着なんて着せられて‥‥‥それで‥‥‥‥)" voices="miho07940"/>
+		<msg @l="356" char_id="-1" frame_id="-1" name=""
+		   text="私は、自分でも良くわからない未知の感覚に戸惑っていた。" voices=""/>
+		<msg @l="357" char_id="-1" frame_id="-1" name=""
+		   text="クリ○リスや乳首を擦り上げ時に感じる、電気が走ったような痛みの伴う痺れとは違う。" voices=""/>
+		<msg @l="358" char_id="-1" frame_id="-1" name=""
+		   text="あくまで甘い‥‥それでいてじんわりと広がるような刺激。" voices=""/>
+		<msg @l="359" char_id="-1" frame_id="-1" name=""
+		   text="それが、私の膣内に少しずつ広がっていった。" voices=""/>
+		<msg @l="361" char_id="-1" frame_id="-1" name="朽木"
+		   text="『フフフ、馴染んできたようだな。キミの膣壁が肉棒に絡みついてきてるよ。』" voices=""/>
+		<msg @l="362" char_id="-1" frame_id="-1" name=""
+		   text="結合部で出し入れする肉棒が淫汁と絡み合い糸を引いてるのを見て、教授が満足げに言う。" voices=""/>
+		<msg @l="363" char_id="-1" frame_id="-1" name=""
+		   text="私のそこはもう、奥から溢れ出る蜜ですっかりぐちゅぐちゅになっていた。教授は腰を叩きつけるように休みなくピストン運動を繰り返す。"
+		   voices=""/>
+		<msg @l="365" char_id="0" frame_id="-1" name="美帆" text="『んんっ、あっ、んくっっ‥‥‥。』"
+		   voices="miho07950"/>
+		<msg @l="367" char_id="0" frame_id="-1" name="美帆"
+		   text="『ん、ああっ‥‥あっ‥‥‥‥んくっっ！』" voices="miho07960"/>
+		<msg @l="369" char_id="-1" frame_id="-1" name="朽木"
+		   text="『つい先日処女を失ったばかりだというのに、素晴らしい淫乱ぶりだな。』" voices=""/>
+		<msg @l="371" char_id="-1" frame_id="-1" name=""
+		   text="辱めの言葉を投げかけつつ、さらに猛烈な勢いで肉襞を摩擦する。" voices=""/>
+		<msg @l="373" char_id="0" frame_id="-1" name="美帆"
+		   text="『やあっ‥‥‥ちがう、んっ‥‥‥‥こんなのっ、んっ、んんっ！』" voices="miho07970"/>
+		<msg @l="375" char_id="-1" frame_id="-1" name=""
+		   text="硬い肉の先端が、胎内の奥深くを少し乱暴に擦り上げてくる。" voices=""/>
+		<msg @l="376" char_id="-1" frame_id="-1" name=""
+		   text="もう、下腹部を圧迫するような苦しさは少しも無い。" voices=""/>
+		<msg @l="378" char_id="-1" frame_id="-1" name="朽木"
+		   text="『嘘は止めたまえ‥‥キミのここは、私のモノを咥えこんで離さないよ。』" voices=""/>
+		<msg @l="380" char_id="0" frame_id="-1" name="美帆" text="『んんっ‥‥！』"
+		   voices="miho07980"/>
+		<msg @l="382" char_id="-1" frame_id="-1" name=""
+		   text="教授はさらにアクセルをべた踏みしたような肉突きをし、奥にある子宮に肉棒をガンガン当てる。膣は男幹を切断せんばかりに収縮する。"
+		   voices=""/>
+		<msg @l="384" char_id="0" frame_id="-1" name="美帆" text="『ああっ‥‥私、わたしっ‥‥‥‥。』"
+		   voices="miho07990"/>
+		<msg @l="386" char_id="-1" frame_id="-1" name=""
+		   text="跳ね上がりそうになる腰を懸命に押さえつけながら、私は何とか理性を保とうとする。" voices=""/>
+		<msg @l="388" char_id="-1" frame_id="-1" name="朽木"
+		   text="『素直に達してしまえ‥‥私も、もうすぐっ。』" voices=""/>
+		<msg @l="390" char_id="0" frame_id="-1" name="美帆"
+		   text="『あああっ、いくっ‥‥いく、いきますっっ、いっちゃいますっっっ！！』" voices="miho08000"/>
+		<msg @l="392" char_id="-1" frame_id="-1" name=""
+		   text="ぐっと、教授がひときわ深く腰を叩きつけた瞬間‥‥頭の中が真っ白になった。" voices=""/>
+		<msg @l="393" char_id="-1" frame_id="-1" name=""
+		   text="わずかに保っていた理性は瞬く間に消し飛んで、蕩けるような甘い痺れが全身を襲う。" voices=""/>
+		<msg @l="395" char_id="0" frame_id="-1" name="美帆" text="『んっ、ああああっ！！』"
+		   voices="miho08010"/>
+		<msg @l="397" char_id="-1" frame_id="-1" name="朽木" text="『くっ‥‥私も、出すぞっ！！』"
+		   voices=""/>
+		<msg @l="400" async="true" char_id="-1" frame_id="-1" name=""
+		   text="何処に出す‥‥？" voices=""/>
+		<select @l="401">
+			<menu @l="404" label="EventLabel_116" text="中に出す"/>
+			<menu @l="407" label="EventLabel_117" text="外に出す"/>
+		</select>
+		<label @l="413" id="EventLabel_116"/>
+		<flash @l="416" count="4" fade="100" image="white"/>
+		<wait_chgmv/>
+		<ev @l="419" src="ev-008ax2y2z1"/>
+		<msg @l="421" char_id="0" frame_id="-1" name="美帆" text="『んんっっっ！！』"
+		   voices="miho08020"/>
+		<msg @l="423" char_id="-1" frame_id="-1" name=""
+		   text="激しい突き上げと共に、胎内奥深くでびゅる、びゅる、びゅると精が注ぎ込まれる。" voices=""/>
+		<msg @l="425" char_id="0" frame_id="-1" name="美帆"
+		   text="『や、あっ‥‥ああっ‥‥‥‥おく‥‥‥出て‥‥‥んんっ‥‥‥。』" voices="miho08030"/>
+		<msg @l="427" char_id="-1" frame_id="-1" name=""
+		   text="ドクンドクン‥‥。男根は大きく脈打ちながら蜜肉の中で連続噴射した。" voices=""/>
+		<msg @l="428" char_id="-1" frame_id="-1" name=""
+		   text="私は膣内に感じる熱い精液の感触に腰を震せながら‥‥深い絶望と甘い喜悦を同時に味わっていた。" voices=""/>
+		<goto @l="431" label="EventLabel_121"/>
+		<label @l="435" id="EventLabel_117"/>
+		<flash @l="438" count="4" fade="100" image="white"/>
+		<wait_chgmv/>
+		<ev @l="441" src="ev-008ax2y2z2"/>
+		<msg @l="443" char_id="-1" frame_id="-1" name=""
+		   text="達する瞬間、教授は私の秘裂から男根を引き抜いてスクール水着に覆われたお腹の上へ大量の白濁液を撒き散らす。" voices=""/>
+		<msg @l="445" char_id="0" frame_id="-1" name="美帆"
+		   text="『んっ‥‥‥はっ、はっ‥‥‥んんっ‥‥‥‥‥‥。』" voices="miho08040"/>
+		<msg @l="447" char_id="-1" frame_id="-1" name="" text="熱い飛沫がスクール水着を白く汚していく。"
+		   voices=""/>
+		<msg @l="448" char_id="-1" frame_id="-1" name=""
+		   text="私は蕩けるような絶頂に身を委ねながら、水着にゆっくりと染み込んでいく白濁液を‥‥ぼんやりと眺めていた。" voices=""/>
+		<goto @l="451" label="EventLabel_121"/>
+		<label @l="455" id="EventLabel_118"/>
+		<msg @l="457" char_id="0" frame_id="-1" name="美帆"
+		   text="『えっと‥‥‥テ、テニスウェアを‥‥‥‥‥。』" voices=""/>
+		<msg @l="459" char_id="-1" frame_id="-1" name=""
+		   text="わずかに迷った後、私はテニスウェアの入った袋を手に取る。" voices=""/>
+		<msg @l="461" char_id="-1" frame_id="-1" name="朽木"
+		   text="『では、早速それに着替えて机の上に横たわりたまえ。』" voices=""/>
+		<msg @l="463" char_id="0" frame_id="-1" name="美帆" text="『わかり‥‥ました。』"
+		   voices=""/>
+		<msg @l="465" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="467" char_id="-1" frame_id="-1" name=""
+		   text="朽木教授の視線を感じながら、私は袋からテニスウェアを取り出した。" voices=""/>
+		<msg @l="469" char_id="0" frame_id="-1" name="美帆"
+		   text="(まさか、こんな形で着ることになるなんて‥‥‥思わなかったな)" voices=""/>
+		<msg @l="471" char_id="-1" frame_id="-1" name=""
+		   text="ブラウスのボタンを外し、スカートを落とす。背後から朽木教授のいやらしい視線が絡み付いてくる‥‥。" voices=""/>
+		<char @l="474" id="miho" pos="right" src="miho185"/>
+		<char @l="476" id="kutsu" pos="left" src="kutsu018"/>
+		<msg @l="478" char_id="-1" frame_id="-1" name="朽木" text="『ククク‥‥。』" voices=""/>
+		<msg @l="480" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="482" char_id="-1" frame_id="-1" name=""
+		   text="緩々と、私は袋から取り出したテニスウェアを身に付けていく。" voices=""/>
+		<msg @l="483" char_id="-1" frame_id="-1" name=""
+		   text="朽木教授の視線が着替える間、身体中に絡みついていた。" voices=""/>
+		<msg @l="484" char_id="-1" frame_id="-1" name=""
+		   text="スカートのホックを止めながら、私は微かに表情を歪ませる。" voices=""/>
+		<msg @l="485" char_id="-1" frame_id="-1" name=""
+		   text="一瞬‥‥稲庭先輩の顔が浮かんでしまったのだ。" voices=""/>
+		<msg @l="487" char_id="-1" frame_id="-1" name="朽木"
+		   text="『どうした？&#32;まだ用意は終わらぬのかね？』" voices=""/>
+		<msg @l="489" char_id="0" frame_id="-1" name="美帆"
+		   text="『は、はい‥‥すぐに終わりますからっ。』" voices=""/>
+		<msg @l="491" char_id="-1" frame_id="-1" name=""
+		   text="私はそして、準備を終えると教授の机の上に横たわって脚を開く。" voices=""/>
+		<clear @l="494" class="all"/>
+		<label @l="497" id="chart_line50"/>
+		<wait_chgmv/>
+		<ev @l="500" src="ev-008ax1y1"/>
+		<description @l="503" text="歪曲コスプレ遊戯(テニスウェア)"/>
+		<bgm @l="506" src="bgm14" volume="1."/>
+		<msg @l="508" char_id="0" frame_id="-1" name="美帆" text="『あの‥‥手、どうして‥‥‥‥？』"
+		   voices="miho08050"/>
+		<msg @l="510" char_id="-1" frame_id="-1" name=""
+		   text="机の上に横たわった私の手を、教授が細いロープで縛り上げた。" voices=""/>
+		<msg @l="511" char_id="-1" frame_id="-1" name="" text="もう‥‥今の私には必要ないハズのモノだ。"
+		   voices=""/>
+		<msg @l="513" char_id="-1" frame_id="-1" name="朽木"
+		   text="『気分の問題だよ。拘束によって奪われた自由というのは背徳感を際立たせるのだよ。』" voices=""/>
+		<msg @l="515" char_id="0" frame_id="-1" name="美帆" text="『そう‥‥なんですか。』"
+		   voices="miho08060"/>
+		<msg @l="517" char_id="-1" frame_id="-1" name="朽木"
+		   text="『まぁ、今は黙って身を任せていれば、それで良い。』" voices=""/>
+		<msg @l="519" char_id="0" frame_id="-1" name="美帆" text="『はい‥‥。』"
+		   voices="miho08070"/>
+		<msg @l="521" char_id="-1" frame_id="-1" name="朽木"
+		   text="『くく‥‥やはりテニスウェアは良いな。』" voices=""/>
+		<msg @l="523" char_id="-1" frame_id="-1" name="朽木"
+		   text="『特にこの短いスカートから見える太ももが‥‥たまらんね。』" voices=""/>
+		<msg @l="525" char_id="-1" frame_id="-1" name=""
+		   text="陶酔したようにつぶやきながら、朽木教授は太腿を撫でまわしてくる。" voices=""/>
+		<msg @l="526" char_id="-1" frame_id="-1" name=""
+		   text="太股をそのまま擦りながら柔和な股間へ指先を動かす。" voices=""/>
+		<msg @l="528" char_id="-1" frame_id="-1" name="朽木" text="『おぉぉ‥‥いい眺めだ。』"
+		   voices=""/>
+		<msg @l="530" char_id="-1" frame_id="-1" name=""
+		   text="指先は内腿を通過し、脚のつけねまできた。太股の肉感より柔らかさを増し、その淫欲の刺激は教授の獣欲をますます加虐にしていった。"
+		   voices=""/>
+		<msg @l="532" char_id="-1" frame_id="-1" name="朽木"
+		   text="『練習をしているテニスウェア姿の娘を見るたびに、このスカートの下にある割れ目を犯してやりたいと思っていたのだよ。』"
+		   voices=""/>
+		<msg @l="534" char_id="-1" frame_id="-1" name=""
+		   text="そう言って教授は私の下着を一気に剥ぎ取る。短いスカートは脚を大きく広げられた格好では全く股間を隠す役割を果たさず、私のそこは朽木教授の前に無抵抗にさらけ出される。"
+		   voices=""/>
+		<msg @l="536" char_id="0" frame_id="-1" name="美帆" text="『んん――――っ！！』"
+		   voices="miho11030"/>
+		<msg @l="538" char_id="-1" frame_id="-1" name=""
+		   text="処女を散らしたこの場所で、さらに陵辱を受けるとは‥‥" voices=""/>
+		<msg @l="539" char_id="-1" frame_id="-1" name=""
+		   text="露になった柔らかな肉溝の中にグイグイと指を押し込み、さらに淫撫を強くしていった。" voices=""/>
+		<msg @l="541" char_id="0" frame_id="-1" name="美帆" text="『あっ‥‥。』"
+		   voices="miho01570"/>
+		<msg @l="543" char_id="-1" frame_id="-1" name=""
+		   text="表に露出された秘裂を指でこねあげ、もう一方の手では上着の裾から手を差し入れ、両胸をさするようにまさぐってくる。" voices=""/>
+		<msg @l="545" char_id="-1" frame_id="-1" name="朽木"
+		   text="『なんだ、もうぬるぬるになっているじゃないか。淫乱だな、キミも。』" voices=""/>
+		<msg @l="547" char_id="0" frame_id="-1" name="美帆" text="『ち、ちが‥‥‥んぁぁっ！』"
+		   voices="miho01770"/>
+		<msg @l="549" char_id="-1" frame_id="-1" name="" text="私の意志とは裏腹に、蜜液が溢れ出す。"
+		   voices=""/>
+		<msg @l="550" char_id="-1" frame_id="-1" name=""
+		   text="最初は触られるだけでピリピリとした痛みを感じていた陰唇は今はさほどでもなく、逆に甘美なものさえ覚えるようになっていた。"
+		   voices=""/>
+		<msg @l="552" char_id="-1" frame_id="-1" name="朽木"
+		   text="『さて、それじゃあ中身の方を味わうことにしようか。』" voices=""/>
+		<msg @l="554" char_id="-1" frame_id="-1" name=""
+		   text="笑みの含んだ顔でそうつぶやくと、股間に顔を密着させ、鼻を鳴らしはじめた。" voices=""/>
+		<msg @l="556" char_id="-1" frame_id="-1" name="朽木"
+		   text="『おおっ、匂うぞ。なんとも言えん芳しい香りだ。』" voices=""/>
+		<msg @l="558" char_id="-1" frame_id="-1" name=""
+		   text="淫欲の馥郁な官能臭は教授の鼻腔を刺激した。" voices=""/>
+		<msg @l="560" char_id="0" frame_id="-1" name="美帆"
+		   text="『んぅっ‥‥‥ダ、ダメです‥‥‥‥‥‥こんな、んんっ！』" voices="miho10110"/>
+		<msg @l="562" char_id="-1" frame_id="-1" name=""
+		   text="そして、教授はねっとりと陰唇を舐めだした。舌の先端を尖らせて狭い蜜壺の中をまるでドリルのように挿入していく。" voices=""/>
+		<msg @l="563" char_id="-1" frame_id="-1" name=""
+		   text="左右の頬に密着する腿肉の心地よさを満喫しながら、貪るようなクンニを行う。" voices=""/>
+		<msg @l="564" char_id="-1" frame_id="-1" name="朽木"
+		   text="『溢れるような淫液だな。これじゃあ休みの間も私のモノが待ち遠しくて仕方なかったろうなあ。』" voices=""/>
+		<msg @l="566" char_id="-1" frame_id="-1" name=""
+		   text="教授はそう言うとジッパーを下げ、媚肉の具合を確認するように取り出した分身をぐいぐいと先端で膣壁を擦り上げてくる。" voices=""/>
+		<msg @l="568" char_id="0" frame_id="-1" name="美帆"
+		   text="『んあっ‥‥‥‥ん、んんっっ‥‥‥‥‥。』" voices="miho08090"/>
+		<msg @l="570" char_id="-1" frame_id="-1" name=""
+		   text="亀頭が膣壁を擦り上げた瞬間、総毛立つような痺れの後、大量の蜜が奥から溢れてくるのがわかった。" voices=""/>
+		<msg @l="571" char_id="-1" frame_id="-1" name=""
+		   text="しかし、処女を散らされた時の身を裂かれるような激痛が蘇り、秘裂の中がジクッと疼きだす。" voices=""/>
+		<msg @l="573" char_id="-1" frame_id="-1" name="朽木"
+		   text="『キミの奥は随分と敏感なようだな。少し擦り上げただけで、もうこんなにも汁を溢れさせてしまっているとはな。』" voices=""/>
+		<msg @l="575" char_id="-1" frame_id="-1" name=""
+		   text="喜々とした声でそう言うと、教授は結合部より漏れ出した蜜を指先ですくい上げて私の頬へとなすりつけてくる。" voices=""/>
+		<msg @l="577" char_id="0" frame_id="-1" name="美帆"
+		   text="『ああ‥‥‥ちがうんです、これは‥‥‥‥‥ちがっ‥‥んんっ！』" voices="miho08100"/>
+		<msg @l="579" char_id="-1" frame_id="-1" name="朽木" text="『何も恥ずべきことなどではないぞ？』"
+		   voices=""/>
+		<msg @l="581" char_id="0" frame_id="-1" name="美帆" text="『そんな、こと‥‥‥んっ、ああっ！！』"
+		   voices="miho08110"/>
+		<msg @l="583" char_id="-1" frame_id="-1" name="朽木"
+		   text="『破瓜の傷もそろそろ癒えてきたんじゃないかね？数日振りにたっぷり味あわせてもらうよ。』" voices=""/>
+		<msg @l="585" char_id="-1" frame_id="-1" name=""
+		   text="そうして朽木教授は花唇を指先を持っていくと、蜜で潤った割れ目を押し開き肉棒を入口に当てられた。" voices=""/>
+		<msg @l="587" char_id="0" frame_id="-1" name="美帆" text="『んんっ‥‥。』"
+		   voices="miho08080"/>
+		<msg @l="589" char_id="-1" frame_id="-1" name=""
+		   text="肉棒が侵入する瞬間、私は処女を失った時の恐怖が脳裏に浮かぶ。" voices=""/>
+		<msg @l="591" char_id="0" frame_id="-1" name="美帆" text="『ひっ‥‥！？』"
+		   voices="miho10250"/>
+		<msg @l="593" char_id="-1" frame_id="-1" name="" text="全身のスベスベの肌からドッと汗が噴出す。"
+		   voices=""/>
+		<msg @l="594" char_id="-1" frame_id="-1" name=""
+		   text="まろやかな尻肉がピクピク痙攣し、熱い塊が胎内を押し広げる圧迫感が広がる" voices=""/>
+		<msg @l="596" char_id="-1" frame_id="-1" name="朽木"
+		   text="『馴染むまでは苦しいかもしれぬが‥‥なに、じきに慣れる。』" voices=""/>
+		<msg @l="598" char_id="-1" frame_id="-1" name=""
+		   text="教授はそう言ってゆっくりと腰を動かして、秘所の具合を確かめている。" voices=""/>
+		<msg @l="599" char_id="-1" frame_id="-1" name=""
+		   text="ピリピリとこめかみに痛みが走り、目の前が真っ白になる。" voices=""/>
+		<msg @l="601" char_id="0" frame_id="-1" name="美帆"
+		   text="『い、いやっ‥‥‥‥‥あっ‥‥んんっっ！！』" voices="miho10270"/>
+		<msg @l="603" char_id="-1" frame_id="-1" name=""
+		   text="赤く腫れた女唇は裂けんばかりに広がり、教授の肉棒を呑み込んだ。" voices=""/>
+		<msg @l="604" char_id="-1" frame_id="-1" name=""
+		   text="止めどなく甘蜜は溢れ、教授の砲身を磨き洗っているように纏わりついてくる。" voices=""/>
+		<msg @l="606" char_id="-1" frame_id="-1" name="朽木"
+		   text="『フフフ、馴染んできたようだな。キミの膣壁が肉棒に絡みついてきてるよ。』" voices=""/>
+		<msg @l="608" char_id="-1" frame_id="-1" name=""
+		   text="激痛が走った膣がいつの間にか麻痺したようで、痛みがなくなってきた。次にまるで自慰でもするような快美感が身体を包んでくる。"
+		   voices=""/>
+		<msg @l="610" char_id="-1" frame_id="-1" name="朽木"
+		   text="『もっと素直に感じると良い。そうすればもっと楽になる。』" voices=""/>
+		<msg @l="612" char_id="-1" frame_id="-1" name=""
+		   text="教授はそうして、私の言葉を遮るように腰を律動させてグチュグチュと膣内の奥深くをかきまわす。" voices=""/>
+		<msg @l="613" char_id="-1" frame_id="-1" name=""
+		   text="その度に私の腰には得もいわれない痺れが広がった。" voices=""/>
+		<msg @l="615" char_id="0" frame_id="-1" name="美帆"
+		   text="(なにこれ‥‥‥‥からだ、おかしくなってる‥‥‥‥)" voices="miho08120"/>
+		<msg @l="617" char_id="0" frame_id="-1" name="美帆"
+		   text="(こんなに熱くなって‥‥‥奥‥‥‥気持ち良くなって‥‥‥)" voices="miho08130"/>
+		<msg @l="619" char_id="-1" frame_id="-1" name=""
+		   text="甘く蕩けていく意識の中、私は自分の身体の変化に戸惑っていた。" voices=""/>
+		<msg @l="620" char_id="-1" frame_id="-1" name="" text="この感覚はなんだろう。"
+		   voices=""/>
+		<msg @l="621" char_id="-1" frame_id="-1" name="" text="この痺れは‥‥なんだろう。"
+		   voices=""/>
+		<msg @l="623" char_id="-1" frame_id="-1" name="朽木"
+		   text="『もっと素直に感じると良い。そうすればもっと楽になる。』" voices=""/>
+		<msg @l="625" char_id="-1" frame_id="-1" name=""
+		   text="私の耳元で教授が囁き、一気に腰の動きを速めて私の股間に叩きつけてくる。" voices=""/>
+		<msg @l="627" char_id="0" frame_id="-1" name="美帆"
+		   text="『んああっ‥‥あっ、ああっ‥‥‥‥‥ん、あふっっ！！』" voices="miho08140"/>
+		<msg @l="629" char_id="-1" frame_id="-1" name=""
+		   text="私のそこはもう、奥から溢れ出る淫液ですっかりぐちゅぐちゅになっていた。教授は腰を叩きつけるように休みなくピストン運動を繰り返す。"
+		   voices=""/>
+		<msg @l="630" char_id="-1" frame_id="-1" name=""
+		   text="その度に私の腰には得もいわれない痺れが広がった。" voices=""/>
+		<msg @l="632" char_id="0" frame_id="-1" name="美帆"
+		   text="(なにこれ‥‥‥‥からだ、おかしくなってる‥‥‥‥)" voices="miho08120"/>
+		<msg @l="634" char_id="0" frame_id="-1" name="美帆"
+		   text="(こんなに熱くなって‥‥‥奥‥‥‥気持ち良くなって‥‥‥)" voices="miho08130"/>
+		<msg @l="636" char_id="-1" frame_id="-1" name=""
+		   text="甘く蕩けていく意識の中、私は自分の身体の変化に戸惑っていた。" voices=""/>
+		<msg @l="637" char_id="-1" frame_id="-1" name="" text="この感覚はなんだろう。"
+		   voices=""/>
+		<msg @l="638" char_id="-1" frame_id="-1" name="" text="この痺れは‥‥なんだろう。"
+		   voices=""/>
+		<msg @l="640" char_id="-1" frame_id="-1" name="朽木"
+		   text="『いいぞ、そのまま達してしまうといい。』" voices=""/>
+		<msg @l="642" char_id="-1" frame_id="-1" name=""
+		   text="テニスウェアの上から胸を揉みしだきながら、教授が口元を歪める。" voices=""/>
+		<msg @l="644" char_id="0" frame_id="-1" name="美帆"
+		   text="『んんっ、んっ、んっ、んっ‥‥‥あ、ああっ‥‥‥‥。』" voices="miho08150"/>
+		<msg @l="646" char_id="-1" frame_id="-1" name=""
+		   text="布越しに硬く勃った乳首を刺激され、私は思わず甘く身体を震わせる。" voices=""/>
+		<msg @l="648" char_id="0" frame_id="-1" name="美帆"
+		   text="(こんなの‥‥‥もう、わかんないよ‥‥‥‥‥‥)" voices="miho08160"/>
+		<msg @l="650" char_id="-1" frame_id="-1" name=""
+		   text="教授はさらに荒々しく腰を振り、奥にある子宮に肉棒をガンガン当てる。膣は男幹を切断せんばかりに収縮する。" voices=""/>
+		<msg @l="652" char_id="0" frame_id="-1" name="美帆"
+		   text="(テニスウェア着て‥‥‥‥こんな、深くまで‥‥‥‥‥‥)" voices="miho08170"/>
+		<msg @l="654" char_id="-1" frame_id="-1" name="" text="思考がまとまらなくなる。"
+		   voices=""/>
+		<msg @l="655" char_id="-1" frame_id="-1" name=""
+		   text="甘い刺激が唯一残った理性さえも壊し、意識を飛ばす。" voices=""/>
+		<msg @l="657" char_id="-1" frame_id="-1" name="朽木" text="『くっ‥‥。』" voices=""/>
+		<msg @l="659" char_id="-1" frame_id="-1" name="" text="教授の腰がピクピクッと痙攣した。"
+		   voices=""/>
+		<msg @l="661" char_id="0" frame_id="-1" name="美帆"
+		   text="『んはっ‥‥‥ああ、いく、いくいくっ‥‥‥い、あああああっ！！』" voices="miho08180"/>
+		<msg @l="664" async="true" char_id="-1" frame_id="-1" name=""
+		   text="何処に出す‥‥？" voices=""/>
+		<select @l="665">
+			<menu @l="668" label="EventLabel_119" text="中に出す"/>
+			<menu @l="671" label="EventLabel_120" text="外に出す"/>
+		</select>
+		<label @l="677" id="EventLabel_119"/>
+		<flash @l="680" count="4" fade="100" image="white"/>
+		<wait_chgmv/>
+		<ev @l="683" src="ev-008ax2y1z1"/>
+		<msg @l="685" char_id="0" frame_id="-1" name="美帆" text="『んんんっっ！！』"
+		   voices="miho08190"/>
+		<msg @l="687" char_id="-1" frame_id="-1" name=""
+		   text="絶頂を迎えた瞬間、私の蜜壺で熱く白い液体が大量にはき出される。" voices=""/>
+		<msg @l="688" char_id="-1" frame_id="-1" name=""
+		   text="びゅくり、びゅくりと脈動しながら注ぎ込まれる熱い汁が、絶頂に溶け落ちる私の愉悦を更に加速させ―――頭の中を真っ白にさせた。"
+		   voices=""/>
+		<msg @l="690" char_id="0" frame_id="-1" name="美帆"
+		   text="『あっ‥‥‥ああっ‥‥‥熱いのが‥‥‥‥‥ん、んんっ‥‥‥。』" voices="miho08200"/>
+		<msg @l="692" char_id="-1" frame_id="-1" name=""
+		   text="ドクンドクン‥‥。肉杭はピクピクと脈打ちながら秘裂の中で連続噴射した。" voices=""/>
+		<msg @l="693" char_id="-1" frame_id="-1" name=""
+		   text="熱に浮かされるようにつぶやいて‥‥私は、腰を震わせていた。" voices=""/>
+		<goto @l="696" label="EventLabel_121"/>
+		<label @l="700" id="EventLabel_120"/>
+		<flash @l="703" count="4" fade="100" image="white"/>
+		<wait_chgmv/>
+		<ev @l="706" src="ev-008ax2y1z2"/>
+		<msg @l="708" char_id="-1" frame_id="-1" name=""
+		   text="膣内の一番奥深くを強く突き上げた後、教授は肉茎を私の身体から引き抜いて大量の精液をテニスウェアの上に撒き散らす。" voices=""/>
+		<msg @l="710" char_id="0" frame_id="-1" name="美帆"
+		   text="『んっ‥‥‥はぁ‥‥‥はぁ‥‥‥‥‥ああっ‥‥‥‥‥‥。』" voices="miho08210"/>
+		<msg @l="712" char_id="-1" frame_id="-1" name="" text="熱い飛沫がテニスウェアを白く汚していく。"
+		   voices=""/>
+		<msg @l="713" char_id="-1" frame_id="-1" name=""
+		   text="テニスウェアに染み込んでいく白濁色の液体をぼんやりと眺めながら、私は‥‥小さなため息を漏らしていた。" voices=""/>
+		<label @l="716" id="EventLabel_121"/>
+		<stopbgm @l="719" fadeout="1000"/>
+		<clear @l="722" class="all"/>
+		<end_scene @l="725"/>
+		<wait_chgmv/>
+		<bg @l="728" src="bg12"/>
+		<bgm @l="731" src="bgm03" volume="1."/>
+		<char @l="734" id="kutsu" pos="auto" src="kutsu010"/>
+		<description @l="737" text="朽木の奴隷・２日目"/>
+		<msg @l="739" char_id="-1" frame_id="-1" name="朽木"
+		   text="『今日は随分と感じていたのではないかね？』" voices=""/>
+		<msg @l="741" char_id="-1" frame_id="-1" name=""
+		   text="私が気だるさにかまけてのろのろと着替えていると、口元にいやらしい笑みを浮かべ、教授が声を掛けてくる。" voices=""/>
+		<msg @l="743" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="745" char_id="-1" frame_id="-1" name=""
+		   text="私は答える気力も無く、黙々と服を着ていた。" voices=""/>
+		<msg @l="746" char_id="-1" frame_id="-1" name=""
+		   text="‥‥身体の変化に確かな戸惑いを感じながら。" voices=""/>
+		<msg @l="748" char_id="0" frame_id="-1" name="美帆"
+		   text="(あんなに感じて‥‥‥‥乱れて‥‥私、どうしちゃったんだろう)" voices=""/>
+		<msg @l="750" char_id="0" frame_id="-1" name="美帆"
+		   text="(これが私なの？&#32;自分がわからなくなるくらい感じて‥‥‥イッて)" voices=""/>
+		<msg @l="752" char_id="0" frame_id="-1" name="美帆"
+		   text="(どんどん‥‥‥私の知らない私になっていく気がする‥‥‥)" voices=""/>
+		<msg @l="754" char_id="0" frame_id="-1" name="美帆" text="(‥‥‥‥‥‥怖い‥‥‥)"
+		   voices=""/>
+		<msg @l="756" char_id="0" frame_id="-1" name="美帆"
+		   text="(変わっていくのが‥‥‥染められちゃうのが‥‥‥‥‥怖いよ)" voices=""/>
+		<se @l="759" buf="1" src="ノック" volume="1."/>
+		<clear @l="762" class="char"/>
+		<char @l="764" id="kutsu" pos="left" src="kutsu010"/>
+		<char @l="766" id="miho" pos="right" src="miho114"/>
+		<msg @l="768" char_id="0" frame_id="-1" name="美帆" text="『‥‥！』" voices=""/>
+		<msg @l="770" char_id="-1" frame_id="-1" name=""
+		   text="突然、教授室の扉を叩く音がして‥‥私は息を飲んだ。" voices=""/>
+		<msg @l="771" char_id="-1" frame_id="-1" name=""
+		   text="慌てて時計を見遣ると既に一限目が終了している時間だった。" voices=""/>
+		<msg @l="772" char_id="-1" frame_id="-1" name=""
+		   text="もう身支度は済んでいたから何も心配する手はないけれど、やましい事がある所為か自然と鼓動が速くなってしまう。" voices=""/>
+		<msg @l="774" char_id="-1" frame_id="-1" name="朽木" text="『入りたまえ。』" voices=""/>
+		<msg @l="776" char_id="-1" frame_id="-1" name="学生Ａ" text="『失礼しまーす。』"
+		   voices=""/>
+		<msg @l="778" char_id="-1" frame_id="-1" name="学生Ｂ" text="『しまーす。』" voices=""/>
+		<msg @l="780" char_id="-1" frame_id="-1" name=""
+		   text="教授の言葉を受けて室内に入ってきたのは数名の男子学生たちで、何度か考古学の講義で顔を見た覚えがあった。" voices=""/>
+		<char @l="783" id="miho" pos="right" src="miho115"/>
+		<msg @l="785" char_id="-1" frame_id="-1" name="学生Ａ"
+		   text="『お、なんだ仲根じゃん。なにやってんの？』" voices=""/>
+		<msg @l="787" char_id="-1" frame_id="-1" name="学生Ｂ"
+		   text="『やっぱアレ？&#32;先週のテストのこと？』" voices=""/>
+		<char @l="790" id="miho" pos="right" src="miho116"/>
+		<msg @l="792" char_id="0" frame_id="-1" name="美帆" text="『え、ええ‥‥まあそんな。』"
+		   voices=""/>
+		<msg @l="794" char_id="-1" frame_id="-1" name="学生Ａ" text="『今度いっしょに合コンでもどう？』"
+		   voices=""/>
+		<msg @l="796" char_id="-1" frame_id="-1" name="学生Ｂ"
+		   text="『バーカ、教授の前で堂々とナンパすんなよ。』" voices=""/>
+		<char @l="799" id="miho" pos="right" src="miho015"/>
+		<msg @l="801" char_id="0" frame_id="-1" name="美帆"
+		   text="(ど、どうしよう‥‥これじゃ間が悪くて出ていけないよ‥‥‥)" voices=""/>
+		<msg @l="803" char_id="-1" frame_id="-1" name="朽木"
+		   text="『キミたち‥‥ここは談話室ではないのだぞ？』" voices=""/>
+		<msg @l="805" char_id="-1" frame_id="-1" name="学生Ａ" text="『す、すみません‥‥。』"
+		   voices=""/>
+		<msg @l="807" char_id="-1" frame_id="-1" name="学生Ｂ"
+		   text="『ったく‥‥オマエは所構わず過ぎるんだよ。』" voices=""/>
+		<msg @l="809" char_id="-1" frame_id="-1" name="朽木"
+		   text="『仲根クンも、用が済んだのならさっさと退室したまえ。』" voices=""/>
+		<char @l="812" id="miho" pos="right" src="miho114"/>
+		<msg @l="814" char_id="0" frame_id="-1" name="美帆" text="『え‥‥あ、はいっ。』"
+		   voices=""/>
+		<clear @l="817" layer="miho"/>
+		<msg @l="819" char_id="-1" frame_id="-1" name="" text="そうして私は出入り口に向かって歩き出す。"
+		   voices=""/>
+		<msg @l="821" char_id="0" frame_id="-1" name="美帆" text="『‥‥‥‥。』" voices=""/>
+		<msg @l="823" char_id="0" frame_id="-1" name="美帆"
+		   text="(もしかして朽木教授、私のこと助けてくれた‥‥のかな？)" voices=""/>
+		<msg @l="825" char_id="-1" frame_id="-1" name=""
+		   text="扉をくぐる際、私は一度振り返って教授の表情を伺ってみる。" voices=""/>
+		<msg @l="826" char_id="-1" frame_id="-1" name=""
+		   text="ただ‥‥彼は既に後から来た学生二人と話を始めており、それらしい表情を伺うことは出来なかった。" voices=""/>
+		<clear @l="829" class="all"/>
+		<wait_chgmv/>
+		<bg @l="832" src="bg09"/>
+		<char @l="835" id="miho" pos="auto" src="miho116"/>
+		<msg @l="837" char_id="0" frame_id="-1" name="美帆" text="『‥‥ふぅ。』" voices=""/>
+		<msg @l="839" char_id="0" frame_id="-1" name="美帆"
+		   text="(まさか教授があんな風に助けてくれるなんて‥‥思わなかった)" voices=""/>
+		<msg @l="841" char_id="0" frame_id="-1" name="美帆"
+		   text="(べつに‥‥‥だからって、特別に何かあるワケじゃないけど)" voices=""/>
+		<msg @l="843" char_id="0" frame_id="-1" name="美帆"
+		   text="(なんだろう‥‥‥私、もしかして嬉しかったのかな‥‥‥‥)" voices=""/>
+		<msg @l="845" char_id="0" frame_id="-1" name="美帆" text="(ひどいこと、されてるのに‥‥‥)"
+		   voices=""/>
+		<msg @l="847" char_id="-1" frame_id="-1" name=""
+		   text="私はそんな事を考えながら、大きくため息をつく。" voices=""/>
+		<msg @l="849" char_id="0" frame_id="-1" name="美帆" text="『なんか‥‥馬鹿みたいだな、私。』"
+		   voices=""/>
+		<msg @l="851" char_id="-1" frame_id="-1" name=""
+		   text="微かにつぶやいて‥‥私は、二限目の講義がある教室へと歩き始めた。" voices=""/>
+		<stopbgm @l="854" fadeout="1000"/>
+		<clear @l="857" class="all"/>
+		<call @l="860" target="EventLabel_123@root_kutuki04a"/>
+		<return @l="861" value="0&#13;&#10;"/>
+	</code>
+</xscript>

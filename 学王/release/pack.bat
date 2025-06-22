@@ -1,0 +1,1 @@
+chs_pack pack trans Gackoh_CHS.CPK Gackoh

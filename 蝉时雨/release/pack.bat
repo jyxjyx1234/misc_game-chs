@@ -1,0 +1,1 @@
+chs_pack pack trans SEMI_CHS.CPK SEMI

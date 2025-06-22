@@ -1,0 +1,28 @@
+003D1297            | 56             | push esi                           | esi:L"鴰Η"
+003D1298            | 8B75 D4        | mov esi,dword ptr ss:[ebp-2C]                    | [ebp-2C]:L"鴰Η"
+003D129B            | 56             | push esi                           | esi:L"鴰Η"
+003D129C            | E8 AFE5FFFF           | call haahaa_ckr.3CF850                    |
+003D12A1            | 85C0           | test eax,eax                       |
+003D12A3            | 75 6F          | jne haahaa_ckr.3D1314                     |
+003D12A5            | 56             | push esi                           | esi:L"鴰Η"
+003D12A6            | 8BCF           | mov ecx,edi                        |
+003D12A8            | E8 D3EAFFFF           | call haahaa_ckr.3CFD80                    | [eax+20]大小；[[[eax+10]]+30]文件
+003D12AD            | 8945 D4        | mov dword ptr ss:[ebp-2C],eax                    | [ebp-2C]:L"鴰Η"
+003D12B0            | 85C0           | test eax,eax                       |
+003D12B2            | 74 60          | je haahaa_ckr.3D1314                      |
+003D12B4            | 6A 2C          | push 2C                     |
+003D12B6            | FF15 BC4C8200         | call dword ptr ds:[<?esl_stub_malloc@@3P6APAXI@ZA>]            |
+003D12BC            | 8BF0           | mov esi,eax                        | esi:L"鴰Η"
+003D12BE            | 83C4 04        | add esp,4                          |
+003D12C1            | 8975 BC        | mov dword ptr ss:[ebp-44],esi                    |
+
+输入：
+[ESP+0x10] 文件名（WCHAR*）
+
+输出：
+[EAX]+0x10：一个数组，指向包含文件切片信息的结构体
+[EAX]+0x14：数组长度（文件分片）
+[EAX]+0x20：文件长度
+
+[[[[[EAX]+0x10] + 4 * i] + 8] + 8] + 0x10：指向文件分片指针
+[[[[[EAX]+0x10] + 4 * i] + 8] + 8] + 0x14：文件分片长度

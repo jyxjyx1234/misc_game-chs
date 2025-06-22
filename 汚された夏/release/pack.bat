@@ -1,0 +1,1 @@
+chs_pack pack script haahaa_CHS.CPK SEMI
