@@ -10,6 +10,8 @@ post_path = "D:\\jyxjyx1234.github.io\\_posts"
 idx = 0
 filename = f"{gamename} {modelname}.json"
 
+
+
 for f in os.listdir(path):
     if f == filename:
         print(f"File {filename} already exists, loading...")
@@ -37,7 +39,7 @@ dat = {
             "url": f"resources/{gamename} {modelname}.rar"
         }
     ],
-    "comment": "",
+    "comment": "- 20250531 修正了字库错误导致的选项缺失；修正了地图缺失 ",
     "idx": idx,
     "times": time.strftime("%Y-%#m-%#d %H:%M:%S", time.localtime())
 }

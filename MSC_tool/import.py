@@ -83,7 +83,7 @@ for f in files:
                         except:
                             # print(name)
                             pass
-                    return f"【{name}】/【{m.group(2)}】{trans}"
+                    return f"【{name}】/【{m.group(2)}】「{trans}」"
                 paras[2] = "str(" + re.sub("【(.*?)】/【(.*?)】(.*)", _, texts) + ")"
                 newl = "||".join(paras)
                 out.append(newl)
@@ -92,7 +92,8 @@ for f in files:
                     name = m.group(1)
                     if name != "":
                         name = namedict[name]
-                    return f"【{name}】{trans}"
+                    # return f"【{name}】{trans}"
+                    return f"【{name}】「{trans}」"
                 paras[2] = "str(" + re.sub("【(.*?)】(.*)", _, texts) + ")"
                 newl = "||".join(paras)
                 out.append(newl)

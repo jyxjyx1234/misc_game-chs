@@ -20,6 +20,10 @@ class BytesReader:
         res = self.read(1)
         res = from_bytes(res)
         return res
+    def readU16(self):
+        res = self.read(2)
+        res = from_bytes(res)
+        return res
     
 class MSCCodeReader(BytesReader):
     def __init__(self, data, out, table1L, table2L) -> None:
@@ -28,13 +32,13 @@ class MSCCodeReader(BytesReader):
         self.out = out
 
     def readStr(self):
-        length = self.readU32()
+        length = self.readU16()
         text = self.read(length)
         return text
     
     def readVal(self):
         mode = self.readU8()
-        value = self.readU32()
+        value = self.readU16()
         return mode, value
 
     def readOP(self, table1L, table2L):
@@ -47,7 +51,12 @@ class MSCCodeReader(BytesReader):
         op1 = self.read(1).hex().upper()
         op2 = self.read(1).hex().upper()
         self.out.write(f"#{op1}{op2}")
-        paraList_ = self.opDict[op1][op2].split(", ")
+        # print(f"#{op1}{op2}")
+        try:
+            paraList_ = self.opDict[op1][op2].split(", ")
+        except KeyError:
+            print(f"Unknown opCode: {op1}{op2} at {self.p:x}")
+            raise(RuntimeError)
         paraList = []
 
         for p in paraList_:
@@ -90,7 +99,7 @@ class MSCFile(BytesReader):
     
     def _readTable(self):
         self.read()#\x00
-        idx = self.readU32()
+        idx = self.readU16()
         offset = self.readU32()
         return idx, offset
     
@@ -100,7 +109,7 @@ class MSCFile(BytesReader):
         
         self.table1Size = self.readU32()
         self.table1List = {}
-        for i in range(self.table1Size // 9):
+        for i in range(self.table1Size // 7):
             idx, offset = self._readTable()
             if offset in self.table1List:
                 self.table1List[offset].append(f"{idx}")
@@ -109,7 +118,7 @@ class MSCFile(BytesReader):
         
         self.table2Size = self.readU32()
         self.table2List = {}
-        for i in range(self.table2Size // 9):
+        for i in range(self.table2Size // 7):
             idx, offset = self._readTable()
             if offset in self.table2List:
                 self.table2List[offset].append(f"{idx}")
@@ -133,8 +142,8 @@ class MSCFileComplier:
 
     def genHead(self):
         head0 = b"\x00\x00"
-        table1Size = to_bytes(len(self.table1) * 9, 4)
-        table2Size = to_bytes(len(self.table2) * 9, 4)
+        table1Size = to_bytes(len(self.table1) * 7, 4)
+        table2Size = to_bytes(len(self.table2) * 7, 4)
         table1 = b"".join(self.table1)
         table2 = b"".join(self.table2)
         headsize = to_bytes(6 + 4 + 4 + len(table1) + len(table2), 4)
@@ -153,7 +162,7 @@ class MSCFileComplier:
                 idxs = m.group(2).split(",")
                 offset = to_bytes(totalLen, 4)
                 for idx in idxs:
-                    idx = to_bytes(int(idx), 4)
+                    idx = to_bytes(int(idx), 2)
                     if t == 1:
                         self.table1.append(b"\x00" + idx + offset)
                     elif t == 2:
@@ -181,16 +190,16 @@ class MSCFileComplier:
                 elif re.match(r"val\((.*?),(.*?)\)", p):
                     mode = re.match(r"val\((.*?),(.*?)\)", p).group(1)
                     u32 = re.match(r"val\((.*?),(.*?)\)", p).group(2)
-                    val = to_bytes(int(mode), 1) + to_bytes(int(u32), 4)
+                    val = to_bytes(int(mode), 1) + to_bytes(int(u32), 2)
                     codeData.append(val)
-                    totalLen += 5
+                    totalLen += 3
                 elif re.match(r"str\((.*?)\)", p):
                     text = re.match(r"str\((.*?)\)", p).group(1)
                     textB = text.encode("932")
                     l = len(textB)
-                    res = to_bytes(l, 4) + textB
+                    res = to_bytes(l, 2) + textB
                     codeData.append(res)
-                    totalLen += 4 + l
+                    totalLen += 2 + l
                 else:
                     raise RuntimeError
                 

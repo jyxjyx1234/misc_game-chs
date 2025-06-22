@@ -161,6 +161,15 @@ typedef BOOL(WINAPI* pReadFile)(
 	LPOVERLAPPED lpOverlapped
 	);
 
+typedef DWORD(WINAPI* pGetFileSize)(
+	HANDLE hFile,
+	LPDWORD lpFileSizeHigh
+	);
+
+typedef BOOL(WINAPI* pCloseHandle)(
+	HANDLE hObject
+	);
+
 struct hook_stack {
     DWORD pfd;
     DWORD pedi;

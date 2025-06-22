@@ -8,7 +8,7 @@
 #include "HookTitle.h"
 #include "LE.h"
 #include "textReplacer.h"
-#include "VFS.h"
+//#include "VFS.h"
 //#include "FVPSaveChanger.h"
 
 rr::RConfig config;

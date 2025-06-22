@@ -172,10 +172,10 @@ class Line:
 
 
 if __name__ == "__main__":
-    mode = "unpack"
+    mode = "pack"
     if mode == "unpack":
         scd = SCD_FILE_pack("scr.scd", b"\xa5")
         scd.unpack("scr_unpack_dec")
     if mode == "pack":
         scd = SCD_FILE_pack("scr.scd", b"\xa5")
-        scd.pack("scr_unpack_dec_trans\\", "release\\scr.scd", "932")
+        scd.pack("scr_unpack_dec_trans\\", "release\\scr.chs", "932")

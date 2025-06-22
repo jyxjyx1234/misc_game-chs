@@ -5,6 +5,8 @@ from lzss import *
 def xor(data, key):
     return bytes([b ^ key[i % len(key)] for i, b in enumerate(data)])
 
+namesize = 0x14
+
 class ARCFile:
     def __init__(self):
         pass
@@ -17,7 +19,7 @@ class ARCFile:
         self.entries = []
         for i in range(self.numFiles):
             entry = {}
-            entry["name"] = xor(self.dataReader.read(0x14), self.name_key)
+            entry["name"] = xor(self.dataReader.read(namesize), self.name_key)
             entry["size"] = from_bytes(xor(self.dataReader.read(0x4), self.size_key))
             entry["offset"] = from_bytes(xor(self.dataReader.read(0x4), self.offset_key))
             self.entries.append(entry)
@@ -26,13 +28,13 @@ class ARCFile:
         data = open_file_b(oriFileForGuess)
         data = BytesReader(data)
         numFiles = data.readU32()
-        data.read(0x13)
+        data.read(namesize - 1)
         self.name_key = data.read(1)
-        true_first_offset = numFiles * 0x1c + 4
+        true_first_offset = numFiles * (namesize + 8) + 4
         true_first_offset = to_bytes(true_first_offset, 4)
         first_size = data.read(0x4)
         first_offset = data.read(0x4)
-        data.read(0x14)
+        data.read(namesize)
         sec_size = data.read(0x4)
         sec_offset = data.read(0x4)
         self.offset_key = xor(first_offset, true_first_offset)
@@ -56,11 +58,11 @@ class ARCFile:
         self.entries = []
         files = os.listdir(oriPath)
         self.numFiles = len(files)
-        offset = 4 + 0x1c * self.numFiles
+        offset = 4 + (namesize + 8) * self.numFiles
         for fileName in files:
             entry = {}
             entry["name"] = fileName.encode("932")
-            entry["name"] += b"\x00" * (0x14 - len(entry["name"]))
+            entry["name"] += b"\x00" * (namesize - len(entry["name"]))
             entry["data"] = open_file_b(os.path.join(oriPath, fileName))
             entry["data"] = LZSS_compress(entry["data"])
             # print(entry["data"])

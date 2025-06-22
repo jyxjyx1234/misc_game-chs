@@ -23,14 +23,14 @@ public:
     static bool unpack(const std::string& sourcePath,
         const std::string& destPath,
         const std::string& key);
+    // 读取包头信息
+    static bool readPackHeader(const std::string& packPath,
+        std::vector<std::string>& filenames);
 private:
     // 计算文件名哈希
     static uint32_t calculateNameHash(const std::string& filename);
     // 异或加密/解密
     static void xorEncryptDecrypt(uint8_t* data, size_t size, uint32_t key);
-    // 读取包头信息
-    static bool readPackHeader(const std::string& packPath,
-        std::vector<std::string>& filenames);
     // 文件信息结构
     struct FileEntry {
         char filename[32];

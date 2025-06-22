@@ -153,7 +153,7 @@ LeCreateProcess(
 	PLDR_MODULE             Module;
 	PLEPEB                  LePeb;
 
-	static WCHAR Dll[] = L"dll\\LocaleEmulator.dll";
+	static WCHAR Dll[] = L"rld\\LocaleEmulator.dll";
 
 	Module = FindLdrModuleByHandle(nullptr);
 

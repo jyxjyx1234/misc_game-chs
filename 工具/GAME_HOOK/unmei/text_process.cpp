@@ -1,210 +1,161 @@
-﻿#include "textReplacer.h"
+﻿//#include "textReplacer.h"
+#include "hookFont.h"
 #include "text_process.h"
 #include "HookTitle.h"
 #include <regex>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+# include "CHS_PACK_LIB.h"
+# pragma comment(lib, "CHS_PACK_LIB.lib")
+# pragma comment(lib, "zlib.lib")
 
-int retAddAddr = 5;
+std::string enc = "Gackoh";
+std::string packname = "Gackoh_CHS.CPK";
+
 
 DWORD originalFuncAddr;
-DWORD returnAddress;
-DWORD returnAddress2;
-DWORD oriFunc;
+DWORD pHookedCreateFileW;
+DWORD pHookedGetFileSize;
+DWORD pHookedReadFile;
+DWORD pHookedCloseHandle;
 
-std::string enc = "unmei";
+pCreateFileW TrueCreateFileW;
+pGetFileSize TrueGetFileSize;
+pReadFile TrueReadFile;
+pCloseHandle TrueCloseHandle;
 
-//typedef int (WINAPI* pOriReadFile)(char* outBuffer, char* packageName, char* fileName);
-//pOriReadFile OriReadFile = (pOriReadFile)0x446060;
-//
-//int CustomReadFile(char* outBuffer, char* packageName, char* fileName) {
-//    auto res = OriReadFile(outBuffer, packageName, fileName);
-//    std::string filePath = "trans\\" + std::string(fileName);
-//    if (std::filesystem::exists(filePath)) {
-//        std::ifstream file(filePath, std::ios::binary);
-//        if (file) {
-//            file.seekg(0, std::ios::end);
-//            std::streamsize size = file.tellg();
-//            file.seekg(0, std::ios::beg);
-//            if (size > 0 && file.read(outBuffer, size)) {
-//                for (int i = 0; i < size; i++) {
-//                    *(BYTE*)(outBuffer + i) ^= enc[i % enc.size()];
-//                }
-//                res = size;
-//            }
-//        }
-//    }
-//	return res;
-//}
+std::map<std::string, int> FileMap;
+std::vector<std::string> FileNames;
+std::string FileBuffer[0x1000];
+int pFileBuffer = 0;
 
-std::string lower(std::string str) {
-    for (int i = 0; i < strlen(str.c_str()); i++) {
-        if (str[i] >= 'A' && str[i] <= 'Z') {
-            str[i] += 32;
-        }
-    }
-    return str;
-}
-
-std::map<std::string, std::string> fileBuffers;
-void initFileBuffer() {
-    std::string path = "trans";
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        if (entry.is_regular_file()) {
-            std::ifstream file(entry.path(), std::ios::binary);
-            if (file) {
-                file.seekg(0, std::ios::end);
-                std::streamsize size = file.tellg();
-                file.seekg(0, std::ios::beg);
-                std::vector<char> buffer(size);
-                if (file.read(buffer.data(), size)) {
-                    std::string fileName = entry.path().filename().string();
-					for (int i = 0; i < size; i++) {
-						buffer[i] ^= enc[i % enc.size()];
-					}
-                    fileBuffers[lower(fileName)] = std::string(buffer.begin(), buffer.end());
-                }
-            }
-        }
-    }
-}
-
-void CustomReadFile(char** outBuffer, char** fileName, char** packagename, int* eax) {
-    //std::string filePath = "trans\\" + std::string(*fileName);
-    //if (std::filesystem::exists(filePath)) {
-    //    std::ifstream file(filePath, std::ios::binary);
-    //    if (file) {
-    //        file.seekg(0, std::ios::end);
-    //        std::streamsize size = file.tellg();
-    //        file.seekg(0, std::ios::beg);
-    //        if (size > 0 && file.read(*outBuffer, size)) {
-    //            for (int i = 0; i < size; i++) {
-    //                *(BYTE*)(*outBuffer + i) ^= enc[i % enc.size()];
-    //            }
-				//*eax = size;
-    //        }
-    //    }
-    //}
-	std::string fn = *fileName;
-	fn = lower(fn);
-	auto it = fileBuffers.find(fn);
-	if (it != fileBuffers.end()) {
-		std::string fileContent = it->second;
-		int size = fileContent.size();
-		memcpy(*outBuffer, fileContent.c_str(), size);
-		*eax = size;
+void initPackage() {
+	CustomPack::readPackHeader(packname, FileNames);
+	for (const auto& fileName : FileNames) {
+		if (CustomPack::isInPack(packname, fileName)) {
+			std::cout << "Loading file: " << fileName << std::endl;
+			FileBuffer[pFileBuffer] = CustomPack::getFile(packname, enc, fileName);
+			FileMap[fileName] = pFileBuffer;
+			pFileBuffer++;
+		}
 	}
 }
 
-void __declspec(naked) replace_file() {
-    __asm {
-        call oriFunc
-        pushad
-        pushfd
-        mov eax, esp
+HANDLE WINAPI HookedCreateFileW(LPCWSTR lpFileName,  
+   DWORD dwDesiredAccess,  
+   DWORD dwShareMode,  
+   LPSECURITY_ATTRIBUTES lpSecurityAttributes,  
+   DWORD dwCreationDisposition,  
+   DWORD dwFlagsAndAttributes,  
+   HANDLE hTemplateFile) {  
+	//std::wcout << L"Hooked CreateFileW: " << lpFileName << std::endl;
+	if (lpFileName != nullptr) {
+	   std::wstring fullPath(lpFileName);  
+	   std::wstring fileName = std::filesystem::path(fullPath).filename().wstring(); 
+	   std::string fileNameA = WideStringToGBKLPCSTR(fileName);
+       std::transform(fileNameA.begin(), fileNameA.end(), fileNameA.begin(), ::tolower);
+	   auto it = FileMap.find(fileNameA);
+	   if (it != FileMap.end()) {
+		   int index = it->second;
+		   if (index < pFileBuffer) {
+			   std::cout << "Replace: " << fileNameA << std::endl;
+			   return reinterpret_cast<HANDLE>(&FileBuffer[index]);
+		   }
+	   }
+	   std::cout << "Not found in pack: " << fileNameA << std::endl;
+	}
 
-        add eax, 0x20
-        push eax
-        add eax, 0x08
-        push eax
-        sub eax, 0x04
-        push eax
-        push ecx
-        call CustomReadFile
-		add esp, 0x10
-		popfd
-		popad
-		jmp returnAddress
-    }
+   return TrueCreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);  
 }
 
-//void changecharset(int* func, int* charset) {
-//	if (*charset == 932) {
-//		if (*func == 0x4858B6 || *func == 0x4D1452 || *func == 0x44EA04 || *func == 0x4858B6) {
-//			*charset = 936;
-//		}
-//	}
-//}
-//
-//void __declspec(naked) change_charset() {
-//    __asm {
-//        pushad
-//        pushfd
-//
-//        mov eax, esp
-//        add eax, 0x24
-//		push eax
-//        add eax, 0x2c
-//        push eax
-//		call changecharset
-//		add esp, 0x08
-//
-//        popfd
-//        popad
-//
-//        call MultiByteToWideChar
-//        jmp returnAddress2
-//    }
-//}
+BOOL WINAPI HookedReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED lpOverlapped) {
+	//std::cout << "Hooked ReadFile: " << hFile << std::endl;
+	for (int i = 0; i < pFileBuffer; i++) {
+		if (&(FileBuffer[i]) == hFile) {
+			std::cout << "Replace Reading file: " << FileNames[i] << std::endl;
+			std::string data = FileBuffer[i];
+			if (nNumberOfBytesToRead > data.size()) {
+				nNumberOfBytesToRead = data.size();
+			}
+			memcpy(lpBuffer, data.c_str(), nNumberOfBytesToRead);
+			*lpNumberOfBytesRead = nNumberOfBytesToRead;
+			return TRUE;
+		}
+	}
+	return TrueReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
+}
 
-//void __declspec(naked) replace_file() {
-//    __asm {
-//        add esp, 0x0c
-//		pop ecx
-//        pop ebp
-//
-//        pushad
-//        pushfd
-//        mov eax, esp
-//
-//        add eax, 0x20
-//        push eax
-//        add eax, 0x0c
-//        push eax
-//        sub eax, 0x04
-//        push eax
-//        push ecx
-//        call CustomReadFile
-//		add esp, 0x10
-//		popfd
-//		popad
-//		jmp returnAddress
-//    }
-//}
+BOOL WINAPI HookedCloseHandle(HANDLE hObject) {
+	//std::cout << "Hooked CloseHandle: " << hObject << std::endl;
+	for (int i = 0; i < pFileBuffer; i++) {
+		if (&(FileBuffer[i]) == hObject) {
+			std::cout << "Closing handle for file: " << FileNames[i] << std::endl;
+			return TRUE;
+		}
+	}
+	return TrueCloseHandle(hObject);
+}
+
+DWORD WINAPI HookedGetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh) {
+	//std::cout << "Hooked GetFileSize: " << hFile << std::endl;
+	for (int i = 0; i < pFileBuffer; i++) {
+		if (&(FileBuffer[i]) == hFile) {
+			DWORD size = FileBuffer[i].size();
+			if (lpFileSizeHigh) {
+				*lpFileSizeHigh = 0;
+			}
+			return size;
+		}
+	}
+	return TrueGetFileSize(hFile, lpFileSizeHigh);
+}
 
 
 void InstallHook_replacetext()
 {
-	printf("InstallHook_replacetext\n");
-	initFileBuffer();
-    DWORD oldProtect;
-
-    originalFuncAddr = 0x004C38DC;
-    //originalFuncAddr = 0x004C2090;
-	returnAddress = originalFuncAddr + retAddAddr;
-    oriFunc = 0x4C2080;
-    VirtualProtect((LPVOID)originalFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
-    *(BYTE*)originalFuncAddr = 0xE9;
-    *(DWORD*)(originalFuncAddr + 1) = (DWORD)replace_file - originalFuncAddr - 5;
-    VirtualProtect((LPVOID)originalFuncAddr, 5, oldProtect, &oldProtect);
+	initPackage();
+	//DetourTransactionBegin();
+	//DetourUpdateThread(GetCurrentThread());
+	//DetourAttach(&(PVOID&)TrueCreateFileW, HookedCreateFileW);
+	//DetourAttach(&(PVOID&)TrueGetFileSize, HookedGetFileSize);
+	//DetourAttach(&(PVOID&)TrueReadFile, HookedReadFile);
+	//DetourAttach(&(PVOID&)TrueCloseHandle, HookedCloseHandle);
+	//DetourTransactionCommit();
 
 
-    //originalFuncAddr = 0x004F5108;
-    //returnAddress2 = originalFuncAddr + retAddAddr + 1;
-    //VirtualProtect((LPVOID)originalFuncAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
-    //*(BYTE*)originalFuncAddr = 0xE9;
-    //*(DWORD*)(originalFuncAddr + 1) = (DWORD)change_charset - originalFuncAddr - 5;
-    //VirtualProtect((LPVOID)originalFuncAddr, 5, oldProtect, &oldProtect);
+	DWORD oldProtect;
+	originalFuncAddr = 0x0047CE51;
+	TrueCreateFileW = **(pCreateFileW**)(originalFuncAddr + 2);
+	VirtualProtect((LPVOID)originalFuncAddr, 6, PAGE_EXECUTE_READWRITE, &oldProtect);
+	pHookedCreateFileW = (DWORD)&HookedCreateFileW;
+	*(DWORD*)(originalFuncAddr + 2) = (DWORD)&pHookedCreateFileW;
+	VirtualProtect((LPVOID)originalFuncAddr, 6, oldProtect, &oldProtect);
 
-    //DetourTransactionBegin();
-    //DetourUpdateThread(GetCurrentThread());
-    //DetourAttach(&(PVOID&)OriReadFile, CustomReadFile);
-    //DetourTransactionCommit();
+	originalFuncAddr = 0x0047D035;
+	TrueGetFileSize = **(pGetFileSize**)(originalFuncAddr + 2);
+	VirtualProtect((LPVOID)originalFuncAddr, 6, PAGE_EXECUTE_READWRITE, &oldProtect);
+	pHookedGetFileSize = (DWORD)&HookedGetFileSize;
+	*(DWORD*)(originalFuncAddr + 2) = (DWORD)&pHookedGetFileSize;
+	VirtualProtect((LPVOID)originalFuncAddr, 6, oldProtect, &oldProtect);
 
-    install_hook_textreplaceEx(5, "trans\\data2.bin", enc);
+	originalFuncAddr = 0x0047D0B3;
+	TrueReadFile = **(pReadFile**)(originalFuncAddr + 2);
+	VirtualProtect((LPVOID)originalFuncAddr, 6, PAGE_EXECUTE_READWRITE, &oldProtect);
+	pHookedReadFile = (DWORD)&HookedReadFile;
+	*(DWORD*)(originalFuncAddr + 2) = (DWORD)&pHookedReadFile;
+	VirtualProtect((LPVOID)originalFuncAddr, 6, oldProtect, &oldProtect);
+
+	originalFuncAddr = 0x0047D0DC;
+	TrueCloseHandle = **(pCloseHandle**)(originalFuncAddr + 2);
+	VirtualProtect((LPVOID)originalFuncAddr, 6, PAGE_EXECUTE_READWRITE, &oldProtect);
+	pHookedCloseHandle = (DWORD)&HookedCloseHandle;
+	*(DWORD*)(originalFuncAddr + 2) = (DWORD)&pHookedCloseHandle;
+	VirtualProtect((LPVOID)originalFuncAddr, 6, oldProtect, &oldProtect);
+
+
     newFontName = L"Simsun";
-	//newCharset = 134;
     installFontHook_main(1, 1, 1, 0);
+	//MessageBoxW(NULL, L"1", L"提示", MB_OK | MB_ICONINFORMATION);
 }
 

@@ -106,7 +106,7 @@ HFONT WINAPI HookedCreateFontA(
         bItalic,
         bUnderline,
         bStrikeOut,
-        iCharSet,
+        134,
         iOutPrecision,
         iClipPrecision,
         iQuality,
@@ -120,6 +120,7 @@ CREATEFONTINDIRECTA TrueCreateFontIndirectA = CreateFontIndirectA;
 HFONT WINAPI HookedCreateFontIndirectA(CONST LOGFONTA* lplf)
 {
     LOGFONTA modifiedLf = *lplf;
+	modifiedLf.lfCharSet = 134; // Set to GB2312 charset
     if (modifiedLf.lfFaceName == nullptr) return TrueCreateFontIndirectA(&modifiedLf);
     if (modifiedLf.lfFaceName != nullptr) strcpy_s(modifiedLf.lfFaceName, LF_FACESIZE, new_font_name.c_str());
     return TrueCreateFontIndirectA(&modifiedLf);
@@ -164,8 +165,8 @@ void textprocess_main() {
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 	DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA);
-    //DetourAttach(&(PVOID&)TrueCreateFontA, HookedCreateFontA);
-    //DetourAttach(&(PVOID&)TrueCreateFontIndirectA, HookedCreateFontIndirectA);
+    DetourAttach(&(PVOID&)TrueCreateFontA, HookedCreateFontA);
+    DetourAttach(&(PVOID&)TrueCreateFontIndirectA, HookedCreateFontIndirectA);
     //DetourAttach(&(PVOID&)TrueGetTextExtentExPointA, HookedGetTextExtentExPointA);
     //DetourAttach(&(PVOID&)TrueGetTextExtentPoint32A, HookedGetTextExtentPoint32A);
 	DetourTransactionCommit();

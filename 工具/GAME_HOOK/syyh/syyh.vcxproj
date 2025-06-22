@@ -36,18 +36,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\LIB\convert.cpp" />
+    <ClCompile Include="..\LIB\hookFont.cpp" />
     <ClCompile Include="..\LIB\LE.cpp" />
+    <ClCompile Include="..\LIB\textReplacer.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="hook_createfontA.cpp" />
     <ClCompile Include="HOOK_main.cpp" />
+    <ClCompile Include="text_process.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\LIB\convert.h" />
     <ClInclude Include="..\LIB\detours.h" />
+    <ClInclude Include="..\LIB\hookFont.h" />
     <ClInclude Include="..\LIB\LE.h" />
+    <ClInclude Include="..\LIB\textReplacer.h" />
     <ClInclude Include="dll_proxy.h" />
-    <ClInclude Include="hook_createfontA.h" />
     <ClInclude Include="HOOK_main.h" />
+    <ClInclude Include="text_process.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -132,6 +136,7 @@
     <IncludePath>$(SolutionDir)resident;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)</OutDir>
     <TargetName>live</TargetName>
+    <LibraryPath>$(SolutionDir)LIB;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_for_others|Win32'">
     <IncludePath>$(SolutionDir)resident;$(IncludePath)</IncludePath>

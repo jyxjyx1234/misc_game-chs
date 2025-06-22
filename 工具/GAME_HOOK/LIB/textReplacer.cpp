@@ -75,8 +75,8 @@ std::map<std::wstring, std::wstring> readReplaceMapFromPack(const std::string& p
 
     CustomPack pack;
     std::string data = pack.getFile(packname, k, filename);
-	printf("data2：%s\n", data.c_str());
     std::wstring u32line = MultiByteToWide(data, CP_UTF8);
+	wprintf(L"%ls", u32line.c_str());
     std::wstring key, value;
 
     //std::ofstream out("log.txt", std::ios::out);
@@ -148,22 +148,25 @@ BOOL WINAPI HOOK_TextOutA(
 ) {
     // 获取当前字体
     nYStart += 0;
-	printf("Hooked TextOutA\n");
-    HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
-    LOGFONTA logFont;
-    GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+	//printf("Hooked TextOutA\n");
+ //   HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+ //   LOGFONTA logFont;
+ //   GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+ //   std::wstring new_wstr = changeText(lpString);
+ //   // 修改当前字体的字符集为936
+ //   logFont.lfCharSet = ;
+ //   HFONT hNewFont = CreateFontIndirectA(&logFont);
+ //   HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
+
+	//LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
+ //   BOOL result = TrueTextOutA(hdc, nXStart, nYStart, new_str, cbString);
+
+ //   // 恢复原始字体
+ //   SelectObject(hdc, hOldFont);
+ //   DeleteObject(hNewFont);
+
     std::wstring new_wstr = changeText(lpString);
-    // 修改当前字体的字符集为936
-    logFont.lfCharSet = 134;
-    HFONT hNewFont = CreateFontIndirectA(&logFont);
-    HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
-
-	LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
-    BOOL result = TrueTextOutA(hdc, nXStart, nYStart, new_str, cbString);
-
-    // 恢复原始字体
-    SelectObject(hdc, hOldFont);
-    DeleteObject(hNewFont);
+	BOOL result = TextOutW(hdc, nXStart, nYStart, new_wstr.c_str(), wcslen(new_wstr.c_str()));
 
     return result;
 }
@@ -198,7 +201,7 @@ BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* 
 		return TrueExtTextOutA(hdc, X, Y, fuOptions, lprc, lpString, cbCount, lpDx);
 	}
 	std::wstring new_wstr = changeText(lpString);
-    LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
+    /*LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
     HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
     LOGFONTA logFont;
     GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
@@ -207,7 +210,8 @@ BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* 
     HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
 	auto res = TrueExtTextOutA(hdc, X, Y, fuOptions, lprc, new_str, strlen(new_str), lpDx);
     SelectObject(hdc, hOldFont);
-    DeleteObject(hNewFont);
+    DeleteObject(hNewFont);*/
+    auto res = ExtTextOutW(hdc, X, Y, fuOptions, lprc, new_wstr.c_str(), wcslen(new_wstr.c_str()), lpDx);
 	return res;
 }
 
@@ -237,7 +241,7 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
 
 void install_hook_textreplace(int mode) {
 #ifndef Release_for_others
-    charReplaceMap = readReplaceMap("data2.bin", "ALyCE");
+    charReplaceMap = readReplaceMap("rld\\data.bin", "ALyCE");
 #else
     charReplaceMap = readReplaceMap("replace.bin", "\0");
 #endif

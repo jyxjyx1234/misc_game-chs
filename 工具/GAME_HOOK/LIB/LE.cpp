@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <iostream>
 #include "LE.h"
+#include <filesystem>
 
 ULONG codepage = 0;
 ULONG locale = 0;
@@ -85,12 +86,18 @@ void install_LE() {
 	locale = 1041;
 	charset = SHIFTJIS_CHARSET;
 	timezone = "Tokyo Standard Time";
-
-	const HMODULE hLoader = LoadLibraryA("LoaderDll.dll");
 	if (GetACP() == 932)
 	{
 		return;
 	}
+
+	if (!std::filesystem::exists("LoaderDll.dll"))
+	{
+		//printf(" LoaderDll.dll not exists, skipping installation.\n");
+		return;
+	}
+	const HMODULE hLoader = LoadLibraryA("LoaderDll.dll");
 	ML_PROCESS_INFORMATION processInfo;
-	if (relaunch(&processInfo, hLoader)) ExitProcess(0);
+	relaunch(&processInfo, hLoader);
+	ExitProcess(0);
 }

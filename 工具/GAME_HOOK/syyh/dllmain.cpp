@@ -8,8 +8,8 @@
 
 VOID __declspec(dllexport) stratmessage()
 {
-	std::wstring t1 = L"test";
-	MessageBoxW(NULL, t1.c_str(), L"信息", NULL);
+	//std::wstring t1 = L"test";
+	//MessageBoxW(NULL, t1.c_str(), L"信息", NULL);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule,
