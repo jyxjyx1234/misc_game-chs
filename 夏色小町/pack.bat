@@ -1,0 +1,1 @@
+chs_pack pack release/script release/ntk_CHS.CPK NTK

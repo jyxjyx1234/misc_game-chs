@@ -19,12 +19,12 @@ BOOL WINAPI HookedSetWindowTextA(HWND hWnd, LPCSTR lpString)
     printf("HOOK setWindowTextA sucess!\noriWindowName is %s\n", lpString);
     std::string oriname(lpString);
     if (changeWindowCfg.isCheckOri) {
-        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, GetACP())) {
+        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, 932)) {
              return TruesetWindowTextA(hWnd, lpString);
         }
     }
 	else if (changeWindowCfg.isCheckStart) {
-		if (oriname.find(ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, GetACP())) == std::string::npos) {
+		if (oriname.find(ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, 932)) == std::string::npos) {
 			return TruesetWindowTextA(hWnd, lpString);
 		}
 	}
@@ -160,7 +160,7 @@ HWND WINAPI HookedCreateWindowExA(
 	}
     std::string oriname(lpWindowName);
     if (changeWindowCfg.isCheckOri) {
-        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, GetACP())) {
+        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, 932)) {
             return  TrueCreateWindowExA(
                 dwExStyle,
                 lpClassName,

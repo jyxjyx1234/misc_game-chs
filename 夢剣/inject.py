@@ -35,17 +35,20 @@ for file in os.listdir(transPath):
             print(f"Warning: '@' found in {file} {transtext}, removed from text.")
         if checkHalfWidth(transtext):
             raise ValueError(f"Text contains half-width characters: {transtext}")
-        if "endflag" in transdata:
-            transtext += transdata["endflag"]
-        else:
-            if not transtext.endswith("」") and not transtext.endswith("/") and not transtext.endswith("@"):
-                transtext += "@"
+        # if "endflag" in transdata:
+        #     transtext += "\\"
+        # else:
+        #     if not transtext.endswith("」") and not transtext.endswith("/") and not transtext.endswith("@"):
+        #         transtext += "@"
+        transtext += "\\"
         newData[poses[0]] = (transtext + "\n").encode("936")
         for i in range(1, len(poses)):
             newData[poses[i]] = b""
     for i, line in enumerate(oriData):
         if line.startswith(";"):
             newData[i] = b""
+        # if line == "setwindow 8,16,27,16,23,23,0,8,20,1,1,#999999,0,0,639,479\n":
+        #     newData[i] = b"setwindow 8,16,27,16,23,23,0,8,20,1,1,#999999,0,0,640,480\n"
 
 
 def xor(data, key):

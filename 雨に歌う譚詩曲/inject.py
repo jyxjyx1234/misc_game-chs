@@ -69,6 +69,9 @@ for file in files:
             transtext = preprocess(transtext)
             return m.group("textidx") + transtext.encode("932")
         
+        else:
+            return m.group(0)
+        
     lines = pattern.sub(trans, lines)
     if len(transdata) != 0:
         print("Translation data not enough: " + file)

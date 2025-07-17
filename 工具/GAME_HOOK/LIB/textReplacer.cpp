@@ -110,7 +110,7 @@ std::wstring changeTextW(LPCWSTR text) {
     return new_wstr;
 }
 
-std::wstring changeText(LPCSTR text) {
+std::wstring changeText(std::string text) {
     std::wstring wstr = sjisStringToWString(text);
     //std::wstring new_wstr = L"";
     //for (int i = 0; i < wstr.size(); i++) {
@@ -165,9 +165,22 @@ BOOL WINAPI HOOK_TextOutA(
  //   SelectObject(hdc, hOldFont);
  //   DeleteObject(hNewFont);
 
-    std::wstring new_wstr = changeText(lpString);
+    std::wstring new_wstr = changeText(std::string(lpString, cbString));
+    HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+    LOGFONTA logFont;
+    GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+    if (cbString == 2 && lpString[0] == '\x81') {
+        strcpy_s(logFont.lfFaceName, 11, "MS Gothic");
+    }
+    else {
+        logFont.lfCharSet = 134;
+        strcpy_s(logFont.lfFaceName, 5, "ºÚÌå");
+    }
+    HFONT hNewFont = CreateFontIndirectA(&logFont);
+    HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
 	BOOL result = TextOutW(hdc, nXStart, nYStart, new_wstr.c_str(), wcslen(new_wstr.c_str()));
-
+    SelectObject(hdc, hOldFont);
+    DeleteObject(hNewFont);
     return result;
 }
 
@@ -226,17 +239,35 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
         DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
         return res;
     }
+    if (bytes[0] == '\xf0') {
+        DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        return res;
+    }
+
+    if (bytes[0] == '\x81') {
+        DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+        return res;
+    }
 
     std::string str(bytes);
     std::wstring wstr = sjisStringToWString(str);
+    HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+    LOGFONTA logFont;
+    GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+    logFont.lfCharSet = 134;
+    strcpy_s(logFont.lfFaceName, 5, "ºÚÌå");
+    HFONT hNewFont = CreateFontIndirectA(&logFont);
+    HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
     if (charReplaceMap.find(wstr) != charReplaceMap.end()) {
         wstr = charReplaceMap[wstr];
-        uChar = static_cast<UINT>(wstr.c_str()[0]);
-        DWORD res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-        return res;
     }
-    DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+    uChar = static_cast<UINT>(wstr.c_str()[0]);
+    DWORD res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+    SelectObject(hdc, hOldFont);
+    DeleteObject(hNewFont);
     return res;
+    //DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
+    //return res;
 }
 
 void install_hook_textreplace(int mode) {

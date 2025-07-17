@@ -29,7 +29,7 @@ BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* 
 void install_hook_textreplace(int mode);
 void install_hook_textreplaceEx(int mode, std::string filepath, std::string key);
 void install_hook_textreplaceFromPackEx(int mode, std::string packpath, std::string filepath, std::string key);
-std::wstring changeText(LPCSTR text);
+std::wstring changeText(std::string text);
 
 extern std::map<std::wstring, std::wstring> charReplaceMap;
 

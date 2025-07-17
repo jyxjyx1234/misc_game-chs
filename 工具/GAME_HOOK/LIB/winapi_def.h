@@ -1,6 +1,14 @@
 #pragma once
 #include <Windows.h>
 
+typedef int (WINAPI* pMultiByteToWideChar)(
+	UINT CodePage,
+	DWORD dwFlags,
+	LPCSTR lpMultiByteStr,
+	int cbMultiByte,
+	LPWSTR lpWideCharStr,
+	int cchWideChar
+	);
 
 typedef BOOL(WINAPI* pTextOutA)(
     HDC hdc,
@@ -168,6 +176,29 @@ typedef DWORD(WINAPI* pGetFileSize)(
 
 typedef BOOL(WINAPI* pCloseHandle)(
 	HANDLE hObject
+	);
+
+typedef DWORD(WINAPI* pGetFileAttributesA)(
+	LPCSTR lpFileName
+	);
+
+typedef DWORD(WINAPI* pGetFileType)(
+    HANDLE hFile
+	);
+
+typedef DWORD(WINAPI* pSetFilePointer)(
+	HANDLE hFile,
+	LONG lDistanceToMove,
+	PLONG lpDistanceToMoveHigh,
+	DWORD dwMoveMethod
+	);
+
+typedef BOOL(WINAPI* pModifyMenuA)(
+	HMENU hMenu,
+	UINT uPosition,
+	UINT uFlags,
+	UINT_PTR uIDNewItem,
+	LPCSTR lpNewItem
 	);
 
 struct hook_stack {

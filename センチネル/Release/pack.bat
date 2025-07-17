@@ -1,0 +1,1 @@
+chs_pack pack ysbin sentinel_hd_CHS.CPK sentinel_hd
