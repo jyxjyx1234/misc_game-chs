@@ -1,0 +1,48 @@
+::START
+
+mode(1)
+
+
+# セーブ可能、ロード可能
+mode(0)
+loadenable
+saveenable
+^gsb(WND_ADV)
+mode(1)
+
+
+#■＝＝＝＝＝◇ハーレム＝＝＝＝＝
+%day = 9
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+^gsb(EyeCatch)			# アイキャッチ
+	^gsb(E_01)
+	^gsb(E_02)
+	^gsb(E_03)
+	^gsb(E_04)
+	^gsb(E_05)
+	^gsb(E_06)
+	^gsb(E_07)
+	^gsb(E_08)
+	^gsb(E_09)
+
+	global(%end04,1)	# ハーレムエンディング
+
+
+
+
+^jp(END_GAME)
+
+
+
+
+:END_GAME
+^gsb(WND_ADV)			# ウインドウモード
+seoff(-1)				# ＳＥ停止
+^if(%end_flag == 1)		# エンディングフラグ（0:見てない 1:見た）
+	global(%ending,1)	# エンディング
+^endi
+# タイトルに戻る
+backtitle
+
+::END

@@ -1,0 +1,197 @@
+############################################
+# 体験版０１ルーチン
+############################################
+::START
+
+
+
+
+:TAIKEN_TOP
+
+clrbacklog
+ud(1, 100)
+
+
+
+
+#	/・【プロローグ】を見る
+#	/・【伊緒とのＨシーン】を見る
+#	/・タイトル画面へ戻る//
+
+#	%temp = %reg    # 選択肢パラメータ保存
+
+
+global(%com_pro,-1)	# 体験版【プロローグ】フラグ
+^if(%reg!=1)
+	%temp = 0    # 選択肢パラメータ保存【プロローグ】の一部を見るように
+	%sentaku = 0
+^else
+	bgmon("bgm05")		# ＢＧＭ再生
+	
+	bgon("bg001a1")
+	ud(1, 200)
+	
+	btnset(1,"slctwnd", 286, 144, "【プロローグ～第１章】を見る", 34, 13)
+	btnset(2,"slctwnd", 286, 200, "【伊緒とのＨシーン】を見る", 34, 13)
+	btnset(3,"slctwnd", 286, 256, "「タイトル画面へ戻る」", 34, 13)
+	
+	^gsb(btnsel)	# ボタン選択ルーチン
+^endi
+
+bgon("black")
+ud(1, 200)
+
+wndoff
+ud(0)
+bgmoff(0, 700)		# ＢＧＭ終了
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 【プロローグ】を見る
+		^jp(TAIKEN_00_00)
+	^case(1)			# 【伊緒】のページへ進む
+		^jp(TAIKEN_00_01)
+	^case(2)			# タイトル画面へ戻る
+		^jp(END_GAME)
+	^df
+^ends
+
+
+
+
+:TAIKEN_00_00
+
+#■＝＝＝＝＝◇プロローグ＝＝＝＝＝
+%day = 0
+
+%day = 0
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+	^gsb(01_01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(01_02)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(01_03)
+		^gsb(CheckParam)	# 好感度チェック
+
+#	^gsb(00_04)
+#		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(op_mov)		# OPムービー
+
+#■＝＝＝＝＝◇第一章＝＝＝＝＝
+%day = 1
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+	^gsb(02_01a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_01b)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02b)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02c)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02d)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_03a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_04a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_04a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_04a02)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_05a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_05a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_05a02)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_06a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_06a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_07a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_07a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_08a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_09a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_10a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	wndoff
+	ud(0)
+	bgmoff(0, 700)		# ＢＧＭ終了
+
+	#(web体験版EVシーン終了)
+	bgon("tai001b")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("tai000a")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("tai000b")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("black")
+	ud(1, 500)
+
+clrbacklog
+global(%com_pro,1)	# 体験版【プロローグ】を見た
+^jp(TAIKEN_TOP)
+#^jp(END_GAME)
+
+
+
+
+:TAIKEN_00_01
+#【伊緒】のページ
+
+clrbacklog
+ud(1, 100)
+
+^gsb(D_04b)
+^gsb(D_04c)
+
+clrbacklog
+^jp(TAIKEN_TOP)
+
+
+
+
+:END_GAME
+
+^ret
+
+::END

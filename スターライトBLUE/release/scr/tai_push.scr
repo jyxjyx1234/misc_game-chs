@@ -1,0 +1,232 @@
+############################################
+# push体験版ルーチン
+############################################
+::START
+
+
+
+
+:PUSH_TOP
+
+clrbacklog
+ud(1, 100)
+
+
+
+
+#	/・【プロローグ】を見る
+#	/・【ラティとのＨシーン】を見る
+#	/・【舞華とのＨシーン】を見る
+#	/・タイトル画面へ戻る//
+
+#	%temp = %reg    # 選択肢パラメータ保存
+
+
+global(%push_pro,-1)	# 体験版【プロローグ】フラグ
+^if(%reg!=1)
+	%temp = 0    # 選択肢パラメータ保存【プロローグ】の一部を見るように
+	%sentaku = 0
+^else
+	bgmon("bgm05")		# ＢＧＭ再生
+	
+	bgon("bg001a1")
+	ud(1, 200)
+
+btnset(1,"slctwnd", 286, 144, "【序章懾第1章】", 34, 13)
+btnset(2,"slctwnd", 286, 200, "【与拉蒂的H駅景】", 34, 13)
+btnset(3,"slctwnd", 286, 256, "【与舞藥的H駅景】", 34, 13)
+btnset(5,"slctwnd", 286, 312, "「回到蹌馭画面」", 34, 13)
+	
+	^gsb(btnsel)	# ボタン選択ルーチン
+^endi
+
+bgon("black")
+ud(1, 200)
+
+wndoff
+ud(0)
+bgmoff(0, 700)		# ＢＧＭ終了
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 【プロローグ】を見る
+		^jp(PUSH_00_00)
+	^case(1)			# 【ラティ】のページへ進む
+		^jp(PUSH_00_01)
+	^case(2)			# 【舞華】のページへ進む
+		^jp(PUSH_00_02)
+	^case(3)			# 【ちさ】のページへ進む
+		^jp(PUSH_00_03)
+	^case(4)			# タイトル画面へ戻る
+		^jp(END_GAME)
+	^df
+^ends
+
+
+
+
+:PUSH_00_00
+
+#■＝＝＝＝＝◇プロローグ＝＝＝＝＝
+%day = 0
+
+%day = 0
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+	^gsb(01_01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(01_02)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(01_03)
+		^gsb(CheckParam)	# 好感度チェック
+
+#	^gsb(00_04)
+#		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(op_mov)		# OPムービー
+
+#■＝＝＝＝＝◇第一章＝＝＝＝＝
+%day = 1
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+	^gsb(02_01a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_01b)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02b)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02c)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_02d)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_03a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_04a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_04a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_04a02)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_05a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_05a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_05a02)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_06a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_06a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_07a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_07a01)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_08a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_09a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(02_10a)
+		^gsb(CheckParam)	# 好感度チェック
+
+	wndoff
+	ud(0)
+	bgmoff(0, 700)		# ＢＧＭ終了
+
+	#(web体験版EVシーン終了)
+	bgon("tai001b")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("tai000a")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("tai000b")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("black")
+	ud(1, 500)
+
+clrbacklog
+global(%push_pro,1)	# 体験版【プロローグ】を見た
+^jp(PUSH_TOP)
+^endi
+
+
+
+
+:PUSH_00_01
+#【ラティ】のページ
+
+clrbacklog
+ud(1, 100)
+
+^gsb(B_02b)
+^gsb(B_02c)
+
+clrbacklog
+^jp(PUSH_TOP)
+
+
+
+
+:PUSH_00_02
+#【舞華】のページ
+
+clrbacklog
+ud(1, 100)
+
+^gsb(C_01b01)
+^gsb(C_01b02)
+
+clrbacklog
+^jp(PUSH_TOP)
+
+
+
+
+:PUSH_00_03
+#【ちさ】のページ
+
+clrbacklog
+ud(1, 100)
+
+#^gsb(E_06)
+
+clrbacklog
+^jp(PUSH_TOP)
+
+
+
+
+:END_GAME
+
+^ret
+
+::END

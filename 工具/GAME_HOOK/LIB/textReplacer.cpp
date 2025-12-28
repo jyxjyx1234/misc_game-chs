@@ -10,6 +10,11 @@ pGetGlyphOutlineA TrueGetGlyphOutlineA = GetGlyphOutlineA;
 pTextOutA TrueTextOutA = TextOutA;
 pTextOutW TrueTextOutW = TextOutW;
 pExtTextOutA TrueExtTextOutA = ExtTextOutA;
+pGetTextExtentExPointA TrueGetTextExtentExPointA = GetTextExtentExPointA;
+pGetTextExtentPoint32A TrueGetTextExtentPoint32A = GetTextExtentPoint32A;
+pGdipDrawString TrueGdipDrawString = nullptr;
+
+std::map<std::string, HFONT> fontMap;
 
 std::wstring MultiByteToWide(const std::string& str, int cp) {
     int size_needed = MultiByteToWideChar(cp, 0, &str[0], (int)str.size(), NULL, 0);
@@ -25,11 +30,60 @@ std::string WideToMultiByte(const std::wstring& wstr, int cp) {
     return strTo;
 }
 
+
+
+HFONT GetNewFont(LOGFONTA lf) {
+	std::string fontkey((char*)&lf, sizeof(LOGFONTA));
+	if (fontMap.find(fontkey) != fontMap.end()) {
+        LOGFONTA logFont;
+        HFONT res = fontMap[fontkey];
+        if (res != NULL && GetObject(res, sizeof(LOGFONTA), &logFont) == 0) {
+			res = CreateFontIndirectA(&lf);
+			fontMap[fontkey] = res;
+			return res;
+        }
+		return res;
+	}
+	HFONT res = CreateFontIndirectA(&lf);
+	fontMap[fontkey] = res;
+	return res;
+}
+
+
+BOOL WINAPI HOOK_getTextExtentExPointA(HDC hdc, LPCSTR lpszStr, int cchString, int nMaxExtent, LPINT lpnFit, LPINT alpDx, LPSIZE lpSize)
+{
+    HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+    LOGFONTA logFont;
+    GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+    logFont.lfCharSet = 134;
+    strcpy_s(logFont.lfFaceName, 5, "黑体");
+
+    HFONT hNewFont = GetNewFont(logFont);
+    HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
+    DWORD res = TrueGetTextExtentExPointA(hdc, lpszStr, cchString, nMaxExtent, lpnFit, alpDx, lpSize);
+    SelectObject(hdc, hOldFont);
+    return res;
+}
+
+BOOL WINAPI Hook_getTextExtentPoint32A(HDC hdc, LPCSTR lpString, int c, LPSIZE ps)
+{
+    HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+    LOGFONTA logFont;
+    GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
+    logFont.lfCharSet = 134;
+    strcpy_s(logFont.lfFaceName, 5, "黑体");
+    HFONT hNewFont = GetNewFont(logFont);
+    HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
+    DWORD res = TrueGetTextExtentPoint32A(hdc, lpString, c, ps);
+    SelectObject(hdc, hOldFont);
+    return res;
+}
+
 std::map<std::wstring, std::wstring> readReplaceMap(const std::string& filename, std::string k) {
     std::map<std::wstring, std::wstring> result;
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-		MessageBoxA(NULL, (std::string("Unable to open file ") + filename).c_str(), "Error", MB_OK);
+		//MessageBoxA(NULL, (std::string("Unable to open file ") + filename).c_str(), "Error", MB_OK);
 		//exit(1);
         return result;
     }
@@ -69,7 +123,7 @@ std::map<std::wstring, std::wstring> readReplaceMapFromPack(const std::string& p
 	std::cout << packname << std::endl;
 	std::cout << filename << std::endl;
     if (! CustomPack::isInPack(packname, filename)) {
-        MessageBoxA(NULL, (std::string("Unable to open file ") + filename).c_str(), "Error", MB_OK);
+        //MessageBoxA(NULL, (std::string("Unable to open file ") + filename).c_str(), "Error", MB_OK);
         return result;
     }
 
@@ -148,6 +202,8 @@ BOOL WINAPI HOOK_TextOutA(
 ) {
     // 获取当前字体
     nYStart += 0;
+
+    std::cout << std::string(lpString, cbString);
 	//printf("Hooked TextOutA\n");
  //   HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
  //   LOGFONTA logFont;
@@ -176,12 +232,25 @@ BOOL WINAPI HOOK_TextOutA(
         logFont.lfCharSet = 134;
         strcpy_s(logFont.lfFaceName, 5, "黑体");
     }
-    HFONT hNewFont = CreateFontIndirectA(&logFont);
+    HFONT hNewFont = GetNewFont(logFont);
     HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
 	BOOL result = TextOutW(hdc, nXStart, nYStart, new_wstr.c_str(), wcslen(new_wstr.c_str()));
     SelectObject(hdc, hOldFont);
-    DeleteObject(hNewFont);
+    //DeleteObject(hNewFont);
     return result;
+}
+int WINAPI HOOK_GdipDrawString(
+    void* graphics,
+    const wchar_t* string,
+    int length,
+    void* font,
+    void* layoutRect,
+    void* stringFormat,
+    void* brush
+) {
+    std::wstring ori(string, length);
+    std::wstring newstring = changeTextW(ori.c_str());
+    return TrueGdipDrawString(graphics, newstring.c_str(), newstring.length(), font, layoutRect, stringFormat, brush);
 }
 
 BOOL WINAPI HOOK_TextOutA_U8(
@@ -213,24 +282,36 @@ BOOL WINAPI HOOK_ExtTextOutA(HDC hdc, int X, int Y, UINT fuOptions, const RECT* 
 	if (lpString == NULL) {
 		return TrueExtTextOutA(hdc, X, Y, fuOptions, lprc, lpString, cbCount, lpDx);
 	}
-	std::wstring new_wstr = changeText(lpString);
-    /*LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
+
+
+
+	std::wstring new_wstr = changeText(std::string(lpString, cbCount));
+    LPCSTR new_str = WideStringToGBKLPCSTR(new_wstr);
     HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
     LOGFONTA logFont;
     GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
-    logFont.lfCharSet = 134;
-    HFONT hNewFont = CreateFontIndirectA(&logFont);
+    if (cbCount == 2 && lpString[0] == '\x81') {
+        logFont.lfCharSet = 128;
+        strcpy_s(logFont.lfFaceName, 11, "MS Gothic");
+        new_str = WideStringToSJISLPCSTR(new_wstr);
+    }
+    else {
+        logFont.lfCharSet = 134;
+        strcpy_s(logFont.lfFaceName, 5, "黑体");
+    }
+    HFONT hNewFont = GetNewFont(logFont);
     HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
 	auto res = TrueExtTextOutA(hdc, X, Y, fuOptions, lprc, new_str, strlen(new_str), lpDx);
     SelectObject(hdc, hOldFont);
-    DeleteObject(hNewFont);*/
-    auto res = ExtTextOutW(hdc, X, Y, fuOptions, lprc, new_wstr.c_str(), wcslen(new_wstr.c_str()), lpDx);
+    //DeleteObject(hNewFont);
+    //auto res = ExtTextOutW(hdc, X, Y, fuOptions, lprc, new_wstr.c_str(), wcslen(new_wstr.c_str()), lpDx);
 	return res;
 }
 
 DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMETRICS lpgm, DWORD cbBuffer, LPVOID lpvBuffer, const MAT2* lpmat2)
 {
     char bytes[3];
+
     UINT t = uChar;
     bytes[0] = static_cast<char>((t >> 8) & 0xFF);
     bytes[1] = static_cast<char>(t & 0xFF);
@@ -250,13 +331,15 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
     }
 
     std::string str(bytes);
+
+    std::cout << str;
     std::wstring wstr = sjisStringToWString(str);
     HFONT hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
     LOGFONTA logFont;
     GetObjectA(hFont, sizeof(LOGFONTA), &logFont);
     logFont.lfCharSet = 134;
     strcpy_s(logFont.lfFaceName, 5, "黑体");
-    HFONT hNewFont = CreateFontIndirectA(&logFont);
+    HFONT hNewFont = GetNewFont(logFont);
     HFONT hOldFont = (HFONT)SelectObject(hdc, hNewFont);
     if (charReplaceMap.find(wstr) != charReplaceMap.end()) {
         wstr = charReplaceMap[wstr];
@@ -264,15 +347,19 @@ DWORD WINAPI HOOK_GetGlyphOutlineA(HDC hdc, UINT uChar, UINT uFormat, LPGLYPHMET
     uChar = static_cast<UINT>(wstr.c_str()[0]);
     DWORD res = GetGlyphOutlineW(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
     SelectObject(hdc, hOldFont);
-    DeleteObject(hNewFont);
     return res;
-    //DWORD res = TrueGetGlyphOutlineA(hdc, uChar, uFormat, lpgm, cbBuffer, lpvBuffer, lpmat2);
-    //return res;
 }
 
 void install_hook_textreplace(int mode) {
+    if (mode == 7) {
+        HMODULE GDI = GetModuleHandleA("gdiplus.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GdipDrawString");
+            TrueGdipDrawString = reinterpret_cast<pGdipDrawString>(procAddress);
+        }
+    }
 #ifndef Release_for_others
-    charReplaceMap = readReplaceMap("rld\\data.bin", "ALyCE");
+    charReplaceMap = readReplaceMap("script\\replace.bin", "\0");
 #else
     charReplaceMap = readReplaceMap("replace.bin", "\0");
 #endif
@@ -293,11 +380,32 @@ void install_hook_textreplace(int mode) {
     else if (mode == 5) {
         DetourAttach(&(PVOID&)TrueTextOutW, HOOK_TextOutW);
     }
+    else if (mode == 6) {
+        HMODULE GDI = GetModuleHandleA("gdi32.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GetGlyphOutline");
+            DetourAttach(&(PVOID&)procAddress, HOOK_GetGlyphOutlineA);
+        }
+    }
+    else if (mode == 7) {
+        HMODULE GDI = GetModuleHandleA("gdiplus.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GdipDrawString");
+            DetourAttach(&(PVOID&)TrueGdipDrawString, HOOK_GdipDrawString);
+        }
+    }
 	DetourTransactionCommit();
 }
 
 void install_hook_textreplaceEx(int mode, std::string filepath, std::string key) {
     charReplaceMap = readReplaceMap(filepath, key);
+    if (mode == 7) {
+        HMODULE GDI = GetModuleHandleA("gdiplus.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GdipDrawString");
+            TrueGdipDrawString = reinterpret_cast<pGdipDrawString>(procAddress);
+        }
+    }
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     if (mode == 1) {
@@ -314,14 +422,37 @@ void install_hook_textreplaceEx(int mode, std::string filepath, std::string key)
     }
     else if (mode == 5) {
         DetourAttach(&(PVOID&)TrueTextOutW, HOOK_TextOutW);
+    }
+    else if (mode == 6) {
+        HMODULE GDI = GetModuleHandleA("gdi32.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GetGlyphOutline");
+            DetourAttach(&(PVOID&)procAddress, HOOK_GetGlyphOutlineA);
+        }
+    }
+    else if (mode == 7) {
+        HMODULE GDI = GetModuleHandleA("gdiplus.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GdipDrawString");
+            DetourAttach(&(PVOID&)TrueGdipDrawString, HOOK_GdipDrawString);
+        }
     }
     DetourTransactionCommit();
 }
 #ifndef MD
 void install_hook_textreplaceFromPackEx(int mode, std::string packpath, std::string filepath, std::string key) {
+    if (mode == 7) {
+        HMODULE GDI = GetModuleHandleA("gdiplus.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GdipDrawString");
+            TrueGdipDrawString = reinterpret_cast<pGdipDrawString>(procAddress);
+        }
+    }
     charReplaceMap = readReplaceMapFromPack(packpath, filepath, key);
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
+    DetourAttach(&(PVOID&)TrueGetTextExtentExPointA, HOOK_getTextExtentExPointA);
+	DetourAttach(&(PVOID&)TrueGetTextExtentPoint32A, Hook_getTextExtentPoint32A);
     if (mode == 1) {
         DetourAttach(&(PVOID&)TrueTextOutA, HOOK_TextOutA);
     }
@@ -337,6 +468,21 @@ void install_hook_textreplaceFromPackEx(int mode, std::string packpath, std::str
     else if (mode == 5) {
         DetourAttach(&(PVOID&)TrueTextOutW, HOOK_TextOutW);
     }
+    else if (mode == 6) {
+        HMODULE GDI = GetModuleHandleA("gdi32.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GetGlyphOutline");
+            DetourAttach(&(PVOID&)procAddress, HOOK_GetGlyphOutlineA);
+        }
+    }
+    else if (mode == 7) {
+        HMODULE GDI = GetModuleHandleA("gdiplus.dll");
+        if (GDI) {
+            FARPROC procAddress = GetProcAddress(GDI, "GdipDrawString");
+            DetourAttach(&(PVOID&)TrueGdipDrawString, HOOK_GdipDrawString);
+        }
+    }
     DetourTransactionCommit();
 }
+
 #endif

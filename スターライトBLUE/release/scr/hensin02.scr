@@ -1,0 +1,28 @@
+#変身シーン
+
+::START
+
+
+bgoff
+choff(-1)
+ud(1, 500)
+
+^if(%hensin_bgm == 1)	# 変身シーンでＢＧＭ変更するかどうか？
+	bgmoff(0, 700)		# ＢＧＭ終了
+	ud(1, 500)
+	bgmon("bgm17")		# ＢＧＭ再生
+^endi
+
+
+# ロード
+movie( "hensin02", 0, 0 )
+
+
+
+
+
+
+
+^ret
+
+::END

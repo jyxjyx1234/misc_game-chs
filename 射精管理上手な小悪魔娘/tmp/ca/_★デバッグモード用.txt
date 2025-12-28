@@ -1,0 +1,54 @@
+#z00
+
+
+
+
+
+command	$debug_tachi_img_file(property $filename : str,property $lineno) {	
+
+	if (system.check_debug_flag != 1) {front.object[498].init return}
+	
+	if (front.object[498].child.get_size == 0) { 			 				front.object[498].init 				front.object[498].child.resize(10) 				front.object[498].layer = 498 				front.object[498].disp = 1 			 			}
+
+	
+
+
+		
+	k[00] = "í èÌ"
+	
+
+
+	
+	front.object[498].child[1].create_string("ÉãÅ[ÉgÅF"+k[00],1,5,20)
+	front.object[498].child[1].set_string_param(12,0,0,0,0,15,2,15)
+	
+	
+
+
+
+
+
+	
+	front.object[498].wipe_copy = 1
+
+}
+
+
+command	$debug_common(property $str:str,property $ch) {
+
+		if (front.object[498].child.get_size == 0) {
+		
+			front.object[498].init
+			front.object[498].child.resize(10)
+			front.object[498].layer = 498
+			front.object[498].disp = 1
+		
+		}
+		
+		
+		front.object[498].child[$ch].create_string($str,1,5,100 + ($ch*15))
+		front.object[498].child[$ch].set_string_param(14,0,0,0,11,15,2,15)
+		
+		front.object[498].wipe_copy = 1
+		
+}

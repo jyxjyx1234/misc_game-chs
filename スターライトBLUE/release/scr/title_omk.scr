@@ -1,0 +1,134 @@
+::START
+
+#タイトル画面
+bgon("bk_ti3")
+
+%temp = 0		# 汎用パラメータ
+global(%end01,-1)	# 舞雪エンディング
+^if(%reg==1)
+	%temp += 1		# 汎用パラメータ
+^endi
+
+global(%end02,-1)	# 咲耶エンディング
+^if(%reg==1)
+	%temp += 1		# 汎用パラメータ
+^endi
+
+global(%end03,-1)	# ちゆりエンディング
+^if(%reg==1)
+	%temp += 1		# 汎用パラメータ
+^endi
+
+global(%end04,-1)	# 瑠璃エンディング
+^if(%reg==1)
+	%temp += 1		# 汎用パラメータ
+^endi
+
+
+
+
+#global(%ending,-1)	# エンディング
+#^if(%reg!=1)
+#	# 各ボタンのセット
+#	btnset(1,"btn_cg", 276, 302) #ＣＧ鑑賞
+#	btnset(2,"btn_h", 276, 359) #Ｈシーン回想
+#	btnset(3,"btn_bgm", 276, 416) #ＢＧＭ鑑賞
+#	btnset(5,"btn_ret", 276, 473) #もどる
+#	rbtn(5)
+#^else
+#	# 各ボタンのセット
+#	btnset(1,"btn_cg", 276, 302) #ＣＧ鑑賞
+#	btnset(2,"btn_h", 276, 359) #Ｈシーン回想
+#	btnset(3,"btn_bgm", 276, 416) #ＢＧＭ鑑賞
+#	btnset(5,"btn_ret", 276, 473) #もどる
+#	rbtn(5)
+##	# 各ボタンのセット
+##	btnset(1,"btn_cg", 276, 302) #ＣＧ鑑賞
+##	btnset(2,"btn_h", 276, 359) #Ｈシーン回想
+##	btnset(3,"btn_bgm", 276, 416) #ＢＧＭ鑑賞
+##	btnset(4,"btn_info", 276, 473) #エンディング情報
+##	btnset(5,"btn_ret", 276, 530) #もどる
+##	rbtn(5)
+#^endi
+
+#^if(%temp != 4)
+	# 各ボタンのセット
+	btnset(1,"btn_cg",   784, 160) #ＣＧ鑑賞
+	btnset(2,"btn_h",    731, 271) #Ｈシーン回想
+	btnset(3,"btn_bgm",  860, 386) #ＢＧＭ鑑賞
+	btnset(5,"btn_ret",  839, 500) #もどる
+	rbtn(5)
+#^else
+#	# 各ボタンのセット
+#	btnset(1,"btn_cg",   927, 242) #ＣＧ鑑賞
+#	btnset(2,"btn_h",    927, 332) #Ｈシーン回想
+#	btnset(3,"btn_bgm",  974, 426) #ＢＧＭ鑑賞
+#	btnset(4,"btn_info", 927, 505) #エンディング情報
+#	btnset(5,"btn_ret",  943, 600) #もどる
+#	rbtn(5)
+#^endi
+
+btnon(ALL)
+ud(0)
+
+# ボタンを選択させる
+btnenable
+btnreset(ALL)
+
+# ボタン処理
+^sw(%reg)
+	^case(1)
+		#ＣＧ鑑賞
+		float(3)
+	^case(2)
+		#Ｈシーン回想
+		^go(mode_h)
+	^case(3)
+		#ＢＧＭ鑑賞
+		float(5)
+	^case(4)
+		#ハーレムルート
+	 	#★★★初めからボイス
+		 rand(5)
+		 
+		^sw(%reg)
+		^case(0)
+			seon("aa_sys01")			# 非同期単発（システム用トラック）
+		^case(1)
+			seon("ab_sys01")			# 非同期単発（システム用トラック）
+		^case(2)
+			seon("ac_sys01")			# 非同期単発（システム用トラック）
+		^case(3)
+			seon("ad_sys01")			# 非同期単発（システム用トラック）
+		^case(4)
+			seon("ba_sys01")			# 非同期単発（システム用トラック）
+		^case(5)
+			seon("bb_sys01")			# 非同期単発（システム用トラック）
+		^df
+			seon("aa_sys02")			# 非同期単発（システム用トラック）
+		^ends
+
+		bgon("black")
+		ud(1, 500)
+		mode(1)
+		# セーブ可能、ロード可能
+		mode(0)
+		loadenable
+		saveenable
+		^gsb(WND_ADV)
+		mode(1)
+
+		bgoff
+		ud(1, 1000)
+		bgmoff(0, 700)		# ＢＧＭ終了
+
+		^gsb(main_har)
+	^case(5)
+		#メインメニューに戻る
+		^go(title_main)
+^ends
+
+^go(.START)
+
+::END
+

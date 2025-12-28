@@ -1,0 +1,103 @@
+System.inform("本补丁由jyxjyx1234制作，使用Claude-3.7-sonnet进行翻译，免费发布于jyxjyx1234的博客（jyxjyx1234.github.io)、御爱同萌（ai2.moe），禁止任何形式的收费转载。请仔细阅读README.md，如果补丁运行遇到问题，可发邮件至jyxjyx1234@outlook.com或通过御爱同萌站内信反馈。如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。");
+
+function setupSubFolders(list) {
+	var binds = %[], names = [];
+	for (var path, i = 0; i < list.count; i++) {
+		if ((path = list[i]) == "") continue;
+		var div = path.split("/");
+		var name = div[0];
+		if (name == "" || div.count <= 1) continue;
+		div.erase(0);
+		if (binds[name] === void) {
+			binds[name] = [];
+			names.add(name);
+		}
+		binds[name].add(div.join("/",,true));
+	}
+	for (var i = 0; i < names.count; i++) {
+		addArchiveWithSubFolder(names[i], binds[names[i]]*);
+	}
+}
+
+var archive_exists = %[];
+
+function addArchiveWithSubFolder(name, arr*)
+{
+	var arcname = System.exePath + name + ".xp3";
+	var isexist = archive_exists[name.toLowerCase()];
+	for (var i = 0; i < arr.count; i++) {
+		var sub = arr[i];
+		if (sub == "") continue;
+		Storages.addAutoPath(name    + "/" + sub + "/");
+		Storages.addAutoPath(arcname + ">" + sub + "/") if (isexist);
+	}
+}
+
+function addArchive(name)
+{
+	// 検索パスを設定しつつ，name.xp3 が存在していたらそのアーカイブを使う
+	Storages.addAutoPath(name + "/");
+	useArchiveIfExists(name);
+}
+
+
+
+//	パスの設定
+//	後に指定した物が、より優先されて使用される
+//  这个要替换原本的这个函数
+function useArchiveIfExists(name)
+{
+	// name を正規化
+	with (Storages) name = .chopStorageExt(.extractStorageName(name));
+	// name が存在していたらそのアーカイブを使う
+	var arcname = System.exePath + name + ".xp3";
+	if(Storages.isExistentStorage(arcname)) {
+		archive_exists[name.toLowerCase()] = true;
+		Storages.addAutoPath(arcname + ">");
+	}
+}
+
+---
+// 加在patch.xp3之前
+
+addArchive("data.xp3");
+Storages.addAutoPath("data/"); // data フォルダ
+{
+	// data以下のサブフォルダを登録
+	// もしこれらの名前を持ったアーカイブが実行可能ファイルと
+	// 同じ場所にあった場合、それを優先して使う
+	var subfolders = [
+			"cursor",
+			"image",
+			"mask",
+			"sound",
+			"thumbnail",
+			"voice",
+			"plugin",
+			"script",
+			"system",
+			"text"
+		];
+	for (var i = 0; i < subfolders.count; i++) {
+		var name = subfolders[i];
+		addArchive(name) if (name != "");
+	}
+}
+
+setupSubFolders([
+	"data/bgimage",
+	"data/bgm",
+	"data/image",
+	"data/k2compat",
+	"data/main",
+	"data/rule",
+	"data/scenario",
+	"data/scn",
+	"data/sound",
+	"data/sysscn",
+	"data/system",
+	"data/thum",
+	"data/uipsd",
+	"data/main/bugreport",
+	"data/scenario/staffroll",
+]);

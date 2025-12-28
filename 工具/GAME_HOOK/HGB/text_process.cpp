@@ -5,53 +5,25 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include "hook_def.h"
+#include "CHS_PACK_LIB.h"
 
 int retAddAddr = 5;
-
 DWORD originalFuncAddr;
 DWORD returnAddress;
 DWORD oriFunc;
 
-std::string enc = "HelloGoodBye";
-
-//typedef int (WINAPI* pOriReadFile)(char* outBuffer, char* packageName, char* fileName);
-//pOriReadFile OriReadFile = (pOriReadFile)0x446060;
-//
-//int CustomReadFile(char* outBuffer, char* packageName, char* fileName) {
-//    auto res = OriReadFile(outBuffer, packageName, fileName);
-//    std::string filePath = "trans\\" + std::string(fileName);
-//    if (std::filesystem::exists(filePath)) {
-//        std::ifstream file(filePath, std::ios::binary);
-//        if (file) {
-//            file.seekg(0, std::ios::end);
-//            std::streamsize size = file.tellg();
-//            file.seekg(0, std::ios::beg);
-//            if (size > 0 && file.read(outBuffer, size)) {
-//                for (int i = 0; i < size; i++) {
-//                    *(BYTE*)(outBuffer + i) ^= enc[i % enc.size()];
-//                }
-//                res = size;
-//            }
-//        }
-//    }
-//	return res;
-//}
+INIT_PACK_INFO("HGB_CHS.CPK", "HelloGoodBye")
 
 void CustomReadFile(char** outBuffer, char** packageName, char** fileName, int* eax) {
-    std::string filePath = "trans\\" + std::string(*fileName);
-    if (std::filesystem::exists(filePath)) {
-        std::ifstream file(filePath, std::ios::binary);
-        if (file) {
-            file.seekg(0, std::ios::end);
-            std::streamsize size = file.tellg();
-            file.seekg(0, std::ios::beg);
-            if (size > 0 && file.read(*outBuffer, size)) {
-                for (int i = 0; i < size; i++) {
-                    *(BYTE*)(*outBuffer + i) ^= enc[i % enc.size()];
-                }
-				*eax = size;
-            }
-        }
+    //std::string filePath = "trans\\" + std::string(*fileName);
+    if (strstr(*packageName, "syssnd") != NULL) {
+        return;
+    }
+    if (CustomPack::isInPack(packname, std::string(*fileName))) {
+        std::string filedata = CustomPack::getFile(packname, enc, *fileName);
+        memcpy(*outBuffer, filedata.c_str(), filedata.size());
+        *eax = filedata.size();
     }
 }
 
@@ -78,7 +50,6 @@ void __declspec(naked) replace_file() {
     }
 }
 
-
 void InstallHook_replacetext()
 {
     DWORD oldProtect;
@@ -91,13 +62,7 @@ void InstallHook_replacetext()
     *(DWORD*)(originalFuncAddr + 1) = (DWORD)replace_file - originalFuncAddr - 5;
     VirtualProtect((LPVOID)originalFuncAddr, 5, oldProtect, &oldProtect);
 
-
-    //DetourTransactionBegin();
-    //DetourUpdateThread(GetCurrentThread());
-    //DetourAttach(&(PVOID&)OriReadFile, CustomReadFile);
-    //DetourTransactionCommit();
-
-    install_hook_textreplaceEx(1, "trans\\data2.bin", enc);
+    install_hook_textreplaceFromPackEx(1, packname, "data2.bin", enc);
     newFontName = L"SimHei";
     HeightScaleFactor = 90;
     WidthScaleFactor = 75;

@@ -1,0 +1,111 @@
+//	コンフィグ画面設定
+
+//	背景
+//		ページ毎の背景
+//		page	image				x y
+image:	system	config_base_system	0 0
+image:	sound	config_base_sound	0 0
+
+//	ボタン
+//		page:
+//			all		全てのページで表示される
+//			system	システム設定画面で表示される
+//			sound	サウンド設定画面で表示される
+//		tag:
+//			system				システム設定画面に切り替え
+//			sound				サウンド設定画面に切り替え
+//			fullscreen:false	ウィンドウモード
+//			fullscreen:true		フルスクリーンモード
+//			movieoff:false		ムービーを再生する
+//			movieoff:true		ムービーを再生しない
+//			effectoff:fasle		画面効果を実行する
+//			effectoff:true		画面効果を実行しない
+//			skipoff:false		選択後のスキップを継続する
+//			skipoff:true		選択後のスキップを停止する
+//			autooff:false		選択後のオートを継続する
+//			autooff:true		選択後のオートを停止する
+//			kidokuoff:false		既読メッセージのみスキップ
+//			kidokuoff:true		全てのメッセージをスキップ
+//			righthide			右クリックをウィンドウ消去にする
+//			rightlog			右クリックをログ表示にする
+//			rightconfig			右クリックをコンフィグ表示にする
+//			systemreset			初期設定に戻す(system)
+//			systemreturn		Config終了
+//
+//			messagespeed		メッセージ速度の変更
+//			autospeed			オートモードの速度変更
+//
+//			voiceoff_aaa:false	aaaから始まる音声ファイルを再生する(#voiceコマンド)
+//			voiceoff_aaa:true	aaaから始まる音声ファイルを再生しない(#voiceコマンド)
+//								ここで未設定のファイルは(初期値がfalseの為)再生される
+//			voicecut:false		文章送り時に音声を継続
+//			voicecut:true		文章送り時に音声を停止
+//			soundreset			初期設定に戻す(sound)
+//			soundreturn			Config終了
+//
+//			mastervolume		マスター音量
+//			bgmvolume			BGM音量
+//			sevolume			SE音量
+//			voicevolume			Voice音量
+//
+//		image:
+//			ボタン画像
+//		baseimage:
+//			スライダのベース画像
+//		pinimage:
+//			スライダのつまみ画像
+//		x,y:
+//			表示座標
+//		cursor:
+//			マウスオーバー時のカーソル形状
+//			voidを指定するとsetting.txtで指定したデフォルトのまま変更しない
+
+//		page	tag					image				x	y	overSE	downSE	cursor
+button:	all		system				config_system		852	 80	void	void	void
+button:	all		sound				config_sound		1012	 80	void	void	void
+button:	system	fullscreen:false	config_window		180	220	void	void	void
+button:	system	fullscreen:true		config_fullscreen	340	220	void	void	void
+button:	system	movieoff:false		config_on			180	292	void	void	void
+button:	system	movieoff:true		config_off			340	292	void	void	void
+button:	system	effectoff:false		config_on			180	364	void	void	void
+button:	system	effectoff:true		config_off			340	364	void	void	void
+button:	system	kidokuoff:false		config_kidoku			180	436	void	void	void
+button:	system	kidokuoff:true		config_midoku			340	436	void	void	void
+button:	system	skipoff:true		config_on			180	508	void	void	void
+button:	system	skipoff:false		config_off			340	508	void	void	void
+button:	system	autooff:true		config_on			180	580	void	void	void
+button:	system	autooff:false		config_off			340	580	void	void	void
+button:	system	righthide		config_hide			692	364	void	void	void
+button:	system	rightlog		config_log			852	364	void	void	void
+button:	system	rightconfig		config_config			1012	364	void	void	void
+button:	system	systemreset		config_reset			1012	508	void	void	void
+//button:	system	systemreturn		config_return		820	480	void	void	void
+button:	system	systemreturn		title_return_b		940	650	void	void	void
+
+//		page	tag				baseimage			pinimage			  x	  y	overSE	downSE	cursor
+slider:	system	messagespeed		config_slider_base	config_slider_pin	692 220	void	void	void
+slider:	system	autospeed		config_slider_base	config_slider_pin	692 292	void	void	void
+
+//	voiceoffをひとつのボタンで変更するときは :true、:falseを省略して image2 を設定する
+//		page	tag					image				  x	  y	overSE	downSE	cursor
+//button:	sound	voiceoff_aaa:false	config_smallon		970	240	void	void	void
+//button:	sound	voiceoff_aaa:true	config_smalloff		1072	240	void	void	void
+//button:	sound	voiceoff_bbb:false	config_smallon		970	288	void	void	void
+//button:	sound	voiceoff_bbb:true	config_smalloff		1072	288	void	void	void
+
+slider: sound charvolume_yur config_slider_base2 config_slider_pin 892 240 void void void horizontal
+slider: sound charvolume_ris config_slider_base2 config_slider_pin 892 288 void void void horizontal
+
+
+//button:	sound	voiceoff_ccc:false	config_smallon		740	210	void	void	void
+//button:	sound	voiceoff_ccc:true	config_smalloff		860	210	void	void	void
+button:	sound	voicecut:false		config_voicecutoff	852	436	void	void	void
+button:	sound	voicecut:true		config_voicecuton	1012	436	void	void	void
+button:	sound	soundreset		config_reset		1012	508	void	void	void
+button:	sound	soundreturn		title_return_b		940	650	void	void	void
+
+//		page	tag				baseimage			pinimage			  x	  y	overSE	downSE	cursor
+slider:	sound	mastervolume		config_slider_base	config_slider_pin	 214 220	void
+slider:	sound	bgmvolume		config_slider_base	config_slider_pin	 214 292	void	void	void
+slider:	sound	sevolume		config_slider_base	config_slider_pin	 214 364	void	void	void
+slider:	sound	voicevolume		config_slider_base	config_slider_pin	 214 436	void	void	void

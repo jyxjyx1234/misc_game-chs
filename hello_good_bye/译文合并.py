@@ -35,7 +35,7 @@ h.hanzidict["・"] = "·"
 h.source_chars += "・"
 h.target_chars += "·"
 os.makedirs("release\\trans", exist_ok=True)
-h.gen_replace("release\\trans\\data2.bin", enc=b"HelloGoodBye")
+h.gen_replace("release\\trans\\data2.bin")
 
 
 notfound = {}
@@ -94,7 +94,7 @@ for filename in ori_filenames:
         orifile[orifileHeaderLen + commandoffset:orifileHeaderLen + commandoffset + 4] = dic[ori_offset]
 
     orifile = bytes(orifile) + texts
-    save_file_b("release\\trans\\" + filename.replace(".txt", ""), orifile, enc = b"HelloGoodBye")
+    save_file_b("release\\trans\\" + filename.replace(".txt", ""), orifile)
 
 save_json("notfound.json", notfound)
 

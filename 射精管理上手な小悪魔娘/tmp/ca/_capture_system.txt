@@ -1,0 +1,96 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+switch(g[0020]) {
+
+	case(0) $capture_system(0)
+	case(1) $capture_system(1)
+	
+}
+
+return
+
+
+
+
+
+command $capture_system(property $mode) {
+
+
+
+
+
+key.clear
+
+$ichiji_capture_flag = g[0022]
+g[0022] = 0
+
+
+if ($mode == 1) {
+
+	syscom.set_hide_mwnd_onoff_flag(1)
+	
+}
+
+front.object[499].init
+
+k[00] = "capture_" + math.tostr_zero(g[0021],4)
+
+front.object[300].create(a0_overlap,1,0,0)
+front.object[300].order = 9999999
+
+syscom.create_capture_buffer(1920,1080)
+syscom.capture_and_save_buffer_to_png(0,0,k[00])
+
+
+
+syscom.destroy_capture_buffer
+
+g[0021] = (g[0021] + 1) % 10000
+
+
+
+timewait(1000)
+
+
+g[0022] = $ichiji_capture_flag
+
+front.object[300].init
+
+
+if ($mode == 1) {
+
+	syscom.set_hide_mwnd_onoff_flag(0)
+	
+}
+
+$system_message("◆画面をキャプチャーし、#Dsavedataフォルダに保存しました。",30)
+
+
+}
+
+
+
+
+
+
+
+

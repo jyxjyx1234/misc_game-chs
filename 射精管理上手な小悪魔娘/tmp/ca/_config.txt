@@ -1,0 +1,1602 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $set_color_bar( property $obj : object, property $len )
+{
+	$obj.set_src_clip(1, 0, 0, $len, 10)
+}
+
+
+command $set_value2slider_all()
+{
+	property $loop
+
+	for( $loop=0, $loop<$slider_value.get_size, $loop+=1 ){
+		$set_value2slider( $loop )
+	}
+}
+
+command $set_slider2value_all()
+{
+	property $loop
+
+	for( $loop=0, $loop<$slider_value.get_size, $loop+=1 ){
+		$set_value2slider( $loop )
+	}
+}
+
+
+
+
+command $set_value2slider( property $no )
+{
+	property $value
+
+	switch( $no ){
+		case( 0 )		
+			$value = math.linear( syscom.get_message_speed, 100, 0, 0, 856 )
+		case( 1 )		
+			$value = math.linear( syscom.get_filter_color_a, 0, 0, 255, 856 )
+		case( 2 )			
+			$value = math.linear( syscom.get_auto_mode_moji_wait, 500, 0, 0, 856 )
+
+
+		case( 4 )
+			$value = math.linear( syscom.get_all_volume                  , 0, 0, 255, 856 )
+		case( 5 )
+			$value = math.linear( syscom.get_bgm_volume                  , 0, 0, 255, 856 )
+		case( 6 )
+			$value = math.linear( syscom.get_koe_volume                  , 0, 0, 255, 856 )
+		case( 7 )
+			$value = math.linear( syscom.get_pcm_volume                  , 0, 0, 255, 856 )
+		case( 8 )
+			$value = math.linear( syscom.get_se_volume                   , 0, 0, 255, 856 )
+		case( 9 )
+			$value = math.linear( syscom.get_sound_volume(16)   , 0, 0, 255, 856 )
+		case( 10 )
+			$value = math.linear( syscom.get_mov_volume                  , 0, 0, 255, 856 )
+	}
+
+	$slider_value[$no] = $value
+
+}
+
+
+command $set_slider2value( property $no )
+{
+	property $value
+
+	$value = $slider_value[$no]
+
+	switch( $no ){
+		case( 0 )		
+			syscom.set_message_speed( math.linear( $value, 0, 100, 856, 0 ) )
+		case( 1 )		
+			syscom.set_filter_color_a( math.linear( $value, 0, 0, 856, 255 ) )
+		case( 2 )		
+			syscom.set_auto_mode_moji_wait( math.linear( $value, 0, 500, 856, 0 ) )
+			syscom.set_auto_mode_min_wait(  math.linear( $value, 0, 5000, 856, 0 ) )	
+
+
+		case( 4 )
+			syscom.set_all_volume( math.linear( $value, 0, 0, 856, 255 ) )
+		case( 5 )
+			syscom.set_bgm_volume( math.linear( $value, 0, 0, 856, 255 ) )
+		case( 6 )
+			syscom.set_koe_volume( math.linear( $value, 0, 0, 856, 255 ) )
+		case( 7 )
+			syscom.set_pcm_volume( math.linear( $value, 0, 0, 856, 255 ) )
+		case( 8 )
+			syscom.set_se_volume( math.linear( $value, 0, 0, 856, 255 ) )
+		case( 9 )
+			syscom.set_sound_volume(16, math.linear( $value, 0, 0, 856, 255 ) )
+			switch(g[0065]){                                          case(0)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 90 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 90 / 100)                      case(1)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 60 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 70 / 100)                      case(2)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16))                         syscom.set_sound_volume(18, syscom.get_sound_volume(16))                         syscom.set_sound_volume(19, syscom.get_sound_volume(16))                                           }
+		case( 10 )
+			syscom.set_mov_volume( math.linear( $value, 0, 0, 856, 255 ) )
+	}
+
+}
+
+
+command $make_slider( property $obj:object, property $xpos, property $ypos, property $btn_no1 , property $btn_no2, property $value )
+{
+	$obj.init
+	$obj.disp = 1
+	$obj.x = $xpos
+	$obj.y = $ypos
+	$obj.child.resize(3)
+
+	$obj.child[00].create(__sys_config_slider_bar, 1, 0, 0,  0 )		
+	$obj.child[01].create(__sys_config_slider_bar, 1, 0, 0, 10 )		
+	$obj.child[02].create(__sys_config_slider_btn, 1, 0, 0-21+3 )		
+	$obj.child[02].x = $value - 14
+
+	$obj.child[00].set_button( $btn_no1, 0, 54, 005 )	
+	$obj.child[02].set_button( $btn_no2, 0, 24, 005 )
+	$obj.child[02].set_button_pushkeep(1) 
+
+	$obj.child[01].set_src_clip(1, 0, 0, $value + 25, 10)
+
+}
+
+command $make_tab_button( property $obj:object, property $file:str, property $xpos, property $ypos, property $btn_no, property $flag )
+{
+	$obj.create( $file, 1, $xpos, $ypos )
+	$obj.set_button( $btn_no, 0, 24, 001 )
+	if( $flag == 0 ){
+		$obj.set_button_state_select
+	}
+}
+
+command $make_button( property $obj:object, property $file:str, property $xpos, property $ypos, property $btn_no, property $flag )
+{
+	$obj.create( $file, 1, $xpos, $ypos )
+	$obj.set_button( $btn_no, 0, 24, 001 )
+	if( $flag == 0 ){
+		$obj.set_button_state_disable
+	}
+}
+
+command $make_check_box( property $obj:object, property $xpos, property $ypos, property $btn_no, property $btn_group, property $flag )
+{	
+	$obj.create( __sys_config_check, 1, $xpos, $ypos )
+	$obj.set_button( $btn_no, $btn_group, 24, 005 )
+	if( $flag != 0 ){
+		$obj.patno = 10
+	}
+}
+
+
+command $update_automode_time( property $stage : stage )
+{
+	$stage.object[0].child[34].set_number( syscom.get_auto_mode_moji_wait/10 )
+	$stage.object[0].child[35].set_number( (syscom.get_auto_mode_min_wait/1000) )
+	$stage.object[0].child[36].set_number( (syscom.get_auto_mode_min_wait%1000)/100 )
+}
+
+command $update_message_sample( property $stage : stage )
+{
+	$stage.object[0].child[37].tr = syscom.get_filter_color_a
+}
+
+
+command $sample_string_fa( property $fa : frameaction, property $obj : object )
+{
+	property $msg : str
+	property $count
+	property $max_time
+
+	$msg  = "メッセージウィンドウのサンプル　　　　　"
+	$max_time = syscom.get_message_speed * $msg.len
+
+	if( $max_time == 0 || syscom.get_message_nowait ){
+		$obj.set_string( $msg )
+	}
+	else{
+		$count = math.linear($fa.counter.get % $max_time, 0, 0, $max_time, $msg.len )
+		$obj.set_string( $msg.left($count) )
+	}
+
+}
+
+
+
+
+
+command $config_menu_make_grp( property $stage : stage )
+{
+	property $loop
+	property $cont
+	property $value
+
+	$stage.objbtngroup[0].init
+
+	
+	$stage.object[0].init
+	$stage.object[0].disp = 1
+	$stage.object[0].child.resize( 100 )
+
+
+
+	
+	$make_tab_button( $stage.object[0].child[01], __sys_config_tab01, 1093+266*0, 27, 0, $config_page != 0 )							
+	$make_tab_button( $stage.object[0].child[02], __sys_config_tab02, 1093+266*1, 27, 1, $config_page != 1 )							
+	$make_tab_button( $stage.object[0].child[03], __sys_config_tab03, 1093+266*2, 27, 2, $config_page != 2 )							
+	$make_button( $stage.object[0].child[89], __sys_config_exit, 1790, 955, 999, 1 )							
+
+
+	if( $config_page == 0 ){		
+		$stage.object[0].child[00].create(__sys_config_base01,     1)		
+		$stage.object[0].child[00].layer = -1
+
+		
+		$make_check_box( $stage.object[0].child[10],  650, 187, 10, 0,syscom.get_window_mode   )				
+		$make_check_box( $stage.object[0].child[11], 1043, 187, 11, 0,syscom.get_window_mode^1 )				
+		$make_button( $stage.object[0].child[12], __sys_config_ham, 1380, 181, 12, 1 )					
+		$make_button( $stage.object[0].child[13], __sys_config_init, 1725, 187, 13, 1 )					
+
+		
+		$make_check_box( $stage.object[0].child[20],  650, 365, 20, 0,syscom.get_message_nowait )				
+		$make_check_box( $stage.object[0].child[21], 1043, 365, 21, 0,syscom.get_skip_unread_message_onoff)		
+		$make_slider( $stage.object[0].child[23], 714, 312, 22, 23, $slider_value[0] )		
+		$make_button( $stage.object[0].child[24], __sys_config_init, 1725, 297, 29, 1 )					
+
+		
+		$make_slider( $stage.object[0].child[31], 714, 483, 30, 31, $slider_value[1] )		
+		$make_button( $stage.object[0].child[32], __sys_config_init, 1725, 467, 39, 1 )					
+		$stage.object[0].child[36].create( __sys_config_sample,0,700,537 )
+		$stage.object[0].child[37].create_rect( 0,0,700,180,0,0,0,255,0,700,537 )
+		$stage.object[0].child[38].create_string( "",0,700+34*3,507+73 )
+		$stage.object[0].child[38].set_string_param( 34, 1, 5, 30, 0, 1, 2, 1 )
+
+		$stage.object[0].child[36].layer = 1
+		$stage.object[0].child[37].layer = 1
+		$stage.object[0].child[38].layer = 1
+		$stage.object[0].child[38].frame_action.start( -1, "$sample_string_fa" )
+		$update_message_sample( $stage )
+
+		
+		$make_slider( $stage.object[0].child[40], 714, 597, 40, 41, $slider_value[2] )		
+		$make_button( $stage.object[0].child[42], __sys_config_init, 1725, 581, 49, 1 )					
+
+		
+		
+		
+		
+
+		
+		
+		
+
+		
+
+		
+		$make_check_box( $stage.object[0].child[60],  284    , 785    , 60, 0,g[2110]^1   )				
+		$make_check_box( $stage.object[0].child[61],  284+498, 785    , 61, 0,g[2111]^1   )				
+		$make_check_box( $stage.object[0].child[62],  284    , 785+60 , 62, 0,g[2112]^1    )				
+		$make_check_box( $stage.object[0].child[63],  284+498, 785+60 , 63, 0,g[2113]^1    )				
+		$make_check_box( $stage.object[0].child[64],  284+996, 785+60 , 64, 0,g[2114]^1 )				
+		$make_check_box( $stage.object[0].child[65],  284    , 785+120, 65, 0,g[2115]^1  )				
+		$make_check_box( $stage.object[0].child[66],  284+498, 785+120, 66, 0,g[2116]^1   )				
+		$make_check_box( $stage.object[0].child[67],  284+996, 785+120, 67, 0,g[2117]^1    )				
+		
+		$make_button( $stage.object[0].child[69], __sys_config_init, 1725, 720, 69, 1 )					
+	}
+	elseif( $config_page == 1 ){ 
+		$stage.object[0].child[00].create(__sys_config_base02,     1)		
+		$stage.object[0].child[00].layer = -1
+
+		$make_check_box( $stage.object[0].child[10], 530, 183-12, 201, 0,syscom.get_all_onoff   )	
+		$make_check_box( $stage.object[0].child[11], 530, 291-12, 202, 0,syscom.get_bgm_onoff   )	
+		$make_check_box( $stage.object[0].child[12], 530, 400-12, 203, 0,syscom.get_koe_onoff   )	
+		$make_check_box( $stage.object[0].child[13], 530, 509-12, 204, 0,syscom.get_pcm_onoff   )	
+		$make_check_box( $stage.object[0].child[14], 530, 618-12, 205, 0,syscom.get_se_onoff    )	
+		$make_check_box( $stage.object[0].child[15], 530, 726-12, 206, 0,(g[0060] + 1 )% 2)	
+		$make_check_box( $stage.object[0].child[16], 530, 834-12, 207, 0,syscom.get_mov_onoff   )	
+		$make_check_box( $stage.object[0].child[18], 197, 904   , 208, 0,syscom.get_bgmfade_onoff   )	
+		$make_check_box( $stage.object[0].child[19], 835, 904   , 209, 0,syscom.get_koe_dont_stop_onoff  )	
+		$make_check_box( $stage.object[0].child[20], 197, 966   , 210, 0,syscom.get_play_silent_sound_onoff   )	
+		$make_button( $stage.object[0].child[21], __sys_config_init, 1590, 904, 211, 1 )					
+
+		$make_slider( $stage.object[0].child[30], 714 ,183, 230, 231, $slider_value[4] )		
+		$make_slider( $stage.object[0].child[31], 714, 291, 232, 233, $slider_value[5] )		
+		$make_slider( $stage.object[0].child[32], 714, 400, 234, 235, $slider_value[6] )		
+		$make_slider( $stage.object[0].child[33], 714, 509, 236, 237, $slider_value[7] )		
+		$make_slider( $stage.object[0].child[34], 714, 618, 238, 239, $slider_value[8] )		
+		$make_slider( $stage.object[0].child[35], 714, 726, 240, 241, $slider_value[9] )		
+		$make_slider( $stage.object[0].child[36], 714, 834, 242, 243, $slider_value[10] )		
+
+		$make_button( $stage.object[0].child[39], __sys_config_ham , 1684, 400-16, 245, 1 )	
+
+		$make_button( $stage.object[0].child[40], __sys_config_init, 1750, 183-16, 251, 1 )	
+		$make_button( $stage.object[0].child[41], __sys_config_init, 1750, 291-16, 252, 1 )	
+		$make_button( $stage.object[0].child[42], __sys_config_init, 1750, 400-16, 253, 1 )	
+		$make_button( $stage.object[0].child[43], __sys_config_init, 1750, 509-16, 254, 1 )	
+		$make_button( $stage.object[0].child[44], __sys_config_init, 1750, 618-16, 255, 1 )	
+		$make_button( $stage.object[0].child[45], __sys_config_init, 1750, 726-16, 256, 1 )	
+		$make_button( $stage.object[0].child[46], __sys_config_init, 1750, 834-16, 257, 1 )	
+
+		$make_button( $stage.object[0].child[47], __sys_config_ham , 1684, 726-16, 258, 1 )	
+
+	}
+	elseif( $config_page == 2 ){ 
+		$stage.object[0].child[00].create(__sys_config_base03,     1)		
+		$stage.object[0].child[00].layer = -1
+
+		
+		$make_check_box( $stage.object[0].child[10],  650, 187+80*0, 310, 0,g[0026])
+		$make_check_box( $stage.object[0].child[11], 1043, 187+80*0, 311, 0,g[0027])
+		$make_check_box( $stage.object[0].child[12],  650, 187+80*1, 312, 0,g[0028])
+		
+		
+		$make_check_box( $stage.object[0].child[13],  650, 397+80*0, 313, 0,g[0022])
+		
+		
+		$make_check_box( $stage.object[0].child[14],  650, 607+80*0, 314, 0,g[0024])
+		$make_check_box( $stage.object[0].child[17],  650, 607+80*1, 317, 0,g[0025])
+		$make_button( $stage.object[0].child[18], __sys_config_ham , 1043 - 5, 607+80*1, 318, 1 )	
+		$make_check_box( $stage.object[0].child[15],  650, 607+80*2, 315, 0,(g[0014] + 1) % 2)
+		$make_check_box( $stage.object[0].child[16], 1043, 607+80*2, 316, 0,g[0016])
+
+
+		
+		$make_button( $stage.object[0].child[30], __sys_config_init, 1725, 147, 399, 1 )					
+
+		
+		$make_button( $stage.object[0].child[40], __sys_config_default ,206, 900, 400, 1 )					
+
+
+	}
+
+}
+
+
+
+command $push_slider( property $base_x, property $base_y, property $obj:object, property $no )
+{
+	property $mouse_click
+	property $mouse_posx
+	property $mouse_posy
+	property $btn_x_bak
+	property $xpos
+	property $res
+
+	$btn_x_bak = $obj.child[02].x  + 14
+
+	while(1){
+		$mouse_click = excall.front.objbtngroup[0].get_decided_no
+		$mouse_posx = mouse.get_pos_x
+		$mouse_posy = mouse.get_pos_y
+
+		$res = math.limit( 0, $btn_x_bak + $mouse_posx - $base_x, 856 )
+		$obj.child[02].x = $res - 14
+		$set_color_bar( $obj.child[1], $res )
+
+		$slider_value[$no] = $res
+		$set_slider2value( $no )		
+		if( $no == 2 || $no == 3 ){
+			$update_automode_time( excall.front )
+		}
+		elseif( $no == 1 || $no == 0 ){
+			$update_message_sample( excall.front )
+		}
+
+		if( $mouse_click == -1 ){	
+			break
+		}
+		if( $mouse_click >= 0 ){	
+			break
+		}
+		input.next
+		disp
+	}
+	$slider_value[$no] = $res
+}
+
+
+command $click_slider( property $base_x, property $base_y, property $obj:object, property $no )
+{
+	property $res
+
+	if( $base_x < $obj.x + $obj.child[2].x ){	
+		$res = -1
+	}
+	else{
+		$res = 1
+	}
+	$res = math.limit( 0, $slider_value[$no] + ($res*856*20/100), 856 )
+
+	$obj.child[02].x = $res - 14
+	$set_color_bar( $obj.child[1], $res )
+	$slider_value[$no] = $res
+	$set_slider2value( $no )		
+	if( $no == 2 || $no == 3 ){
+		$update_automode_time( excall.front )
+	}
+	elseif( $no == 1 || $no == 0 ){
+		$update_message_sample( excall.front )
+	}
+
+	$slider_value[$no] = $res
+}
+
+
+
+
+command $config_menu_main()
+{
+	property $mouse_click
+	property $mouse_push
+	property $mouse_hit
+	property $mouse_posx
+	property $mouse_posy
+	property $mouse_wheel
+	property $value
+
+	$config_page = g[2130]
+
+	if( excall.check_alloc == 0 ){
+		
+		return( 0 )
+	}
+
+	$set_value2slider_all()		
+
+#pagechange
+	g[2130] = $config_page
+	$config_menu_make_grp( excall.back )
+	wipe( 0, 200 )
+	disp
+
+#initstart
+	$config_menu_make_grp( excall.front )
+
+#mainloop
+	excall.front.objbtngroup[0].start_cancel
+	input.clear
+	while(1){
+		$mouse_click = excall.front.objbtngroup[0].get_decided_no
+		$mouse_push = excall.front.objbtngroup[0].get_pushed_no
+		$mouse_hit = excall.front.objbtngroup[0].get_hit_no
+		$mouse_posx = mouse.get_pos_x
+		$mouse_posy = mouse.get_pos_y
+		$mouse_wheel = mouse.wheel
+
+		
+		
+		if( $config_page == 0 ){
+			if( $mouse_posy >= 288 && $mouse_posy <= 530 ){
+				excall.front.object[0].child[36].disp = 1
+				excall.front.object[0].child[37].disp = 1
+				excall.front.object[0].child[37].tr = syscom.get_filter_color_a
+				excall.front.object[0].child[38].disp = 1
+			}
+			else{
+				excall.front.object[0].child[36].disp = 0
+				excall.front.object[0].child[37].disp = 0
+				excall.front.object[0].child[38].disp = 0
+			}
+		}
+
+
+		
+		
+		switch($mouse_hit){
+
+			case( 0 )	$help_text(excall.front.object[495],dl,"システム設定のタブを開きます。")	
+			case( 1 )	$help_text(excall.front.object[495],dl,"サウンド設定のタブを開きます。")		
+			case( 2 )	$help_text(excall.front.object[495],dl,"その他設定のタブを開きます。")	
+			case( 999 )	$help_text(excall.front.object[495],dl,"ひとつ前の画面に戻ります。")	
+
+
+			case( 10 )	$help_text(excall.front.object[495],dl,"全画面表示（フルスクリーン）に切り替えます。")	
+			case( 11 )	$help_text(excall.front.object[495],dl,"ウィンドウモードに切り替えます。")		
+			case( 12 )	$help_text(excall.front.object[495],dl,"解像度など、画面に関する詳細設定です。")		
+			case( 13 )	$help_text(excall.front.object[495],dl,"ウィンドウモードの大きさを初期値にリセットします。#D意図せずウィンドウを拡縮してしまい、画像がボヤけてしまった場合などにお試しください。")		
+
+			case( 20 )	$help_text(excall.front.object[495],dl,"テキストを瞬間表示にします。")				
+			case( 21 )	$help_text(excall.front.object[495],dl,"読んでないテキストもスキップできるようになります。")			
+			case( 22 )	$help_text(excall.front.object[495],dl,"テキストの表示スピードの設定です。")			
+			case( 29 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")			
+			case( 30 )	$help_text(excall.front.object[495],dl,"メッセージウィンドウの透過度の設定です。")			
+			case( 39 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")		
+			case( 40 )	$help_text(excall.front.object[495],dl,"オートモードの速度の設定です。")		
+
+
+
+			case( 49 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")		
+			case( 60 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")	
+			case( 61 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")	
+			case( 62 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")	
+			case( 63 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")		
+			case( 64 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")		
+			case( 65 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")		
+			case( 66 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")		
+			case( 67 )	$help_text(excall.front.object[495],ur,"確認ウィンドウを表示します。")		
+			
+			case( 69 )	$help_text(excall.front.object[495],dl,"確認ウィンドウの項目をリセットします。")	
+
+			
+
+			case( 201 )	$help_text(excall.front.object[495],dr,"チェックを外すとミュートになります。")	
+			case( 202 )	$help_text(excall.front.object[495],dr,"チェックを外すとミュートになります。")	
+			case( 203 )	$help_text(excall.front.object[495],dr,"チェックを外すとミュートになります。")	
+			case( 204 )	$help_text(excall.front.object[495],dr,"チェックを外すとミュートになります。")	
+			case( 205 )	$help_text(excall.front.object[495],dr,"チェックを外すとミュートになります。")	
+			case( 206 )	$help_text(excall.front.object[495],dr,"チェックを外すとミュートになります。")	
+			case( 207 )	$help_text(excall.front.object[495],dr,"チェックを外すとミュートになります。")	
+
+			case( 208 )	$help_text(excall.front.object[495],dr,"音声再生時にBGMの音量を自動で下げる機能をＯＮにします。")	
+			case( 209 )	$help_text(excall.front.object[495],ur,"音声を再生中に次の文章に進んでも再生が続くようになります。")	
+			case( 210 )	$help_text(excall.front.object[495],ur,"サウンド再生時に雑音が入る場合はチェックを入れると#D動作が改善される場合があります。")	
+			case( 211 )	$help_text(excall.front.object[495],ur,"その他サウンド項目をリセットします。")	
+
+			case( 230 )	$help_text(excall.front.object[495],dr,"マスターボリュームの設定です。")	
+			case( 232 )	$help_text(excall.front.object[495],dr,"ＢＧＭの音量の設定です。")	
+			case( 234 )	$help_text(excall.front.object[495],dr,"音声音の量の設定です。")	
+			case( 236 )	$help_text(excall.front.object[495],dr,"効果音の音量の設定です。")	
+			case( 238 )	$help_text(excall.front.object[495],dr,"システム音の音量の設定です。")	
+			case( 240 )	$help_text(excall.front.object[495],ur,"バックグラウンドボイス(BGV)＆サウンドの音量の設定です。")	
+			case( 242 )	$help_text(excall.front.object[495],ur,"ムービーの音量の設定です。")	
+			case( 245 )	$help_text(excall.front.object[495],dl,"キャラごとの音声をＯＮ／ＯＦＦできます。")	
+			case( 251 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")	
+			case( 252 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")	
+			case( 253 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")	
+			case( 254 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")	
+			case( 255 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")	
+			case( 256 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")	
+			case( 257 )	$help_text(excall.front.object[495],dl,"設定をリセットします。")	
+			case( 258 )	$help_text(excall.front.object[495],dl,"バックグラウンドボイス＆サウンドの個別設定です。")	
+
+
+			
+
+			case( 23 )	$help_text(excall.front.object[495],dl,"テキストの表示スピードの設定です。")		
+			case( 31 )	$help_text(excall.front.object[495],dl,"メッセージウィンドウの透過度の設定です。")	
+			case( 41 )	$help_text(excall.front.object[495],dl,"オートモードの速度の設定です。")	
+
+
+			case( 231 )	$help_text(excall.front.object[495],dr,"マスターボリュームの設定です。")	
+			case( 233 )	$help_text(excall.front.object[495],dr,"ＢＧＭの音量の設定です。")	
+			case( 235 )	$help_text(excall.front.object[495],dr,"音声音の量の設定です。")	
+			case( 237 )	$help_text(excall.front.object[495],dr,"効果音の音量の設定です。")	
+			case( 239 )	$help_text(excall.front.object[495],dr,"システム音の音量の設定です。")	
+			case( 241 )	$help_text(excall.front.object[495],ur,"バックグラウンドボイス(BGV)＆サウンドの音量の設定です。")	
+			case( 243 )	$help_text(excall.front.object[495],ur,"ムービーの音量の設定です。")	
+			
+			
+			case( 310 )	$help_text(excall.front.object[495],dr,"クリックでイベントＣＧの表示や演出をスキップできるようになります。")	
+			case( 311 )	$help_text(excall.front.object[495],dr,"クリックでキャラ（立ち絵）の表示や演出をスキップできるようになります。")	
+			case( 312 )	$help_text(excall.front.object[495],dr,"クリックで背景の表示や演出をスキップできるようになります。")		
+			case( 313 )	$help_text(excall.front.object[495],dr,"特定のキー操作によるスクリーンショットを許可します。#Dスクリーンショットはsavedataフォルダにpngで保存されます。")		
+
+			case( 314 )	$help_text(excall.front.object[495],dr,"CTRLキーによるスキップ中に、バックグラウンドボイス＆サウンドを再生しなくなります。スキップ時のスピードが高速化します。")		
+			case( 315 )	$help_text(excall.front.object[495],dr,"キャラの立ち絵・イベントＣＧのまばたき演出を許可します。")		
+			case( 316 )	$help_text(excall.front.object[495],dr,"ヒント（この枠の文章）を表示します。")		
+			case( 317 )	$help_text(excall.front.object[495],dr,"Ｈシーン中の、射精時などのフラッシュ効果を許可します。")		
+			case( 318 )	$help_text(excall.front.object[495],dr,"フォントの変更などの詳細設定です。#Dプロポーショナルフォントに設定すると表示が乱れる場合があります。")		
+
+			case( 399 )	$help_text(excall.front.object[495],dr,"OTHERS項目のすべての設定をリセットします。#D（※フォントの設定をのぞく）")		
+
+			case( 400 )	$help_text(excall.front.object[495],dr,"画面モード以外のすべての設定をリセットします。")	
+
+
+			default excall.front.object[495].disp = 0
+
+		}
+
+		
+		
+		switch( $mouse_push ){
+			case( 23 )
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[23], 0 )
+				
+				goto #mainloop
+
+			case( 31 )
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[31], 1 )
+				
+				goto #mainloop
+
+			case( 41 )
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[40], 2 )
+				
+				goto #mainloop
+
+
+
+
+
+
+			case( 231 )	
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[30], 4 )
+				
+				goto #mainloop
+			case( 233 )	
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[31], 5 )
+				
+				goto #mainloop
+			case( 235 )	
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[32], 6 )
+				
+				switch(math.rand(0,1)) { 					case(0)	exkoe(012600044,001) 					case(1)	exkoe(012600046,002) 				 			}
+				goto #mainloop
+			case( 237 )	
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[33], 7 )
+				if (1) {$pcmplay(303,0,0)}
+				
+				goto #mainloop
+			case( 239 )	
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[34], 8 )
+				se.play(001)
+				goto #mainloop
+			case( 241 )	
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[35], 9 )
+				
+				goto #mainloop
+			case( 243 )	
+				$push_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[36], 10 )
+				
+				goto #mainloop
+		}
+
+		
+		
+
+		if ($mouse_wheel > 0){
+			se.play(015)
+			$config_page = ($config_page + 1) % 3
+			goto #pagechange
+		}
+		if ($mouse_wheel < 0){
+			se.play(015)
+			$config_page = $config_page - 1
+			if ($config_page < 0) {$config_page = 2}
+			goto #pagechange
+		}
+
+
+		switch($mouse_click){
+			case( -2 )	
+				
+
+			case( -1 )	
+				se.play(002)
+				break
+
+			case( 0 )		
+				se.play(015)
+				$config_page = 0
+				goto #pagechange
+
+			case( 1 )		
+				se.play(015)
+				$config_page = 1
+				goto #pagechange
+
+			case( 2 )		
+				se.play(015)
+				$config_page = 2
+				goto #pagechange
+
+			case( 999 )		
+				break
+
+			
+			
+			case( 10 )		
+				se.play(017)
+				syscom.set_window_mode(1)
+				goto #initstart
+
+			case( 11 )		
+				se.play(017)
+				syscom.set_window_mode(0)
+				goto #initstart
+
+			case( 12 )		
+				se.play(001)
+				syscom.call_config_menu
+				goto #initstart
+
+			case( 13 )		
+				se.play(001)
+				if (syscom.check_window_mode_size_enable(100) == 1) {syscom.set_window_mode_size_default} 				elseif (syscom.check_window_mode_size_enable(75) == 1) {syscom.set_window_mode_size_default} 				elseif (syscom.check_window_mode_size_enable(50) == 1) {syscom.set_window_mode_size_default}
+				goto #initstart
+
+			case( 20 )		
+				se.play(017)
+				$value = syscom.get_message_nowait ^ 1
+				syscom.set_message_nowait( $value )
+				goto #initstart
+
+			case( 21 )		
+				se.play(017)
+				$value = syscom.get_skip_unread_message_onoff ^ 1
+				syscom.set_skip_unread_message_onoff( $value ) 
+				goto #initstart
+
+			case( 22 )		
+				
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[23], 0 )
+				goto #mainloop
+
+			case( 29 )		
+				se.play(001)
+				syscom.set_message_speed_default 				syscom.set_message_nowait_default 				syscom.set_skip_unread_message_onoff_default				
+				$set_value2slider( 0 )
+				goto #initstart
+
+			case( 30 )		
+				
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[31], 1 )
+				goto #mainloop
+
+			case( 39 )		
+				se.play(001)
+				syscom.set_filter_color_a_default				
+				$set_value2slider( 1 )
+				goto #initstart
+
+			case( 40 )		
+				
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[40], 2 )
+				goto #mainloop
+
+
+
+
+
+
+			case( 49 )		
+				se.play(001)
+				syscom.set_auto_mode_moji_wait_default 				syscom.set_auto_mode_min_wait_default				
+				$set_value2slider( 2 )
+				$set_value2slider( 3 )
+				goto #initstart
+
+			case( 60 )
+				se.play(017)
+				g[2110] ^= 1
+				goto #initstart
+
+			case( 61 )
+				se.play(017)
+				g[2111] ^= 1
+				goto #initstart
+
+			case( 62 )
+				se.play(017)
+				g[2112] ^= 1
+				goto #initstart
+
+			case( 63 )	
+				se.play(017)
+				g[2113] ^= 1
+				goto #initstart
+
+			case( 64 )	
+				se.play(017)
+				g[2114] ^= 1
+				goto #initstart
+
+			case( 65 )	
+				se.play(017)
+				g[2115] ^= 1
+				goto #initstart
+
+			case( 66 )	
+				se.play(017)
+				g[2116] ^= 1
+				goto #initstart
+
+			case( 67 )	
+				se.play(017)
+				g[2117] ^= 1
+				goto #initstart
+
+			case( 69 )	
+				se.play(017)
+				g[2110] = 0 				g[2111] = 0 				g[2112] = 0 				g[2113] = 0 				g[2114] = 0 				g[2115] = 0 				g[2116] = 0 				g[2117] = 0 				g[2118] = 0
+				goto #initstart
+
+			
+			
+			case( 201 )	
+				se.play(017)
+				syscom.set_all_onoff( syscom.get_all_onoff ^ 1 )
+				goto #initstart
+			case( 202 )	
+				se.play(017)
+				syscom.set_bgm_onoff( syscom.get_bgm_onoff ^ 1 )
+				goto #initstart
+			case( 203 )	
+				se.play(017)
+				syscom.set_koe_onoff( syscom.get_koe_onoff ^ 1 )
+				goto #initstart
+			case( 204 )	
+				se.play(017)
+				syscom.set_pcm_onoff( syscom.get_pcm_onoff ^ 1 )
+				goto #initstart
+			case( 205 )	
+				se.play(017)
+				syscom.set_se_onoff( syscom.get_se_onoff  ^ 1 )
+				goto #initstart
+
+			case( 206 )	
+				se.play(017)
+				if (g[0060] == 0) {  			syscom.set_sound_onoff(16, 0) 			syscom.set_sound_onoff(17,0) 			syscom.set_sound_onoff(18,0) 			syscom.set_sound_onoff(19, 0)  			g[0060] = 1 	 		}elseif (g[0060] == 1)  {  			syscom.set_sound_onoff(16, ((g[0061] + 1) % 2)) 			syscom.set_sound_onoff(17,((g[0062] + 1) % 2)) 			syscom.set_sound_onoff(18,((g[0063] + 1) % 2)) 			syscom.set_sound_onoff(19, ((g[0064] + 1) % 2))  			g[0060] = 0  		}else {	  			g[0061] = 0 			g[0062] = 0 			g[0063] = 0 			g[0064] = 0 			syscom.set_sound_onoff(16, 1) 			syscom.set_sound_onoff(17,1) 			syscom.set_sound_onoff(18,1) 			syscom.set_sound_onoff(19, 1)  			g[0060] = 0  		}
+				goto #initstart
+
+			case( 207 )	
+				se.play(017)
+				syscom.set_mov_onoff( syscom.get_mov_onoff ^ 1 )
+				goto #initstart
+
+			case( 208 )	
+				se.play(017)
+				syscom.set_bgmfade_onoff( syscom.get_bgmfade_onoff ^ 1 )
+				goto #initstart
+			case( 209 )	
+				se.play(017)
+				syscom.set_koe_dont_stop_onoff( syscom.get_koe_dont_stop_onoff ^ 1 )
+				goto #initstart
+			case( 210 )	
+				se.play(017)
+				syscom.set_play_silent_sound_onoff( syscom.get_play_silent_sound_onoff ^ 1 )
+				goto #initstart
+
+			case( 211 ) 
+				se.play(001)
+				syscom.set_bgmfade_onoff(1) 				syscom.set_koe_dont_stop_onoff(0) 				syscom.set_play_silent_sound_onoff(0)
+				goto #initstart
+
+			case( 230 )	
+				
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[30], 4 )
+				goto #initstart
+			case( 232 )	
+				
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[31], 5 )
+				goto #initstart
+			case( 234 )	
+				
+				switch(math.rand(0,1)) { 					case(0)	exkoe(012600044,001) 					case(1)	exkoe(012600046,002) 				 			}
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[32], 6 )
+				goto #initstart
+			case( 236 )	
+				
+				if (1) {$pcmplay(303,0,0)}
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[33], 7 )
+				goto #initstart
+			case( 238 )	
+				se.play(001)
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[34], 8 )
+				goto #initstart
+			case( 240 )	
+				
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[35], 9 )
+				goto #initstart
+			case( 242 )	
+				
+				$click_slider( $mouse_posx, $mouse_posy, excall.front.object[0].child[36], 10 )
+				goto #initstart
+
+			case( 245 )	
+				se.play(001)
+				$koe_kobetu_onoff( excall.front.object[1] )
+				goto #initstart
+
+			case( 251 )	
+				se.play(001)
+				syscom.set_all_onoff_default 				syscom.set_all_volume_default
+				$set_value2slider( 4 )
+				goto #initstart
+
+			case( 252 )	
+				se.play(001)
+				syscom.set_bgm_onoff_default 				syscom.set_bgm_volume_default
+				$set_value2slider( 5 )
+				goto #initstart
+
+			case( 253 )	
+				se.play(001)
+				syscom.set_koe_onoff_default 				syscom.set_koe_volume_default 				syscom.set_charakoe_onoff( 0, 1 ) 				syscom.set_charakoe_onoff( 1, 1 ) 				syscom.set_charakoe_onoff( 2, 1 ) 				syscom.set_charakoe_onoff( 3, 1 ) 				syscom.set_charakoe_onoff( 4, 1 ) 				syscom.set_charakoe_onoff( 5, 1 ) 				syscom.set_charakoe_onoff( 6, 1 ) 				syscom.set_charakoe_onoff( 7, 1 ) 				syscom.set_charakoe_onoff( 8, 1 ) 				syscom.set_charakoe_onoff( 9, 1 ) 				syscom.set_charakoe_volume(1, 225)             syscom.set_charakoe_volume(2, 255)                          syscom.set_charakoe_volume(4, 255)             syscom.set_charakoe_volume(5, 255)             syscom.set_charakoe_volume(6, 255)             syscom.set_charakoe_volume(7, 255)
+				$set_value2slider( 6 )
+				goto #initstart
+
+			case( 254 )	
+				se.play(001)
+				syscom.set_pcm_onoff_default 				syscom.set_pcm_volume_default
+				$set_value2slider( 7 )
+				goto #initstart
+
+			case( 255 )	
+				se.play(001)
+				syscom.set_se_onoff_default 				syscom.set_se_volume_default
+				$set_value2slider( 8 )
+				goto #initstart
+
+			case( 256 )	
+				se.play(001)
+				if (99 == 0) {  			syscom.set_sound_onoff(16, 0) 			syscom.set_sound_onoff(17,0) 			syscom.set_sound_onoff(18,0) 			syscom.set_sound_onoff(19, 0)  			g[0060] = 1 	 		}elseif (99 == 1)  {  			syscom.set_sound_onoff(16, ((g[0061] + 1) % 2)) 			syscom.set_sound_onoff(17,((g[0062] + 1) % 2)) 			syscom.set_sound_onoff(18,((g[0063] + 1) % 2)) 			syscom.set_sound_onoff(19, ((g[0064] + 1) % 2))  			g[0060] = 0  		}else {	  			g[0061] = 0 			g[0062] = 0 			g[0063] = 0 			g[0064] = 0 			syscom.set_sound_onoff(16, 1) 			syscom.set_sound_onoff(17,1) 			syscom.set_sound_onoff(18,1) 			syscom.set_sound_onoff(19, 1)  			g[0060] = 0  		} 				g[0065] = 0 				syscom.set_sound_volume(16,178)     switch(g[0065]){                                          case(0)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 90 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 90 / 100)                      case(1)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 60 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 70 / 100)                      case(2)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16))                         syscom.set_sound_volume(18, syscom.get_sound_volume(16))                         syscom.set_sound_volume(19, syscom.get_sound_volume(16))                                           }
+				$set_value2slider( 9 )
+				goto #initstart
+
+			case( 257 )	
+				se.play(001)
+				syscom.set_mov_onoff_default 				syscom.set_mov_volume_default
+				$set_value2slider( 10 )
+				goto #initstart
+
+
+
+
+
+			case( 258 )	
+				se.play(001)
+				$bgv_kobetu_onoff( excall.front.object[1] )
+				goto #initstart
+
+
+			
+			
+			case( 310 )		
+				se.play(017)
+				g[0026] = (g[0026] + 1) % 2
+				goto #initstart
+
+			case( 311 )		
+				se.play(017)
+				g[0027] = (g[0027] + 1) % 2
+				goto #initstart
+
+			case( 312 )		
+				se.play(017)
+				g[0028] = (g[0028] + 1) % 2
+				goto #initstart
+
+			case( 313 )		
+				se.play(017)
+				g[0022] = (g[0022] + 1) % 2
+				goto #initstart
+
+			case( 314 )		
+				se.play(017)
+				g[0024] = (g[0024] + 1) % 2
+				goto #initstart
+
+			case( 315 )		
+				se.play(017)
+				g[0014] = (g[0014] + 1) % 2
+				for (l[00] = 19,l[00] <= 29,l[00]+= 1) { 				 		if (front.object[l[00]].child.get_size == 0) {continue} 		if (front.object[l[00]].child[02].get_pat_cnt >= 2) { 		 			front.object[l[00]].child[02].load_gan(_mabataki01)  			 			if (g[0014] != 1 && $eye_mabataki_off != 1) { 			 				front.object[l[00]].child[02].start_gan(math.rand(1,9),1,1) 			 			}else { 			 				front.object[l[00]].child[02].start_gan(0,1,1) 			 			} 			 		} 	}  	for (l[00] = 30,l[00] <= 34,l[00]+= 1) { 		if (front.object[l[00]].child.get_size == 0) {continue} 		if (front.object[l[00]].child[02].get_pat_cnt >= 2) { 		 			front.object[l[00]].child[02].load_gan(_mabataki01) 			 			if (g[0014] != 1 && $eye_mabataki_off != 1) { 			 				front.object[l[00]].child[02].start_gan(math.rand(1,9),1,1) 			 			}else { 			 				front.object[l[00]].child[02].start_gan(0,1,1) 			 			} 			 		} 	}  	 	if (front.object[1].child.get_size == 10) { 		if (front.object[1].child[02].exist_type == 1) { 		 			if (front.object[1].child[02].get_pat_cnt >= 2) { 		 				front.object[1].child[02].load_gan(_mabataki01) 			 				if (g[0014] != 1 && $eye_mabataki_off != 1) { 				 					front.object[1].child[02].start_gan(math.rand(1,9),1,1) 				 				}else{ 				 					front.object[1].child[02].start_gan(0,1,1) 				 				} 			 			} 		 		} 		 		if (front.object[1].child[07].exist_type == 1) { 			if (front.object[1].child[07].get_pat_cnt >= 2) { 		 				front.object[1].child[07].load_gan(_mabataki01) 			 				if (g[0014] != 1 && $eye_mabataki_off != 1) { 				 					front.object[1].child[07].start_gan(math.rand(1,9),1,1) 				 				}else{ 				 					front.object[1].child[07].start_gan(0,1,1) 				 				} 			 			} 		 		} 	}
+				goto #initstart
+
+			case( 316 )		
+				se.play(017)
+				g[0016] = (g[0016] + 1) % 2
+				goto #initstart
+
+			case( 317 )		
+				se.play(017)
+				g[0025] = (g[0025] + 1) % 2
+				goto #initstart
+			
+			case( 318 )		
+				se.play(017)
+				syscom.call_config_font_menu
+				goto #initstart
+
+			case( 399 )		
+				se.play(001)
+				g[0026] = 0 				g[0027] = 0 				g[0028] = 0  				g[0022] = 0 				g[0024] = 0 				g[0014] = 0 				for (l[00] = 19,l[00] <= 29,l[00]+= 1) { 				 		if (front.object[l[00]].child.get_size == 0) {continue} 		if (front.object[l[00]].child[02].get_pat_cnt >= 2) { 		 			front.object[l[00]].child[02].load_gan(_mabataki01)  			 			if (g[0014] != 1 && $eye_mabataki_off != 1) { 			 				front.object[l[00]].child[02].start_gan(math.rand(1,9),1,1) 			 			}else { 			 				front.object[l[00]].child[02].start_gan(0,1,1) 			 			} 			 		} 	}  	for (l[00] = 30,l[00] <= 34,l[00]+= 1) { 		if (front.object[l[00]].child.get_size == 0) {continue} 		if (front.object[l[00]].child[02].get_pat_cnt >= 2) { 		 			front.object[l[00]].child[02].load_gan(_mabataki01) 			 			if (g[0014] != 1 && $eye_mabataki_off != 1) { 			 				front.object[l[00]].child[02].start_gan(math.rand(1,9),1,1) 			 			}else { 			 				front.object[l[00]].child[02].start_gan(0,1,1) 			 			} 			 		} 	}  	 	if (front.object[1].child.get_size == 10) { 		if (front.object[1].child[02].exist_type == 1) { 		 			if (front.object[1].child[02].get_pat_cnt >= 2) { 		 				front.object[1].child[02].load_gan(_mabataki01) 			 				if (g[0014] != 1 && $eye_mabataki_off != 1) { 				 					front.object[1].child[02].start_gan(math.rand(1,9),1,1) 				 				}else{ 				 					front.object[1].child[02].start_gan(0,1,1) 				 				} 			 			} 		 		} 		 		if (front.object[1].child[07].exist_type == 1) { 			if (front.object[1].child[07].get_pat_cnt >= 2) { 		 				front.object[1].child[07].load_gan(_mabataki01) 			 				if (g[0014] != 1 && $eye_mabataki_off != 1) { 				 					front.object[1].child[07].start_gan(math.rand(1,9),1,1) 				 				}else{ 				 					front.object[1].child[07].start_gan(0,1,1) 				 				} 			 			} 		 		} 	} 				g[0025] = 1 				g[0016] = 1
+				goto #initstart
+
+			case( 400 )		
+				if( $dialog_main( excall.front, 2, excall.front.object[1], 10 ) ){
+					$init_config					
+				}
+
+				goto #initstart
+
+
+			default
+				goto #mainloop
+		}
+		input.next
+		disp
+	}
+	input.clear
+	$set_slider2value_all()		
+
+	return
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $koe_kobetu_onoff( property $obj : object )
+{
+	property $loop : int
+	property $value : int
+	property $mouse_click : int
+	property $mouse_hit : int
+
+	excall.front.objbtngroup[1].init
+
+	$obj.init
+	$obj.disp = 1
+	$obj.layer = 10000
+	$obj.x = (1920-600)/2
+	$obj.y = (1080-725)/2
+
+	$obj.child.resize(12)
+
+	$obj.child[0].create_rect(0,0,1920,1080,0,0,0,128,1,-$obj.x,-$obj.y)
+
+	$obj.child[01].create(__sys_config_koe_base, 1,0,0)
+	$obj.child[02].create(__sys_config_koe_btn , 1, 50+125*0, 50+125*0, 1 )
+	$obj.child[03].create(__sys_config_koe_btn , 1, 50+125*1, 50+125*0, 2 )
+	
+	$obj.child[05].create(__sys_config_koe_btn , 1, 50+125*0, 50+125*1, 4 )
+	$obj.child[06].create(__sys_config_koe_btn , 1, 50+125*1, 50+125*1, 5 )
+	$obj.child[07].create(__sys_config_koe_btn , 1, 50+125*2, 50+125*1, 6 )
+	$obj.child[08].create(__sys_config_koe_btn , 1, 50+125*3, 50+125*1, 7 )
+	
+	
+
+	$obj.child[11].create(__sys_config_koe_exit, 1, 60+413  , 20+125*3 )
+
+	for( $loop=1, $loop<10, $loop+=1 ){
+		if ($obj.child[$loop + 1].exist_type == 0) {continue}
+		$obj.child[$loop + 1].set_button( $loop, 1, 0, 001)
+		if( syscom.get_charakoe_onoff( $loop ) == 0 ){
+			$obj.child[$loop + 1].dark = 128
+		}
+	}
+	$obj.child[11].set_button( 99, 1, 24, 005 )
+
+
+#koemainloop
+	excall.front.objbtngroup[1].start_cancel
+	input.clear
+	while(1){
+		$mouse_click = excall.front.objbtngroup[1].get_decided_no
+		$mouse_hit = excall.front.objbtngroup[1].get_hit_no
+
+		switch($mouse_hit){
+			case(1)		$help_text(excall.front.object[495],dr,"ヒロイン音声のＯＮ／ＯＦＦを切り替えます。")
+			case(2)		$help_text(excall.front.object[495],dr,"ヒロイン音声のＯＮ／ＯＦＦを切り替えます。")
+			case(3)		$help_text(excall.front.object[495],dr,"ヒロイン音声のＯＮ／ＯＦＦを切り替えます。")
+			case(4)		$help_text(excall.front.object[495],dr,"モブ男子音声のＯＮ／ＯＦＦを切り替えます。")
+			case(5)		$help_text(excall.front.object[495],dr,"モブ女子音声のＯＮ／ＯＦＦを切り替えます。")
+			case(6)		$help_text(excall.front.object[495],dr,"モブ男性音声のＯＮ／ＯＦＦを切り替えます。")
+			case(7)		$help_text(excall.front.object[495],dr,"モブ女性音声のＯＮ／ＯＦＦを切り替えます。")
+			case(8)
+			case(9)
+
+			case(99)	$help_text(excall.front.object[495],dr,"ひとつ前の画面に戻ります。")
+
+			default excall.front.object[495].disp = 0
+		}
+
+		if( $mouse_click == -2 ){
+			
+		}
+		elseif( $mouse_click == -1 ){
+			se.play(002)
+			break
+		}
+		elseif( $mouse_click == 99 ){
+			se.play(002)
+			break
+		}
+		elseif( $mouse_click > 0 ){
+			se.play(017)
+			$value = syscom.get_charakoe_onoff( $mouse_click ) ^ 1
+			syscom.set_charakoe_onoff( $mouse_click, $value )
+			$obj.child[$mouse_click + 1].dark = 0
+			if( $value == 0 ){
+				$obj.child[$mouse_click + 1].dark = 128
+			}
+			goto #koemainloop
+		}
+		input.next
+		disp
+	}
+
+	input.clear
+	$obj.init
+
+	return
+
+}
+
+
+
+
+
+
+
+command $bgv_kobetu_onoff( property $obj : object )
+{
+	property $loop : int
+	property $value : int
+	property $mouse_click : int
+	property $mouse_hit : int
+
+	excall.front.objbtngroup[1].init
+
+	$obj.init
+	$obj.disp = 1
+	$obj.layer = 10000
+	$obj.x = (1920-600)/2
+	$obj.y = (1080-725)/2
+
+	$obj.child.resize(15)
+	$obj.child[0].create_rect(0,0,1920,1080,0,0,0,128,1,-$obj.x,-$obj.y)
+	$obj.child[1].create(__sys_config_bgv_base, 1,0,0)
+
+
+#bgvinitloop
+
+	$make_check_box( $obj.child[2], 30, 40+80*0, 1, 1,(g[0061] + 1)% 2)
+	$make_check_box( $obj.child[3], 30, 40+80*1, 2, 1,(g[0062] + 1) % 2)	
+	$make_check_box( $obj.child[4], 30, 40+80*2, 3, 1,(g[0063] + 1) % 2)	
+	$make_check_box( $obj.child[5], 30, 40+80*3, 4, 1,(g[0064] + 1) % 2)	
+
+
+	$obj.child[8].create(__sys_config_bgv_balance00, 1,  151  , 418,(g[0065] == 0))
+	if (g[0065] != 0) {$obj.child[8].set_button( 90, 1, 24, 005 )}
+	$obj.child[9].create(__sys_config_bgv_balance01, 1, 272  , 418,(g[0065] == 1))
+	if (g[0065] != 1) {$obj.child[9].set_button( 91, 1, 24, 005 )}
+	$obj.child[10].create(__sys_config_bgv_balance02, 1, 30  , 418,(g[0065] == 2))
+	if (g[0065] != 2) {$obj.child[10].set_button( 92, 1, 24, 005 )}
+
+
+
+	$obj.child[11].create(__sys_config_bgv_sample, 1, 426  , 40 )
+	$obj.child[11].set_button( 98, 1, 24, 005 )
+
+	$obj.child[12].create(__sys_config_koe_exit, 1, 60+413  , 20+125*3 )
+	$obj.child[12].set_button( 99, 1, 24, 005 )
+
+#bgvmainloop
+
+	
+
+	if (g[0060] == 0){
+		syscom.set_sound_onoff(16, 		(g[0061] + 1) % 2)
+		syscom.set_sound_onoff(17,	(g[0062]+ 1) % 2)
+		syscom.set_sound_onoff(18,	(g[0063]+ 1) % 2)
+		syscom.set_sound_onoff(19, 	(g[0064]+ 1) % 2)
+	}
+
+
+	excall.front.objbtngroup[1].start_cancel
+	input.clear
+	while(1){
+		$mouse_click = excall.front.objbtngroup[1].get_decided_no
+		$mouse_hit = excall.front.objbtngroup[1].get_hit_no
+
+		switch($mouse_hit){
+			case(1)		$help_text(excall.front.object[495],dr,"喘ぎ声＆フェラ音(BGV)のＯＮ／ＯＦＦを切り替えます。")
+			case(2)		$help_text(excall.front.object[495],dr,"挿入音など、ワンショット音のＯＮ／ＯＦＦを切り替えます。")
+			case(3)		$help_text(excall.front.object[495],dr,"肌のぶつかる音など、アクション音のＯＮ／ＯＦＦを切り替えます。")
+			case(4)		$help_text(excall.front.object[495],dr,"ベットがきしむ音など、環境音のＯＮ／ＯＦＦを切り替えます。")
+
+			case(90)	$help_text(excall.front.object[495],dr,"喘ぎ声＆フェラ音(BGV)の音量を基準として、その他バックグラウンドサウンドの音量バランスを変更します。#D【100%】：すべて最大音量で再生#D【標準】：BGV以外をやや下げる（初期値）#D【バランス】：アクション音と環境音をより下げる")
+			case(91)	$help_text(excall.front.object[495],dr,"喘ぎ声＆フェラ音(BGV)の音量を基準として、その他バックグラウンドサウンドの音量バランスを変更します。#D【100%】：すべて最大音量で再生#D【標準】：BGV以外をやや下げる（初期値）#D【バランス】：アクション音と環境音をより下げる")
+			case(92)	$help_text(excall.front.object[495],dr,"喘ぎ声＆フェラ音(BGV)の音量を基準として、その他バックグラウンドサウンドの音量バランスを変更します。#D【100%】：すべて最大音量で再生#D【標準】：BGV以外をやや下げる（初期値）#D【バランス】：アクション音と環境音をより下げる")
+
+			case(98)	$help_text(excall.front.object[495],dr,"サンプルを再生します。閉じると停止します。")
+			case(99)	$help_text(excall.front.object[495],dr,"ひとつ前の画面に戻ります。")
+
+			default excall.front.object[495].disp = 0
+		}
+
+		if( $mouse_click == -2 ){
+			
+		}
+		elseif( $mouse_click == -1 ){
+			se.play(002)
+			switch(0){ 				case(0) 					pcmch[25].stop 					pcmch[26].stop 					pcmch[27].stop 					pcmch[28].stop  				case(1) 					pcmch[25].play("hbgv_aegi_S_jur01",volume_type = 16 ,loop = 1,bgm_fade2_target = 1) 					pcmch[26].play("hse_in01",volume_type = 17) 					pcmch[27].play("hse_loop05",volume_type = 18 ,loop = 1) 					pcmch[28].play("bgse_bed05",volume_type = 19 ,loop = 1) 			}
+			break
+		}
+		elseif( $mouse_click == 99 ){
+			se.play(002)
+			switch(0){ 				case(0) 					pcmch[25].stop 					pcmch[26].stop 					pcmch[27].stop 					pcmch[28].stop  				case(1) 					pcmch[25].play("hbgv_aegi_S_jur01",volume_type = 16 ,loop = 1,bgm_fade2_target = 1) 					pcmch[26].play("hse_in01",volume_type = 17) 					pcmch[27].play("hse_loop05",volume_type = 18 ,loop = 1) 					pcmch[28].play("bgse_bed05",volume_type = 19 ,loop = 1) 			}
+			break
+		}
+		elseif( $mouse_click == 1 ){
+			se.play(017)
+			g[0061] = (g[0061] + 1) % 2
+			goto #bgvinitloop
+		}
+
+		elseif( $mouse_click == 2 ){
+			se.play(017)
+			g[0062] = (g[0062] + 1) % 2
+			goto #bgvinitloop
+		}
+
+		elseif( $mouse_click == 3 ){
+			se.play(017)
+			g[0063] = (g[0063]+ 1) % 2
+			goto #bgvinitloop
+		}
+
+		elseif( $mouse_click == 4 ){
+			se.play(017)
+			g[0064] = (g[0064]+ 1) % 2
+			goto #bgvinitloop
+		}
+
+		elseif( $mouse_click == 90) {
+			se.play(017)
+			g[0065] = 0
+			switch(g[0065]){                                          case(0)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 90 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 90 / 100)                      case(1)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 60 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 70 / 100)                      case(2)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16))                         syscom.set_sound_volume(18, syscom.get_sound_volume(16))                         syscom.set_sound_volume(19, syscom.get_sound_volume(16))                                           }
+			goto #bgvinitloop
+		}
+
+		elseif( $mouse_click == 91) {
+			se.play(017)
+			g[0065] = 1
+			switch(g[0065]){                                          case(0)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 90 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 90 / 100)                      case(1)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 60 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 70 / 100)                      case(2)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16))                         syscom.set_sound_volume(18, syscom.get_sound_volume(16))                         syscom.set_sound_volume(19, syscom.get_sound_volume(16))                                           }
+			goto #bgvinitloop
+		}
+
+		elseif( $mouse_click == 92) {
+			se.play(017)
+			g[0065] = 2
+			switch(g[0065]){                                          case(0)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 90 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 90 / 100)                      case(1)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 60 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 70 / 100)                      case(2)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16))                         syscom.set_sound_volume(18, syscom.get_sound_volume(16))                         syscom.set_sound_volume(19, syscom.get_sound_volume(16))                                           }
+			goto #bgvinitloop
+		}
+
+		elseif( $mouse_click == 98) {
+			switch(1){ 				case(0) 					pcmch[25].stop 					pcmch[26].stop 					pcmch[27].stop 					pcmch[28].stop  				case(1) 					pcmch[25].play("hbgv_aegi_S_jur01",volume_type = 16 ,loop = 1,bgm_fade2_target = 1) 					pcmch[26].play("hse_in01",volume_type = 17) 					pcmch[27].play("hse_loop05",volume_type = 18 ,loop = 1) 					pcmch[28].play("bgse_bed05",volume_type = 19 ,loop = 1) 			}
+			goto #bgvinitloop
+		}
+
+
+		input.next
+		disp
+	}
+
+	input.clear
+	$obj.init
+
+	return
+
+}
+
+
+
+
+
+
+
+#z00
+
+
+if( excall.check_alloc == 0 ){
+	capture
+	excall.alloc
+}
+
+syscom.set_hide_mwnd_onoff_flag( 1 )
+
+$config_menu_main()
+
+if( excall.check_alloc != 0 ){
+	wipe( 0, 200 )
+	excall.free
+}
+syscom.set_hide_mwnd_onoff_flag( 0 )
+
+capture_free
+
+return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command	$init_config {	
+
+	
+
+	syscom.set_message_speed_default 				syscom.set_message_nowait_default 				syscom.set_skip_unread_message_onoff_default
+	syscom.set_filter_color_a_default
+	syscom.set_auto_mode_moji_wait_default 				syscom.set_auto_mode_min_wait_default
+	g[2110] = 0 				g[2111] = 0 				g[2112] = 0 				g[2113] = 0 				g[2114] = 0 				g[2115] = 0 				g[2116] = 0 				g[2117] = 0 				g[2118] = 0
+
+	syscom.set_all_onoff_default 				syscom.set_all_volume_default
+	syscom.set_bgm_onoff_default 				syscom.set_bgm_volume_default
+	syscom.set_koe_onoff_default 				syscom.set_koe_volume_default 				syscom.set_charakoe_onoff( 0, 1 ) 				syscom.set_charakoe_onoff( 1, 1 ) 				syscom.set_charakoe_onoff( 2, 1 ) 				syscom.set_charakoe_onoff( 3, 1 ) 				syscom.set_charakoe_onoff( 4, 1 ) 				syscom.set_charakoe_onoff( 5, 1 ) 				syscom.set_charakoe_onoff( 6, 1 ) 				syscom.set_charakoe_onoff( 7, 1 ) 				syscom.set_charakoe_onoff( 8, 1 ) 				syscom.set_charakoe_onoff( 9, 1 ) 				syscom.set_charakoe_volume(1, 225)             syscom.set_charakoe_volume(2, 255)                          syscom.set_charakoe_volume(4, 255)             syscom.set_charakoe_volume(5, 255)             syscom.set_charakoe_volume(6, 255)             syscom.set_charakoe_volume(7, 255)
+	syscom.set_pcm_onoff_default 				syscom.set_pcm_volume_default
+	syscom.set_se_onoff_default 				syscom.set_se_volume_default
+	if (99 == 0) {  			syscom.set_sound_onoff(16, 0) 			syscom.set_sound_onoff(17,0) 			syscom.set_sound_onoff(18,0) 			syscom.set_sound_onoff(19, 0)  			g[0060] = 1 	 		}elseif (99 == 1)  {  			syscom.set_sound_onoff(16, ((g[0061] + 1) % 2)) 			syscom.set_sound_onoff(17,((g[0062] + 1) % 2)) 			syscom.set_sound_onoff(18,((g[0063] + 1) % 2)) 			syscom.set_sound_onoff(19, ((g[0064] + 1) % 2))  			g[0060] = 0  		}else {	  			g[0061] = 0 			g[0062] = 0 			g[0063] = 0 			g[0064] = 0 			syscom.set_sound_onoff(16, 1) 			syscom.set_sound_onoff(17,1) 			syscom.set_sound_onoff(18,1) 			syscom.set_sound_onoff(19, 1)  			g[0060] = 0  		} 				g[0065] = 0 				syscom.set_sound_volume(16,178)     switch(g[0065]){                                          case(0)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 90 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 90 / 100)                      case(1)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16) * 80 / 100)                         syscom.set_sound_volume(18, syscom.get_sound_volume(16) * 60 / 100)                         syscom.set_sound_volume(19, syscom.get_sound_volume(16) * 70 / 100)                      case(2)                          syscom.set_sound_volume(17, syscom.get_sound_volume(16))                         syscom.set_sound_volume(18, syscom.get_sound_volume(16))                         syscom.set_sound_volume(19, syscom.get_sound_volume(16))                                           }
+	syscom.set_mov_onoff_default 				syscom.set_mov_volume_default
+	syscom.set_bgmfade_onoff(1) 				syscom.set_koe_dont_stop_onoff(0) 				syscom.set_play_silent_sound_onoff(0)
+
+	g[0026] = 0 				g[0027] = 0 				g[0028] = 0  				g[0022] = 0 				g[0024] = 0 				g[0014] = 0 				for (l[00] = 19,l[00] <= 29,l[00]+= 1) { 				 		if (front.object[l[00]].child.get_size == 0) {continue} 		if (front.object[l[00]].child[02].get_pat_cnt >= 2) { 		 			front.object[l[00]].child[02].load_gan(_mabataki01)  			 			if (g[0014] != 1 && $eye_mabataki_off != 1) { 			 				front.object[l[00]].child[02].start_gan(math.rand(1,9),1,1) 			 			}else { 			 				front.object[l[00]].child[02].start_gan(0,1,1) 			 			} 			 		} 	}  	for (l[00] = 30,l[00] <= 34,l[00]+= 1) { 		if (front.object[l[00]].child.get_size == 0) {continue} 		if (front.object[l[00]].child[02].get_pat_cnt >= 2) { 		 			front.object[l[00]].child[02].load_gan(_mabataki01) 			 			if (g[0014] != 1 && $eye_mabataki_off != 1) { 			 				front.object[l[00]].child[02].start_gan(math.rand(1,9),1,1) 			 			}else { 			 				front.object[l[00]].child[02].start_gan(0,1,1) 			 			} 			 		} 	}  	 	if (front.object[1].child.get_size == 10) { 		if (front.object[1].child[02].exist_type == 1) { 		 			if (front.object[1].child[02].get_pat_cnt >= 2) { 		 				front.object[1].child[02].load_gan(_mabataki01) 			 				if (g[0014] != 1 && $eye_mabataki_off != 1) { 				 					front.object[1].child[02].start_gan(math.rand(1,9),1,1) 				 				}else{ 				 					front.object[1].child[02].start_gan(0,1,1) 				 				} 			 			} 		 		} 		 		if (front.object[1].child[07].exist_type == 1) { 			if (front.object[1].child[07].get_pat_cnt >= 2) { 		 				front.object[1].child[07].load_gan(_mabataki01) 			 				if (g[0014] != 1 && $eye_mabataki_off != 1) { 				 					front.object[1].child[07].start_gan(math.rand(1,9),1,1) 				 				}else{ 				 					front.object[1].child[07].start_gan(0,1,1) 				 				} 			 			} 		 		} 	} 				g[0025] = 1 				g[0016] = 1
+	syscom.set_font_name_default 				syscom.set_font_bold_default 				syscom.set_font_decoration_default
+
+	if (g[0000] == 1){	
+		$set_value2slider( 0 )
+		$set_value2slider( 1 )
+		$set_value2slider( 2 )
+		$set_value2slider( 3 )
+		$set_value2slider( 4 )
+		$set_value2slider( 5 )
+		$set_value2slider( 6 )
+		$set_value2slider( 7 )
+		$set_value2slider( 8 )
+		$set_value2slider( 9 )
+		$set_value2slider( 10 )
+	}
+}
+
+
+
+
+

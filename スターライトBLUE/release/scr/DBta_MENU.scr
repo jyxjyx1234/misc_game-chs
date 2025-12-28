@@ -1,0 +1,3529 @@
+::START
+
+
+:LABEL_TOP
+
+
+#//背景
+bgon("bg014aa1")
+ud(1, 200)
+
+
+
+
+btnset(1,"slctwnd", 304, 0, "「普通站姿」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「退后站姿」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「特效皚顳」", 30, 13)
+btnset(5,"slctwnd", 304, 168, "「返回蹌馭画面」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「通常立ち」
+		^jp(TATI_01_NRL_TOP)
+	^case(1)			# 「引き立ち」
+		^jp(TATI_01_UP_TOP)
+	^case(2)			# 「エフェクトチェック」
+		^jp(EFFECT_TOP)
+	^case(4)			# 「タイトル画面へ戻る」
+		^jp(END_TATI)
+	^df
+^ends
+
+
+
+:TATI_01_NRL_TOP
+
+
+
+
+btnset(1,"slctwnd", 304, 0, "「来梦」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「人形来梦」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「由狐御子」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+#btnset(6,"slctwnd", 304, 280, "「」", 30, 13)
+btnset(7,"slctwnd", 304, 336, "「前往釧方角色」", 30, 13)
+btnset(11,"slctwnd", 304, 392, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「来夢」
+		^jp(TATI_01_NRL_01)
+	^case(1)			# 「ヒトガタ来夢」
+		^jp(TATI_01_NRL_02)
+	^case(2)			# 「ユコミス」
+		^jp(TATI_01_NRL_03)
+	^case(3)			# 「」
+		^jp(TATI_01_NRL_04)
+	^case(4)			# 「」
+		^jp(TATI_01_NRL_05)
+	^case(5)			# 「」
+		^jp(TATI_01_NRL_06)
+	^case(6)			# 「敵キャラへ」
+		^jp(TATI_02_NRL_TOP)
+
+	^case(10)			# 「戻る」
+		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+
+
+# 「来夢」
+:TATI_01_NRL_01
+
+
+btnset(1,"slctwnd", 304, 0, "「学葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「十二桟」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「打工服」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(6,"slctwnd", 304, 280, "「鰐身（輦甲1）」", 30, 13)
+btnset(7,"slctwnd", 304, 336, "「鰐身（輦甲訟化）」", 30, 13)
+btnset(8,"slctwnd", 304, 392, "「颯堕鰐身（輦甲1滌色）」", 30, 13)
+
+btnset(11,"slctwnd", 304, 448, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_NRL_01_a)
+	^case(1)			# 「十二単」
+		^jp(TATI_01_NRL_01_b)
+	^case(2)			# 「バイト服」
+		^jp(TATI_01_NRL_01_c)
+#	^case(3)			# 「」
+#		^jp(TATI_01_NRL_01_d)
+	^case(4)			# 「裸」
+		^jp(TATI_01_NRL_01_e)
+
+	^case(5)			# 「変身（鎧１）」
+		^jp(TATI_01_NRL_01_f)
+	^case(6)			# 「変身（鎧パワーアップ）」
+		^jp(TATI_01_NRL_01_g)
+	^case(7)			# 「悪堕ち変身（鎧１の色替え）」
+		^jp(TATI_01_NRL_01_h)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_NRL_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_NRL_01_a
+	^jp(ta01a)
+
+
+# 「十二単」
+:TATI_01_NRL_01_b
+	^jp(ta01b)
+
+
+# 「バイト服」
+:TATI_01_NRL_01_c
+	^jp(ta01c)
+
+
+# 「」
+:TATI_01_NRL_01_d
+	^jp(ta01d)
+
+
+# 「裸」
+:TATI_01_NRL_01_e
+	^jp(ta01e)
+
+
+# 「変身（鎧１）」
+:TATI_01_NRL_01_f
+	^jp(ta01f)
+
+
+# 「変身（鎧パワーアップ）」
+:TATI_01_NRL_01_g
+	^jp(ta01g)
+
+
+# 「悪堕ち変身（鎧１の色替え）」
+:TATI_01_NRL_01_h
+	^jp(ta01h)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 「ヒトガタ来夢」
+:TATI_01_NRL_02
+
+
+btnset(1,"slctwnd", 304, 0, "「鰐身（輦甲訟化滌色）」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+#btnset(11,"slctwnd", 304, 448, "「戻る」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「変身（鎧パワーアップ色替え）」
+		^jp(TATI_01_NRL_02_a)
+#	^case(1)			# 「」
+#		^jp(TATI_01_NRL_02_b)
+#	^case(2)			# 「」
+#		^jp(TATI_01_NRL_02_c)
+#	^case(3)			# 「」
+#		^jp(TATI_01_NRL_02_d)
+#	^case(4)			# 「」
+#		^jp(TATI_01_NRL_02_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_NRL_TOP)
+	^df
+^ends
+
+
+
+
+# 「変身（鎧パワーアップ色替え）」
+:TATI_01_NRL_02_a
+	^jp(ta02a)
+
+
+# 「」
+:TATI_01_NRL_02_b
+	^jp(ta02b)
+
+
+# 「」
+:TATI_01_NRL_02_c
+	^jp(ta02c)
+
+
+# 「」
+:TATI_01_NRL_02_d
+	^jp(ta02d)
+
+
+# 「」
+:TATI_01_NRL_02_e
+	^jp(ta02e)
+
+
+
+
+
+
+# 「ユコミス」
+:TATI_01_NRL_03
+
+
+btnset(1,"slctwnd", 304, 0, "「普通服装」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「通常衣装」
+		^jp(TATI_01_NRL_03_a)
+#	^case(1)			# 「」
+#		^jp(TATI_01_NRL_03_b)
+#	^case(2)			# 「」
+#		^jp(TATI_01_NRL_03_c)
+#	^case(3)			# 「」
+#		^jp(TATI_01_NRL_03_d)
+	^case(4)			# 「裸」
+		^jp(TATI_01_NRL_03_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_NRL_TOP)
+	^df
+^ends
+
+
+
+
+# 「通常衣装」
+:TATI_01_NRL_03_a
+	^jp(ta03a)
+
+
+# 「」
+:TATI_01_NRL_03_b
+	^jp(ta03b)
+
+
+# 「」
+:TATI_01_NRL_03_c
+	^jp(ta03c)
+
+
+# 「」
+:TATI_01_NRL_03_d
+	^jp(ta03d)
+
+
+# 「裸」
+:TATI_01_NRL_03_e
+	^jp(ta03e)
+
+
+
+
+
+
+# 「」
+:TATI_01_NRL_04
+
+
+btnset(1,"slctwnd", 304, 0, "「校葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「礼服」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「泳装」", 30, 13)
+btnset(4,"slctwnd", 304, 168, "「睡衣」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_NRL_04_a)
+	^case(1)			# 「ドレス」
+		^jp(TATI_01_NRL_04_b)
+	^case(2)			# 「水着」
+		^jp(TATI_01_NRL_04_c)
+	^case(3)			# 「パジャマ」
+		^jp(TATI_01_NRL_04_d)
+	^case(4)			# 「裸」
+		^jp(TATI_01_NRL_04_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_NRL_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_NRL_04_a
+	^jp(ta04a)
+
+
+# 「ドレス」
+:TATI_01_NRL_04_b
+	^jp(ta04b)
+
+
+# 「水着」
+:TATI_01_NRL_04_c
+	^jp(ta04c)
+
+
+# 「パジャマ」
+:TATI_01_NRL_04_d
+	^jp(ta04d)
+
+
+# 「裸」
+:TATI_01_NRL_04_e
+	^jp(ta04e)
+
+
+
+
+
+
+# 「」
+:TATI_01_NRL_05
+
+
+btnset(1,"slctwnd", 304, 0, "「校葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「女仆装」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「泳装」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「パジャマ」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_NRL_05_a)
+	^case(1)			# 「メイド服」
+		^jp(TATI_01_NRL_05_b)
+	^case(2)			# 「水着」
+		^jp(TATI_01_NRL_05_c)
+	^case(4)			# 「裸」
+		^jp(TATI_01_NRL_05_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_NRL_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_NRL_05_a
+	^jp(ta05a)
+
+
+# 「メイド服」
+:TATI_01_NRL_05_b
+	^jp(ta05b)
+
+
+# 「水着」
+:TATI_01_NRL_05_c
+	^jp(ta05c)
+
+
+# 「裸」
+:TATI_01_NRL_05_e
+	^jp(ta05e)
+
+
+
+
+
+
+# 「」
+:TATI_01_NRL_06
+
+
+btnset(1,"slctwnd", 304, 0, "「校葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「便服」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「泳装」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「パジャマ」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_NRL_06_a)
+	^case(1)			# 「私服」
+		^jp(TATI_01_NRL_06_b)
+	^case(2)			# 「水着」
+		^jp(TATI_01_NRL_06_c)
+	^case(4)			# 「裸」
+		^jp(TATI_01_NRL_06_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_NRL_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_NRL_06_a
+	^jp(ta06a)
+
+
+# 「私服」
+:TATI_01_NRL_06_b
+	^jp(ta06b)
+
+
+# 「水着」
+:TATI_01_NRL_06_c
+	^jp(ta06c)
+
+
+# 「裸」
+:TATI_01_NRL_06_e
+	^jp(ta06e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:TATI_02_NRL_TOP
+
+
+
+
+btnset(1,"slctwnd", 304, 0, "「煌崎」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「破白」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「牙山」", 30, 13)
+btnset(4,"slctwnd", 304, 168, "「葹櫓」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「涅克特」", 30, 13)
+btnset(6,"slctwnd", 304, 280, "「梅莉」", 30, 13)
+btnset(7,"slctwnd", 304, 336, "「驪鼠」", 30, 13)
+
+btnset(11,"slctwnd", 304, 392, "「返回」", 30, 13)
+#btnset(11,"slctwnd", 304, 336, "「戻る」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「キラザキ」
+		^jp(TATI_02_NRL_01)
+	^case(1)			# 「破白」
+		^jp(TATI_02_NRL_02)
+	^case(2)			# 「牙山」
+		^jp(TATI_02_NRL_03)
+	^case(3)			# 「トバコリ」
+		^jp(TATI_02_NRL_04)
+	^case(4)			# 「ネクト」
+		^jp(TATI_02_NRL_05)
+	^case(5)			# 「メリィ」
+		^jp(TATI_02_NRL_06)
+	^case(6)			# 「鋲鼠」
+		^jp(TATI_02_NRL_07)
+
+	^case(10)			# 「戻る」
+		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+
+
+# 「キラザキ」
+:TATI_02_NRL_01
+
+
+btnset(1,"slctwnd", 304, 0, "「普通」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「通常」
+		^jp(TATI_02_NRL_01_a)
+#	^case(1)			# 「」
+#		^jp(TATI_02_NRL_01_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_NRL_01_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_NRL_01_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_NRL_01_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_NRL_TOP)
+	^df
+^ends
+
+
+# 「通常」
+:TATI_02_NRL_01_a
+#	^jp(ta11a)
+	^jp(ta04a)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_01_b
+#	^jp(ta11b)
+#	^jp(ta05b)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_01_c
+#	^jp(ta11c)
+#	^jp(ta05c)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_01_d
+#	^jp(ta11d)
+#	^jp(ta04d)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_01_e
+#	^jp(ta11e)
+#	^jp(ta03e)
+#	^jp(ta04f)
+	^jp(TATI_02_NRL_TOP)
+
+
+
+
+
+
+# 「破白」
+:TATI_02_NRL_02
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_NRL_02_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_NRL_02_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_NRL_02_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_NRL_02_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_NRL_02_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_NRL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_NRL_02_a
+#	^jp(ta12a)
+	^jp(ta05a)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「変身ver」
+:TATI_02_NRL_02_b
+#	^jp(ta12b)
+	^jp(ta05b)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_02_c
+#	^jp(ta12c)
+#	^jp(ta06c)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_02_d
+#	^jp(ta12d)
+#	^jp(ta06d)
+#	^jp(ta05d)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_02_e
+#	^jp(ta12e)
+#	^jp(ta06e)
+	^jp(TATI_02_NRL_TOP)
+
+
+
+
+
+
+# 「牙山」
+:TATI_02_NRL_03
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「人形ver（左臂赱陝差分）」", 30, 13)
+btnset(4,"slctwnd", 304, 168, "「鰐身ver（左臂赱陝差分）」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_NRL_03_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_NRL_03_b)
+	^case(2)			# 「人型ver（左腕負傷差分）」
+		^jp(TATI_02_NRL_03_c)
+	^case(3)			# 「変身ver（左腕負傷差分）」
+		^jp(TATI_02_NRL_03_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_NRL_03_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_NRL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_NRL_03_a
+#	^jp(ta13a)
+#	^jp(ta07a)
+	^jp(ta06a)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「変身ver」
+:TATI_02_NRL_03_b
+#	^jp(ta13b)
+	^jp(ta06b)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「人型ver（左腕負傷差分）」
+:TATI_02_NRL_03_c
+#	^jp(ta13c)
+	^jp(ta06c)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「変身ver（左腕負傷差分）」
+:TATI_02_NRL_03_d
+#	^jp(ta13d)
+	^jp(ta06d)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_03_e
+#	^jp(ta13e)
+#	^jp(ta07e)
+	^jp(TATI_02_NRL_TOP)
+
+
+
+
+# 「トバコリ」
+:TATI_02_NRL_04
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_NRL_04_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_NRL_04_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_NRL_04_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_NRL_04_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_NRL_04_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_NRL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_NRL_04_a
+#	^jp(ta14a)
+#	^jp(ta08a)
+	^jp(ta07a)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「変身ver」
+:TATI_02_NRL_04_b
+#	^jp(ta14b)
+#	^jp(ta08b)
+	^jp(ta07b)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_04_c
+#	^jp(ta14c)
+#	^jp(ta08c)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_04_d
+#	^jp(ta14d)
+#	^jp(ta08d)
+#	^jp(ta06d)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_04_e
+#	^jp(ta14e)
+#	^jp(ta08e)
+	^jp(TATI_02_NRL_TOP)
+
+
+
+
+# 「ネクト」
+:TATI_02_NRL_05
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_NRL_05_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_NRL_05_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_NRL_05_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_NRL_05_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_NRL_05_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_NRL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_NRL_05_a
+#	^jp(ta15a)
+#	^jp(ta09a)
+	^jp(ta08a)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「変身ver」
+:TATI_02_NRL_05_b
+#	^jp(ta15b)
+	^jp(ta08b)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_05_c
+#	^jp(ta15c)
+#	^jp(ta09c)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_05_d
+#	^jp(ta15d)
+#	^jp(ta09d)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_05_e
+#	^jp(ta15e)
+#	^jp(ta09e)
+	^jp(TATI_02_NRL_TOP)
+
+
+
+
+# 「メリィ」
+:TATI_02_NRL_06
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_NRL_06_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_NRL_06_b)
+	^case(2)			# 「」
+		^jp(TATI_02_NRL_06_b)
+	^case(3)			# 「」
+		^jp(TATI_02_NRL_06_d)
+	^case(4)			# 「」
+		^jp(TATI_02_NRL_06_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_NRL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_NRL_06_a
+#	^jp(ta15a)
+	^jp(ta09a)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「変身ver」
+:TATI_02_NRL_06_b
+#	^jp(ta15b)
+	^jp(ta09b)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_06_c
+#	^jp(ta15c)
+#	^jp(ta09c)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_06_d
+#	^jp(ta15d)
+#	^jp(ta09d)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_06_e
+#	^jp(ta15e)
+#	^jp(ta09e)
+	^jp(TATI_02_NRL_TOP)
+
+
+
+
+# 「鋲鼠」
+:TATI_02_NRL_07
+
+
+btnset(1,"slctwnd", 304, 0, "「各差分」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「各差分」
+		^jp(TATI_02_NRL_07_a)
+#	^case(1)			# 「」
+#		^jp(TATI_02_NRL_07_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_NRL_07_b)
+#	^case(3)			# 「」
+#		^jp(TATI_02_NRL_07_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_NRL_07_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_NRL_TOP)
+	^df
+^ends
+
+
+# 「私服」
+:TATI_02_NRL_07_a
+#	^jp(ta15a)
+#	^jp(ta09a)
+	^jp(ta10a)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_07_b
+#	^jp(ta15b)
+#	^jp(ta09b)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_07_c
+#	^jp(ta15c)
+#	^jp(ta09c)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_07_d
+#	^jp(ta15d)
+#	^jp(ta09d)
+#	^jp(ta10d)
+	^jp(TATI_02_NRL_TOP)
+
+
+# 「」
+:TATI_02_NRL_07_e
+#	^jp(ta15e)
+#	^jp(ta09e)
+	^jp(TATI_02_NRL_TOP)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:TATI_01_UP_TOP
+
+
+
+
+btnset(1,"slctwnd", 304, 0, "「来梦」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「人形来梦」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「由狐御子」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+#btnset(6,"slctwnd", 304, 280, "「」", 30, 13)
+btnset(7,"slctwnd", 304, 336, "「前往釧方角色」", 30, 13)
+btnset(11,"slctwnd", 304, 392, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「来夢」
+		^jp(TATI_01_UP_01)
+	^case(1)			# 「ヒトガタ来夢」
+		^jp(TATI_01_UP_02)
+	^case(2)			# 「ユコミス」
+		^jp(TATI_01_UP_03)
+	^case(3)			# 「」
+		^jp(TATI_01_UP_04)
+	^case(4)			# 「」
+		^jp(TATI_01_UP_05)
+	^case(5)			# 「」
+		^jp(TATI_01_UP_06)
+	^case(6)			# 「敵キャラへ」
+		^jp(TATI_02_UP_TOP)
+
+	^case(10)			# 「戻る」
+		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+
+
+# 「来夢」
+:TATI_01_UP_01
+
+
+btnset(1,"slctwnd", 304, 0, "「学葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「十二桟」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「打工服」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(6,"slctwnd", 304, 280, "「鰐身（輦甲1）」", 30, 13)
+btnset(7,"slctwnd", 304, 336, "「鰐身（輦甲訟化）」", 30, 13)
+btnset(8,"slctwnd", 304, 392, "「颯堕鰐身（輦甲1滌色）」", 30, 13)
+
+btnset(11,"slctwnd", 304, 448, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_UP_01_a)
+	^case(1)			# 「十二単」
+		^jp(TATI_01_UP_01_b)
+	^case(2)			# 「バイト服」
+		^jp(TATI_01_UP_01_c)
+#	^case(3)			# 「」
+#		^jp(TATI_01_UP_01_d)
+	^case(4)			# 「裸」
+		^jp(TATI_01_UP_01_e)
+
+	^case(5)			# 「変身（鎧１）」
+		^jp(TATI_01_UP_01_f)
+	^case(6)			# 「変身（鎧パワーアップ）」
+		^jp(TATI_01_UP_01_g)
+	^case(7)			# 「悪堕ち変身（鎧１の色替え）」
+		^jp(TATI_01_UP_01_h)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_UP_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_UP_01_a
+	^jp(tb01a)
+
+
+# 「十二単」
+:TATI_01_UP_01_b
+	^jp(tb01b)
+
+
+# 「バイト服」
+:TATI_01_UP_01_c
+	^jp(tb01c)
+
+
+# 「」
+:TATI_01_UP_01_d
+	^jp(tb01d)
+
+
+# 「裸」
+:TATI_01_UP_01_e
+	^jp(tb01e)
+
+
+# 「変身（鎧１）」
+:TATI_01_UP_01_f
+	^jp(tb01f)
+
+
+# 「変身（鎧パワーアップ）」
+:TATI_01_UP_01_g
+	^jp(tb01g)
+
+
+# 「悪堕ち変身（鎧１の色替え）」
+:TATI_01_UP_01_h
+	^jp(tb01h)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 「ヒトガタ来夢」
+:TATI_01_UP_02
+
+
+btnset(1,"slctwnd", 304, 0, "「鰐身（輦甲訟化滌色）」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+#btnset(11,"slctwnd", 304, 448, "「戻る」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「変身（鎧パワーアップ色替え）」
+		^jp(TATI_01_UP_02_a)
+#	^case(1)			# 「」
+#		^jp(TATI_01_UP_02_b)
+#	^case(2)			# 「」
+#		^jp(TATI_01_UP_02_c)
+#	^case(3)			# 「」
+#		^jp(TATI_01_UP_02_d)
+#	^case(4)			# 「」
+#		^jp(TATI_01_UP_02_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_UP_TOP)
+	^df
+^ends
+
+
+
+
+# 「変身（鎧パワーアップ色替え）」
+:TATI_01_UP_02_a
+	^jp(tb02a)
+
+
+# 「」
+:TATI_01_UP_02_b
+	^jp(tb02b)
+
+
+# 「」
+:TATI_01_UP_02_c
+	^jp(tb02c)
+
+
+# 「」
+:TATI_01_UP_02_d
+	^jp(tb02d)
+
+
+# 「」
+:TATI_01_UP_02_e
+	^jp(tb02e)
+
+
+
+
+
+
+# 「ユコミス」
+:TATI_01_UP_03
+
+
+btnset(1,"slctwnd", 304, 0, "「普通服装」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「通常衣装」
+		^jp(TATI_01_UP_03_a)
+#	^case(1)			# 「」
+#		^jp(TATI_01_UP_03_b)
+#	^case(2)			# 「」
+#		^jp(TATI_01_UP_03_c)
+#	^case(3)			# 「」
+#		^jp(TATI_01_UP_03_d)
+	^case(4)			# 「裸」
+		^jp(TATI_01_UP_03_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_UP_TOP)
+	^df
+^ends
+
+
+
+
+# 「通常衣装」
+:TATI_01_UP_03_a
+	^jp(tb03a)
+
+
+# 「」
+:TATI_01_UP_03_b
+	^jp(tb03b)
+
+
+# 「」
+:TATI_01_UP_03_c
+	^jp(tb03c)
+
+
+# 「」
+:TATI_01_UP_03_d
+	^jp(tb03d)
+
+
+# 「裸」
+:TATI_01_UP_03_e
+	^jp(tb03e)
+
+
+
+
+
+
+# 「」
+:TATI_01_UP_04
+
+
+btnset(1,"slctwnd", 304, 0, "「校葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「礼服」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「泳装」", 30, 13)
+btnset(4,"slctwnd", 304, 168, "「睡衣」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_UP_04_a)
+	^case(1)			# 「ドレス」
+		^jp(TATI_01_UP_04_b)
+	^case(2)			# 「水着」
+		^jp(TATI_01_UP_04_c)
+	^case(3)			# 「パジャマ」
+		^jp(TATI_01_UP_04_d)
+	^case(4)			# 「裸」
+		^jp(TATI_01_UP_04_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_UP_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_UP_04_a
+	^jp(tb04a)
+
+
+# 「ドレス」
+:TATI_01_UP_04_b
+	^jp(tb04b)
+
+
+# 「水着」
+:TATI_01_UP_04_c
+	^jp(tb04c)
+
+
+# 「パジャマ」
+:TATI_01_UP_04_d
+	^jp(tb04d)
+
+
+# 「裸」
+:TATI_01_UP_04_e
+	^jp(tb04e)
+
+
+
+
+
+
+# 「」
+:TATI_01_UP_05
+
+
+btnset(1,"slctwnd", 304, 0, "「校葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「女仆装」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「泳装」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「パジャマ」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+#btnset(11,"slctwnd", 304, 224, "「戻る」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_UP_05_a)
+	^case(1)			# 「メイド服」
+		^jp(TATI_01_UP_05_b)
+	^case(2)			# 「水着」
+		^jp(TATI_01_UP_05_c)
+	^case(4)			# 「裸」
+		^jp(TATI_01_UP_05_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_UP_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_UP_05_a
+	^jp(tb05a)
+
+
+# 「メイド服」
+:TATI_01_UP_05_b
+	^jp(tb05b)
+
+
+# 「水着」
+:TATI_01_UP_05_c
+	^jp(tb05c)
+
+
+# 「裸」
+:TATI_01_UP_05_e
+	^jp(tb05e)
+
+
+
+
+
+
+# 「」
+:TATI_01_UP_06
+
+
+btnset(1,"slctwnd", 304, 0, "「校葢制服」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「便服」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「泳装」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「パジャマ」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「裸体」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「学園制服」
+		^jp(TATI_01_UP_06_a)
+	^case(1)			# 「私服」
+		^jp(TATI_01_UP_06_b)
+	^case(2)			# 「水着」
+		^jp(TATI_01_UP_06_c)
+	^case(4)			# 「裸」
+		^jp(TATI_01_UP_06_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_01_UP_TOP)
+	^df
+^ends
+
+
+
+
+# 「学園制服」
+:TATI_01_UP_06_a
+	^jp(tb06a)
+
+
+# 「私服」
+:TATI_01_UP_06_b
+	^jp(tb06b)
+
+
+# 「水着」
+:TATI_01_UP_06_c
+	^jp(tb06c)
+
+
+# 「裸」
+:TATI_01_UP_06_e
+	^jp(tb06e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:TATI_02_UP_TOP
+
+
+
+
+btnset(1,"slctwnd", 304, 0, "「煌崎」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「破白」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「牙山」", 30, 13)
+btnset(4,"slctwnd", 304, 168, "「葹櫓」", 30, 13)
+btnset(5,"slctwnd", 304, 224, "「涅克特」", 30, 13)
+btnset(6,"slctwnd", 304, 280, "「梅莉」", 30, 13)
+btnset(7,"slctwnd", 304, 336, "「驪鼠」", 30, 13)
+
+btnset(11,"slctwnd", 304, 392, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「キラザキ」
+		^jp(TATI_02_UP_01)
+	^case(1)			# 「破白」
+		^jp(TATI_02_UP_02)
+	^case(2)			# 「牙山」
+		^jp(TATI_02_UP_03)
+	^case(3)			# 「トバコリ」
+		^jp(TATI_02_UP_04)
+	^case(4)			# 「ネクト」
+		^jp(TATI_02_UP_05)
+	^case(5)			# 「メリィ」
+		^jp(TATI_02_UP_06)
+	^case(6)			# 「鋲鼠」
+		^jp(TATI_02_UP_07)
+
+	^case(10)			# 「戻る」
+		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+
+
+# 「キラザキ」
+:TATI_02_UP_01
+
+
+btnset(1,"slctwnd", 304, 0, "「普通」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「通常」
+		^jp(TATI_02_UP_01_a)
+#	^case(1)			# 「」
+#		^jp(TATI_02_UP_01_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_UP_01_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_UP_01_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_UP_01_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_UP_TOP)
+#		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+# 「通常」
+:TATI_02_UP_01_a
+#	^jp(tb11a)
+	^jp(tb04a)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_01_b
+#	^jp(tb11b)
+#	^jp(tb05b)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_01_c
+#	^jp(tb11c)
+#	^jp(tb05c)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_01_d
+#	^jp(tb11d)
+#	^jp(tb04d)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_01_e
+#	^jp(tb11e)
+#	^jp(tb03e)
+#	^jp(tb04f)
+	^jp(TATI_02_UP_TOP)
+
+
+
+
+
+
+# 「破白」
+:TATI_02_UP_02
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_UP_02_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_UP_02_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_UP_02_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_UP_02_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_UP_02_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_UP_TOP)
+#		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_UP_02_a
+#	^jp(tb12a)
+	^jp(tb05a)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「変身ver」
+:TATI_02_UP_02_b
+#	^jp(tb12b)
+	^jp(tb05b)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_02_c
+#	^jp(tb12c)
+#	^jp(tb06c)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_02_d
+#	^jp(tb12d)
+#	^jp(tb06d)
+#	^jp(tb05d)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_02_e
+#	^jp(tb12e)
+#	^jp(tb06e)
+	^jp(TATI_02_UP_TOP)
+
+
+
+
+
+
+# 「牙山」
+:TATI_02_UP_03
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+btnset(3,"slctwnd", 304, 112, "「人形ver（左臂赱陝差分）」", 30, 13)
+btnset(4,"slctwnd", 304, 168, "「鰐身ver（左臂赱陝差分）」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_UP_03_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_UP_03_b)
+	^case(2)			# 「人型ver（左腕負傷差分）」
+		^jp(TATI_02_UP_03_c)
+	^case(3)			# 「変身ver（左腕負傷差分）」
+		^jp(TATI_02_UP_03_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_UP_03_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_UP_TOP)
+#		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_UP_03_a
+#	^jp(tb13a)
+#	^jp(tb07a)
+	^jp(tb06a)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「変身ver」
+:TATI_02_UP_03_b
+#	^jp(tb13b)
+	^jp(tb06b)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「人型ver（左腕負傷差分）」
+:TATI_02_UP_03_c
+#	^jp(tb13c)
+	^jp(tb06c)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「変身ver（左腕負傷差分）」
+:TATI_02_UP_03_d
+#	^jp(tb13d)
+	^jp(tb06d)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_03_e
+#	^jp(tb13e)
+#	^jp(tb07e)
+	^jp(TATI_02_UP_TOP)
+
+
+
+
+
+# 「トバコリ」
+:TATI_02_UP_04
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_UP_04_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_UP_04_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_UP_04_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_UP_04_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_UP_04_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_UP_TOP)
+#		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_UP_04_a
+#	^jp(tb14a)
+#	^jp(tb08a)
+	^jp(tb07a)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「変身ver」
+:TATI_02_UP_04_b
+#	^jp(tb14b)
+#	^jp(tb08b)
+	^jp(tb07b)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_04_c
+#	^jp(tb14c)
+#	^jp(tb08c)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_04_d
+#	^jp(tb14d)
+#	^jp(tb08d)
+#	^jp(tb06d)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_04_e
+#	^jp(tb14e)
+#	^jp(tb08e)
+	^jp(TATI_02_UP_TOP)
+
+
+
+
+
+# 「ネクト」
+:TATI_02_UP_05
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_UP_05_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_UP_05_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_UP_05_c)
+#	^case(3)			# 「」
+#		^jp(TATI_02_UP_05_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_UP_05_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_UP_TOP)
+#		^jp(LABEL_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_UP_05_a
+#	^jp(tb15a)
+#	^jp(tb09a)
+	^jp(tb08a)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「変身ver」
+:TATI_02_UP_05_b
+#	^jp(tb15b)
+	^jp(tb08b)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_05_c
+#	^jp(tb15c)
+#	^jp(tb09c)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_05_d
+#	^jp(tb15d)
+#	^jp(tb09d)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_05_e
+#	^jp(tb15e)
+#	^jp(tb09e)
+	^jp(TATI_02_UP_TOP)
+
+
+
+
+
+# 「メリィ」
+:TATI_02_UP_06
+
+
+btnset(1,"slctwnd", 304, 0, "「人形ver」", 30, 13)
+btnset(2,"slctwnd", 304, 56, "「鰐身ver」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「人型ver」
+		^jp(TATI_02_UP_06_a)
+	^case(1)			# 「変身ver」
+		^jp(TATI_02_UP_06_b)
+	^case(2)			# 「」
+		^jp(TATI_02_UP_06_b)
+	^case(3)			# 「」
+		^jp(TATI_02_UP_06_d)
+	^case(4)			# 「」
+		^jp(TATI_02_UP_06_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_UP_TOP)
+	^df
+^ends
+
+
+# 「人型ver」
+:TATI_02_UP_06_a
+#	^jp(tb15a)
+	^jp(tb09a)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「変身ver」
+:TATI_02_UP_06_b
+#	^jp(tb15b)
+	^jp(tb09b)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_06_c
+#	^jp(tb15c)
+#	^jp(tb09c)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_06_d
+#	^jp(tb15d)
+#	^jp(tb09d)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_06_e
+#	^jp(tb15e)
+#	^jp(tb09e)
+	^jp(TATI_02_UP_TOP)
+
+
+
+
+# 「鋲鼠」
+:TATI_02_UP_07
+
+
+btnset(1,"slctwnd", 304, 0, "「各差分」", 30, 13)
+#btnset(2,"slctwnd", 304, 56, "「」", 30, 13)
+#btnset(3,"slctwnd", 304, 112, "「」", 30, 13)
+#btnset(4,"slctwnd", 304, 168, "「」", 30, 13)
+#btnset(5,"slctwnd", 304, 224, "「」", 30, 13)
+
+btnset(11,"slctwnd", 304, 336, "「返回」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 「各差分」
+		^jp(TATI_02_UP_07_a)
+#	^case(1)			# 「」
+#		^jp(TATI_02_UP_07_b)
+#	^case(2)			# 「」
+#		^jp(TATI_02_UP_07_b)
+#	^case(3)			# 「」
+#		^jp(TATI_02_UP_07_d)
+#	^case(4)			# 「」
+#		^jp(TATI_02_UP_07_e)
+
+	^case(10)			# 「戻る」
+		^jp(TATI_02_UP_TOP)
+	^df
+^ends
+
+
+# 「私服」
+:TATI_02_UP_07_a
+#	^jp(tb15a)
+#	^jp(tb09a)
+	^jp(tb10a)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_07_b
+#	^jp(tb15b)
+#	^jp(tb09b)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_07_c
+#	^jp(tb15c)
+#	^jp(tb09c)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_07_d
+#	^jp(tb15d)
+#	^jp(tb09d)
+#	^jp(tb10d)
+	^jp(TATI_02_UP_TOP)
+
+
+# 「」
+:TATI_02_UP_07_e
+#	^jp(tb15e)
+#	^jp(tb09e)
+	^jp(TATI_02_UP_TOP)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:ta01a
+
+^gsb(ta01a)
+^jp(TATI_01_NRL_01)
+
+
+:ta01b
+
+
+^gsb(ta01b)
+^jp(TATI_01_NRL_01)
+
+
+:ta01c
+
+
+^gsb(ta01c)
+^jp(TATI_01_NRL_01)
+
+
+:ta01d
+
+
+^gsb(ta01d)
+^jp(TATI_01_NRL_01)
+
+
+:ta01e
+
+
+^gsb(ta01e)
+^jp(TATI_01_NRL_01)
+
+
+:ta01f
+
+
+^gsb(ta01f)
+^jp(TATI_01_NRL_01)
+
+
+:ta01g
+
+
+^gsb(ta01g)
+^jp(TATI_01_NRL_01)
+
+
+:ta01h
+
+
+^gsb(ta01h)
+^jp(TATI_01_NRL_01)
+
+
+
+
+
+:ta02a
+
+
+^gsb(ta02a)
+^jp(TATI_01_NRL_02)
+
+
+:ta02b
+
+
+^gsb(ta02b)
+^jp(TATI_01_NRL_02)
+
+
+:ta02c
+
+
+^gsb(ta02c)
+^jp(TATI_01_NRL_02)
+
+
+:ta02d
+
+
+^gsb(ta02d)
+^jp(TATI_01_NRL_02)
+
+
+:ta02e
+
+
+^gsb(ta02e)
+^jp(TATI_01_NRL_02)
+
+
+:ta02f
+
+
+^gsb(ta02f)
+^jp(TATI_01_NRL_02)
+
+
+:ta03a
+
+
+^gsb(ta03a)
+^jp(TATI_01_NRL_03)
+#^jp(TATI_02_NRL_01)
+
+
+:ta03b
+
+
+^gsb(ta03b)
+^jp(TATI_01_NRL_03)
+#^jp(TATI_02_NRL_01)
+
+
+:ta03c
+
+
+^gsb(ta03c)
+^jp(TATI_01_NRL_03)
+#^jp(TATI_02_NRL_01)
+
+
+:ta03d
+
+
+^gsb(ta03d)
+^jp(TATI_01_NRL_03)
+#^jp(TATI_02_NRL_01)
+
+
+:ta03e
+
+
+^gsb(ta03e)
+^jp(TATI_01_NRL_03)
+#^jp(TATI_02_NRL_01)
+
+
+:ta03f
+
+
+^gsb(ta03f)
+^jp(TATI_01_NRL_03)
+#^jp(TATI_02_NRL_01)
+
+
+:ta04a
+
+
+^gsb(ta04a)
+#^jp(TATI_01_NRL_04)
+^jp(TATI_02_NRL_01)
+
+
+:ta04b
+
+
+^gsb(ta04b)
+#^jp(TATI_01_NRL_04)
+^jp(TATI_02_NRL_01)
+
+
+:ta04c
+
+
+^gsb(ta04c)
+#^jp(TATI_01_NRL_04)
+^jp(TATI_02_NRL_01)
+
+
+:ta04d
+
+
+^gsb(ta04d)
+#^jp(TATI_01_NRL_04)
+^jp(TATI_02_NRL_01)
+
+
+:ta04e
+
+
+^gsb(ta04e)
+#^jp(TATI_01_NRL_04)
+^jp(TATI_02_NRL_01)
+
+
+:ta05a
+
+
+^gsb(ta05a)
+#^gsb(ta05b)#戯ィ牙用
+#^jp(TATI_02_NRL_TOP)#戯ィ牙用
+#^jp(TATI_01_NRL_05)
+^jp(TATI_02_NRL_02)
+
+
+:ta05b
+
+
+^gsb(ta05b)
+#^jp(TATI_01_NRL_05)
+^jp(TATI_02_NRL_02)
+
+
+:ta05c
+
+
+^gsb(ta05c)
+#^jp(TATI_01_NRL_05)
+^jp(TATI_02_NRL_02)
+
+
+:ta05d
+
+
+^gsb(ta05d)
+#^jp(TATI_01_NRL_05)
+^jp(TATI_02_NRL_02)
+
+
+:ta05e
+
+
+^gsb(ta05e)
+#^jp(TATI_01_NRL_05)
+^jp(TATI_02_NRL_02)
+
+
+:ta06a
+
+
+^gsb(ta06a)
+#^gsb(ta06b)#戯ィ牙用
+#^jp(TATI_02_NRL_TOP)#戯ィ牙用
+#^jp(TATI_01_NRL_06)
+^jp(TATI_02_NRL_03)
+
+
+:ta06b
+
+
+^gsb(ta06b)
+#^jp(TATI_01_NRL_06)
+^jp(TATI_02_NRL_03)
+
+
+:ta06c
+
+
+^gsb(ta06c)
+#^jp(TATI_01_NRL_06)
+^jp(TATI_02_NRL_03)
+
+
+:ta06d
+
+
+^gsb(ta06d)
+#^jp(TATI_01_NRL_06)
+^jp(TATI_02_NRL_03)
+
+
+:ta06e
+
+
+^gsb(ta06e)
+#^jp(TATI_01_NRL_06)
+^jp(TATI_02_NRL_03)
+
+
+:ta07a
+
+
+^gsb(ta07a)
+#^gsb(ta07b)#戯ィ牙用
+#^jp(TATI_02_NRL_TOP)
+^jp(TATI_02_NRL_04)
+
+
+:ta07b
+
+
+^gsb(ta07b)
+#^jp(TATI_02_NRL_TOP)
+^jp(TATI_02_NRL_04)
+
+
+:ta07c
+
+
+^gsb(ta07c)
+#^jp(TATI_02_NRL_TOP)
+^jp(TATI_02_NRL_04)
+
+
+:ta07d
+
+
+^gsb(ta07d)
+#^jp(TATI_02_NRL_TOP)
+^jp(TATI_02_NRL_04)
+
+
+:ta07e
+
+
+^gsb(ta07e)
+#^jp(TATI_02_NRL_TOP)
+^jp(TATI_02_NRL_04)
+
+
+:ta08a
+
+
+^gsb(ta08a)
+#^gsb(ta08b)#戯ィ牙用
+#^gsb(ta08c)#戯ィ牙用
+^jp(TATI_02_NRL_05)
+
+
+:ta08b
+
+
+^gsb(ta08b)
+^jp(TATI_02_NRL_05)
+
+
+:ta09a
+
+
+^gsb(ta09a)
+#^gsb(ta09b)#戯ィ牙用
+^jp(TATI_02_NRL_06)
+
+
+:ta09b
+
+
+^gsb(ta09b)
+^jp(TATI_02_NRL_06)
+
+
+:ta10a
+
+
+^gsb(ta10a)
+^jp(TATI_02_NRL_07)
+
+
+:ta11a
+
+
+^gsb(ta11a)
+^jp(TATI_02_NRL_TOP)
+
+
+:ta12a
+
+
+^gsb(ta12a)
+^jp(TATI_02_NRL_TOP)
+
+
+:ta13a
+
+
+^gsb(ta13a)
+^jp(TATI_02_NRL_TOP)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:tb01a
+
+^gsb(tb01a)
+^jp(TATI_01_UP_01)
+
+
+:tb01b
+
+
+^gsb(tb01b)
+^jp(TATI_01_UP_01)
+
+
+:tb01c
+
+
+^gsb(tb01c)
+^jp(TATI_01_UP_01)
+
+
+:tb01d
+
+
+^gsb(tb01d)
+^jp(TATI_01_UP_01)
+
+
+:tb01e
+
+
+^gsb(tb01e)
+^jp(TATI_01_UP_01)
+
+
+:tb01f
+
+
+^gsb(tb01f)
+^jp(TATI_01_UP_01)
+
+
+:tb01g
+
+
+^gsb(tb01g)
+^jp(TATI_01_UP_01)
+
+
+:tb01h
+
+
+^gsb(tb01h)
+^jp(TATI_01_UP_01)
+
+
+
+
+
+:tb02a
+
+
+^gsb(tb02a)
+^jp(TATI_01_UP_02)
+
+
+:tb02b
+
+
+^gsb(tb02b)
+^jp(TATI_01_UP_02)
+
+
+:tb02c
+
+
+^gsb(tb02c)
+^jp(TATI_01_UP_02)
+
+
+:tb02d
+
+
+^gsb(tb02d)
+^jp(TATI_01_UP_02)
+
+
+:tb02e
+
+
+^gsb(tb02e)
+^jp(TATI_01_UP_02)
+
+
+:tb02f
+
+
+^gsb(tb02f)
+^jp(TATI_01_UP_02)
+
+
+:tb03a
+
+
+^gsb(tb03a)
+^jp(TATI_01_UP_03)
+#^jp(TATI_02_UP_01)
+
+
+:tb03b
+
+
+^gsb(tb03b)
+^jp(TATI_01_UP_03)
+#^jp(TATI_02_UP_01)
+
+
+:tb03c
+
+
+^gsb(tb03c)
+^jp(TATI_01_UP_03)
+#^jp(TATI_02_UP_01)
+
+
+:tb03d
+
+
+^gsb(tb03d)
+^jp(TATI_01_UP_03)
+#^jp(TATI_02_UP_01)
+
+
+:tb03e
+
+
+^gsb(tb03e)
+^jp(TATI_01_UP_03)
+#^jp(TATI_02_UP_01)
+
+
+:tb03f
+
+
+^gsb(tb03f)
+^jp(TATI_01_UP_03)
+#^jp(TATI_02_UP_01)
+
+
+:tb04a
+
+
+^gsb(tb04a)
+#^jp(TATI_01_UP_04)
+^jp(TATI_02_UP_01)
+
+
+:tb04b
+
+
+^gsb(tb04b)
+#^jp(TATI_01_UP_04)
+^jp(TATI_02_UP_01)
+
+
+:tb04c
+
+
+^gsb(tb04c)
+#^jp(TATI_01_UP_04)
+^jp(TATI_02_UP_01)
+
+
+:tb04d
+
+
+^gsb(tb04d)
+#^jp(TATI_01_UP_04)
+^jp(TATI_02_UP_01)
+
+
+:tb04e
+
+
+^gsb(tb04e)
+#^jp(TATI_01_UP_04)
+^jp(TATI_02_UP_01)
+
+
+:tb05a
+
+
+^gsb(tb05a)
+#^gsb(tb05b)#戯ィ牙用
+#^jp(TATI_02_UP_TOP)#戯ィ牙用
+#^jp(TATI_01_UP_05)
+^jp(TATI_02_UP_02)
+
+
+:tb05b
+
+
+^gsb(tb05b)
+#^jp(TATI_01_UP_05)
+^jp(TATI_02_UP_02)
+
+
+:tb05c
+
+
+^gsb(tb05c)
+#^jp(TATI_01_UP_05)
+^jp(TATI_02_UP_02)
+
+
+:tb05d
+
+
+^gsb(tb05d)
+#^jp(TATI_01_UP_05)
+^jp(TATI_02_UP_02)
+
+
+:tb05e
+
+
+^gsb(tb05e)
+#^jp(TATI_01_UP_05)
+^jp(TATI_02_UP_02)
+
+
+:tb06a
+
+
+^gsb(tb06a)
+#^gsb(tb06b)#戯ィ牙用
+#^jp(TATI_02_UP_TOP)#戯ィ牙用
+#^jp(TATI_01_UP_06)
+^jp(TATI_02_UP_03)
+
+
+:tb06b
+
+
+^gsb(tb06b)
+#^jp(TATI_01_UP_06)
+^jp(TATI_02_UP_03)
+
+
+:tb06c
+
+
+^gsb(tb06c)
+#^jp(TATI_01_UP_06)
+^jp(TATI_02_UP_03)
+
+
+:tb06d
+
+
+^gsb(tb06d)
+#^jp(TATI_01_UP_06)
+^jp(TATI_02_UP_03)
+
+
+:tb06e
+
+
+^gsb(tb06e)
+#^jp(TATI_01_UP_06)
+^jp(TATI_02_UP_03)
+
+
+:tb07a
+
+
+^gsb(tb07a)
+#^gsb(tb07b)#戯ィ牙用
+#^jp(TATI_02_UP_TOP)
+^jp(TATI_02_UP_04)
+
+
+:tb07b
+
+
+^gsb(tb07b)
+#^jp(TATI_02_UP_TOP)
+^jp(TATI_02_UP_04)
+
+
+:tb07c
+
+
+^gsb(tb07c)
+#^jp(TATI_02_UP_TOP)
+^jp(TATI_02_UP_04)
+
+
+:tb07d
+
+
+^gsb(tb07d)
+#^jp(TATI_02_UP_TOP)
+^jp(TATI_02_UP_04)
+
+
+:tb07e
+
+
+^gsb(tb07e)
+#^jp(TATI_02_UP_TOP)
+^jp(TATI_02_UP_04)
+
+
+:tb08a
+
+
+^gsb(tb08a)
+#^gsb(tb08b)#戯ィ牙用
+#^gsb(tb08c)#戯ィ牙用
+^jp(TATI_02_UP_05)
+
+
+:tb08b
+
+
+^gsb(tb08b)
+^jp(TATI_02_UP_05)
+
+
+:tb09a
+
+
+^gsb(tb09a)
+#^gsb(tb09b)#戯ィ牙用
+^jp(TATI_02_UP_06)
+
+
+:tb09b
+
+
+^gsb(tb09b)
+^jp(TATI_02_UP_06)
+
+
+:tb10a
+
+
+^gsb(tb10a)
+^jp(TATI_02_UP_07)
+
+
+:tb11a
+
+
+^gsb(tb11a)
+^jp(TATI_02_UP_TOP)
+
+
+:tb12a
+
+
+^gsb(tb12a)
+^jp(TATI_02_UP_TOP)
+
+
+:tb13a
+
+
+^gsb(tb13a)
+^jp(TATI_02_UP_TOP)
+
+
+
+
+
+
+:END_TATI
+
+choff(-1)	#立ちＣＧ消去
+bgon("black")
+ud(1, 200)
+
+%temp = 1
+^ret
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:EFFECT_TOP
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff001a", CENTER)	# 読み込み【魔方陣】
+ud(0)						# 更新
+#seon("se230a", 0, 5)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+魔法瀝
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff002a", CENTER)	# 読み込み【炎】
+ud(0)						# 更新
+#seon("se240a", 0, 2)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+火雋
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff003a", CENTER)	# 読み込み【水魔法】
+ud(0)						# 更新
+seon("se599a", 0, 3)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+水魔法
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff004a", CENTER)	# 読み込み【風魔法3】
+ud(0)						# 更新
+seon("se589a", 0, 1)	# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+釖魔法
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff005a", CENTER)	# 読み込み【氷魔法】
+ud(0)						# 更新
+seon("se462a", 0, 5)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+冰魔法
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff006a", CENTER)	# 読み込み【重力】
+ud(0)						# 更新
+#seon("se224a", 0, 5)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+重力
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff007a", CENTER)	# 読み込み【神聖攻撃魔法】
+ud(0)						# 更新
+seon("se212b", 0, 5)	# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+神鷓攻踈魔法
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff008a", CENTER)	# 読み込み【回復魔法】
+ud(0)						# 更新
+#seon("se247a", 0, 5)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+回鋺魔法
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff009a", CENTER)	# 読み込み【爆発(炎）】
+ud(0)						# 更新
+seon("se235a", 0, 4)	# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+爆炸
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff010a", CENTER)	# 読み込み【爆発（煙）】
+ud(0)						# 更新
+seon("se235a", 0, 4)	# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+爆炸
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#αあり
+chon(17, "eff010a", CENTER)	# 読み込み【爆発（煙）】
+chon(18, "eff009a", CENTER)	# 読み込み【爆発(炎）】
+ud(0)						# 更新
+seon("se235a", 0, 4)	# 非同期単発（トラック指定）
+#anmnum(17, 3)				# アニメ待ち
+anmnum(18, 3)				# アニメ待ち
+choff(17)					# 消去
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+爆炸
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff011a", CENTER)	# 読み込み【打撃】
+ud(0)						# 更新
+#seon("se210a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+打踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff012a", CENTER)	# 読み込み【攻撃エフェクト】
+ud(0)						# 更新
+#seon("se210a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+攻踈特效
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff013a", CENTER)	# 読み込み【剣撃2】
+ud(0)						# 更新
+seon("se220a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+葯踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff013b", CENTER)	# 読み込み【剣撃2】
+ud(0)						# 更新
+seon("se313a", 0, 1)	# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+葯踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff014a", CENTER)	# 読み込み【剣撃1】
+ud(0)						# 更新
+seon("se230a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+葯踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+#αあり
+chon(18, "eff014b", CENTER)	# 読み込み【剣撃1】
+ud(0)						# 更新
+seon("se220a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+
+
+葯踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff015a", CENTER)	# 読み込み【爆発】
+ud(0)						# 更新
+#seon("se210a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+爆炸
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff016a", CENTER)	# 読み込み【打撃】
+ud(0)						# 更新
+#seon("se210a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+打踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff017a", CENTER)	# 読み込み【斬撃】
+ud(0)						# 更新
+seon("se230a", 0, 5)	# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+飩踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff017b", CENTER)	# 読み込み【斬撃】
+ud(0)						# 更新
+seon("se230a", 0, 5)	# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+飩踈
+
+
+
+
+#choff(18)
+#ud(0)
+
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff018a", CENTER)	# 読み込み【炎上】
+ud(0)						# 更新
+#seon("se210a", 0, 7)			# 非同期単発（トラック指定）
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+燃鞦
+
+
+
+
+#choff(18)
+#ud(0)
+
+seon("se247a", 0, 7)			# 非同期単発（トラック指定）
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff019a", CENTER)	# 読み込み【雷】
+ud(0)						# 更新
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+雷攅
+
+
+
+
+seon("se578b", 0, 7)			# 非同期単発（トラック指定）
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff028a", CENTER)	# 読み込み【火炎攻撃（向かってくる）】
+ud(0)						# 更新
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+火雋攻踈
+
+
+
+
+seon("se578b", 0, 7)			# 非同期単発（トラック指定）
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff028b", CENTER)	# 読み込み【火炎攻撃（向かってくる）】
+ud(0)						# 更新
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+火雋攻踈（緞白）
+
+
+
+
+seon("se210a", 0, 7)			# 非同期単発（トラック指定）
+ch(18, ADD, 1)		# 加算合成
+#加算合成
+chon(18, "eff031a", CENTER)	# 読み込み【光弾】
+ud(0)						# 更新
+anmnum(18, 3)				# アニメ待ち
+choff(18)					# 消去
+ud(0)						# 更新
+ch(18, ADD, 0)		# ノーマル
+
+
+光霽
+
+
+
+
+^jp(LABEL_TOP)
+
+
+
+
+
+
+
+
+
+^ret
+
+::END

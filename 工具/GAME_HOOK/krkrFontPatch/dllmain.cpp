@@ -2,7 +2,9 @@
 #include "winapi_def.h"
 #include "detours.h"
 #include "hookFont.h"
+//#include "textReplacer.h"
 #pragma comment(lib, "detours.lib")
+#pragma comment(lib, "CHS_PACK_LIB.lib")
 
 VOID __declspec(dllexport) _()
 {
@@ -32,9 +34,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 		//	MessageBoxW(NULL, L"请使用简体中文环境运行本程序！", NULL, NULL);
 		//	exit(1);
 		//}
-		newFontName = L"Microsoft YaHei UI";
+		newFontName = L"宋体";
+        newCharset = 0x86;
 		//newWeight = 600;
 		installFontHook_main(TRUE, TRUE, TRUE, TRUE);
+		//install_hook_textreplaceFromPackEx(5, "chs.pack", "replace.txt", "mykey");
 		break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:

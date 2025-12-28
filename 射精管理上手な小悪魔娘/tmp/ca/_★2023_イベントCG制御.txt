@@ -1,0 +1,36 @@
+#z00
+
+
+
+
+
+
+
+command $eventcg_control_cgmode(property $fa : frameaction,property $obj : object) {
+
+	if (front.object[210].exist_type == 1) {
+
+		if ($eventcg_control_menu_disp == 0) {
+		
+			if (mouse.get_pos_y < 40) {
+			
+				$eventcg_control_menu_disp = 1
+				front.object[210].y_rep_eve[0].set(0,500,0,2)
+				front.object[210].tr_eve.set(255,500,0,2)
+			}
+		
+		}
+		
+		else{
+		
+			if (mouse.get_pos_y > 40) {			
+				$eventcg_control_menu_disp = 0
+				front.object[210].y_rep_eve[0].set(-40,500,0,2)
+				front.object[210].tr_eve.set(0,500,0,2)
+			}
+		}
+	}
+
+}
+
+

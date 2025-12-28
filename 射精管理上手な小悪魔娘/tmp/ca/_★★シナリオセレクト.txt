@@ -1,0 +1,305 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#init
+
+$game_init
+$mwnd_button_init	
+
+
+
+
+syscom.set_msg_back_enable_flag(1)
+syscom.set_save_enable_flag(1)
+script.set_ctrl_skip_enable
+syscom.set_syscom_menu_enable
+
+
+
+
+if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+
+
+
+
+$chr_fukusou[0] =""
+$chr_fukusou[1] =""
+$chr_fukusou[2] =""
+
+
+
+
+
+
+
+
+
+back.object[01].create(_black_half,1,639,359)
+close  			$bg_filename_tmp = bg10_aa 			$time_tmp = 1000  			if (bg10_aa == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+syscom.set_msg_back_enable_flag(0)
+
+front.object[10].init
+front.object[10].child.resize(300)
+front.object[10].disp = 1
+
+
+front.object[190].create_rect(0,0,50,50,62,162,193,255,1,1150,80)
+front.object[191].create_rect(0,0,50,50,62,162,193,255,1,1150,180)
+front.object[192].create_rect(0,0,50,50,62,162,193,255,1,1150,280)
+
+front.object[190].set_button(900,0,10,1)
+front.object[191].set_button(901,0,10,1)
+front.object[192].set_button(902,0,10,1)
+
+
+
+
+
+
+$ss_scene_title.init
+$ss_scene_ss.init
+$ss_scene_zno.init
+
+
+
+$ss_set(91,"9999_アイキャッチテスト","_",0)
+
+$ss_set(92,"9999_スタッフロールテスト","_",0)
+
+$ss_set(93,"9999_★★★メインフロー","_",0)
+
+$ss_set(94,"_★★★テスト環境2","_",0)
+
+$ss_set(95,"_★立ち絵リストアップ_M13","_",0)
+
+$ss_set(96,"フラグ切り替え","_",0)
+
+
+
+
+$ss_set(100,"0100_□◆巫女妹企画_プロローグ","_",0)
+$ss_set(101,"0200_巫女妹企画_２日目","_",0)
+$ss_set(102,"0300_巫女妹企画_３日目","_",0)
+$ss_set(103,"0400_巫女妹企画_４日目","_",0)
+$ss_set(104,"0500_巫女妹企画_５日目","_",0)
+$ss_set(105,"0600_巫女妹企画_６日目","_",0)
+$ss_set(106,"0700_巫女妹企画_７日目","_",0)
+
+
+
+$ss_set(120,"1000_巫女妹企画_瑞月ルート１","_",0)
+$ss_set(121,"1100_巫女妹企画_瑞月ルート２","_",0)
+$ss_set(122,"1200_巫女妹企画_瑞月ルート３","_",0)
+$ss_set(123,"1500_巫女妹企画_瑞月ルートＥＤ","_",0)
+$ss_set(124,"1600_□◆巫女妹企画_瑞月ルートＥＤ派生（主人公乗っ取られ）","_",0)
+
+$ss_set(140,"2000_巫女妹企画_３ｐルート１","_",0)
+$ss_set(141,"2100_巫女妹企画_３ｐルート２","_",0)
+$ss_set(142,"2200_巫女妹企画_３ｐルート３","_",0)
+$ss_set(143,"2500_巫女妹企画_３ｐルートＥＤ","_",0)
+
+
+$ss_set(220,"_★モード_CG","_★モード_CG",0)
+$ss_set(221,"_★モード_サウンド","_★モード_サウンド",0)
+$ss_set(222,"_★モード_連続回想","_★モード_連続回想",0)
+
+
+
+
+
+l[01] = 0
+
+for (l[00] = 90,l[00] < 400,l[00] += 1) {
+
+	if ($ss_scene_title[l[00]] == "") {continue}
+	
+	$create_siori(l[00], $ss_scene_title[l[00]], 100,50 + (l[01] * 70) , 400,50 , $ss_scene_ss[l[00]])
+
+
+	l[01] += 1
+
+
+
+}
+
+
+
+
+
+
+
+
+$create_tate_slider(00)		
+
+
+#start
+
+
+$ls_btn0_hit = 0 						$ls_btn1_hit = 0 						$ls_btn2_hit = 0 						$ls_btn3_hit = 0 						$ls_btn4_hit = 0 						$ls_btn5_hit = 0 						$ls_btn6_hit = 0  						$ls_btn0_push = 0 						$ls_btn1_push = 0 						$ls_btn2_push = 0 						$ls_btn3_push = 0 						$ls_btn4_push = 0 						$ls_btn5_push = 0 						$ls_btn6_push = 0  						$ls_btn0_decided = 0 						$ls_btn1_decided = 0 						$ls_btn2_decided = 0 						$ls_btn3_decided = 0 						$ls_btn4_decided = 0 						$ls_btn5_decided = 0 						$ls_btn6_decided = 0 						 						$ls_btn_break = 0  						front.objbtngroup[0].init 						front.objbtngroup[1].init 						front.objbtngroup[2].init 						front.objbtngroup[3].init 						front.objbtngroup[4].init 						front.objbtngroup[5].init 						front.objbtngroup[6].init
+front.objbtngroup[0].start
+
+input.clear
+mouse.clear
+
+
+while(1) {
+
+	$ls_btn0_hit = front.objbtngroup[0].get_hit_no
+	$ls_btn0_push = front.objbtngroup[0].get_pushed_no
+	$ls_btn0_decided = front.objbtngroup[0].get_decided_no
+	
+	
+	$tate_slider_behavior
+	$set_tate_slider_param
+	
+	
+	if ($ls_btn0_decided == 900) {
+	
+		g[1000+00] = math.limit(0,g[1000+00] - 500,$page_height[00])
+		front.object[10].y_rep[00] = -g[1000+00]
+	
+	
+	}
+	
+	if ($ls_btn0_decided == 901) {
+		
+		g[1000+00] = math.limit(0,g[1000+00] + 500,$page_height[00])
+		front.object[10].y_rep[00] = -g[1000+00]
+	
+	}
+	
+	if ($ls_btn0_decided == 902) {
+		
+		g[1000+00] = math.limit(0,g[1000+00] + 1400,$page_height[00])
+		front.object[10].y_rep[00] = -g[1000+00]
+	
+	}
+	
+	
+	if ($ls_btn0_decided >= 90 && $ls_btn0_decided < 400) {
+	
+		if($ls_btn0_decided == 96) {
+		
+			close  			$bg_filename_tmp = _black 			$time_tmp = 1000  			if (_black == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+			
+			#flag_switch
+			
+			l[00] = selbtn("ＣＧ全ＯＮ","ＣＧ全ＯＦＦ","シナリオ全ＯＮ","シナリオ全ＯＦＦ","もどる")
+			
+			switch(l[00]) {
+			
+				case(0)	cgtable.set_all_flag(1) goto #flag_switch
+				case(1)	cgtable.set_all_flag(0)	goto #flag_switch
+				case(2)	g.clear(100,199,1)	goto #flag_switch
+				case(3)	g.clear(100,199,0)	goto #flag_switch	
+			
+			}
+
+	
+			goto #init
+
+		}
+	
+		if ($ls_btn0_decided == 97) {
+		
+		
+		
+		}
+	
+	
+	
+	
+		if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(1000)}
+		close  			$bg_filename_tmp = _black 			$time_tmp = 1000  			if (_black == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			} timewait(1000)
+		
+		syscom.set_msg_back_enable_flag(1)
+	
+		farcall($ss_scene_ss[$ls_btn0_decided],$ss_scene_zno[$ls_btn0_decided])
+		
+		goto #init
+	
+	
+	}
+	
+	
+	
+	if ($ls_btn0_decided > 0) {goto #start}
+	
+	
+	
+	disp
+
+
+}
+
+
+
+
+
+
+command $create_siori(property $btnno,property $moji : str,property $x,property $y,property $w,property $h,property $moji2 : str)	{
+
+	l[00] = $btnno - 90
+
+	front.object[10].child[l[00]].create_rect($x,$y,$x+$w,$y+$h,62,162,193,255,1)
+	front.object[10].child[l[00]].set_button($btnno,0,10,0)	
+	
+	front.object[10].child[l[00]].child.resize(3)
+	
+	front.object[10].child[l[00]].child[01].create_string($moji,1,$x,$y+12)
+	front.object[10].child[l[00]].child[01].set_string_param(25,0,0,0,21,0,0)
+	
+	front.object[10].child[l[00]].child[02].create_string($moji2,1,$x+$w + 10,$y+$h - 10)
+	front.object[10].child[l[00]].child[02].set_string_param(12,0,0,0,0,0,0)
+	
+	
+	
+	l[01] = ($x+($w /2)) - ($moji.cnt * 25 / 2)
+		
+	front.object[10].child[l[00]].child[01].x = l[01]
+}
+
+
+
+
+
+
+command $ss_set(property $index,property $title : str,property $scene_file : str,property $z_no) {
+
+	$ss_scene_title[$index] = $title
+	
+	if ($scene_file == "_") { $ss_scene_ss[$index] = $title}
+	else {	$ss_scene_ss[$index] = $scene_file }
+	
+	$ss_scene_zno[$index] = $z_no
+
+}
+
+
+
+
+

@@ -1,0 +1,242 @@
+::START
+
+mode(1)
+
+
+# セーブ可能、ロード可能
+mode(0)
+loadenable
+saveenable
+^gsb(WND_ADV)
+mode(1)
+
+
+:DEBUG_00
+^if(%TAIKEN_FLAG1 == 1)
+	# 体験版モード
+
+	^gsb(tai01)
+	^jp(END_GAME)
+
+
+^elif(%TAIKEN_FLAG2 == 1)
+	# 体験版モード２
+
+	^gsb(tai02)
+	^jp(END_GAME)
+
+^elif(%COMIKE_FLAG1 == 1)
+	# コミケ用体験版モード
+
+	^gsb(tai_comi)
+	^jp(END_GAME)
+
+^elif(%TECK_FLAG == 1)
+	# テック用体験版モード
+
+	^gsb(tai_TG)
+	^jp(END_GAME)
+
+^elif(%PUSH_FLAG == 1)
+	# push体験版モード
+
+	^gsb(tai_push)
+	^jp(END_GAME)
+
+^else
+	^if(%DEBUG_FLAG == 1)
+
+#		%temp = 0
+#		^gsb(staff)
+#		%temp = 1
+#		^gsb(staff)
+#		%temp = 2
+#		^gsb(staff)
+#		%temp = 3
+#		^gsb(staff)
+		#デバッグモード実行
+		^gsb(DBta_MENU)
+#		^gsb(DB_MENU)
+		^if(%temp == 1)
+			^jp(END_GAME)
+		^endi
+	^endi
+^endi
+
+
+
+
+#■＝＝＝＝＝◇共通パートその１＝＝＝＝＝
+:LABEL_00_00
+%day = 0
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+^gsb(00_01)
+	^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(op_mov)		# OPムービー
+
+^gsb(00_02)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_03)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_04)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_05)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_06)
+	^gsb(CheckParam)	# 好感度チェック
+
+
+	^if(%iTopChar == 2)		# 好感度
+		#ハッピーエンドルートへジャンプ
+		^jp(LABEL_05_01)
+	^endi
+
+
+^gsb(01_01)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(01_02)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(01_03)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(01_04)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(01_05)
+	^gsb(CheckParam)	# 好感度チェック
+
+
+	^if(%iTopChar == 1)		# 好感度
+		#準寝取られルートへジャンプ
+		^jp(LABEL_03_01)
+	^else
+		#寝取られルートへジャンプ
+		^jp(LABEL_04_01)
+	^endi
+
+
+^jp(LABEL_05_01)
+#/////////////////////////////////////////////////////////////
+
+
+
+
+#■＝＝＝＝＝◇準寝取られルート＝＝＝＝＝
+:LABEL_03_01
+%day = 3
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+	^gsb(A_01)
+	^gsb(A_02)
+	^gsb(A_03a)
+	^gsb(A_03b)
+	^gsb(A_03c)
+	^gsb(A_04a)
+	^gsb(A_04b)
+	^gsb(A_04c)
+	^gsb(A_05)
+	^gsb(A_06)
+	^gsb(A_07)
+
+
+		%temp = 0
+		^gsb(staff)
+	global(%end01,1)	# 準寝取られエンディング
+
+		%day = 10
+		%ic_prm = 0				# アイキャッチ用パラメータ
+#		^gsb(EyeCatch)			# アイキャッチ
+
+^jp(END_GAME)
+
+#/////////////////////////////////////////////////////////////
+
+
+
+
+#■＝＝＝＝＝◇寝取られルート＝＝＝＝＝
+:LABEL_04_01
+%day = 4
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+	^gsb(B_01)
+	^gsb(B_02)
+	^gsb(B_03)
+	^gsb(B_04)
+	^gsb(B_05)
+	^gsb(B_06)
+	^gsb(B_07)
+	^gsb(B_08)
+	^gsb(B_09)
+	^gsb(B_10)
+	^gsb(B_11)
+	^gsb(B_12)
+	^gsb(B_13)
+	^gsb(B_14)
+	^gsb(B_15)
+	^gsb(B_16)
+	^gsb(B_17)
+
+		%temp = 0
+		^gsb(staff)
+	global(%end02,1)	# 寝取られエンディング
+
+		%day = 11
+		%ic_prm = 0				# アイキャッチ用パラメータ
+#		^gsb(EyeCatch)			# アイキャッチ
+
+^jp(END_GAME)
+
+#/////////////////////////////////////////////////////////////
+
+
+
+
+#■＝＝＝＝＝◇ハッピールート＝＝＝＝＝
+:LABEL_05_01
+%day = 5
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+	^gsb(C_01)
+	^gsb(C_02)
+
+		%temp = 1
+		^gsb(staff)
+	global(%end03,1)	# ハッピーエンディング
+
+		%day = 12
+		%ic_prm = 0				# アイキャッチ用パラメータ
+#		^gsb(EyeCatch)			# アイキャッチ
+
+^jp(END_GAME)
+
+#/////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+^jp(END_GAME)
+
+
+
+
+:END_GAME
+^gsb(WND_ADV)			# ウインドウモード
+seoff(-1)				# ＳＥ停止
+^if(%end_flag == 1)		# エンディングフラグ（0:見てない 1:見た）
+	global(%ending,1)	# エンディング
+^endi
+# タイトルに戻る
+backtitle
+
+::END

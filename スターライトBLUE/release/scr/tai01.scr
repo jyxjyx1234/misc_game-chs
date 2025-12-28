@@ -1,0 +1,237 @@
+############################################
+# 体験版０１ルーチン
+############################################
+::START
+
+
+
+
+:TAIKEN_TOP
+
+clrbacklog
+^gsb(init_var)			#変数初期化
+ud(1, 100)
+
+
+
+
+#	/・【共通パートの途中まで】を見る
+#	/・【凛ｘ遠矢のＨシーンその１】を見る
+#	/・【凛ｘ遠矢のＨシーンその２】を見る
+#	/・タイトル画面へ戻る//
+
+
+global(%tai01_pro,-1)	# 体験版【プロローグ】フラグ
+^if(%reg!=1)
+	bgmon("bgm02")		# ＢＧＭ再生
+	
+	bgon("bg003aa1")
+	ud(1, 200)
+
+btnset(1,"slctwnd", 254, 144, "魘看【共通篇章（部分）】", 30, 13)
+btnset(6,"slctwnd", 254, 312, "魘看【店蒄閊鉅特典信息】", 30, 13)
+btnset(7,"slctwnd", 254, 368, "「返回蹌馭画面」", 30, 13)
+	
+	^gsb(btnsel)	# ボタン選択ルーチン
+^else
+	bgmon("bgm02")		# ＢＧＭ再生
+	
+	bgon("bg003aa1")
+	ud(1, 200)
+
+btnset(1,"slctwnd", 254, 144, "魘看【共通篇章（部分）】", 30, 13)
+btnset(2,"slctwnd", 254, 200, "魘看【凛的自慰駅景】", 30, 13)
+btnset(3,"slctwnd", 254, 256, "魘看【凛与詣矢的H駅景】", 30, 13)
+btnset(6,"slctwnd", 254, 312, "魘看【店蒄閊鉅特典信息】", 30, 13)
+btnset(7,"slctwnd", 254, 368, "「返回蹌馭画面」", 30, 13)
+	
+	^gsb(btnsel)	# ボタン選択ルーチン
+^endi
+
+bgon("black")
+ud(1, 200)
+
+wndoff
+ud(0)
+bgmoff(0, 700)		# ＢＧＭ終了
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 【プロローグ】を見る
+		^jp(TAIKEN_00_00)
+	^case(1)			# 【凛ｘ遠矢のＨシーンその１】のページへ進む
+		^jp(TAIKEN_00_01)
+	^case(2)			# 【凛ｘ遠矢のＨシーンその２】のページへ進む
+		^jp(TAIKEN_00_02)
+	^case(3)			# 【】のページへ進む
+		^jp(TAIKEN_00_03)
+	^case(4)			# 【】のページへ進む
+		^jp(TAIKEN_00_04)
+	^case(5)			# 【店舗予約特典情報】のページへ進む
+		^jp(TAIKEN_00_SHOP)
+	^case(6)			# タイトル画面へ戻る
+		^jp(END_GAME)
+	^df
+^ends
+
+
+
+
+:TAIKEN_00_00
+
+#■＝＝＝＝＝◇プロローグ＝＝＝＝＝
+:LABEL_00_00
+%day = 0
+
+%ic_prm = 0				# アイキャッチ用パラメータ
+#^gsb(EyeCatch)			# アイキャッチ
+^gsb(00_01)
+	^gsb(CheckParam)	# 好感度チェック
+
+	^gsb(op_mov)		# OPムービー
+
+^gsb(00_02)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_03)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_04)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_05)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(00_06)
+	^gsb(CheckParam)	# 好感度チェック
+
+
+#	^if(%iTopChar == 2)		# 好感度
+#		#ハッピーエンドルートへジャンプ
+#		^jp(LABEL_05_01)
+#	^endi
+
+
+^gsb(01_01)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(01_02)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(01_03)
+	^gsb(CheckParam)	# 好感度チェック
+^gsb(01_04)
+
+
+	wndoff
+	ud(0)
+	bgmoff(0, 700)		# ＢＧＭ終了
+
+	#(web体験版EVシーン終了)
+	choff(-1)	#立ちＣＧ消去
+	bgon("tai001b")
+	ud(1, 500)
+	bgmon("tai_kokuchi", 1)		# ＢＧＭ再生
+	ud(1, 6000)
+
+	bgon("tai000a")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("tai000b")
+	ud(1, 500)
+	ud(1, 6000)
+
+	bgon("black")
+	ud(1, 2500)
+
+	wndoff
+	ud(0)
+	bgmoff(0, 700)		# ＢＧＭ終了
+
+clrbacklog
+global(%tai01_pro,1)	# 体験版【プロローグ】を見た
+^jp(TAIKEN_TOP)
+#^jp(END_GAME)
+#/////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+:TAIKEN_00_01
+#【凛ｘ遠矢のＨシーンその１】のページ
+
+clrbacklog
+ud(1, 100)
+
+^gsb(A_05)
+
+clrbacklog
+^jp(TAIKEN_TOP)
+
+
+
+
+:TAIKEN_00_02
+#【凛ｘ遠矢のＨシーンその２】のページ
+
+clrbacklog
+ud(1, 100)
+
+^gsb(B_11)
+
+clrbacklog
+^jp(TAIKEN_TOP)
+
+
+
+
+:TAIKEN_00_03
+#【】のページ
+
+clrbacklog
+ud(1, 100)
+
+#^gsb(D_22)
+
+clrbacklog
+^jp(TAIKEN_TOP)
+
+
+
+
+:TAIKEN_00_04
+#【】のページ
+
+clrbacklog
+ud(1, 100)
+
+#^gsb(E_06)
+
+clrbacklog
+^jp(TAIKEN_TOP)
+
+
+
+
+:TAIKEN_00_SHOP
+#【店舗】のページ
+
+clrbacklog
+ud(1, 50)
+
+^gsb(tai_shop)
+
+clrbacklog
+^jp(TAIKEN_TOP)
+
+
+
+
+:END_GAME
+
+^ret
+
+::END

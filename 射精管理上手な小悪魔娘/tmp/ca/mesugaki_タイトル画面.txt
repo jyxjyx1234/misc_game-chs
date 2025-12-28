@@ -1,0 +1,381 @@
+
+
+
+
+
+
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+syscom.set_auto_mode_onoff_flag(0)
+syscom.set_read_skip_onoff_flag(0)
+
+
+counter[0].start
+
+
+
+
+if (g[97] == 1) {
+    g[97] = 0
+    jump("_★モード_連続回想")
+}
+
+
+
+set_title("")		
+
+
+syscom.set_msg_back_enable_flag(0)
+syscom.set_save_enable_flag(0)
+syscom.set_syscom_menu_disable
+
+script.set_ctrl_skip_disable
+
+
+
+ $mwnd_button_init	
+ farcall(_window_change,0)
+
+
+
+if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif (bgm01 != "BGM00") {$now_bgm_name = bgm01	bgm.play(bgm01,0,start_pos = -1)}
+
+
+switch(math.rand(0,1)) { 					case(0)	exkoe(012600014,001) 					case(1)	exkoe(012600016,002) 				}
+
+
+$all_screen("000000",0,0,0,255,1)
+if (screen.effect[1].color_rate_eve.check == 1){ 										screen.effect[1].color_rate_eve.wait_key 									}	  									elseif(screen.effect[1].color_add_r_eve.check == 1){ 										screen.effect[1].color_add_r_eve.wait 										screen.effect[1].color_add_g_eve.end 										screen.effect[1].color_add_b_eve.end 									}  									elseif(screen.effect[1].color_add_g_eve.check == 1){ 										screen.effect[1].color_add_g_eve.wait 										screen.effect[1].color_add_r_eve.end 										screen.effect[1].color_add_b_eve.end 									}  									elseif(screen.effect[1].color_add_b_eve.check == 1){ 										screen.effect[1].color_add_b_eve.wait 										screen.effect[1].color_add_r_eve.end 										screen.effect[1].color_add_g_eve.end 									}
+
+
+back.object[60].create(title_bg,1,959,539)
+
+back.object[60+2].create(title_jur,1,1459,1309)
+back.object[60+2].x_rep.resize(1)
+back.object[60+2].x_rep[0] = 1920
+back.object[60+2].child.resize(3)
+back.object[60+2].child[0].create(title_jur_mayu10,1,0,0)
+back.object[60+2].child[1].create(title_jur_eye10,1,0,0)
+back.object[60+2].child[1].load_gan(_mabataki01)
+back.object[60+2].child[1].start_gan(1,1,1)
+back.object[60+2].child[2].create(title_jur_mouth10,1,0,0)
+
+back.object[60+2].scale_x_eve.turn(990,1010,3000,0,0)
+back.object[60+2].scale_y_eve.turn(990,1010,3000,0,0)
+
+
+back.object[60+1].create(title_kas,1,420,1309)
+back.object[60+1].x_rep.resize(1)
+back.object[60+1].x_rep[0] = -1920
+back.object[60+1].child.resize(3)
+back.object[60+1].child[0].create(title_kas_mayu10,1,0,0)
+back.object[60+1].child[1].create(title_kas_eye10,1,0,0)
+back.object[60+1].child[1].load_gan(_mabataki01)
+back.object[60+1].child[1].start_gan(2,1,1)
+back.object[60+1].child[2].create(title_kas_mouth10,1,0,0)
+
+
+back.object[60+1].scale_x_eve.turn(990,1010,3000,1500,0)
+back.object[60+1].scale_y_eve.turn(990,1010,3000,1500,0)
+
+
+back.object[60+3].create(title_logo,1,959,539)
+
+
+wipe(1,0,key_skip = 1)
+
+$all_screen("",300,1,0,255,1)
+if (screen.effect[1].color_rate_eve.check == 1){ 										screen.effect[1].color_rate_eve.wait_key 									}	  									elseif(screen.effect[1].color_add_r_eve.check == 1){ 										screen.effect[1].color_add_r_eve.wait 										screen.effect[1].color_add_g_eve.end 										screen.effect[1].color_add_b_eve.end 									}  									elseif(screen.effect[1].color_add_g_eve.check == 1){ 										screen.effect[1].color_add_g_eve.wait 										screen.effect[1].color_add_r_eve.end 										screen.effect[1].color_add_b_eve.end 									}  									elseif(screen.effect[1].color_add_b_eve.check == 1){ 										screen.effect[1].color_add_b_eve.wait 										screen.effect[1].color_add_r_eve.end 										screen.effect[1].color_add_g_eve.end 									}
+
+front.object[60+1].x_rep_eve[0].set(0,500,0,1)
+front.object[60+2].x_rep_eve[0].set(0,500,0,1)
+
+
+#page01
+
+front.object[100].init
+front.object[100].child.resize(100)
+front.object[100].layer = 100
+front.object[100].disp = 1
+
+
+l[00] = 80
+
+$title_btn(0,	l[00] + (100*0))
+$title_btn(1,	l[00] + (100*1))
+$title_btn(2,	l[00] + (100*2))
+$title_btn(3,	l[00] + (100*3))
+$title_btn(4,	l[00] + (100*4))
+$title_btn(5,	l[00] + (100*5))
+
+if (g[0005] == 0) { front.object[100].child[4].set_button_state_disable }
+if (syscom.get_save_exist(200) == 0) { front.object[100].child[1].set_button_state_disable }
+
+
+
+syscom.set_syscom_menu_disable
+
+
+goto #init
+
+
+#page02
+
+front.object[100].init
+front.object[100].child.resize(100)
+front.object[100].layer = 100
+front.object[100].disp = 1
+
+
+l[00] = 80
+
+$title_btn(6,	l[00] + (100*0))
+$title_btn(7,	l[00] + (100*1))
+$title_btn(8,	l[00] + (100*2))
+$title_btn(9,	l[00] + (100*4))
+
+
+goto #init
+
+
+
+
+
+#init
+
+#start
+
+
+l[00]=0
+l[01]=0
+
+front.objbtngroup[0].start_cancel
+
+
+
+while(1){
+
+
+	l[00] = front.objbtngroup[0].get_hit_no
+	l[01] = front.objbtngroup[0].get_decided_no
+	
+	
+	
+	switch(l[00]) {
+	
+		case(0)	$help_text(front.object[200],dl,"ゲームを開始します。")
+		case(1)	$help_text(front.object[200],dl,"ゲームを終了したところから再開します。#D（サスペンド機能）")
+ 	    case(2)	$help_text(front.object[200],dl,"ロード画面を開きます。")
+		case(3)	$help_text(front.object[200],dl,"システムコンフィグを開きます。#D（右クリックと同じ動作）")
+		case(4)	$help_text(front.object[200],dl,"スチル鑑賞などギャラリーを開きます。")
+		case(5)	$help_text(front.object[200],dl,"ゲームを終了してWindowsに戻ります。")
+		
+		case(6)	$help_text(front.object[200],dl,"いままで見たイベントスチルをご覧いただけます。")
+		case(7)	$help_text(front.object[200],dl,"いままで見たＨシーン等をご覧いただけます。")
+		case(8)	$help_text(front.object[200],dl,"ＢＧＭをご試聴いただけます。")
+
+		case(9)	$help_text(front.object[200],dl,"ひとつ前の項目に戻ります。")
+
+		default	front.object[200].disp = 0
+	
+	}
+	
+	
+	switch(l[00]) {
+	
+		case(0)	$title_face("30","30","30","30","30","30")
+		case(1)	$title_face("20","20","10","20","20","10")
+ 	    case(2)	$title_face("10","10","20","10","10","20")
+		case(3)	$title_face("20","30","30","20","30","30")
+		case(4)	$title_face("10","10","10","10","10","10")
+		case(5)	$title_face("20","20","20","20","20","20")
+		case(6)	$title_face("20","20","30","20","20","30")
+		case(7)	$title_face("30","10","10","30","10","10")
+ 	    case(8)	$title_face("10","30","30","10","30","30")
+		case(9)	$title_face("20","20","20","20","20","20")
+
+        default	
+	}
+	
+
+	for (l[10] = 1,l[10] <= 99,l[10] += 1) {
+	
+		if (front.object[100].child[l[10]].child.get_size < 1) {continue} 
+	
+		if (l[00] == l[10]) {
+		
+			front.object[100].child[l[10]].child[0].disp = 1
+			
+		}else{
+		
+			front.object[100].child[l[10]].child[0].disp = 0
+		
+		}		
+	
+	}
+	
+	
+
+    switch(l[01]) {
+
+        case(0) 
+
+            se.play(001)
+            script.set_ctrl_skip_enable
+
+            switch(math.rand(0,1)) { 					case(0)	exkoe(012600020,001) 					case(1)	exkoe(012600022,002) 					 				}
+            if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(2000)}
+
+            syscom.set_msg_back_enable_flag(1)
+            syscom.set_save_enable_flag(1)
+            
+            $all_screen("FFFFFF",2000,0,0,255,1)
+            if (screen.effect[1].color_rate_eve.check == 1){ 										screen.effect[1].color_rate_eve.wait_key 									}	  									elseif(screen.effect[1].color_add_r_eve.check == 1){ 										screen.effect[1].color_add_r_eve.wait 										screen.effect[1].color_add_g_eve.end 										screen.effect[1].color_add_b_eve.end 									}  									elseif(screen.effect[1].color_add_g_eve.check == 1){ 										screen.effect[1].color_add_g_eve.wait 										screen.effect[1].color_add_r_eve.end 										screen.effect[1].color_add_b_eve.end 									}  									elseif(screen.effect[1].color_add_b_eve.check == 1){ 										screen.effect[1].color_add_b_eve.wait 										screen.effect[1].color_add_r_eve.end 										screen.effect[1].color_add_g_eve.end 									}
+
+            close  			$bg_filename_tmp = _white 			$time_tmp = 0  			if (_white == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(1) { 				case(99)	 				default switch(1){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+            
+            
+            timewait_key(2000)
+            syscom.set_syscom_menu_enable
+            counter[0].stop
+
+
+            
+            jump("9999_★★★メインフロー")
+
+        case(1) 
+            syscom.end_load(0,1,1)
+
+        case(2) 
+
+            se.play(015)
+            switch(math.rand(0,1)) { 					case(0)	exkoe(012600026,001) 					case(1)	exkoe(012600028,002) 				}
+            syscom.call_load_menu
+            goto #start
+
+        case(-1)    
+            se.play(001)
+            syscom.call_config_menu
+            goto #start
+
+         case(3) 
+            se.play(001)
+            switch(math.rand(0,1)) { 					case(0)	exkoe(012600032,001) 					case(1)	exkoe(012600034,002) 				}
+            syscom.call_config_menu
+            goto #start
+
+        case(4) 
+            se.play(015)
+            wipe(0,500,start_layer = 100,end_layer = 100,wait = 0)
+            goto #page02
+
+        case(5)    
+
+            script.set_ctrl_skip_enable
+            syscom.set_syscom_menu_disable
+            switch(math.rand(0,1)) { 					case(0)	 exkoe(012600038,001) 					case(1)	 exkoe(012600040,002) 					 				}
+            if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(1000)}
+            
+            $all_screen("000000",1000,0,0,255,1)
+
+            if (koe_check == 1) {
+            
+                koe_wait_key
+            
+            }            
+            koe_stop
+            
+            owari
+
+        case(6)    
+            se.play(001)
+			g[1000+01] = 0	
+			
+            counter[0].stop
+
+            jump("_★モード_CG")
+
+        case(7)    
+            se.play(001)
+			g[1000+02] = 0	
+
+            counter[0].stop
+
+
+            jump("_★モード_連続回想")
+
+        case(8)    
+            se.play(001)
+            if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(2000)}
+
+            counter[0].stop
+
+            jump("_★モード_サウンド")
+
+        case(9)    
+            se.play(015)
+            wipe(0,500,start_layer = 100,end_layer = 100,wait = 0)
+            goto #page01
+
+
+
+
+
+    }
+
+
+    
+
+    disp
+
+}
+
+
+
+
+
+
+command	$title_btn(property $index,property $pos_y) {
+
+	front.object[100].child[$index].create(title_btn,1,959,$pos_y,$index)
+    front.object[100].child[$index].disp = 1
+
+	front.object[100].child[$index].set_button($index,0,35,001)
+
+}
+
+
+
+
+command $title_face(
+    property $jur_mayu : str,
+    property $jur_eye : str,
+    property $jur_mouth : str,
+    property $kas_mayu : str,
+    property $kas_eye : str,
+    property $kas_mouth : str
+
+){
+    front.object[60+2].child[0].change_file("title_jur_mayu" +$jur_mayu)
+    front.object[60+2].child[1].change_file("title_jur_eye"  +$jur_eye)
+    front.object[60+2].child[2].change_file("title_jur_mouth"+$jur_mouth)
+    front.object[60+1].child[0].change_file("title_kas_mayu" +$kas_mayu)
+    front.object[60+1].child[1].change_file("title_kas_eye"  +$kas_eye)
+    front.object[60+1].child[2].change_file("title_kas_mouth"+$kas_mouth)
+
+}
+
+

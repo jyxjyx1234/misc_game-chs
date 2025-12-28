@@ -1,0 +1,842 @@
+
+
+
+#z00
+
+
+
+command	$transition(property $patno,property $bgname : str,property $waittime,property $system_flag) {
+
+	close
+	syscom.set_syscom_menu_disable
+	syscom.set_msg_back_enable_flag(0)
+	syscom.set_save_enable_flag(0)
+	
+	pcmch[1].stop(2000)		
+	
+	$trans_in_flag = 0
+
+	switch($patno) {
+	
+		case(1)	goto #trans01		
+		case(10)	$trans_in_flag = 1 goto #trans01
+		case(11)	goto #trans01_out
+		
+		case(2) goto #trans02		
+		case(20)	$trans_in_flag = 1 goto #trans02
+		case(21)	goto #trans02_out
+		
+		case(3) goto #trans03		
+		case(30)	$trans_in_flag = 1 goto #trans03
+		case(31)	goto #trans03_out
+		
+		case(4) goto #trans04		
+		case(40)	$trans_in_flag = 1 goto #trans04
+		case(41)	goto #trans04_out
+		
+		case(5) goto #trans05		
+		case(50)	$trans_in_flag = 1 goto #trans05
+		case(51)	goto #trans05_out
+		
+		
+		default goto #trans_end
+		
+	}
+
+
+
+#trans01
+
+
+	mask[10].init
+	mask[11].init
+
+	mask[10].create(_transition_mask01)
+	mask[11].create(_transition_mask02)
+	
+	mask[10].y = -1200
+	mask[11].y =  1200
+	
+
+	front.object[398].init
+	front.object[398].child.resize(5)
+	front.object[398].layer = 398
+	front.object[398].order = 12 
+	front.object[398].disp = 1
+	
+	front.object[398].child[0].create(_transition01,1,960,540,0)
+	front.object[398].child[0].child.resize(2)
+	front.object[398].child[0].y_rep.resize(1)
+	front.object[398].child[0].y_rep[0] = -1200
+	front.object[398].child[0].set_scale(1500,1500)
+	
+	front.object[398].child[0].child[0].create(_transition01,1,2250,0,2)
+	front.object[398].child[0].child[0].mask_no = 10
+
+	front.object[398].child[1].create(_transition01,1,960,540,1)
+	front.object[398].child[1].child.resize(2)
+	front.object[398].child[1].y_rep.resize(1)
+	front.object[398].child[1].y_rep[0] = 1200
+	front.object[398].child[1].set_scale(1500,1500)
+
+	front.object[398].child[1].child[0].create(_transition01,1,-2250,0,3)
+	front.object[398].child[1].child[0].mask_no = 11
+	
+	front.object[398].child[2].create(a0_transition_chr,1,960,540,1)
+	front.object[398].child[2].x_rep.resize(1)
+	front.object[398].child[2].x_rep[0] = 2250
+	
+	
+	
+	$pcmplay(309,4,2)
+
+	
+	front.object[398].child[0].y_rep_eve[0].set(0,500,0,2)
+	front.object[398].child[1].y_rep_eve[0].set(0,500,0,2)
+	
+	front.object[398].child[0].child[0].x_eve.set(0,500,200,2)
+	front.object[398].child[1].child[0].x_eve.set(0,500,200,2)
+
+	front.object[398].child[2].x_rep_eve[0].set(0,500,200,2)	
+	
+	
+	mask[10].y_eve.set(0,500,0,2)
+	mask[11].y_eve.set(0,500,0,2)
+	
+	front.object[398].child[2].x_rep_eve[0].wait
+	
+	
+	if ($trans_in_flag == 1) {goto #trans_end}
+	
+	close  			$bg_filename_tmp = $bgname 			$time_tmp = 0  			if ($bgname == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(1) { 				case(99)	 				default switch(1){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+	
+	close 			 			stage[1].object[0].x_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			stage[1].object[0].y_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			 			close 			 			$cw_tmp = 0 			$cw_tmp2 = 0 			$cw_pos1 = 0 			$cw_pos2 = 0 			$cw_pos3 = 0 			$cw_pos4 = 0 			 			 			 			switch(4) { 			 				case(3) 					$cw_pos1 = 75 					$cw_pos2 = 0 					$cw_pos3 = 90 					$cw_pos4 = 100 				 				case(2) 					$cw_pos1 = -75 					$cw_pos2 = 0 					$cw_pos3 = -90 					$cw_pos4 = -100 				case(1) 					$cw_pos1 = 150 					$cw_pos2 = 0 					$cw_pos3 = 175 					$cw_pos4 = 200 					 				case(0) 					$cw_pos1 = -150 					$cw_pos2 = 0 					$cw_pos3 = -175 					$cw_pos4 = -200 				 				default 					$cw_pos1 = 0 					$cw_pos2 = 0 					$cw_pos3 = 0 					$cw_pos4 = 0 					 					 			 			} 			 			$cw_tmp2 = math.limit(-80,$cw_pos4,80) 			 			 			for($cw_tmp = 20,$cw_tmp <= 24,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos3,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-120,$cw_pos4,120) 			 			} 			 			for($cw_tmp = 30,$cw_tmp <= 34,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos1,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-240,$cw_pos4,240) 			 			} 			screen.effect[0].begin_order = 0 			screen.effect[0].end_order = 5 			screen.effect[0].x_eve.set($cw_tmp2,0 / 2,0,2) 			screen.effect[0].x_eve.wait_key screen.effect[0].y_eve.end 			 			if (stage[1].object[34].exist_type == 1) {  				stage[1].object[34].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[34].scale_x_eve.set(950,0,0,2) 				stage[1].object[34].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[33].exist_type == 1) {  				stage[1].object[33].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[33].scale_x_eve.set(950,0,0,2) 				stage[1].object[33].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[32].exist_type == 1) {  				stage[1].object[32].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[32].scale_x_eve.set(950,0,0,2) 				stage[1].object[32].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[31].exist_type == 1) {  				stage[1].object[31].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[31].scale_x_eve.set(950,0,0,2) 				stage[1].object[31].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[30].exist_type == 1) {  				stage[1].object[30].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[30].scale_x_eve.set(950,0,0,2) 				stage[1].object[30].scale_y_eve.set(950,0,0,2) 				 			} 			 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[23].exist_type == 1) {  				stage[1].object[23].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[23].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[23].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[21].exist_type == 1) {  				stage[1].object[21].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[21].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[21].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[20].exist_type == 1) {  				stage[1].object[20].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[20].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[20].scale_y_eve.set(950-200,0,0,2) 				 			} 			 			front.object[0].scale_x_eve.set(1000,0,0,2) 			front.object[0].scale_y_eve.set(1000,0,0,2) 			front.object[0].scale_x_eve.wait_key front.object[0].scale_y_eve.end		 										for ($chr_eve_tmp=24,$chr_eve_tmp>=20,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										} 										for ($chr_eve_tmp=34,$chr_eve_tmp>=30,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										}	
+	
+	
+	
+#trans01_out
+	
+	
+
+	
+	front.object[398].child[3].create(_transition01,1,960,540,11)
+	front.object[398].child[4].create(_transition01,1,960,540,12)
+	
+	front.object[398].child[2].rotate_x_eve.set(3600,500,0,2)
+	front.object[398].child[2].rotate_x_eve.wait
+	
+	
+
+	front.object[398].child[0].y_rep_eve[0].set(-1200,500,0,1)
+	front.object[398].child[1].y_rep_eve[0].set( 1200,500,0,1)
+	
+	
+	front.object[398].child[3].init
+	front.object[398].child[4].init
+	
+	front.object[398].child[2].x_rep_eve[0].set(-2250,500,0,1)	
+	
+	timewait_key($waittime)
+	
+
+	goto #trans_end
+
+
+#trans02
+
+
+	front.object[398].init
+	front.object[398].child.resize(5)
+	front.object[398].layer = 398
+	front.object[398].order = 12 
+	front.object[398].disp = 1
+	
+	front.object[398].child[0].create(_transition02,1,960,540,0)
+	front.object[398].child[0].child.resize(2)
+	front.object[398].child[0].y_rep.resize(1)
+	front.object[398].child[0].y_rep[0] = -1200
+	front.object[398].child[0].set_scale(1500,1500)
+	
+	front.object[398].child[0].child[0].create(_transition02,1,0,-1000,2)
+	
+	front.object[398].child[1].create(_transition02,1,960, 540,1)
+	front.object[398].child[1].child.resize(2)
+	front.object[398].child[1].y_rep.resize(1)
+	front.object[398].child[1].y_rep[0] = 1200
+	front.object[398].child[1].set_scale(1500,1500)
+	
+	front.object[398].child[1].child[0].create(_transition02,1,0,1000,3)
+	
+	front.object[398].child[2].create(a0_transition_chr,1,960,540,2)
+	front.object[398].child[2].x_rep.resize(1)
+	front.object[398].child[2].x_rep[0] = 2250
+	
+	
+	
+	$pcmplay(308,4,2)
+
+	
+	front.object[398].child[0].y_rep_eve[0].set(0,500,0,2)
+	front.object[398].child[1].y_rep_eve[0].set(0,500,0,2)
+	
+	front.object[398].child[0].child[0].y_eve.set(0,500,200,2)
+	front.object[398].child[1].child[0].y_eve.set(0,500,200,2)
+
+	front.object[398].child[2].x_rep_eve[0].set(0,500,200,2)	
+	
+		
+	front.object[398].child[2].x_rep_eve[0].wait
+	
+
+	if ($trans_in_flag == 1) {goto #trans_end}
+	
+	close  			$bg_filename_tmp = $bgname 			$time_tmp = 0  			if ($bgname == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(1) { 				case(99)	 				default switch(1){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+	close 			 			stage[1].object[0].x_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			stage[1].object[0].y_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			 			close 			 			$cw_tmp = 0 			$cw_tmp2 = 0 			$cw_pos1 = 0 			$cw_pos2 = 0 			$cw_pos3 = 0 			$cw_pos4 = 0 			 			 			 			switch(4) { 			 				case(3) 					$cw_pos1 = 75 					$cw_pos2 = 0 					$cw_pos3 = 90 					$cw_pos4 = 100 				 				case(2) 					$cw_pos1 = -75 					$cw_pos2 = 0 					$cw_pos3 = -90 					$cw_pos4 = -100 				case(1) 					$cw_pos1 = 150 					$cw_pos2 = 0 					$cw_pos3 = 175 					$cw_pos4 = 200 					 				case(0) 					$cw_pos1 = -150 					$cw_pos2 = 0 					$cw_pos3 = -175 					$cw_pos4 = -200 				 				default 					$cw_pos1 = 0 					$cw_pos2 = 0 					$cw_pos3 = 0 					$cw_pos4 = 0 					 					 			 			} 			 			$cw_tmp2 = math.limit(-80,$cw_pos4,80) 			 			 			for($cw_tmp = 20,$cw_tmp <= 24,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos3,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-120,$cw_pos4,120) 			 			} 			 			for($cw_tmp = 30,$cw_tmp <= 34,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos1,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-240,$cw_pos4,240) 			 			} 			screen.effect[0].begin_order = 0 			screen.effect[0].end_order = 5 			screen.effect[0].x_eve.set($cw_tmp2,0 / 2,0,2) 			screen.effect[0].x_eve.wait_key screen.effect[0].y_eve.end 			 			if (stage[1].object[34].exist_type == 1) {  				stage[1].object[34].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[34].scale_x_eve.set(950,0,0,2) 				stage[1].object[34].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[33].exist_type == 1) {  				stage[1].object[33].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[33].scale_x_eve.set(950,0,0,2) 				stage[1].object[33].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[32].exist_type == 1) {  				stage[1].object[32].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[32].scale_x_eve.set(950,0,0,2) 				stage[1].object[32].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[31].exist_type == 1) {  				stage[1].object[31].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[31].scale_x_eve.set(950,0,0,2) 				stage[1].object[31].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[30].exist_type == 1) {  				stage[1].object[30].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[30].scale_x_eve.set(950,0,0,2) 				stage[1].object[30].scale_y_eve.set(950,0,0,2) 				 			} 			 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[23].exist_type == 1) {  				stage[1].object[23].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[23].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[23].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[21].exist_type == 1) {  				stage[1].object[21].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[21].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[21].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[20].exist_type == 1) {  				stage[1].object[20].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[20].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[20].scale_y_eve.set(950-200,0,0,2) 				 			} 			 			front.object[0].scale_x_eve.set(1000,0,0,2) 			front.object[0].scale_y_eve.set(1000,0,0,2) 			front.object[0].scale_x_eve.wait_key front.object[0].scale_y_eve.end		 										for ($chr_eve_tmp=24,$chr_eve_tmp>=20,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										} 										for ($chr_eve_tmp=34,$chr_eve_tmp>=30,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										}	
+	
+	
+
+#trans02_out
+
+	
+	
+	
+	front.object[398].child[3].create(_transition02,1,960,540,11)
+	front.object[398].child[4].create(_transition02,1,960,540,12)
+	
+	front.object[398].child[2].rotate_x_eve.set(7200,1000,0,2)
+	front.object[398].child[2].rotate_x_eve.wait
+	
+	
+
+	front.object[398].child[0].y_rep_eve[0].set(-1200,500,0,1)
+	front.object[398].child[1].y_rep_eve[0].set( 1200,500,0,1)
+	
+	
+	front.object[398].child[3].init
+	front.object[398].child[4].init
+	
+	front.object[398].child[2].x_rep_eve[0].set(-2250,500,0,1)	
+	
+	timewait_key($waittime)
+	
+
+	goto #trans_end
+
+
+
+#trans03
+
+	front.object[398].init
+	front.object[398].child.resize(20)
+	front.object[398].layer = 398
+	front.object[398].order = 12 
+	front.object[398].set_center_rep(960,540)
+	front.object[398].disp = 1
+
+	
+	front.object[398].child[00].create(_transition03,1,960,540)
+	front.object[398].child[00].color_r = 195
+	front.object[398].child[00].color_g = 185
+	front.object[398].child[00].color_b = 155
+	front.object[398].child[00].color_rate = 255
+	front.object[398].child[00].x_rep.resize(2)
+	front.object[398].child[00].set_scale(1500,1500)
+	
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00]].create(_transition03,1,960,540 - (l[00] * 225))
+		front.object[398].child[l[00]].x_rep.resize(2)
+
+		
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00]].color_r = 195
+			front.object[398].child[l[00]].color_g = 185
+			front.object[398].child[l[00]].color_b = 155
+			
+			
+			
+			
+			
+			front.object[398].child[l[00]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00]].color_r = 54
+			front.object[398].child[l[00]].color_g = 41
+			front.object[398].child[l[00]].color_b = 8
+		
+			
+			
+			
+			front.object[398].child[l[00]].color_rate = 255
+			
+		}
+
+		front.object[398].child[l[00]].set_scale(1500,1500)
+		
+	}
+	
+	l[01] = 5
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00] + l[01]].create(_transition03,1,960,540 + (l[00] * 225))
+		front.object[398].child[l[00] + l[01]].x_rep.resize(2)
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 195
+			front.object[398].child[l[00] + l[01]].color_g = 185
+			front.object[398].child[l[00] + l[01]].color_b = 155
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 54
+			front.object[398].child[l[00] + l[01]].color_g = 41
+			front.object[398].child[l[00] + l[01]].color_b = 8
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+			
+		}
+
+		front.object[398].child[l[00] + l[01]].set_scale(1500,1500)
+		
+	}
+
+	front.object[398].rotate_z = 600
+	
+	
+	for (l[00] = 0,l[00] <= 10,l[00] += 1) {
+	
+		
+		
+		
+	
+		front.object[398].child[l[00]].scale_y = 0
+		front.object[398].child[l[00]].x_rep[0] = -2250
+		
+		front.object[398].child[l[00]].scale_y_eve.set(1500,500,l[00] * 20,2)
+		front.object[398].child[l[00]].x_rep_eve[0].set(0,500,l[00] * 20,2)
+		
+	}
+	
+	$pcmplay(306,2,2)
+
+	
+	front.object[398].child[10].scale_y_eve.wait
+	
+	
+	if ($trans_in_flag == 1) {goto #trans_end}
+	
+	close  			$bg_filename_tmp = $bgname 			$time_tmp = 0  			if ($bgname == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(1) { 				case(99)	 				default switch(1){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+	
+	close 			 			stage[1].object[0].x_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			stage[1].object[0].y_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			 			close 			 			$cw_tmp = 0 			$cw_tmp2 = 0 			$cw_pos1 = 0 			$cw_pos2 = 0 			$cw_pos3 = 0 			$cw_pos4 = 0 			 			 			 			switch(4) { 			 				case(3) 					$cw_pos1 = 75 					$cw_pos2 = 0 					$cw_pos3 = 90 					$cw_pos4 = 100 				 				case(2) 					$cw_pos1 = -75 					$cw_pos2 = 0 					$cw_pos3 = -90 					$cw_pos4 = -100 				case(1) 					$cw_pos1 = 150 					$cw_pos2 = 0 					$cw_pos3 = 175 					$cw_pos4 = 200 					 				case(0) 					$cw_pos1 = -150 					$cw_pos2 = 0 					$cw_pos3 = -175 					$cw_pos4 = -200 				 				default 					$cw_pos1 = 0 					$cw_pos2 = 0 					$cw_pos3 = 0 					$cw_pos4 = 0 					 					 			 			} 			 			$cw_tmp2 = math.limit(-80,$cw_pos4,80) 			 			 			for($cw_tmp = 20,$cw_tmp <= 24,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos3,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-120,$cw_pos4,120) 			 			} 			 			for($cw_tmp = 30,$cw_tmp <= 34,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos1,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-240,$cw_pos4,240) 			 			} 			screen.effect[0].begin_order = 0 			screen.effect[0].end_order = 5 			screen.effect[0].x_eve.set($cw_tmp2,0 / 2,0,2) 			screen.effect[0].x_eve.wait_key screen.effect[0].y_eve.end 			 			if (stage[1].object[34].exist_type == 1) {  				stage[1].object[34].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[34].scale_x_eve.set(950,0,0,2) 				stage[1].object[34].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[33].exist_type == 1) {  				stage[1].object[33].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[33].scale_x_eve.set(950,0,0,2) 				stage[1].object[33].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[32].exist_type == 1) {  				stage[1].object[32].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[32].scale_x_eve.set(950,0,0,2) 				stage[1].object[32].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[31].exist_type == 1) {  				stage[1].object[31].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[31].scale_x_eve.set(950,0,0,2) 				stage[1].object[31].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[30].exist_type == 1) {  				stage[1].object[30].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[30].scale_x_eve.set(950,0,0,2) 				stage[1].object[30].scale_y_eve.set(950,0,0,2) 				 			} 			 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[23].exist_type == 1) {  				stage[1].object[23].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[23].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[23].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[21].exist_type == 1) {  				stage[1].object[21].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[21].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[21].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[20].exist_type == 1) {  				stage[1].object[20].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[20].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[20].scale_y_eve.set(950-200,0,0,2) 				 			} 			 			front.object[0].scale_x_eve.set(1000,0,0,2) 			front.object[0].scale_y_eve.set(1000,0,0,2) 			front.object[0].scale_x_eve.wait_key front.object[0].scale_y_eve.end		 										for ($chr_eve_tmp=24,$chr_eve_tmp>=20,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										} 										for ($chr_eve_tmp=34,$chr_eve_tmp>=30,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										}	
+	
+	
+	
+#trans03_out
+
+	
+	for (l[00] = 0,l[00] <= 10,l[00] += 1) {
+		
+		front.object[398].child[l[00]].scale_y_eve.set(0,500,l[00] * 20,2)
+		front.object[398].child[l[00]].x_rep_eve[0].set(2250,500,l[00] * 20,2)
+		
+	}
+	
+	front.object[398].child[10].scale_y_eve.wait
+	
+	timewait_key($waittime)
+	
+	goto #trans_end
+
+
+
+
+
+#trans04
+
+	front.object[398].init
+	front.object[398].child.resize(30)
+	front.object[398].layer = 398
+	front.object[398].order = 12 
+	front.object[398].set_center_rep(960,540)
+	front.object[398].disp = 1
+
+	
+	front.object[398].child[00].create(_transition03,1,960 - 960,540)
+	front.object[398].child[00].color_r = 0
+	front.object[398].child[00].color_g = 255
+	front.object[398].child[00].color_b = 186
+	front.object[398].child[00].color_rate = 255
+	front.object[398].child[00].x_rep.resize(2)
+	front.object[398].child[00].set_scale(1500,1500)
+	
+	
+	
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00]].create(_transition03,1,960 - 960,540 - (l[00] * 225))
+		front.object[398].child[l[00]].x_rep.resize(2)
+		
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00]].color_r = 0
+			front.object[398].child[l[00]].color_g = 255
+			front.object[398].child[l[00]].color_b = 186
+			front.object[398].child[l[00]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00]].color_r = 0
+			front.object[398].child[l[00]].color_g = 160
+			front.object[398].child[l[00]].color_b = 120
+			front.object[398].child[l[00]].color_rate = 255
+			
+		}
+		
+		front.object[398].child[l[00]].set_scale(1500,1500)
+
+	}
+	
+	l[01] = 5
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00] + l[01]].create(_transition03,1,960 - 960,540 + (l[00] * 225))
+		front.object[398].child[l[00] + l[01]].x_rep.resize(2)
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 0
+			front.object[398].child[l[00] + l[01]].color_g = 255
+			front.object[398].child[l[00] + l[01]].color_b = 186
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 0
+			front.object[398].child[l[00] + l[01]].color_g = 160
+			front.object[398].child[l[00] + l[01]].color_b = 120
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+			
+		}
+		
+		front.object[398].child[l[00] + l[01]].set_scale(1500,1500)
+
+	}
+	
+	
+	
+	
+	
+	front.object[398].child[11].create(_transition03,1,960 + 960,540)
+	front.object[398].child[11].color_r = 0
+	front.object[398].child[11].color_g = 255
+	front.object[398].child[11].color_b = 186
+	front.object[398].child[11].color_rate = 255
+	front.object[398].child[11].x_rep.resize(2)
+	front.object[398].child[11].set_scale(1500,1500)
+	
+	l[01] = 11
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00] + l[01]].create(_transition03,1,960 + 960,540 - (l[00] * 225))
+		front.object[398].child[l[00] + l[01]].x_rep.resize(2)
+
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 0
+			front.object[398].child[l[00] + l[01]].color_g = 255
+			front.object[398].child[l[00] + l[01]].color_b = 186
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 0
+			front.object[398].child[l[00] + l[01]].color_g = 160
+			front.object[398].child[l[00] + l[01]].color_b = 120
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+			
+		}
+
+		front.object[398].child[l[00] + l[01]].set_scale(1500,1500)
+		
+	}
+	
+	l[01] = 16
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00] + l[01]].create(_transition03,1,960 + 960,540 + (l[00] * 225))
+		front.object[398].child[l[00] + l[01]].x_rep.resize(2)
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 0
+			front.object[398].child[l[00] + l[01]].color_g = 255
+			front.object[398].child[l[00] + l[01]].color_b = 186
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 0
+			front.object[398].child[l[00] + l[01]].color_g = 160
+			front.object[398].child[l[00] + l[01]].color_b = 120
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+			
+		}
+		
+		front.object[398].child[l[00] + l[01]].set_scale(1500,1500)
+
+	}
+
+
+	front.object[398].rotate_z = 600
+	
+	
+	for (l[00] = 0,l[00] <= 10,l[00] += 1) {
+	
+		
+		
+		
+	
+		front.object[398].child[l[00]].scale_y = 0
+		front.object[398].child[l[00]].x_rep[0] = -2250
+		
+		front.object[398].child[l[00]].scale_y_eve.set(1500,500,l[00] * 20,2)
+		front.object[398].child[l[00]].x_rep_eve[0].set(0,500,l[00] * 20,2)
+		
+	}
+	
+	for (l[00] = 11,l[00] <= 21,l[00] += 1) {
+	
+		
+		
+		
+	
+		front.object[398].child[l[00]].scale_y = 0
+		front.object[398].child[l[00]].x_rep[0] = 2250
+		
+		front.object[398].child[l[00]].scale_y_eve.set(1500,500,(l[00] - 11) * 20,2)
+		front.object[398].child[l[00]].x_rep_eve[0].set(0,500,(l[00] - 11) * 20,2)
+		
+	}
+	
+	$pcmplay(307,2,2)
+
+	
+	front.object[398].child[21].scale_y_eve.wait
+	
+	
+	if ($trans_in_flag == 1) {goto #trans_end}
+	
+	close  			$bg_filename_tmp = $bgname 			$time_tmp = 0  			if ($bgname == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(1) { 				case(99)	 				default switch(1){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+	
+	close 			 			stage[1].object[0].x_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			stage[1].object[0].y_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			 			close 			 			$cw_tmp = 0 			$cw_tmp2 = 0 			$cw_pos1 = 0 			$cw_pos2 = 0 			$cw_pos3 = 0 			$cw_pos4 = 0 			 			 			 			switch(4) { 			 				case(3) 					$cw_pos1 = 75 					$cw_pos2 = 0 					$cw_pos3 = 90 					$cw_pos4 = 100 				 				case(2) 					$cw_pos1 = -75 					$cw_pos2 = 0 					$cw_pos3 = -90 					$cw_pos4 = -100 				case(1) 					$cw_pos1 = 150 					$cw_pos2 = 0 					$cw_pos3 = 175 					$cw_pos4 = 200 					 				case(0) 					$cw_pos1 = -150 					$cw_pos2 = 0 					$cw_pos3 = -175 					$cw_pos4 = -200 				 				default 					$cw_pos1 = 0 					$cw_pos2 = 0 					$cw_pos3 = 0 					$cw_pos4 = 0 					 					 			 			} 			 			$cw_tmp2 = math.limit(-80,$cw_pos4,80) 			 			 			for($cw_tmp = 20,$cw_tmp <= 24,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos3,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-120,$cw_pos4,120) 			 			} 			 			for($cw_tmp = 30,$cw_tmp <= 34,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos1,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-240,$cw_pos4,240) 			 			} 			screen.effect[0].begin_order = 0 			screen.effect[0].end_order = 5 			screen.effect[0].x_eve.set($cw_tmp2,0 / 2,0,2) 			screen.effect[0].x_eve.wait_key screen.effect[0].y_eve.end 			 			if (stage[1].object[34].exist_type == 1) {  				stage[1].object[34].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[34].scale_x_eve.set(950,0,0,2) 				stage[1].object[34].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[33].exist_type == 1) {  				stage[1].object[33].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[33].scale_x_eve.set(950,0,0,2) 				stage[1].object[33].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[32].exist_type == 1) {  				stage[1].object[32].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[32].scale_x_eve.set(950,0,0,2) 				stage[1].object[32].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[31].exist_type == 1) {  				stage[1].object[31].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[31].scale_x_eve.set(950,0,0,2) 				stage[1].object[31].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[30].exist_type == 1) {  				stage[1].object[30].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[30].scale_x_eve.set(950,0,0,2) 				stage[1].object[30].scale_y_eve.set(950,0,0,2) 				 			} 			 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[23].exist_type == 1) {  				stage[1].object[23].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[23].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[23].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[21].exist_type == 1) {  				stage[1].object[21].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[21].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[21].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[20].exist_type == 1) {  				stage[1].object[20].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[20].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[20].scale_y_eve.set(950-200,0,0,2) 				 			} 			 			front.object[0].scale_x_eve.set(1000,0,0,2) 			front.object[0].scale_y_eve.set(1000,0,0,2) 			front.object[0].scale_x_eve.wait_key front.object[0].scale_y_eve.end		 										for ($chr_eve_tmp=24,$chr_eve_tmp>=20,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										} 										for ($chr_eve_tmp=34,$chr_eve_tmp>=30,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										}	
+	
+	
+	
+#trans04_out
+
+	
+	for (l[00] = 0,l[00] <= 10,l[00] += 1) {
+		
+		front.object[398].child[l[00]].scale_y_eve.set(0,500,l[00] * 20,1)
+		front.object[398].child[l[00]].x_rep_eve[0].set(-2250,500,l[00] * 20,1)
+		
+	}
+	
+	for (l[00] = 11,l[00] <= 21,l[00] += 1) {
+		
+		front.object[398].child[l[00]].scale_y_eve.set(0,500,(l[00] - 11) * 20,1)
+		front.object[398].child[l[00]].x_rep_eve[0].set(2250,500,(l[00] - 11) * 20,1)
+		
+	}
+	
+	front.object[398].child[21].scale_y_eve.wait
+	
+	timewait_key($waittime)
+	
+	goto #trans_end
+
+
+
+
+
+
+#trans05
+
+	front.object[398].init
+	front.object[398].child.resize(50)
+	front.object[398].layer = 398
+	front.object[398].order = 12 
+	front.object[398].set_center_rep(960,540)
+	front.object[398].disp = 1
+
+	
+	front.object[398].child[00].create(_transition03,1,860 - 860,540)
+	front.object[398].child[00].color_r = 247
+	front.object[398].child[00].color_g = 132
+	front.object[398].child[00].color_b = 221
+	front.object[398].child[00].color_rate = 255
+	front.object[398].child[00].x_rep.resize(2)
+	front.object[398].child[00].set_scale(1500,1500)
+	
+	
+	
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00]].create(_transition03,1,960 - 960,540 - (l[00] * 225))
+		front.object[398].child[l[00]].x_rep.resize(2)
+		
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00]].color_r = 247
+			front.object[398].child[l[00]].color_g = 132
+			front.object[398].child[l[00]].color_b = 221
+			front.object[398].child[l[00]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00]].color_r = 221
+			front.object[398].child[l[00]].color_g = 63
+			front.object[398].child[l[00]].color_b = 167
+			front.object[398].child[l[00]].color_rate = 255
+			
+		}
+		
+		front.object[398].child[l[00]].set_scale(1500,1500)
+
+	}
+	
+	l[01] = 5
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00] + l[01]].create(_transition03,1,960 - 960,540 + (l[00] * 225))
+		front.object[398].child[l[00] + l[01]].x_rep.resize(2)
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 247
+			front.object[398].child[l[00] + l[01]].color_g = 132
+			front.object[398].child[l[00] + l[01]].color_b = 221
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 221
+			front.object[398].child[l[00] + l[01]].color_g = 63
+			front.object[398].child[l[00] + l[01]].color_b = 167
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+			
+		}
+		
+		front.object[398].child[l[00] + l[01]].set_scale(1500,1500)
+
+	}
+	
+	
+	
+	
+	
+	front.object[398].child[11].create(_transition03,1,960 + 960,540)
+	front.object[398].child[11].color_r = 247
+	front.object[398].child[11].color_g = 132
+	front.object[398].child[11].color_b = 221
+	front.object[398].child[11].color_rate = 255
+	front.object[398].child[11].x_rep.resize(2)
+	front.object[398].child[11].set_scale(1500,1500)
+	
+	l[01] = 11
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00] + l[01]].create(_transition03,1,960 + 960,540 - (l[00] * 225))
+		front.object[398].child[l[00] + l[01]].x_rep.resize(2)
+		
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 247
+			front.object[398].child[l[00] + l[01]].color_g = 132
+			front.object[398].child[l[00] + l[01]].color_b = 221
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 221
+			front.object[398].child[l[00] + l[01]].color_g = 63
+			front.object[398].child[l[00] + l[01]].color_b = 167
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+			
+		}
+		
+		front.object[398].child[l[00] + l[01]].set_scale(1500,1500)
+	}
+	
+	l[01] = 16
+	
+	for (l[00] = 1,l[00] <= 5,l[00] += 1) {
+	
+		front.object[398].child[l[00] + l[01]].create(_transition03,1,960 + 960,540 + (l[00] * 225))
+		front.object[398].child[l[00] + l[01]].x_rep.resize(2)
+		
+		if (l[00] % 2 == 0) {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 247
+			front.object[398].child[l[00] + l[01]].color_g = 132
+			front.object[398].child[l[00] + l[01]].color_b = 221
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+				
+		}else {
+		
+			front.object[398].child[l[00] + l[01]].color_r = 221
+			front.object[398].child[l[00] + l[01]].color_g = 63
+			front.object[398].child[l[00] + l[01]].color_b = 167
+			front.object[398].child[l[00] + l[01]].color_rate = 255
+			
+		}
+
+		front.object[398].child[l[00] + l[01]].set_scale(1500,1500)
+		
+	}
+
+
+	front.object[398].rotate_z = 0
+	front.object[398].set_scale(700,700)
+	
+	
+	
+	for (l[00] = 0,l[00] <= 10,l[00] += 1) {
+	
+		
+		
+		
+	
+		front.object[398].child[l[00]].scale_y = 0
+		front.object[398].child[l[00]].x_rep[0] = -2250
+		
+		front.object[398].child[l[00]].scale_y_eve.set(1500,500,l[00] * 20,2)
+		front.object[398].child[l[00]].x_rep_eve[0].set(0,500,l[00] * 20,2)
+		
+	}
+	
+	for (l[00] = 11,l[00] <= 21,l[00] += 1) {
+	
+		
+		
+		
+	
+		front.object[398].child[l[00]].scale_y = 0
+		front.object[398].child[l[00]].x_rep[0] = 2250
+		
+		front.object[398].child[l[00]].scale_y_eve.set(1500,500,(l[00] - 11) * 20,2)
+		front.object[398].child[l[00]].x_rep_eve[0].set(0,500,(l[00] - 11) * 20,2)
+		
+	}
+	
+	
+	front.object[398].child[49].create(a0_transition_chr,1,960,540,3)
+	front.object[398].child[49].set_scale(0,0)
+	
+	front.object[398].child[49].scale_x_eve.set(1500,500,0,2)
+	front.object[398].child[49].scale_y_eve.set(1500,500,0,2)
+	
+	front.object[398].child[49].rotate_x_eve.set(10800,500,0,2)
+	
+	
+	$pcmplay(307,2,2)
+
+	
+	front.object[398].child[21].scale_y_eve.wait
+	
+	
+	if ($trans_in_flag == 1) {goto #trans_end}
+	
+	close  			$bg_filename_tmp = $bgname 			$time_tmp = 0  			if ($bgname == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(1) { 				case(99)	 				default switch(1){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+	
+	close 			 			stage[1].object[0].x_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			stage[1].object[0].y_rep_eve[18].set(0,0 / 2,0,2) timewait(0 / 2) 			 			close 			 			$cw_tmp = 0 			$cw_tmp2 = 0 			$cw_pos1 = 0 			$cw_pos2 = 0 			$cw_pos3 = 0 			$cw_pos4 = 0 			 			 			 			switch(4) { 			 				case(3) 					$cw_pos1 = 75 					$cw_pos2 = 0 					$cw_pos3 = 90 					$cw_pos4 = 100 				 				case(2) 					$cw_pos1 = -75 					$cw_pos2 = 0 					$cw_pos3 = -90 					$cw_pos4 = -100 				case(1) 					$cw_pos1 = 150 					$cw_pos2 = 0 					$cw_pos3 = 175 					$cw_pos4 = 200 					 				case(0) 					$cw_pos1 = -150 					$cw_pos2 = 0 					$cw_pos3 = -175 					$cw_pos4 = -200 				 				default 					$cw_pos1 = 0 					$cw_pos2 = 0 					$cw_pos3 = 0 					$cw_pos4 = 0 					 					 			 			} 			 			$cw_tmp2 = math.limit(-80,$cw_pos4,80) 			 			 			for($cw_tmp = 20,$cw_tmp <= 24,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos3,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-120,$cw_pos4,120) 			 			} 			 			for($cw_tmp = 30,$cw_tmp <= 34,$cw_tmp += 1) { 					 				if (front.object[$cw_tmp].exist_type != 1) {continue} 				 				front.object[$cw_tmp].x_rep_eve[16].set($cw_pos1,0 / 2,0,2) 				front.object[$cw_tmp].x_rep_eve[17].set($cw_pos2,0 / 2,0,2) 				 				$cw_tmp2 = math.limit(-240,$cw_pos4,240) 			 			} 			screen.effect[0].begin_order = 0 			screen.effect[0].end_order = 5 			screen.effect[0].x_eve.set($cw_tmp2,0 / 2,0,2) 			screen.effect[0].x_eve.wait_key screen.effect[0].y_eve.end 			 			if (stage[1].object[34].exist_type == 1) {  				stage[1].object[34].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[34].scale_x_eve.set(950,0,0,2) 				stage[1].object[34].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[33].exist_type == 1) {  				stage[1].object[33].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[33].scale_x_eve.set(950,0,0,2) 				stage[1].object[33].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[32].exist_type == 1) {  				stage[1].object[32].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[32].scale_x_eve.set(950,0,0,2) 				stage[1].object[32].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[31].exist_type == 1) {  				stage[1].object[31].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[31].scale_x_eve.set(950,0,0,2) 				stage[1].object[31].scale_y_eve.set(950,0,0,2) 				 			} 			if (stage[1].object[30].exist_type == 1) {  				stage[1].object[30].y_rep_eve[16].set(math.timetable(950,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[30].scale_x_eve.set(950,0,0,2) 				stage[1].object[30].scale_y_eve.set(950,0,0,2) 				 			} 			 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[23].exist_type == 1) {  				stage[1].object[23].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[23].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[23].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[24].exist_type == 1) {  				stage[1].object[24].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[24].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[24].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[21].exist_type == 1) {  				stage[1].object[21].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[21].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[21].scale_y_eve.set(950-200,0,0,2) 				 			} 			if (stage[1].object[20].exist_type == 1) {  				stage[1].object[20].y_rep_eve[16].set(math.timetable(950-200,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,2) 				stage[1].object[20].scale_x_eve.set(950-200,0,0,2) 				stage[1].object[20].scale_y_eve.set(950-200,0,0,2) 				 			} 			 			front.object[0].scale_x_eve.set(1000,0,0,2) 			front.object[0].scale_y_eve.set(1000,0,0,2) 			front.object[0].scale_x_eve.wait_key front.object[0].scale_y_eve.end		 										for ($chr_eve_tmp=24,$chr_eve_tmp>=20,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										} 										for ($chr_eve_tmp=34,$chr_eve_tmp>=30,$chr_eve_tmp-=1){ 											if (front.object[$chr_eve_tmp].exist_type == 1) { 												front.object[$chr_eve_tmp].y_rep_eve[16].end 												front.object[$chr_eve_tmp].scale_x_eve.end 												front.object[$chr_eve_tmp].scale_y_eve.end 											} 										}	
+	
+	
+	
+	
+#trans05_out
+
+	
+	for (l[00] = 0,l[00] <= 10,l[00] += 1) {
+		
+		front.object[398].child[l[00]].scale_y_eve.set(0,500,l[00] * 20,1)
+		front.object[398].child[l[00]].x_rep_eve[0].set(-2250,500,l[00] * 20,1)
+		
+	}
+	
+	for (l[00] = 11,l[00] <= 21,l[00] += 1) {
+		
+		front.object[398].child[l[00]].scale_y_eve.set(0,500,(l[00] - 11) * 20,1)
+		front.object[398].child[l[00]].x_rep_eve[0].set(2250,500,(l[00] - 11) * 20,1)
+		
+	}
+	
+	front.object[398].child[49].patno = 1
+	front.object[398].child[49].scale_x_eve.set(4000,500,0,2)
+	front.object[398].child[49].scale_y_eve.set(4000,500,0,2)
+	front.object[398].child[49].tr_eve.set(0,1000,0,1)
+	
+	
+	front.object[398].child[21].scale_y_eve.wait
+	
+	timewait_key($waittime)
+	
+	goto #trans_end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#trans_end
+
+	if ($system_flag == 0) {
+
+		syscom.set_syscom_menu_enable
+		syscom.set_msg_back_enable_flag(1)
+		syscom.set_save_enable_flag(1)
+
+	}
+
+	return
+
+
+}
+
+

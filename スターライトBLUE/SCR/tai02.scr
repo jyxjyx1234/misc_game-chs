@@ -1,0 +1,155 @@
+############################################
+# 体験版２ルーチン
+############################################
+::START
+
+
+
+
+:TAIKEN2_TOP
+
+clrbacklog
+ud(1, 100)
+
+
+#	/・【凛ｘ遠矢のＨシーンその１】を見る
+#	/・【凛ｘ遠矢のＨシーンその２】を見る
+#	/・タイトル画面へ戻る//
+
+#	%temp = %reg    # 選択肢パラメータ保存
+
+
+bgmon("bgm02")		# ＢＧＭ再生
+
+bgon("bg003aa1")
+ud(1, 200)
+
+btnset(1,"slctwnd", 254, 200, "【凛の初めての動画シーン】を見る", 30, 13)
+btnset(2,"slctwnd", 254, 256, "【凛ｘ遠矢のＨシーン】を見る", 30, 13)
+btnset(5,"slctwnd", 254, 312, "【店舗予約特典情報】を見る", 30, 13)
+btnset(6,"slctwnd", 254, 368, "「タイトル画面へ戻る」", 30, 13)
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+bgon("black")
+ud(1, 200)
+
+wndoff
+ud(0)
+bgmoff(0, 700)		# ＢＧＭ終了
+
+%temp = %sentaku    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(0)			# 【凛ｘ遠矢のＨシーンその１】のページへ進む
+		^jp(TAIKEN2_00_01)
+	^case(1)			# 【凛ｘ遠矢のＨシーンその２】のページへ進む
+		^jp(TAIKEN2_00_02)
+	^case(2)			# 【】のページへ進む
+		^jp(TAIKEN2_00_03)
+	^case(3)			# 【】のページへ進む
+		^jp(TAIKEN2_00_04)
+	^case(4)			# 【ショップ】のページへ進む
+		^jp(TAIKEN2_00_SHOP)
+
+	^case(5)			# タイトル画面へ戻る
+		^jp(END_GAME)
+	^df
+^ends
+
+
+
+
+:TAIKEN2_00_00
+
+
+
+
+clrbacklog
+global(%tai02_pro,1)	# 体験版【プロローグ】を見た
+^jp(TAIKEN2_TOP)
+
+
+
+
+:TAIKEN2_00_01
+#【凛ｘ遠矢のＨシーンその１】のページ
+
+clrbacklog
+ud(1, 100)
+
+^gsb(B_08)
+
+clrbacklog
+^jp(TAIKEN2_TOP)
+
+
+
+
+:TAIKEN2_00_02
+#【凛ｘ遠矢のＨシーンその２】のページ
+
+clrbacklog
+ud(1, 100)
+
+^gsb(B_13)
+
+clrbacklog
+^jp(TAIKEN2_TOP)
+
+
+
+
+:TAIKEN2_00_03
+#【】のページ
+
+clrbacklog
+ud(1, 100)
+
+#^gsb(A_13)
+
+clrbacklog
+^jp(TAIKEN2_TOP)
+
+
+
+
+:TAIKEN2_00_04
+#【】のページ
+
+clrbacklog
+ud(1, 100)
+
+#^gsb(E_11)
+
+clrbacklog
+^jp(TAIKEN2_TOP)
+
+
+
+
+:TAIKEN2_00_SHOP
+#【店舗】のページ
+
+clrbacklog
+ud(1, 50)
+
+^gsb(tai_shop)
+
+clrbacklog
+^jp(TAIKEN2_TOP)
+
+
+
+
+:END_GAME
+
+bgon("black")
+ud(1, 200)
+
+wndoff
+ud(0)
+bgmoff(0, 700)		# ＢＧＭ終了
+
+^ret
+
+::END

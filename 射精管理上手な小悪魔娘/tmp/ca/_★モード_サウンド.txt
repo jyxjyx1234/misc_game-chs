@@ -1,0 +1,441 @@
+
+
+
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+syscom.set_msg_back_enable_flag(0)
+syscom.set_save_enable_flag(0)
+syscom.set_syscom_menu_disable
+
+if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+
+
+#init
+
+set_title("ŸƒTƒEƒ“ƒhƒ‚[ƒh")		
+
+$sound_playno = -1
+$bgm_moto_volume = syscom.get_bgm_volume
+
+back.object[10].init
+back.object[10].child.resize(20)
+back.object[10].disp = 1
+
+
+
+
+
+
+
+$sound_tag_create(00,500, 60,"ƒƒCƒ“ƒe[ƒ}","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(01,500,150,"‚¨‚¾‚â‚©‚È’©","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(02,500,240,"–¾‚é‚¢ŠwZ¶Šˆ","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(03,500,330,"Šë‚¤‚¢ŠwZ¶Šˆ","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(04,500,420,"–é‚Ì«Šˆ","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(05,500,510,"¬ˆ«–‚–º","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(06,500,600,"‹°•|","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(07,500,690,"ˆØ•|","ì‹ÈF‰º’n˜a•F")
+
+
+$sound_tag_create(08,1430, 60,"‚í‚©‚ç‚¹‚P","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(09,1430,150,"‚í‚©‚ç‚¹‚Q","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(10,1430,240,"‚í‚©‚ç‚¹‚R","ì‹ÈF‰º’n˜a•F")
+$sound_tag_create(11,1430,330,"‚í‚©‚ç‚¹‚R(in dream)","ì‹ÈF‰º’n˜a•F")
+
+
+back.object[14].create(a0_mode_soundhd_play,1,1488,954,0)
+back.object[13].create(a0_mode_soundhd_play,1,1488 + 85,954,1)
+back.object[11].create(a0_mode_soundhd_play,1,1488 + 170,954,2)
+back.object[12].create(a0_mode_soundhd_play,1,1488 + 255,954,3)
+
+
+
+back.object[11].set_button(30,0,10,0)
+back.object[12].set_button(31,0,10,0)
+back.object[13].set_button(32,0,10,0)
+back.object[14].set_button(33,0,10,0)
+
+
+back.object[15].create(a0_mode_soundhd_slider,1,418,1027)
+back.object[15].set_button(34,0,10,0)
+back.object[15].x_rep.resize(1)
+back.object[15].set_button_pushkeep(1)
+back.object[15].x_rep[0] = $bgm_slider_param()
+
+
+back.object[16].create_string("ƒ–¢Ä¶„",1,414,939)
+back.object[16].set_string_param(32,0,0,0,254,0,0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+back.object[100].create(a0_mode_soundhd_exit,1,1620,1030)
+back.object[100].set_button(100,0,10,0)
+back.object[01].create(_black_half,1,0,0)
+
+back.object[02].create(a0_mode_soundhd_ui,1,0,0)
+
+
+
+
+
+$transition(30,"",0,0)
+
+
+close  			$bg_filename_tmp = bg10_ca 			$time_tmp = 0  			if (bg10_ca == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+$multiple_mouse_scroll_init(0) 
+
+
+
+$transition(31,"",0,1)
+
+
+syscom.set_msg_back_enable_flag(0)
+syscom.set_save_enable_flag(0)
+syscom.set_syscom_menu_disable
+
+
+#start
+
+mouse.clear
+
+
+
+
+$ls_btn0_hit = 0 						$ls_btn1_hit = 0 						$ls_btn2_hit = 0 						$ls_btn3_hit = 0 						$ls_btn4_hit = 0 						$ls_btn5_hit = 0 						$ls_btn6_hit = 0  						$ls_btn0_push = 0 						$ls_btn1_push = 0 						$ls_btn2_push = 0 						$ls_btn3_push = 0 						$ls_btn4_push = 0 						$ls_btn5_push = 0 						$ls_btn6_push = 0  						$ls_btn0_decided = 0 						$ls_btn1_decided = 0 						$ls_btn2_decided = 0 						$ls_btn3_decided = 0 						$ls_btn4_decided = 0 						$ls_btn5_decided = 0 						$ls_btn6_decided = 0 						 						$ls_btn_break = 0  						front.objbtngroup[0].init 						front.objbtngroup[1].init 						front.objbtngroup[2].init 						front.objbtngroup[3].init 						front.objbtngroup[4].init 						front.objbtngroup[5].init 						front.objbtngroup[6].init
+front.objbtngroup[0].start_cancel
+
+
+while(1) {
+
+	$ls_btn0_hit = front.objbtngroup[0].get_hit_no
+	$ls_btn0_push = front.objbtngroup[0].get_pushed_no
+	$ls_btn0_decided = front.objbtngroup[0].get_decided_no
+
+	for (l[00] = 0,l[00] < 12,l[00] += 1) {
+
+		if (l[00] == $sound_playno) { front.object[10].child[l[00]].set_scale(1000,1000) front.object[10].child[l[00]].child[00].disp = 1 continue}
+
+		front.object[10].child[l[00]].set_scale(950,950)
+		front.object[10].child[l[00]].child[00].disp = 0
+
+	}
+	
+	switch($ls_btn0_hit) {
+	
+		case(00)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(01)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(02)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(03)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(04)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(05)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(06)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(07)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(08)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(09)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		
+		case(10)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(11)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(12)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(13)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(14)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(15)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(16)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(17)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(18)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		case(19)	$help_text(front.object[495],dl,"‚±‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B#D‚à‚¤ˆê“xƒNƒŠƒbƒN‚·‚é‚Æ“ª‚©‚çÄ¶‚µ‚È‚¨‚µ‚Ü‚·B")
+		
+		case(30)	$help_text(front.object[495],ul,"ˆê‚Â‘O‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B")
+		case(31)	$help_text(front.object[495],ul,"ˆê‚ÂŒã‚Ì‚a‚f‚l‚ğÄ¶‚µ‚Ü‚·B")
+		
+		case(32)	$help_text(front.object[495],ul,"Ä¶’†‚Ì‚a‚f‚l‚ğ’â~‚µ‚Ü‚·B")
+		
+		
+		
+		case(33)	$help_text(front.object[495],ul,"Ä¶’†‚Ì‚a‚f‚l‚ğ“ª‚©‚çÄ¶‚µ‚Ü‚·B")
+		case(34)	$help_text(front.object[495],ul,"‚a‚f‚l‰¹—Ê‚ğ•ÏX‚µ‚Ü‚·B#Dƒ}ƒEƒXƒzƒC[ƒ‹‚Å‚à“®ì‚µ‚Ü‚·B")
+		
+		
+		
+		case(100)	$help_text(front.object[495],ul,"ƒ^ƒCƒgƒ‹‰æ–Ê‚É–ß‚è‚Ü‚·i‰EƒNƒŠƒbƒN‚Æ“¯‚¶“®ìj")
+		
+		
+		
+	
+		default	front.object[495].disp = 0
+	
+	}
+	
+	
+	if ($ls_btn0_push == 34) { 
+	
+		front.object[15].x_rep[00] = math.limit(0,mouse.pos_x-420,940)
+		syscom.set_bgm_volume(math.timetable(front.object[15].x_rep[00],0,0,[0,940,255]))
+	
+	}
+	
+	if (mouse.wheel > 0) {
+	
+		front.object[15].x_rep[00] = math.limit(0,front.object[15].x_rep[00] + 90,940)
+		syscom.set_bgm_volume(math.timetable(front.object[15].x_rep[00],0,0,[0,940,255]))
+	
+	}
+	
+	if (mouse.wheel < 0) {
+	
+		front.object[15].x_rep[00] = math.limit(0,front.object[15].x_rep[00] - 90,940)
+		syscom.set_bgm_volume(math.timetable(front.object[15].x_rep[00],0,0,[0,940,255]))
+	
+	}
+	
+	
+	
+	
+
+	if ($ls_btn0_decided == -1 || $ls_btn0_decided == 60) {
+		
+		if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+		returnmenu
+		
+	}
+	
+	if ($ls_btn0_decided == 100) {
+	
+		if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+		returnmenu
+	
+	}
+	
+		
+	if ($ls_btn0_decided >= 0) {break}
+
+	disp
+
+}
+
+if ($ls_btn0_decided == 30) {
+
+	$sound_playno = ($sound_playno - 1)
+
+	if ($sound_playno <  0) {
+	
+		$sound_playno = 12 - 1
+	
+	}
+	front.object[16].set_string($sound_play_title[$sound_playno])
+	
+	
+	
+	gosub #bgm_list
+	
+	goto #start
+
+}
+
+
+if ($ls_btn0_decided == 31) {
+
+	$sound_playno = ($sound_playno + 1) % 12
+	front.object[16].set_string($sound_play_title[$sound_playno])
+	
+	gosub #bgm_list
+	
+	goto #start
+
+}
+
+
+if ($ls_btn0_decided == 32) {
+
+	if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}	
+	front.object[16].set_string("ƒ–¢Ä¶„")
+	
+	goto #start
+
+}
+
+if ($ls_btn0_decided == 33) {
+
+
+	if ($sound_playno == -1) {$sound_playno = 0}
+
+	if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+	gosub #bgm_list
+
+	front.object[16].set_string($sound_play_title[$sound_playno])
+	
+	goto #start
+}
+
+if ($ls_btn0_decided == 34) {
+
+	
+	goto #start
+
+}
+
+
+if ($ls_btn0_decided == 50) {
+
+	if (front.object[51].disp == 0) {
+
+		front.object[51].disp = 1
+	
+	}else {
+	
+		front.object[51].disp = 0
+	
+	}
+	
+	goto #start
+	
+}
+
+
+
+
+
+$sound_playno = $ls_btn0_decided
+front.object[16].set_string($sound_play_title[$sound_playno])
+
+
+gosub #bgm_list
+
+
+
+
+goto #start
+
+
+
+
+#bgm_list
+
+
+if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+
+switch($sound_playno) {
+
+	case(00)	k[00] = "BGM01"
+	case(01)	k[00] = "BGM02"
+	case(02)	k[00] = "BGM03"
+	case(03)	k[00] = "BGM04"
+	case(04)	k[00] = "BGM06"
+	case(05)	k[00] = "BGM10"
+	case(06)	k[00] = "BGM11"
+	case(07)	k[00] = "BGM12"
+	case(08)	k[00] = "BGM13"
+	case(09)	k[00] = "BGM14"
+	case(10)	k[00] = "BGM15"
+	case(11)	k[00] = "BGM16"
+}
+
+
+
+
+if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif (k[00] != "BGM00") {$now_bgm_name = k[00]	bgm.play(k[00],0,start_pos = -1)}
+
+
+
+return
+
+
+
+
+
+command $sound_tag_create(
+			property $index,
+			property $x,
+			property $y,
+			property $title : str,
+			property $creater : str) {
+
+	back.object[10].child[$index].create_rect(0,0,800,70,234,226,225,255,1)
+	back.object[10].child[$index].center_x = 800 / 2
+	back.object[10].child[$index].center_y = 70 / 2
+	
+	back.object[10].child[$index].x = $x
+	back.object[10].child[$index].y = $y
+	
+	back.object[10].child[$index].child.resize(5)
+	back.object[10].child[$index].child[00].create_rect(0,0,800,68,195,185,155,255,0,-400,-34)
+	
+	back.object[10].child[$index].child[01].create_rect(0,0,30,68,52,21,14,255,1,-390,-32)
+	
+	
+	back.object[10].child[$index].child[02].create_string($title,1,-300,-15)
+	back.object[10].child[$index].child[02].set_string_param(32,-2,0,0,254,0,0)
+	
+	back.object[10].child[$index].child[03].create_string($creater,1,170,10)
+	back.object[10].child[$index].child[03].set_string_param(20,0,3,0,254,0,0)
+	
+	
+	$sound_play_title[$index] = $title + "@#20S#10Y"  + $creater
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+		
+	back.object[10].child[$index].set_scale(950,950)
+	back.object[10].child[$index].set_button($index,0,13,0)
+
+	back.object[10].child[$index].tr = 250
+
+}
+
+
+
+
+command	$bgm_slider_param() : int {
+
+	return(math.timetable(syscom.get_bgm_volume,0,0,[0,255,940]))
+
+
+}
+
+
+
+
+

@@ -1,0 +1,1 @@
+chs_pack pack release/trans release/ryokai_CHS.CPK ryokai

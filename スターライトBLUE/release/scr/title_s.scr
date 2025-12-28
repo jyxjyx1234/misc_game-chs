@@ -1,0 +1,32 @@
+::START
+
+bgmoff(1)
+#bgoff
+#ud(1, 1000)
+
+# 以前まではここでメーカーロゴを表示していた
+
+#^if( %H_MODE_FLAG != 1 )
+#	# Ｈシーン回想モードじゃない場合
+#	global(%hs64,-1)	# ムービー見たかどうか？
+#	^if(%reg==1)
+#		^ret
+#	^endi
+#^endi
+#
+#
+#^gsb(op_mov)		# OPムービー
+#
+#
+##○◎(Ｈシーン終了)
+##Ｈシーン回想ルーチン
+#global(%hs64, 1)
+#^if( %H_MODE_FLAG == 1 )
+#	^ret
+#^endi
+#
+
+
+
+^ret
+::END

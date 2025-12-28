@@ -2,8 +2,12 @@
 #include <Shlwapi.h>
 #include <fstream>
 #include <iostream>
+//#include <shellscalingapi.h>
 #include "readconfig.h"
+
 #include "dll_proxy.h"
+
+//#pragma comment(lib, "Shcore.lib")
 
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
@@ -22,6 +26,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 		DisableThreadLibraryCalls(hModule);
 		Load(); Init();
+		//SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 		break;
 	}
 	case DLL_THREAD_ATTACH:

@@ -1,0 +1,20 @@
+::START
+
+#ループ選択肢の初期化関係。選択肢の数だけビットを立てる
+
+^sw(%selsub_num)
+^case(6)
+	%selsub_status = %BIT1ON + %BIT2ON + %BIT3ON + %BIT4ON + %BIT5ON + %BIT6ON
+^case(5)
+	%selsub_status = %BIT1ON + %BIT2ON + %BIT3ON + %BIT4ON + %BIT5ON
+^case(4)
+	%selsub_status = %BIT1ON + %BIT2ON + %BIT3ON + %BIT4ON
+^case(3)
+	%selsub_status = %BIT1ON + %BIT2ON + %BIT3ON
+^case(2)
+	%selsub_status = %BIT1ON + %BIT2ON
+^ends
+
+^ret
+
+::END

@@ -1,0 +1,119 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#z00
+
+
+
+
+
+
+
+
+
+
+
+command $bgv_voice(property $filename:str,property $ch,property $fade_mode) {
+
+    if (g[0024] == 1) {
+		if (script.check_skip == 1) {return}
+	}
+
+    l[00] = 10 + $ch    
+
+	if ((1) && (system.check_file_exist("wav\\"+$filename+".ogg") != 1)) {
+		$debug_common("ÅyåxçêÅzÅ@"+$filename+"ÇÕë∂ç›ÇµÇ‹ÇπÇÒ",5)
+		return
+	}
+
+    if ($fade_mode == 0) {      
+        pcmch[l[00]].play($filename,volume_type = 16 ,loop = 1,bgm_fade_target = 1)
+    }else{                      
+        pcmch[l[00]].play($filename,volume_type = 16 ,loop = 1,bgm_fade2_target = 1)
+    }
+}
+
+command $bgv_stop(property $ch,property $fade_time) {
+    l[00] = 10 + $ch    
+    pcmch[l[00]].stop($fade_time)
+}
+
+
+
+
+
+command $bgs_oneshot(property $filename:str,property $ch){
+
+    if (g[0024] == 1) {
+		if (script.check_skip == 1) {return}
+	}
+
+    l[00] = 16 + $ch    
+    pcmch[l[00]].play($filename,volume_type = 17)
+
+}
+
+command $bgs_oneshot_stop(property $ch,property $fade_time) {
+    l[00] = 16 + $ch    
+    pcmch[l[00]].stop($fade_time)
+}
+
+
+
+
+
+command $bgs_action(property $filename:str,property $ch){
+
+    if (g[0024] == 1) {
+		if (script.check_skip == 1) {return}
+	}
+
+    l[00] = 19 + $ch    
+    pcmch[l[00]].play($filename,volume_type = 18,loop = 1)
+
+}
+
+command $bgs_action_stop(property $ch,property $fade_time) {
+    l[00] = 19 + $ch    
+    pcmch[l[00]].stop($fade_time)
+}
+
+
+
+
+
+command $bgs_env(property $filename:str,property $ch,property $loop){
+
+    if (g[0024] == 1) {
+		if (script.check_skip == 1) {return}
+	}
+
+    l[00] = 22 + $ch    
+    pcmch[l[00]].play($filename,volume_type = 19,loop = $loop)
+
+}
+
+command $bgs_env_stop(property $ch,property $fade_time) {
+    l[00] = 22 + $ch    
+    pcmch[l[00]].stop($fade_time)
+}
+

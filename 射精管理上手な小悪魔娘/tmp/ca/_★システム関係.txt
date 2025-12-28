@@ -1,0 +1,204 @@
+#z00
+
+
+
+
+command $hexa_to_deci(property $str : str) {
+
+	k[00] = $str.mid(0,1)
+	k[01] = $str.mid(1,1)
+	
+	switch(k[00]) {
+	
+		case("A") l[00] = 10
+		case("B") l[00] = 11
+		case("C") l[00] = 12
+		case("D") l[00] = 13
+		case("E") l[00] = 14
+		case("F") l[00] = 15
+		
+		default l[00] = k[00].tonum
+	
+	}
+	
+	switch(k[01]) {
+	
+		case("A") l[01] = 10
+		case("B") l[01] = 11
+		case("C") l[01] = 12
+		case("D") l[01] = 13
+		case("E") l[01] = 14
+		case("F") l[01] = 15
+		
+		default l[01] = k[01].tonum
+	
+	}
+	
+	return((l[00] * 16) + l[01])
+	
+	
+
+}
+
+
+
+
+command $str_tail_cut(property $str : str,property $cnt) : str {
+
+	l[00] = $str.cnt
+	
+	k[00] = $str.left(l[00] - $cnt)
+	
+	return(k[00])
+	
+}
+
+
+
+
+
+
+command $str_search_and_get(property $str : str, property $stra : str,property $strb : str) : str {
+
+	if ($stra == "") {
+	
+		l[01] = $str.search($strb)
+		
+		if (l[01] == -1) { system.debug_messagebox_ok( $strb + " は見つかりませんでした。") return("") }
+		
+		k[00] = $str.left(l[01])
+		
+		return(k[00])
+	
+	}
+	
+	if ($strb == "") {
+	
+		l[00] = $stra.cnt
+		l[01] = $str.search($stra)
+		
+		if (l[01] == -1) { system.debug_messagebox_ok( $stra + " は見つかりませんでした。") return("") }
+		
+		k[00] = $str.mid(l[01] + l[00])
+	
+		return(k[00])
+	
+	}
+	
+	l[01] = $stra.cnt
+	
+	l[03] = $str.search($stra)
+	if (l[03] == -1) { l[03] = 0} 
+	
+	l[04] = $str.search($strb)
+	if (l[04] == -1) { l[04] = 999 }	
+
+	k[00] = $str.left(l[04])
+	k[00] = k[00].mid(l[03] + l[01])
+
+	return(k[00])
+
+}
+
+
+
+
+command $system_message(property $str : str,property $y) {
+
+	front.object[499].create_rect(0,0,350,100,0,0,0,220,0,1570,$y)
+	front.object[499].x_rep.resize(1)
+	front.object[499].x_rep[0] = 300
+	front.object[499].order = 999999
+
+	front.object[499].child.resize(1)
+	front.object[499].child[00].create_string($str,1,10,10)
+	
+	front.object[499].child[00].set_string_param(18,1,8,16,21,0,0)
+
+	front.object[499].disp = 1
+
+	front.object[499].x_rep_eve[0].set(0,500,0,2)
+	front.object[499].tr_eve.set(0,500,5000,2)
+
+	front.object[499].wipe_copy = 1		
+
+	
+
+}
+
+
+
+
+command $check_box(property $excall,property $title : str,property $message : str) : int {
+
+	
+
+
+
+
+
+
+
+
+
+
+	l[00] = syscom.get_msg_back_enable_flag
+	l[01] = syscom.get_save_enable_flag
+	
+
+	if ($excall == 0) {
+		syscom.set_msg_back_enable_flag(0)
+		syscom.set_save_enable_flag(0)
+		syscom.set_syscom_menu_disable
+	}
+	
+	excall[$excall].front.object[480].create(_black_half,0,639,359)
+	excall[$excall].front.object[480].order = 999999
+
+	excall[$excall].front.object[480].child.resize(2)
+	
+	excall[$excall].front.object[480].child[00].create_rect(0,0,502,302,240,240,240,255,1,421-639,188-359)
+	excall[$excall].front.object[480].child[01].create_rect(0,0,500,300,40,40,40,255,1,422-639,189-359)
+	excall[$excall].front.object[480].child[01].child.resize(5)
+	
+	$ex_create_pushbtn3(excall[$excall].front.object[480].child[01],1,"ＯＫ",80,190,148,41,"190662",10,15)
+	$ex_create_pushbtn3(excall[$excall].front.object[480].child[01],0,"キャンセル",272,190,148,41,"62060f",10,15)
+	
+	$ex_create_moji2(excall[$excall].front.object[480].child[01],2,$title,96,33,28,0,22)
+	$ex_create_moji2(excall[$excall].front.object[480].child[01],3,$message,84,96,17,0,255)
+	$ex_create_moji2(excall[$excall].front.object[480].child[01],4,"右クリック＝キャンセル",155,270,17,0,255)
+	
+	excall[$excall].front.object[480].disp = 1
+
+	
+	excall[$excall].front.objbtngroup[15].init
+	l[10] = excall[$excall].front.objbtngroup[15].sel_cancel
+	
+	
+	if ($excall == 0) {
+		
+		syscom.set_msg_back_enable_flag(l[00])
+		syscom.set_save_enable_flag(l[01])
+		syscom.set_syscom_menu_enable
+	}
+	
+	
+	excall[$excall].front.object[480].init
+	
+	if (l[10] == -1) {l[10] = 0}
+	
+	
+	switch(l[10]){
+	
+		case(0)	se.play(2)
+		case(1)	se.play(7)	
+	
+	}
+	
+	
+	return(l[10])
+	
+}
+
+
+

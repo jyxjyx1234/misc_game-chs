@@ -1,0 +1,139 @@
+#z00
+
+
+command $obj_jump_fa(property $fa : frameaction,property $obj : object,property $sry,property $time,property $srx)  {	
+
+	l[00] = $fa.counter.get		
+	$obj.y_rep[1] = math.timetable(l[0], 0, 0, [0, $time / 2, -$sry ,2],[$time / 2,$time,0,1])
+	
+	if ($srx != 0) {	
+		$obj.x_rep[1] = math.timetable(l[0], 0, 0, [0, $time / 2, $srx ,2],[$time / 2,$time,0,1])
+	} 
+
+}
+
+command $obj_jump2_fa(property $fa : frameaction,property $obj : object,property $sry,property $time,property $srx)  {	
+
+	l[00] = $fa.counter.get
+	
+	l[01] = ($time / 4) * 1
+	l[02] = ($time / 4) * 2
+	l[03] = ($time / 4) * 3
+	
+	$obj.y_rep[1] = math.timetable(l[0], 0, 0, [0, l[01], -$sry ,2],[l[01],l[02],0,1], [l[02], l[03], -$sry ,2],[l[03],$time,0,1])
+	
+	if ($srx != 0) {	
+		$obj.x_rep[1] = math.timetable(l[0], 0, 0, [0, l[01], $srx ,2],[l[01],l[02],0,1], [l[02], l[03], $srx ,2],[l[03],$time,0,1])
+
+	}
+
+}
+
+
+
+command $obj_quake_fa(property $fa : frameaction,property $obj : object,property $mode,property $power, property $time) {	
+
+	l[00] = $fa.counter.get
+	
+	if ($mode == 0) {	
+	
+		l[03] = $power - math.timetable(l[00],0,0,[0,$time-1,$power])
+		
+		l[01] = math.rand(-l[03], l[03])
+		l[02] = math.rand(-l[03], l[03])
+		
+		$obj.x_rep[2] = l[01]
+		$obj.y_rep[2] = l[02]
+	
+	}elseif ($mode == 1) {	
+	
+		l[03] = $power - math.timetable(l[00],0,0,[0,$time-1,$power])
+		
+		l[02] = math.rand(-l[03], l[03])
+		
+		$obj.y_rep[2] = l[02]
+	
+	}elseif ($mode == 2) {	
+	
+		l[03] = $power - math.timetable(l[00],0,0,[0,$time-1,$power])
+		
+		
+		l[01] = math.rand(-l[03], l[03])
+		
+		$obj.x_rep[2] = l[01]
+	
+	}
+		
+	if (l[00] >= $time) {
+	
+		$obj.x_rep[2] = 0
+		$obj.y_rep[2] = 0
+		
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $obj_action_approach(property $fa:frameaction,property $obj:object) {
+
+	l[00] = $fa.counter.get % 1000
+	
+	l[01] = math.timetable(l[00],0,0,[0,1000,19])
+	
+	$obj.set_scale($obj_action_approach_scale[l[01]],$obj_action_approach_scale[l[01]])
+
+
+}
+
+
+
+
+command	$obj_action_flickering(property $fa:frameaction,property $obj:object,property $mode,property $tr,property $retio) {
+
+	l[00] = $fa.counter.get
+	
+	l[10] = $retio	
+	
+	switch($mode)	{
+	
+		case(0)		l[01] = math.timetable(l[00],0,$tr,[0,l[10]*1,$tr],[l[10]*1,l[10]*2,$tr / 2],[l[10]*2,l[10]*3,$tr],[l[10]*3,l[10]*4,0],[l[10]*4,l[10]*5,$tr],[l[10]*5,l[10]*6,0])	
+		case(1)		l[01] = math.timetable(l[00],0,0,[0,l[10]*1,0],[l[10]*1,l[10]*2,$tr],[l[10]*2,l[10]*3,0],[l[10]*3,l[10]*4,$tr],[l[10]*4,l[10]*5,$tr / 2],[l[10]*5,l[10]*6,$tr])	
+
+	
+	}
+	
+	$obj.tr = l[01]
+
+}
+
+
+command	$obj_action_flickering2(property $fa:frameaction,property $obj:object,property $mode,property $power,property $retio) {
+
+	l[00] = $fa.counter.get
+	
+	l[10] = $retio	
+	
+	l[01] = math.timetable(l[00],0,$power,[0,l[10]*1,$power],[l[10]*1,l[10]*2,$power / 2],[l[10]*2,l[10]*3,$power],[l[10]*3,l[10]*4,0],[l[10]*4,l[10]*5,$power],[l[10]*5,l[10]*6,0])	
+	
+	switch($mode)	{
+	
+		case(0)		$obj.bright = l[01]
+		case(1)		$obj.dark = l[01]
+	
+	}
+	
+	
+
+}

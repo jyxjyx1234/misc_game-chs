@@ -10,6 +10,7 @@ namedict = open_json("namedict.json")
 
 for file in os.listdir(ori_folder):
     os.system(f"copy {os.path.join(ori_folder, file)} {out_folder} >nul")
+    print(f"Processing {file}...")
     if file.startswith("_"):
         continue
     try:

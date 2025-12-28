@@ -1,0 +1,1 @@
+chs_pack pack release/trans release/SJS_CHS.CPK SJS

@@ -1,0 +1,371 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+command $tag_place(property $str:str){ 
+
+    front.object[90].create(__sys_tag_place,1,-563,90)
+    front.object[90].order = 11
+    front.object[90].child.resize(1)
+    front.object[90].child[00].create_string($str,1,35,24)
+    front.object[90].child[00].set_string_param(35,0,0,0,255,0,0)
+    front.object[90].frame_action.start(4000, "$obj_tag_action_fa",0)
+
+}
+
+command $tag__time(property $str:str){
+
+    front.object[91].create(__sys_tag_time,1,-563,182)
+    front.object[91].order = 11
+    front.object[91].child.resize(1)
+    front.object[91].child[00].create_string($str,1,35,18)
+    front.object[91].child[00].set_string_param(27,0,0,0,254,0,0)
+    front.object[91].frame_action.start(4000, "$obj_tag_action_fa",100)
+
+}
+
+
+command $obj_tag_action_fa( 
+        property $fa:frameaction,
+        property $obj:object,
+        property $deray
+    )
+{
+    l[00] = $fa.counter.get
+    $obj.x= math.timetable(l[00],$deray,-563,[0,500,0,2])
+    $obj.tr = math.timetable(l[00],$deray,255,[3000,4000,0,2])
+
+    if (l[00] >= 4000) {$obj.disp = 0}
+}
+
+
+
+command $tag_chapter(property $pat,property $chapter : str) {
+
+    if ($pat == 0) {
+        front.object[92].create_rect(0,0,960,80,255,25,52,255,1,1920,950)
+    }else{
+        front.object[92].create_rect(0,0,960,80,25,106,255,255,1,1920,950)
+    }
+
+    front.object[92].order = 11
+    front.object[92].child.resize(2)
+    front.object[92].child[00].create_string($chapter,1,360,7)
+    front.object[92].child[00].set_string_param(60,10,40,12,255,-1,0)
+    front.object[92].child[01].create(sokubaku_eyecatch_yajirusi,1,60,10)
+    front.object[92].frame_action.start(4000, "$obj_tag_chapter_action_fa",0)
+
+}
+
+command $obj_tag_chapter_action_fa(
+        property $fa:frameaction,
+        property $obj:object,
+        property $deray
+    )
+{
+    l[00] = $fa.counter.get
+    $obj.x= math.timetable(l[00],$deray,1920,[0,500,960,2])
+    $obj.tr = math.timetable(l[00],$deray,255,[3000,4000,0,2])
+
+    if (l[00] >= 4000) {$obj.disp = 0}
+}
+
+
+
+
+
+
+
+command $eyecatch(
+    property $chr_name1:str,
+    property $chr_name2:str,
+    property $koe,
+    property $koe_chr,
+    property $str:str,
+    property $emote,
+    property $chapter:str) {
+
+    screen.effect[0].init  			screen.effect[0].begin_order = 0 			screen.effect[0].end_order = 7  			screen.effect[0].end_layer = 49 			 			screen.effect[0].init 			screen.effect[1].init 			screen.effect[2].init 			screen.effect[3].init
+
+    g00buf[0].load($chr_name1.left(9))
+    g00buf[1].load($chr_name2.left(9))
+
+    bgm.play_oneshot(eyecatch)
+
+    if ($koe_chr == 1) {    
+
+        back.object[10].create_rect(0,0,1200,1080,255,25,52,255,1,0,0)
+        back.object[10].layer = 10
+        back.object[10].order = 6
+
+        $chr_filename_tmp = $chr_name1 			 			for ($chr_tmp = 20,$chr_tmp < 50,$chr_tmp += 1) { 			 				if ($chr_tmp == 32) {continue} 				if ($chr_filename[$chr_tmp] != "") { front.object[$chr_tmp].wipe_copy = 1 } 			 			} 			 			 			if ($chr_filename_tmp.cnt == 9) { 			 				$chr_filename_tmp = "bst_"+$chr_name1 			 			}  			 			$chr_str_tmp = $chr_filename_tmp 			$chr_filename[32]			= $chr_str_tmp 			$chr_filename_chr[32]		= $chr_str_tmp.mid(4,3) 			$chr_filename_fukusou[32]	= $chr_str_tmp.mid(7,1) 			$chr_filename_pose[32]		= $chr_str_tmp.mid(8,1) 			$chr_filename_effect[32]	= $chr_str_tmp.mid(10,1) 			$chr_filename_face[32]		= $chr_str_tmp.mid(11,2) 			 			if ($chr_filename_fukusou[32] == "X") { 			 				switch($chr_filename_chr[32]) {		 				 					 					case("jur")	$chr_filename_fukusou[32] = $chr_fukusou[0] 					case("kas")	$chr_filename_fukusou[32] = $chr_fukusou[1]  				 				} 				 				$chr_filename_chr_base[32] = "bst_"+$chr_filename_chr[32]+$chr_filename_fukusou[32]+$chr_filename_pose[32] 			 			 			}else { 						 				$chr_filename_chr_base[32]	= $chr_str_tmp.mid(0,9) 			 			} 			 			$chr_filename_split_mayu[32] = "" 			$chr_filename_split_eye[32] = "" 			$chr_filename_split_mouth[32] = "" 			 			 						 			switch(32) {  			 				case(24)	$chr_init_pos_x = 950 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(23)	$chr_init_pos_x = 600 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(22)	$chr_init_pos_x = 1320 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(21)	$chr_init_pos_x = 390 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(20)	$chr_init_pos_x = 1530 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(34)	$chr_init_pos_x = 950 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(33)	$chr_init_pos_x = 600 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(32)	$chr_init_pos_x = 1320 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(31)	$chr_init_pos_x = 390 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(30)	$chr_init_pos_x = 1530 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				 				case(35)	$chr_init_pos_x = 1650 							$chr_init_pos_y = 1850 							$chr_init_scale = 950+150 							$bg_scale_chr = 1500  				case(36)	$chr_init_pos_x = 270 							$chr_init_pos_y = 1850 							$chr_init_scale = 950+150 							$bg_scale_chr = 1500    				default		$chr_init_scale = 550 							$bg_scale_chr = 1000 							$chr_init_pos_x = 0 							$chr_init_pos_y = 0 			 			} 			  			 			if ($chr_init_ampli != 0) { 				$chr_init_scale = $chr_init_ampli 				$chr_init_ampli = 0 			} 			 			back.object[32].create($chr_filename_chr_base[32],1,0,0) 			back.object[32].set_scale($chr_init_scale,$chr_init_scale) 			back.object[32].x = $chr_init_pos_x 			back.object[32].y = $chr_init_pos_y 			 			back.object[32].layer = 32 			back.object[32].order = 3  			back.object[32].x_rep.resize(20) 			back.object[32].y_rep.resize(20) 			 			back.object[32].x_rep[3] = 600	 			back.object[32].y_rep[3] = 0	 			 			 			if (stage[0].object[32].exist_type == 1) {  				stage[0].object[32].y_rep_eve[16].set(math.timetable($chr_init_scale,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,0) 				stage[0].object[32].scale_x_eve.set($chr_init_scale,0,0,0) 				stage[0].object[32].scale_y_eve.set($chr_init_scale,0,0,0) 				 			}	 			  			back.object[32].child.resize(20) 			back.object[32].frame_action_ch.resize(3) 			 			 			 			 			 			 			 			  			if ($chr_filename_tmp.search("mob") == -1) { 				switch($chr_filename_chr[32]) {	 			 				 				 				 				 				 				 				   				case("jur") $cbs_jur(32) 				case("kas") $cbs_kas(32)   			} 				if ($chr_blend_sys_childobj[00] != "") { 			 				back.object[32].child[00].create($chr_blend_sys_childobj[00],1,0,0)		 			 			}else{ 			 				back.object[32].child[00].free 			 			} 			 			if ($chr_blend_sys_childobj[01] != "") {	 			 				if ($chr_filename_split_mayu[32] != "") { 				 					$chr_blend_sys_childobj[01] = "bst_"+$chr_filename_chr[32]+"1A_face_mayu"+$chr_filename_split_mayu[32] 					 				} 				 				back.object[32].child[01].create($chr_blend_sys_childobj[01],1,0,0) 				 			}else{ 			 				back.object[32].child[01].free 			 			} 			 			if ($chr_blend_sys_childobj[02] != "") {	 			 				if ($chr_filename_split_eye[32] != "") { 				 					$chr_blend_sys_childobj[02] = "bst_"+$chr_filename_chr[32]+"1A_face_eye"+$chr_filename_split_eye[32] 					 				} 			 				back.object[32].child[02].create($chr_blend_sys_childobj[02],1,0,0) 				 				 				if (back.object[32].child[02].get_pat_cnt >= 2) { 					 					back.object[32].child[02].load_gan(_mabataki01) 					 					if (g[0014] != 1 && $eye_mabataki_off != 1) { 					 						back.object[32].child[02].start_gan(math.rand(1,9),1,1) 					 					}else { 					 						back.object[32].child[02].start_gan(0,1,1) 					 					} 					 				} 				 			}else{ 			 				back.object[32].child[02].free 			 			} 			 			if ($chr_blend_sys_childobj[03] != "") {	 			 				if ($chr_filename_split_mouth[32] != "") { 				 					$chr_blend_sys_childobj[03] = "bst_"+$chr_filename_chr[32]+"1A_face_mouth"+$chr_filename_split_mouth[32] 					 				} 			 				back.object[32].child[03].create($chr_blend_sys_childobj[03],1,0,0) 			 			}else{ 			 				back.object[32].child[03].free 			 			} 			 			 			 			 				 			 			 			 			 			if ($chr_blend_sys_childobj[04] != "") {  			 				back.object[32].child[04].create($chr_blend_sys_childobj[04],1,0,0) 			 			}else{ 			 				back.object[32].child[04].free 			 			} 			}  			 			if (front.object[0].scale_x < $bg_scale_chr) {	 			 				front.object[0].scale_x_eve.set($bg_scale_chr,500,0,2) 				front.object[0].scale_y_eve.set($bg_scale_chr,500,0,2) 				 			} 			 			if (0 == 1) { 			 				close 			wipe(0,500,speed_mode = 2,start_order = 3,end_order = 3,key_skip = g[0027]) 			if (g[0027] == 1) {timewait_key(500)}else{timewait(500)}  			}elseif(0 == 2){	  				back.object[32].tr = 0 				close 			wipe(0,0,speed_mode = 2,start_order = 3,end_order = 3,key_skip = g[0027]) 			if (g[0027] == 1) {timewait_key(0)}else{timewait(0)}  			}
+        back.object[32].order = 6
+
+        back.object[40].create_rect(0,0,500,1080,255,25,52,255,1,1560,0)
+        back.object[40].layer = 40
+        back.object[40].order = 6
+
+        back.object[41].create(sokubaku_eyecatch_logo,1,1740,940)
+        back.object[41].layer = 41
+        back.object[41].order = 6
+
+        back.object[43].create_string($chapter,1,320,1000)
+        back.object[43].set_string_param(60,10,40,12,255,-1,0)
+        back.object[43].layer = 43
+        back.object[43].order = 6
+
+        back.object[45].create(sokubaku_eyecatch_yajirusi,1,10,1005)
+        back.object[45].layer = 45
+        back.object[45].order = 6
+
+        close  			$bg_filename_tmp = _black 			$time_tmp = 1000  			if (_black == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+        front.object[32].x_rep_eve[3].set(0,400,0,2)
+        front.object[32].x_rep_eve[3].wait_key
+
+        exkoe($koe,$koe_chr)
+        $ft_filename = $chr_name2 	 			if ($ft_filename.cnt == 9) { 			 				$ft_filename = "bst_"+$chr_name2 			 			} 			 			$chr_str_tmp = $ft_filename 			$chr_filename[0]			= $chr_str_tmp 			$chr_filename_chr[0]		= $chr_str_tmp.mid(4,3) 			$chr_filename_fukusou[0]	= $chr_str_tmp.mid(7,1) 			$chr_filename_pose[0]		= $chr_str_tmp.mid(8,1) 			$chr_filename_effect[0]	= $chr_str_tmp.mid(10,1) 			$chr_filename_face[0]		= $chr_str_tmp.mid(11,2) 			 			if ($chr_filename_fukusou[0] == "X") { 			 				switch($chr_filename_chr[0]) {		 				 					 					case("jur")	$chr_filename_fukusou[0] = $chr_fukusou[0] 					case("kas")	$chr_filename_fukusou[0] = $chr_fukusou[1]  				 				} 				 				$chr_filename_chr_base[0] = "bst_"+$chr_filename_chr[0]+$chr_filename_fukusou[0]+$chr_filename_pose[0] 			 			 			}else { 						 				$chr_filename_chr_base[0]	= $chr_str_tmp.mid(0,9) 			 			} 						 			$chr_tansaku_hit_objno = -1 			$chr_tansaku_str = "" 			$chr_tansaku_chr = $chr_filename_chr[0] 			 			 			 			for($chr_tansaku_tmp = 20 ,$chr_tansaku_tmp <= 50 - 1,$chr_tansaku_tmp += 1) {	  				 				if (front.object[$chr_tansaku_tmp].exist_type == 1) { 				 						$chr_tansaku_str = front.object[$chr_tansaku_tmp].get_file_name 						 				 					if ($chr_tansaku_str.search($chr_tansaku_chr) != -1) { 					 						$chr_tansaku_hit_objno = $chr_tansaku_tmp 											 						break 					 					} 				 				} 			}  			if ($chr_tansaku_hit_objno != -1) { 			 				$ft_layer = front.object[$chr_tansaku_hit_objno].layer 			 				$chr_str_tmp = $ft_filename 			$chr_filename[$chr_tansaku_hit_objno]			= $chr_str_tmp 			$chr_filename_chr[$chr_tansaku_hit_objno]		= $chr_str_tmp.mid(4,3) 			$chr_filename_fukusou[$chr_tansaku_hit_objno]	= $chr_str_tmp.mid(7,1) 			$chr_filename_pose[$chr_tansaku_hit_objno]		= $chr_str_tmp.mid(8,1) 			$chr_filename_effect[$chr_tansaku_hit_objno]	= $chr_str_tmp.mid(10,1) 			$chr_filename_face[$chr_tansaku_hit_objno]		= $chr_str_tmp.mid(11,2) 			 			if ($chr_filename_fukusou[$chr_tansaku_hit_objno] == "X") { 			 				switch($chr_filename_chr[$chr_tansaku_hit_objno]) {		 				 					 					case("jur")	$chr_filename_fukusou[$chr_tansaku_hit_objno] = $chr_fukusou[0] 					case("kas")	$chr_filename_fukusou[$chr_tansaku_hit_objno] = $chr_fukusou[1]  				 				} 				 				$chr_filename_chr_base[$chr_tansaku_hit_objno] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+$chr_filename_fukusou[$chr_tansaku_hit_objno]+$chr_filename_pose[$chr_tansaku_hit_objno] 			 			 			}else { 						 				$chr_filename_chr_base[$chr_tansaku_hit_objno]	= $chr_str_tmp.mid(0,9) 			 			} 				 				$chr_filename_split_mayu[$chr_tansaku_hit_objno] = "" 				$chr_filename_split_eye[$chr_tansaku_hit_objno] = "" 				$chr_filename_split_mouth[$chr_tansaku_hit_objno] = "" 				 				 				 				 				 				 				 				back.object[$chr_tansaku_hit_objno].create_copy_from(front.object[$chr_tansaku_hit_objno]) 				back.object[$chr_tansaku_hit_objno].change_file($chr_filename_chr_base[$chr_tansaku_hit_objno]) 				 				switch($chr_filename_chr[$chr_tansaku_hit_objno]) {	 			 				 				 				 				 				 				 				   				case("jur") $cbs_jur($chr_tansaku_hit_objno) 				case("kas") $cbs_kas($chr_tansaku_hit_objno)   			} 				 				if ($chr_blend_sys_childobj[00] != "") { 			 				back.object[$chr_tansaku_hit_objno].child[00].create($chr_blend_sys_childobj[00],1,0,0)		 			 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[00].free 			 			} 			 			if ($chr_blend_sys_childobj[01] != "") {	 			 				if ($chr_filename_split_mayu[$chr_tansaku_hit_objno] != "") { 				 					$chr_blend_sys_childobj[01] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+"1A_face_mayu"+$chr_filename_split_mayu[$chr_tansaku_hit_objno] 					 				} 				 				back.object[$chr_tansaku_hit_objno].child[01].create($chr_blend_sys_childobj[01],1,0,0) 				 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[01].free 			 			} 			 			if ($chr_blend_sys_childobj[02] != "") {	 			 				if ($chr_filename_split_eye[$chr_tansaku_hit_objno] != "") { 				 					$chr_blend_sys_childobj[02] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+"1A_face_eye"+$chr_filename_split_eye[$chr_tansaku_hit_objno] 					 				} 			 				back.object[$chr_tansaku_hit_objno].child[02].create($chr_blend_sys_childobj[02],1,0,0) 				 				 				if (back.object[$chr_tansaku_hit_objno].child[02].get_pat_cnt >= 2) { 					 					back.object[$chr_tansaku_hit_objno].child[02].load_gan(_mabataki01) 					 					if (g[0014] != 1 && $eye_mabataki_off != 1) { 					 						back.object[$chr_tansaku_hit_objno].child[02].start_gan(math.rand(1,9),1,1) 					 					}else { 					 						back.object[$chr_tansaku_hit_objno].child[02].start_gan(0,1,1) 					 					} 					 				} 				 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[02].free 			 			} 			 			if ($chr_blend_sys_childobj[03] != "") {	 			 				if ($chr_filename_split_mouth[$chr_tansaku_hit_objno] != "") { 				 					$chr_blend_sys_childobj[03] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+"1A_face_mouth"+$chr_filename_split_mouth[$chr_tansaku_hit_objno] 					 				} 			 				back.object[$chr_tansaku_hit_objno].child[03].create($chr_blend_sys_childobj[03],1,0,0) 			 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[03].free 			 			} 			 			 			 			 				 			 			 			 			 			if ($chr_blend_sys_childobj[04] != "") {  			 				back.object[$chr_tansaku_hit_objno].child[04].create($chr_blend_sys_childobj[04],1,0,0) 			 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[04].free 			 			} 				 				 				 			 				wipe(0,500,wait = 0,speed_mode = 2,start_order = 3,end_order = 3,start_layer = $ft_layer,end_layer = $ft_layer) 				 			}
+
+        switch($emote){
+            case(1)     $chr_emote(jur,1,1,0,0)
+            case(2)     if (1) { 			 				if (check_wipe == 1) {wipe_end} 				$chr_move_chrname = jur 			if ($chr_move_chrname.len == 3) { 				$chr_tansaku_hit_objno = -1 			$chr_tansaku_str = "" 			$chr_tansaku_chr = $chr_move_chrname 			 			 			 			for($chr_tansaku_tmp = 20 ,$chr_tansaku_tmp <= 50 - 1,$chr_tansaku_tmp += 1) {	  				 				if (front.object[$chr_tansaku_tmp].exist_type == 1) { 				 						$chr_tansaku_str = front.object[$chr_tansaku_tmp].get_file_name 						 				 					if ($chr_tansaku_str.search($chr_tansaku_chr) != -1) { 					 						$chr_tansaku_hit_objno = $chr_tansaku_tmp 											 						break 					 					} 				 				} 			} 			}else{	 				$chr_tansaku_hit_objno = $chr_move_chrname.tonum 			}	  				front.object[$chr_tansaku_hit_objno].frame_action_ch[0].start(500,"$obj_jump2_fa",-30,500,0) 			 			}
+            case(3)     $chr_emote(jur,12,1,0,0)
+            case(4)     $chr_emote(jur,8,1,0,0)
+            case(5)     $chr_emote(jur,13,1,0,0)
+        }
+        
+
+
+        back.object[42].create_string($str,1,40,200)
+        back.object[42].set_string_param(100,-5,40,12,255,-1,0)
+        back.object[42].layer = 41
+        back.object[42].order = 7
+
+
+    }else{  
+
+        back.object[10].create_rect(720,0,1980,1080,25,106,255,255,1,0,0)
+        back.object[10].layer = 10
+        back.object[10].order = 6
+
+        $chr_filename_tmp = $chr_name1 			 			for ($chr_tmp = 20,$chr_tmp < 50,$chr_tmp += 1) { 			 				if ($chr_tmp == 33) {continue} 				if ($chr_filename[$chr_tmp] != "") { front.object[$chr_tmp].wipe_copy = 1 } 			 			} 			 			 			if ($chr_filename_tmp.cnt == 9) { 			 				$chr_filename_tmp = "bst_"+$chr_name1 			 			}  			 			$chr_str_tmp = $chr_filename_tmp 			$chr_filename[33]			= $chr_str_tmp 			$chr_filename_chr[33]		= $chr_str_tmp.mid(4,3) 			$chr_filename_fukusou[33]	= $chr_str_tmp.mid(7,1) 			$chr_filename_pose[33]		= $chr_str_tmp.mid(8,1) 			$chr_filename_effect[33]	= $chr_str_tmp.mid(10,1) 			$chr_filename_face[33]		= $chr_str_tmp.mid(11,2) 			 			if ($chr_filename_fukusou[33] == "X") { 			 				switch($chr_filename_chr[33]) {		 				 					 					case("jur")	$chr_filename_fukusou[33] = $chr_fukusou[0] 					case("kas")	$chr_filename_fukusou[33] = $chr_fukusou[1]  				 				} 				 				$chr_filename_chr_base[33] = "bst_"+$chr_filename_chr[33]+$chr_filename_fukusou[33]+$chr_filename_pose[33] 			 			 			}else { 						 				$chr_filename_chr_base[33]	= $chr_str_tmp.mid(0,9) 			 			} 			 			$chr_filename_split_mayu[33] = "" 			$chr_filename_split_eye[33] = "" 			$chr_filename_split_mouth[33] = "" 			 			 						 			switch(33) {  			 				case(24)	$chr_init_pos_x = 950 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(23)	$chr_init_pos_x = 600 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(22)	$chr_init_pos_x = 1320 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(21)	$chr_init_pos_x = 390 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(20)	$chr_init_pos_x = 1530 							$chr_init_pos_y = 1850 							$chr_init_scale = 950-200 							$bg_scale_chr = 1200 				 				case(34)	$chr_init_pos_x = 950 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(33)	$chr_init_pos_x = 600 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(32)	$chr_init_pos_x = 1320 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(31)	$chr_init_pos_x = 390 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				case(30)	$chr_init_pos_x = 1530 							$chr_init_pos_y = 1850 							$chr_init_scale = 950 							$bg_scale_chr = 1500 				 				 				case(35)	$chr_init_pos_x = 1650 							$chr_init_pos_y = 1850 							$chr_init_scale = 950+150 							$bg_scale_chr = 1500  				case(36)	$chr_init_pos_x = 270 							$chr_init_pos_y = 1850 							$chr_init_scale = 950+150 							$bg_scale_chr = 1500    				default		$chr_init_scale = 550 							$bg_scale_chr = 1000 							$chr_init_pos_x = 0 							$chr_init_pos_y = 0 			 			} 			  			 			if ($chr_init_ampli != 0) { 				$chr_init_scale = $chr_init_ampli 				$chr_init_ampli = 0 			} 			 			back.object[33].create($chr_filename_chr_base[33],1,0,0) 			back.object[33].set_scale($chr_init_scale,$chr_init_scale) 			back.object[33].x = $chr_init_pos_x 			back.object[33].y = $chr_init_pos_y 			 			back.object[33].layer = 33 			back.object[33].order = 3  			back.object[33].x_rep.resize(20) 			back.object[33].y_rep.resize(20) 			 			back.object[33].x_rep[3] = -600	 			back.object[33].y_rep[3] = 0	 			 			 			if (stage[0].object[33].exist_type == 1) {  				stage[0].object[33].y_rep_eve[16].set(math.timetable($chr_init_scale,0,-750,[950-200-300,950-200-1,-400],[950-200-1,950-200,-320],[950-200,950,0],[950,950+500,800]),0,0,0) 				stage[0].object[33].scale_x_eve.set($chr_init_scale,0,0,0) 				stage[0].object[33].scale_y_eve.set($chr_init_scale,0,0,0) 				 			}	 			  			back.object[33].child.resize(20) 			back.object[33].frame_action_ch.resize(3) 			 			 			 			 			 			 			 			  			if ($chr_filename_tmp.search("mob") == -1) { 				switch($chr_filename_chr[33]) {	 			 				 				 				 				 				 				 				   				case("jur") $cbs_jur(33) 				case("kas") $cbs_kas(33)   			} 				if ($chr_blend_sys_childobj[00] != "") { 			 				back.object[33].child[00].create($chr_blend_sys_childobj[00],1,0,0)		 			 			}else{ 			 				back.object[33].child[00].free 			 			} 			 			if ($chr_blend_sys_childobj[01] != "") {	 			 				if ($chr_filename_split_mayu[33] != "") { 				 					$chr_blend_sys_childobj[01] = "bst_"+$chr_filename_chr[33]+"1A_face_mayu"+$chr_filename_split_mayu[33] 					 				} 				 				back.object[33].child[01].create($chr_blend_sys_childobj[01],1,0,0) 				 			}else{ 			 				back.object[33].child[01].free 			 			} 			 			if ($chr_blend_sys_childobj[02] != "") {	 			 				if ($chr_filename_split_eye[33] != "") { 				 					$chr_blend_sys_childobj[02] = "bst_"+$chr_filename_chr[33]+"1A_face_eye"+$chr_filename_split_eye[33] 					 				} 			 				back.object[33].child[02].create($chr_blend_sys_childobj[02],1,0,0) 				 				 				if (back.object[33].child[02].get_pat_cnt >= 2) { 					 					back.object[33].child[02].load_gan(_mabataki01) 					 					if (g[0014] != 1 && $eye_mabataki_off != 1) { 					 						back.object[33].child[02].start_gan(math.rand(1,9),1,1) 					 					}else { 					 						back.object[33].child[02].start_gan(0,1,1) 					 					} 					 				} 				 			}else{ 			 				back.object[33].child[02].free 			 			} 			 			if ($chr_blend_sys_childobj[03] != "") {	 			 				if ($chr_filename_split_mouth[33] != "") { 				 					$chr_blend_sys_childobj[03] = "bst_"+$chr_filename_chr[33]+"1A_face_mouth"+$chr_filename_split_mouth[33] 					 				} 			 				back.object[33].child[03].create($chr_blend_sys_childobj[03],1,0,0) 			 			}else{ 			 				back.object[33].child[03].free 			 			} 			 			 			 			 				 			 			 			 			 			if ($chr_blend_sys_childobj[04] != "") {  			 				back.object[33].child[04].create($chr_blend_sys_childobj[04],1,0,0) 			 			}else{ 			 				back.object[33].child[04].free 			 			} 			}  			 			if (front.object[0].scale_x < $bg_scale_chr) {	 			 				front.object[0].scale_x_eve.set($bg_scale_chr,500,0,2) 				front.object[0].scale_y_eve.set($bg_scale_chr,500,0,2) 				 			} 			 			if (0 == 1) { 			 				close 			wipe(0,500,speed_mode = 2,start_order = 3,end_order = 3,key_skip = g[0027]) 			if (g[0027] == 1) {timewait_key(500)}else{timewait(500)}  			}elseif(0 == 2){	  				back.object[33].tr = 0 				close 			wipe(0,0,speed_mode = 2,start_order = 3,end_order = 3,key_skip = g[0027]) 			if (g[0027] == 1) {timewait_key(0)}else{timewait(0)}  			}
+        back.object[33].order = 6
+
+        back.object[40].create_rect(0,0,360,1080,25,106,255,255,1,0,0)
+        back.object[40].layer = 40
+        back.object[40].order = 6
+
+        back.object[41].create(sokubaku_eyecatch_logo,1,180,940)
+        back.object[41].layer = 41
+        back.object[41].order = 6
+
+        back.object[43].create_string($chapter,1,1400,1000)
+        back.object[43].set_string_param(60,10,40,12,255,-1,0)
+        back.object[43].layer = 43
+        back.object[43].order = 6
+
+        back.object[45].create(sokubaku_eyecatch_yajirusi,1,1090,1005)
+        back.object[45].layer = 45
+        back.object[45].order = 6
+
+
+        close  			$bg_filename_tmp = _black 			$time_tmp = 1000  			if (_black == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+        front.object[33].x_rep_eve[3].set(0,400,0,2)
+        front.object[33].x_rep_eve[3].wait_key
+
+        exkoe($koe,$koe_chr)
+        $ft_filename = $chr_name2 	 			if ($ft_filename.cnt == 9) { 			 				$ft_filename = "bst_"+$chr_name2 			 			} 			 			$chr_str_tmp = $ft_filename 			$chr_filename[0]			= $chr_str_tmp 			$chr_filename_chr[0]		= $chr_str_tmp.mid(4,3) 			$chr_filename_fukusou[0]	= $chr_str_tmp.mid(7,1) 			$chr_filename_pose[0]		= $chr_str_tmp.mid(8,1) 			$chr_filename_effect[0]	= $chr_str_tmp.mid(10,1) 			$chr_filename_face[0]		= $chr_str_tmp.mid(11,2) 			 			if ($chr_filename_fukusou[0] == "X") { 			 				switch($chr_filename_chr[0]) {		 				 					 					case("jur")	$chr_filename_fukusou[0] = $chr_fukusou[0] 					case("kas")	$chr_filename_fukusou[0] = $chr_fukusou[1]  				 				} 				 				$chr_filename_chr_base[0] = "bst_"+$chr_filename_chr[0]+$chr_filename_fukusou[0]+$chr_filename_pose[0] 			 			 			}else { 						 				$chr_filename_chr_base[0]	= $chr_str_tmp.mid(0,9) 			 			} 						 			$chr_tansaku_hit_objno = -1 			$chr_tansaku_str = "" 			$chr_tansaku_chr = $chr_filename_chr[0] 			 			 			 			for($chr_tansaku_tmp = 20 ,$chr_tansaku_tmp <= 50 - 1,$chr_tansaku_tmp += 1) {	  				 				if (front.object[$chr_tansaku_tmp].exist_type == 1) { 				 						$chr_tansaku_str = front.object[$chr_tansaku_tmp].get_file_name 						 				 					if ($chr_tansaku_str.search($chr_tansaku_chr) != -1) { 					 						$chr_tansaku_hit_objno = $chr_tansaku_tmp 											 						break 					 					} 				 				} 			}  			if ($chr_tansaku_hit_objno != -1) { 			 				$ft_layer = front.object[$chr_tansaku_hit_objno].layer 			 				$chr_str_tmp = $ft_filename 			$chr_filename[$chr_tansaku_hit_objno]			= $chr_str_tmp 			$chr_filename_chr[$chr_tansaku_hit_objno]		= $chr_str_tmp.mid(4,3) 			$chr_filename_fukusou[$chr_tansaku_hit_objno]	= $chr_str_tmp.mid(7,1) 			$chr_filename_pose[$chr_tansaku_hit_objno]		= $chr_str_tmp.mid(8,1) 			$chr_filename_effect[$chr_tansaku_hit_objno]	= $chr_str_tmp.mid(10,1) 			$chr_filename_face[$chr_tansaku_hit_objno]		= $chr_str_tmp.mid(11,2) 			 			if ($chr_filename_fukusou[$chr_tansaku_hit_objno] == "X") { 			 				switch($chr_filename_chr[$chr_tansaku_hit_objno]) {		 				 					 					case("jur")	$chr_filename_fukusou[$chr_tansaku_hit_objno] = $chr_fukusou[0] 					case("kas")	$chr_filename_fukusou[$chr_tansaku_hit_objno] = $chr_fukusou[1]  				 				} 				 				$chr_filename_chr_base[$chr_tansaku_hit_objno] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+$chr_filename_fukusou[$chr_tansaku_hit_objno]+$chr_filename_pose[$chr_tansaku_hit_objno] 			 			 			}else { 						 				$chr_filename_chr_base[$chr_tansaku_hit_objno]	= $chr_str_tmp.mid(0,9) 			 			} 				 				$chr_filename_split_mayu[$chr_tansaku_hit_objno] = "" 				$chr_filename_split_eye[$chr_tansaku_hit_objno] = "" 				$chr_filename_split_mouth[$chr_tansaku_hit_objno] = "" 				 				 				 				 				 				 				 				back.object[$chr_tansaku_hit_objno].create_copy_from(front.object[$chr_tansaku_hit_objno]) 				back.object[$chr_tansaku_hit_objno].change_file($chr_filename_chr_base[$chr_tansaku_hit_objno]) 				 				switch($chr_filename_chr[$chr_tansaku_hit_objno]) {	 			 				 				 				 				 				 				 				   				case("jur") $cbs_jur($chr_tansaku_hit_objno) 				case("kas") $cbs_kas($chr_tansaku_hit_objno)   			} 				 				if ($chr_blend_sys_childobj[00] != "") { 			 				back.object[$chr_tansaku_hit_objno].child[00].create($chr_blend_sys_childobj[00],1,0,0)		 			 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[00].free 			 			} 			 			if ($chr_blend_sys_childobj[01] != "") {	 			 				if ($chr_filename_split_mayu[$chr_tansaku_hit_objno] != "") { 				 					$chr_blend_sys_childobj[01] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+"1A_face_mayu"+$chr_filename_split_mayu[$chr_tansaku_hit_objno] 					 				} 				 				back.object[$chr_tansaku_hit_objno].child[01].create($chr_blend_sys_childobj[01],1,0,0) 				 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[01].free 			 			} 			 			if ($chr_blend_sys_childobj[02] != "") {	 			 				if ($chr_filename_split_eye[$chr_tansaku_hit_objno] != "") { 				 					$chr_blend_sys_childobj[02] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+"1A_face_eye"+$chr_filename_split_eye[$chr_tansaku_hit_objno] 					 				} 			 				back.object[$chr_tansaku_hit_objno].child[02].create($chr_blend_sys_childobj[02],1,0,0) 				 				 				if (back.object[$chr_tansaku_hit_objno].child[02].get_pat_cnt >= 2) { 					 					back.object[$chr_tansaku_hit_objno].child[02].load_gan(_mabataki01) 					 					if (g[0014] != 1 && $eye_mabataki_off != 1) { 					 						back.object[$chr_tansaku_hit_objno].child[02].start_gan(math.rand(1,9),1,1) 					 					}else { 					 						back.object[$chr_tansaku_hit_objno].child[02].start_gan(0,1,1) 					 					} 					 				} 				 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[02].free 			 			} 			 			if ($chr_blend_sys_childobj[03] != "") {	 			 				if ($chr_filename_split_mouth[$chr_tansaku_hit_objno] != "") { 				 					$chr_blend_sys_childobj[03] = "bst_"+$chr_filename_chr[$chr_tansaku_hit_objno]+"1A_face_mouth"+$chr_filename_split_mouth[$chr_tansaku_hit_objno] 					 				} 			 				back.object[$chr_tansaku_hit_objno].child[03].create($chr_blend_sys_childobj[03],1,0,0) 			 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[03].free 			 			} 			 			 			 			 				 			 			 			 			 			if ($chr_blend_sys_childobj[04] != "") {  			 				back.object[$chr_tansaku_hit_objno].child[04].create($chr_blend_sys_childobj[04],1,0,0) 			 			}else{ 			 				back.object[$chr_tansaku_hit_objno].child[04].free 			 			} 				 				 				 			 				wipe(0,500,wait = 0,speed_mode = 2,start_order = 3,end_order = 3,start_layer = $ft_layer,end_layer = $ft_layer) 				 			}
+
+        switch($emote){
+            case(1)     $chr_emote(kas,1,1,0,1)
+            case(2)     if (1) { 			 				if (check_wipe == 1) {wipe_end} 				$chr_move_chrname = kas 			if ($chr_move_chrname.len == 3) { 				$chr_tansaku_hit_objno = -1 			$chr_tansaku_str = "" 			$chr_tansaku_chr = $chr_move_chrname 			 			 			 			for($chr_tansaku_tmp = 20 ,$chr_tansaku_tmp <= 50 - 1,$chr_tansaku_tmp += 1) {	  				 				if (front.object[$chr_tansaku_tmp].exist_type == 1) { 				 						$chr_tansaku_str = front.object[$chr_tansaku_tmp].get_file_name 						 				 					if ($chr_tansaku_str.search($chr_tansaku_chr) != -1) { 					 						$chr_tansaku_hit_objno = $chr_tansaku_tmp 											 						break 					 					} 				 				} 			} 			}else{	 				$chr_tansaku_hit_objno = $chr_move_chrname.tonum 			}	  				front.object[$chr_tansaku_hit_objno].frame_action_ch[0].start(500,"$obj_jump2_fa",-30,500,0) 			 			}
+            case(3)     $chr_emote(kas,12,1,0,1)
+            case(4)     $chr_emote(kas,11,1,0,1)
+            case(5)     $chr_emote(kas,13,1,0,1)
+            case(6)     $chr_emote(kas,6,1,0,1)
+            case(7)     $chr_emote(kas,2,1,0,0)
+            case(8)     $chr_emote(kas,10,1,0,0)
+
+
+
+
+        }
+
+
+
+        back.object[42].create_string($str,1,960,200)
+        back.object[42].set_string_param(100,-5,40,12,255,-1,0)
+        back.object[42].layer = 42
+        back.object[42].order = 7
+
+    }
+
+    wipe(0,500,start_order = 7,end_order = 7,key_skip = 1)
+
+
+    size r
+
+    close  			$bg_filename_tmp = _black 			$time_tmp = 1000  			if (_black == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+    g00buf.free_all
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $staffroll(property $patno) {
+
+
+    if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif (bgm01 != "BGM00") {$now_bgm_name = bgm01	bgm.play(bgm01,0,start_pos = -1)}
+
+    close  			$bg_filename_tmp = _white 			$time_tmp = 1000  			if (_white == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+    g00buf[0].load(staffroll)
+    g00buf[1].load(staffroll2)
+    g00buf[2].load(staffroll_bg)
+
+    timewait_key(500)
+
+    script.set_ctrl_skip_disable 
+
+    syscom.set_msg_back_enable_flag(0)
+    syscom.set_save_enable_flag(0)
+    syscom.set_syscom_menu_disable
+    syscom.set_auto_mode_onoff_flag(0)
+    syscom.set_read_skip_onoff_flag(0)
+    syscom.set_auto_skip_onoff_flag(0)
+    
+
+    
+
+    back.object[0].create(_black,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}
+
+    back.object[100-1].create(staffroll_bg,1,0,0)
+
+    back.object[100-2].init
+    back.object[100-2].child.resize(5)
+    back.object[100-2].disp = 1
+
+    switch($patno){
+
+        case(0)
+            back.object[100-2].child[00].create(staffroll2,1,0,0,10)
+            back.object[100-2].child[01].create(staffroll2,1,0,0,11)
+            back.object[100-2].child[02].create(staffroll2,1,0,0,12)
+            back.object[100-2].child[03].create(staffroll2,1,0,0,13)
+
+        case(1)
+            back.object[100-2].child[00].create(staffroll2,1,0,0,20)
+            back.object[100-2].child[01].create(staffroll2,1,0,0,21)
+            back.object[100-2].child[02].create(staffroll2,1,0,0,22)
+            back.object[100-2].child[03].create(staffroll2,1,0,0,23)
+
+
+
+    }
+
+    back.object[100-2].child[00].tr = 0
+    back.object[100-2].child[01].tr = 0
+    back.object[100-2].child[02].tr = 0
+    back.object[100-2].child[03].tr = 0
+
+    back.object[100].init
+    back.object[100].child.resize(11)
+    back.object[100].disp = 1
+    back.object[100].y_rep.resize(1)
+    back.object[100].y_rep[0] = 0
+
+    for(l[00]=0,l[00]<=10,l[00]+=1) {
+
+        back.object[100].child[l[00]].create(staffroll,1,0,1080*l[00],l[00])
+
+    }
+
+    l[01] = (l[00]-1) * 1080
+
+    wipe(0,500)
+
+    front.object[100].y_rep_eve[0].set(-l[01],60000,0,0)
+
+
+
+    if (g[1410] == 1 || g[1411] == 1) {
+        script.set_ctrl_skip_enable
+    }
+
+
+    input.clear
+    counter[0].reset
+    counter[0].start
+
+    $direction = 0
+
+    while(1){
+
+        l[10] = counter[0].get
+        
+
+        if ($direction >= 65) {break}
+
+        if (l[10] > 1000) {$direction += 1 counter[0].set(0)}
+
+        switch($direction) {
+
+            case(1)   front.object[100-2].child[00].tr_eve.set(255,1000,0,2) $direction += 1 counter[0].set(0)
+            case(19)   front.object[100-2].child[01].tr_eve.set(255,1000,0,2) $direction += 1 counter[0].set(0)
+            case(38)   front.object[100-2].child[02].tr_eve.set(255,1000,0,2) $direction += 1 counter[0].set(0)
+            case(57)   front.object[100-2].child[03].tr_eve.set(255,1000,0,2) $direction += 1 counter[0].set(0)
+
+        }
+
+
+        input.next
+        disp
+
+    }
+
+    
+
+    front.object[100-2].child[03].tr = 255
+
+    counter[0].stop
+
+    
+
+    script.set_ctrl_skip_disable
+    size r
+    script.set_ctrl_skip_enable
+    syscom.set_msg_back_enable_flag(1)
+    syscom.set_save_enable_flag(1)
+    syscom.set_syscom_menu_enable
+
+    close  			$bg_filename_tmp = _black 			$time_tmp = 1000  			if (_black == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+    if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+
+    timewait_key(2000)
+
+}
+

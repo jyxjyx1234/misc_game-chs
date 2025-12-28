@@ -1,0 +1,282 @@
+
+::START
+
+:SEL_H_MODE
+
+memo("")
+# セーブ不可、ロード不可
+mode(0)
+loaddisable
+savedisable
+#saveenable
+mode(1)
+
+
+choff(1)
+choff(2)
+choff(3)
+choff(4)
+choff(5)
+choff(6)
+choff(7)
+choff(8)
+choff(9)
+choff(10)
+choff(11)
+choff(12)
+choff(13)
+choff(14)
+choff(15)
+choff(16)
+bgoff
+ud(1, 400)
+#^gsb(WND_ADV02)		# イベントＣＧウインドウ
+bgmon("bgm02")	#タイトル画面BGM
+
+
+
+
+# Ｈシーン回想選択メニュー
+float(4)
+
+
+
+^gsb(init_var)			#変数初期化
+%H_MODE_FLAG = 1	#モード変数設定
+%H_MENU_00 = %reg	#選択ナンバー保存
+^gsb(WND_ADV)		# 通常ウインドウ
+
+
+^sw( %reg )
+	^case(0)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(C_02)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(1)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(A_03b)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(2)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(A_04b)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(3)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(A_04b)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(4)
+#		
+#		memo("")			#・スタート時タイトル……
+		bgmon("bgm02")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(A_05)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(5)
+#		
+#		memo("")			#・スタート時タイトル……
+		bgmon("bgm02")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(A_06)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(6)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_04)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(7)
+#		
+#		memo("")			#・スタート時タイトル……
+		bgmon("bgm03")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_08)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(8)
+#		
+#		memo("")			#・スタート時タイトル……
+		bgmon("bgm03")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_10)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(9)
+#		
+#		memo("")			#・スタート時タイトル……
+		bgmon("bgm03")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_10)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(10)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_11)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(11)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_12)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(12)
+#		
+#		memo("")			#・スタート時タイトル……
+		bgmon("bgm03")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_13)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(13)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_13)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(14)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_14)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(15)
+#		
+#		memo("")			#・スタート時タイトル……
+		bgmon("bgm02")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_15)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(16)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_17)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^case(17)
+#		
+#		memo("")			#・スタート時タイトル……
+#		bgmon("bgm10")		#・スタート時音楽……bgm
+#		bgon("bg020c1")
+#		ud(1, 400)
+
+		^gsb(B_17)
+		wndoff
+		bgmoff				#★★★曲をいったん切る
+		^jp(SEL_H_MODE)
+
+	^df
+		#タイトル画面
+		%H_MODE_FLAG = 0	#モード変数設定
+		# セーブ不可、ロード可能
+		mode(0)
+		loadenable
+		savedisable
+		mode(1)
+		bgon("bk_ti3")
+		ud(1, 500)
+		^go(title_omk)		#おまけメニューへ移行する
+^ends
+
+
+
+::END

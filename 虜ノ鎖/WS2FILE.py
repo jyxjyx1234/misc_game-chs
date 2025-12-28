@@ -136,9 +136,15 @@ class WS2FileCompiler:
                     case "I":
                         offset += 4
                     case "t":
-                        offset += len(arg["value"].encode(self.encoding)) + 1
+                        v = arg["value"]
+                        if self.encoding == "936":
+                            v = replace_symbol_for_gbk(v)
+                        offset += len(v.encode(self.encoding)) + 1
                     case "T":
-                        offset += len(arg["value"].encode(self.encoding)) + 1
+                        v = arg["value"]
+                        if self.encoding == "936":
+                            v = replace_symbol_for_gbk(v)
+                        offset += len(v.encode(self.encoding)) + 1
                     case _:
                         raise ValueError(f"Unknown type {arg['type']} in command {c}")
     
@@ -160,7 +166,10 @@ class WS2FileCompiler:
                             new_value = self.offsetdict[int(arg["value"])]
                             f.write(to_bytes(new_value, 4))
                         case "t" | "T":
-                            f.write((arg["value"]).encode(self.encoding) + b'\x00')
+                            v = arg["value"]
+                            if self.encoding == "936":
+                                v = replace_symbol_for_gbk(v)
+                            f.write(v.encode(self.encoding) + b'\x00')
                         case "O":
                             f.write(to_bytes(int(arg["value"]), 1))
                         case "list":

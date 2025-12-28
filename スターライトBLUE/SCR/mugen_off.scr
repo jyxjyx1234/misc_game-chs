@@ -1,0 +1,31 @@
+# 夢幻時空エフェクト　ＯＦＦ
+
+
+::START
+
+
+
+^if( %mugen_check == 0 )
+
+	ch(2, ADD, 0)		# ノーマル
+	ch(1, ADD, 0)		# ノーマル
+	choff(2)
+	choff(1)
+	ud(34, 2000)
+
+	%mugen_prm = 0	# 夢幻時空パラメータ（0:OFF 1:START 2:ON）
+
+^else
+	ch(2, ADD, 0)		# ノーマル
+	ch(1, ADD, 0)		# ノーマル
+	choff(2)
+	choff(1)
+^endi
+
+
+%mugen_check = 0	# 夢幻時空チェック用フラグ（0:ノーマルモード 1:チェックモード）
+
+
+^ret
+
+::END

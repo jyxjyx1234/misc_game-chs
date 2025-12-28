@@ -14,7 +14,7 @@ for file in os.listdir(oriPath):
         transdatas = open_json(os.path.join(transPath, file + ".json"))
     except FileNotFoundError:
         transdatas = []
-    ws2f = WS2FileCompiler(os.path.join(oriPath, file), "utf-8")
+    ws2f = WS2FileCompiler(os.path.join(oriPath, file), "936")
     for c in ws2f.commands:
         if c["op"] == "15":
             name = c["args"][0]["value"]

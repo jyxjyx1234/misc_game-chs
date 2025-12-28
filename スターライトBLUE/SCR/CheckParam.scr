@@ -1,0 +1,66 @@
+# キャラ好感度チェックルーチン
+
+#%iHidetoshi = 0		# 秀俊パラメータ
+#%iYousuke = 0		# 庸介パラメータ
+#%iTaizou = 0		# 泰造パラメータ
+#%iKeita = 0			# 慶太パラメータ
+#%iHiroshi = 0		# 洋パラメータ
+#
+#%iTopChar = 0	# 一番好感度の高いキャラナンバー
+				# 1: 秀俊
+				# 2: 庸介
+				# 3: 泰造
+				# 9: ノーマルエンド（ルート判定時に使用）
+
+
+::START
+
+#チェック開始
+
+## 慶太チェック
+#^if(%iKeita >= %iHidetoshi)			# 秀俊と比較
+#	^if(%iKeita >= %iYousuke)			# 庸介と比較
+#		^if(%iKeita >= %iTaizou)		# 泰造と比較
+#			%iTopChar = 4			# 一番好感度の高いキャラナンバー（慶太）
+#			^jp(END_CHKPRM)
+#		^endi
+#	^endi
+#^endi
+
+
+
+
+## 秀俊チェック
+#^if(%iHidetoshi >= %iYousuke)				# 庸介と比較
+#	^if(%iHidetoshi >= %iTaizou)			# 泰造と比較
+#		%iTopChar = 1				# 一番好感度の高いキャラナンバー（秀俊）
+#		^jp(END_CHKPRM)
+#	^endi
+#^endi
+#
+#
+#
+#
+## 庸介チェック
+#^if(%iYousuke >= %iTaizou)				# フローラと比較
+#	%iTopChar = 2					# 一番好感度の高いキャラナンバー（庸介）
+#	^jp(END_CHKPRM)
+#^endi
+#
+#
+#
+#
+## フローラチェック
+#%iTopChar = 3					# 一番好感度の高いキャラナンバー（泰造）
+#^jp(END_CHKPRM)
+
+
+
+
+
+#チェック終了
+:END_CHKPRM
+
+^ret
+
+::END

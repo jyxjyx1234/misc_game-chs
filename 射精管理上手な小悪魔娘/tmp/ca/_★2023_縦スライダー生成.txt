@@ -1,0 +1,105 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $create_tate_slider(property $slider_no) {
+
+	$page_height[00] = 5000 					$page_height[01] = 1600 					$page_height[02] = 4200
+	
+	front.object[10].y_rep.resize(2)
+	
+	$slider_index = $slider_no
+	$slider_objno = 286
+	
+
+	front.object[$slider_objno].create(_sliderhd,1,1880,539)
+	front.object[$slider_objno].layer = $slider_objno
+	front.object[$slider_objno].order = 10
+	front.object[$slider_objno].child.resize(3)
+		
+	front.object[$slider_objno].child[00].create(_sliderhd_bt,1,0,-438)
+	front.object[$slider_objno].child[00].y_rep.resize(1)
+	
+	front.object[$slider_objno].child[00].set_button(99999,0,10,-1)
+	front.object[$slider_objno].child[00].set_button_pushkeep(1)
+	
+	front.object[$slider_objno].child[01].create(_sliderhd_up_bt,1,0,-513)
+	front.object[$slider_objno].child[01].y_rep.resize(1)
+	
+	front.object[$slider_objno].child[01].set_button(99997,0,10,-1)
+	front.object[$slider_objno].child[01].set_button_pushkeep(1)
+	
+	front.object[$slider_objno].child[02].create(_sliderhd_down_bt,1,0,513)
+	front.object[$slider_objno].child[02].y_rep.resize(1)
+	
+	front.object[$slider_objno].child[02].set_button(99998,0,10,-1)
+	front.object[$slider_objno].child[02].set_button_pushkeep(1)
+	
+}
+
+
+command $tate_slider_behavior {
+
+	if ($ls_btn0_push == 99999) {
+	
+		front.object[$slider_objno].child[00].y_rep[00] = math.limit(0,mouse.pos_y-100,876)
+		g[1000+$slider_index] = math.timetable(front.object[$slider_objno].child[00].y_rep[00],0,0,[0,876,$page_height[$slider_index]])
+		front.object[10].y_rep[00] = -g[1000+$slider_index]
+		
+	}
+	
+	if (mouse.wheel < 0) {
+	
+		g[1000+$slider_index] = math.limit(0,g[1000+$slider_index] - 100,$page_height[$slider_index])
+		front.object[10].y_rep[00] = -g[1000+$slider_index]
+	
+	}
+
+	
+	if (mouse.wheel > 0) {
+	
+		g[1000+$slider_index] = math.limit(0,g[1000+$slider_index] + 100,$page_height[$slider_index])
+		front.object[10].y_rep[00] = -g[1000+$slider_index]
+	
+	}
+	
+	
+	if ($ls_btn0_push == 99997) {
+	
+		g[1000+$slider_index] = math.limit(0,g[1000+$slider_index] - 20,$page_height[$slider_index])
+		front.object[10].y_rep[00] = -g[1000+$slider_index]
+	
+	}
+
+	if ($ls_btn0_push == 99998) {
+	
+		g[1000+$slider_index] = math.limit(0,g[1000+$slider_index] + 20,$page_height[$slider_index])
+		front.object[10].y_rep[00] = -g[1000+$slider_index]
+	
+	}
+	
+
+}
+
+
+command $set_tate_slider_param{
+
+	front.object[$slider_objno].child[00].y_rep[00] = math.timetable(g[1000+$slider_index],0,0,[0,$page_height[$slider_index],876])
+
+}
+
+
+
+

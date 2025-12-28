@@ -1,5 +1,3 @@
-from Lib import *
-
 def xor_guid(guid, key):
     guid_hex = guid.replace("{", "").replace("}", "").replace("-", "")
     guid_bytes = bytes.fromhex(guid_hex)
@@ -17,4 +15,4 @@ def xor_guid(guid, key):
     res += "}"
     return res
 
-print(xor_guid("{8E5B83E9-C49F-9EC7-7B60-FDA235522937}", 223))
+print(xor_guid("{B8A4D9DD-3BAD-90A9-4EDB-CEDBDE07C8E9}", 221))

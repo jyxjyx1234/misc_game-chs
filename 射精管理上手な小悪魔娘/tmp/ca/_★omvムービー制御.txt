@@ -1,0 +1,69 @@
+#z00
+
+
+
+
+
+
+
+
+
+command	$omv_set(property $stage,property $filename : str,property $blend,property $loop,property $tr,property $fadein_time,property $deray_time,property $resume_flag,property $back_or_front) {
+
+	$omv_resume_flag = 0
+	$omv_resume_time = 0
+
+	if ($loop == 0) {
+	
+		stage[$stage].object[190].create_movie($filename,0,0,0, ready_only = 1)
+	
+	}else{
+	
+		stage[$stage].object[190].create_movie_loop($filename,0,0,0, ready_only = 1)
+	
+	}
+
+
+	stage[$stage].object[190].set_scale(1500,1500)
+
+	$omv_resume_flag = $resume_flag
+
+	stage[$stage].object[190].tr = 0
+	stage[$stage].object[190].blend = $blend
+	stage[$stage].object[190].tr_eve.set($tr,$fadein_time,$deray_time,0)
+	
+	stage[$stage].object[190].layer = 190
+
+	switch($back_or_front) {
+			case(0)	stage[$stage].object[190].order = 1	
+			case(1)	stage[$stage].object[190].order = 7	
+
+	}
+	
+	
+	stage[$stage].object[190].disp = 1
+	
+	
+	
+	if ($omv_resume_flag == 0) {
+	
+		stage[$stage].object[190].resume_movie
+	
+	}
+
+}
+
+
+command $omv_fade(property $fadeout_time,property $deray_time,property $wait_flag) {
+
+	front.object[190].tr_eve.set(0,$fadeout_time,$deray_time,0)
+	
+	if ($wait_flag == 1) {
+	
+		timewait($wait_flag)
+	
+	}
+
+}
+
+

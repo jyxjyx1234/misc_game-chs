@@ -1,0 +1,87 @@
+::START
+
+bgon("black")
+ud(1, 100)
+
+#タイトル画面
+#「タイトルに戻る」でもここに来る
+
+# スプライト設定
+^gsb(init_spr)
+
+
+^gsb(init_var)
+
+# セーブ不可、ロード不可
+mode(0)
+loaddisable
+savedisable
+mode(1)
+
+^gsb(TITLE_S)
+
+
+bgmoff(1)
+^if(%TAIKEN_FLAG1 == 1)
+	# 体験版モード
+	title("スターライトＢＬＵＥ　web体験版ver1.0")	# タイトル設定
+#	title("スターライトＢＬＵＥ　体験版ver0.5")	# タイトル設定
+	bgmon("bgm02")	#タイトル画面BGM
+^elif(%TAIKEN_FLAG2 == 1)
+	# 体験版モード
+	title("スターライトＢＬＵＥ　web体験版ver2.0")	# タイトル設定
+	bgmon("bgm02")	#タイトル画面BGM
+^elif(%COMIKE_FLAG1 == 1)
+	# コミケ用体験版モード
+	title("スターライトＢＬＵＥ　体験版ver1.01")	# タイトル設定
+	bgmon("bgm02")	#タイトル画面BGM
+^elif(%TECK_FLAG == 1)
+	# テック用体験版モード
+	title("スターライトＢＬＵＥ　TG体験版")	# タイトル設定
+	bgmon("bgm02")	#タイトル画面BGM
+^elif(%PUSH_FLAG == 1)
+	# push体験版モード
+	title("スターライトＢＬＵＥ　PUSH!体験版")	# タイトル設定
+	bgmon("bgm02")	#タイトル画面BGM
+^else
+	bgmon("bgm02")	#タイトル画面BGM
+#	bgmon("bgm17")	#タイトル画面BGM
+^endi
+
+
+# セーブ不可、ロード可能
+mode(0)
+loadenable
+savedisable
+mode(1)
+
+bgon("bk_ti2")
+ud(1, 500)
+
+#★★★タイトルコール
+rand(5)
+
+#^sw(%reg)
+#^case(0)
+#	seon("aa_sys08")	# 非同期単発（システム用トラック）
+#^case(1)
+#	seon("ab_sys08")	# 非同期単発（システム用トラック）
+#^case(2)
+#	seon("ac_sys08")	# 非同期単発（システム用トラック）
+#^case(3)
+#	seon("ad_sys08")	# 非同期単発（システム用トラック）
+#^case(4)
+#	seon("ba_sys08")	# 非同期単発（システム用トラック）
+#^case(5)
+#	seon("bb_sys08")	# 非同期単発（システム用トラック）
+#^df
+#	seon("aa_sys08")	# 非同期単発（システム用トラック）
+#^ends
+
+#タイトルメイン画面
+^go(title_main)
+
+# タイトルに戻る
+backtitle
+
+::END

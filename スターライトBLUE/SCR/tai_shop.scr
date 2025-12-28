@@ -1,0 +1,67 @@
+############################################
+# 体験版０１ルーチン
+############################################
+::START
+
+
+
+
+:TAIKEN_TOP
+
+clrbacklog
+ud(1, 100)
+
+
+
+
+bgon("tai003a")
+ud(1, 50)
+#ud(0)
+
+btnset(1,"taib01a", 21, 97)
+btnset(2,"taib01a", 435, 97)
+btnset(3,"taib01a", 849, 97)
+#btnset(4,"taib01a", 328, 366)
+#btnset(5,"taib01a", 644, 366)
+#btnset(6,"taib01a", 961, 366)
+#btnset(7,"taib01a", 964, 378)
+btnset(8,"taib03a", 1119, 21)
+
+rbtn(8)
+
+
+btnon(ALL)
+ud(0)
+btnenable
+
+
+wait(50)
+btnreset(ALL)
+
+
+
+%temp = %reg    # 選択肢パラメータ保存
+^sw(%temp)
+	^case(1)			# ソフマップ
+		float(12, "https://a.sofmap.com/product_detail.aspx?sku=80049508")
+	^case(2)			# メロンブックス
+		float(12, "https://www.melonbooks.co.jp/detail/detail.php?product_id=2932822")
+	^case(3)			# トレーダー
+		float(12, "http://www.trader.co.jp/shop/shopdetail.html?brandcode=000000011167")
+
+	^case(8)			# メニュー画面へ戻る
+		^jp(END_GAME)
+	^df
+^ends
+
+^jp(TAIKEN_TOP)
+
+
+
+:END_GAME
+bgon("black")
+ud(0)
+
+^ret
+
+::END

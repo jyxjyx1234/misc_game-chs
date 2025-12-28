@@ -1,0 +1,133 @@
+*0610_04
+
+#0610CHIP
+
+％：0610_04.txt
+％：場面：校門：h_11
+
+#BST_123DL
+#idou
+
+#日常のテーマ
+#hai_11校門
+#CHR_未鈴02制服_基本素体_left
+#FACELOAD_Mirin02制服_left05困惑
+#CHR_涼音01制服_基本素体_right
+#FACELOAD_Suzune01制服_right08素の顔
+#CHR_BGLOAD
+#右からグラデ
+#MES_WINDOW_LOAD
+#SAVE_TITLE ６月１０日（火）
+#VOICE=VOICE\mirin\mir0201.ogg
+【未鈴】
+「ぜーぜー……」＠
+#NEXT
+
+　未鈴ちゃんが校門にもたれるようにして、ぜい
+ぜいと息をついている。＠
+#NEXT
+
+……朝から飛ばしすぎなんだよなぁ……。＠
+#NEXT
+
+#VOICE=VOICE\suzune\suz1088.ogg
+【涼音】
+「み、未鈴ちゃん、大丈夫？」＠
+#NEXT
+
+　どうにかこうにか校門までたどり着いた。＠
+#NEXT
+
+　今日は多少、早く出ていたとはいえ、遅刻しな
+かったのが奇跡かもしれない。＠
+#NEXT
+
+　それで、みどりはというと……。＠
+#NEXT
+
+#VOICE=VOICE\midori\mid0290.ogg
+【みどり】
+「ぐー……」＠
+#NEXT
+
+【健一】
+「まだ寝てるし……」＠
+#NEXT
+
+#BST_123DL
+#CHR_未鈴01制服_基本素体_center
+#FACE_Mirin01制服_center03笑顔２
+#VOICE=VOICE\mirin\mir0202.ogg
+【未鈴】
+「そ、それじゃ気を取り直して、今日のみかえる
+様、いってみましょー！」＠
+#NEXT
+
+　あ、やるんだ、それ……。＠
+#NEXT
+
+　元気を取り戻したかのように見える未鈴ちゃん
+だけど、まだ涼音に肩を貸してもらっている。
+……大丈夫なのかな。＠
+/#hai_11校門
+/#CHR_未鈴01制服_基本素体_center
+/#FACELOAD_Mirin01制服_center03笑顔２
+/#CHR_BGLOAD
+/#SET_SCREEN
+#NEXT
+
+#SKIP_STOP
+#MES_WINDOW_OFF
+#PUTSCREEN
+
+#TEXTPLANE_CLS
+
+#SELECT_SAVE 52
+#SELECT_READY
+
+#SELECT_PARAM2 1,0,263,786,36,0,804,0,846
+#SELECT_PARAM2 2,0,301,786,36,0,804,0,846
+
+#TEXTOUT Ａ：占ってもらう,86,265,9,9,255,255,255
+#TEXTOUT Ｂ：今日はやめておく,86,303,9,9,255,255,255
+#TEXTOUT Ａ：占ってもらう,86,265,2,2,255,255,0
+#TEXTOUT Ｂ：今日はやめておく,86,303,2,2,255,255,0
+
+#MES_WINDOW_OFF
+
+#SEL_WINDOW_LOAD
+
+#SELECT_GO
+#SELECT_FILESAVE 52
+
+#SEL_WINDOW_OFF
+#PUTSCREEN
+
+#IF $10=1
+#IF $823=1
+#GOTO 0610_05
+#ENDIF
+#ENDIF
+
+#IF $10=1
+#GOTO 0610_06
+#ENDIF
+#IF $10=2
+#GOTO 0610_07
+#ENDIF
+
+
+GOTO 0610_05
+GOTO 0610_06
+GOTO 0610_07
+
+
+％：選択肢と直前の選択肢によって分岐
+
+％：１）占ってもらう：0610_01.txtの選択肢によって分岐。
+
+％：１）－１：言葉をかけてやる：0610_05.txt：未鈴好感度＋１
+
+％：１）－２：腕にもたれさせてやる：0610_06.txt：未鈴好感度＋１
+
+％：２）今日はやめておく：0610_07.txt

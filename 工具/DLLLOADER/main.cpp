@@ -1,4 +1,4 @@
-//#define fixpath
+#define fixpath
 
 #include <Windows.h>
 #include <iostream>
@@ -15,7 +15,7 @@
 #endif
 
 #include "convert.h"
-//#include "LE.h"
+#include "LE.h"
 
 bool IsRunAsAdmin()
 {
@@ -138,8 +138,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         NULL);             // 保留字段
 
 #else
+	install_LE();
+    MessageBoxW(NULL, L"本补丁由jyxjyx1234制作，使用 Claude-3.7-sonnet 进行翻译，免费发布，首发御爱同萌（ai2.moe）、jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n请仔细阅读README.md，如果补丁运行遇到问题，可在御爱评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。", L"信息", NULL);
     DetourCreateProcessWithDllEx(
-        L"jii.exe",           // 目标 EXE 路径
+        L"RB.exe",           // 目标 EXE 路径
         NULL,                // 命令行参数（可为空）
         NULL,                // 安全属性
         NULL,                // 线程安全属性
@@ -149,7 +151,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         NULL,                // 工作目录
         &si,                 // STARTUPINFO
         &pi,
-        (current_pathA + "\\jii_CHS.dll").c_str(),            // DLL 路径
+        (current_pathA + "\\RB_CHS.dll").c_str(),            // DLL 路径
         NULL);             // 保留字段
 #endif
     ResumeThread(pi.hThread);

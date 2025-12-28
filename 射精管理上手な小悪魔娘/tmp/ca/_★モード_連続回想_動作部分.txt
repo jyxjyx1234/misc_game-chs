@@ -1,0 +1,1023 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$mwnd_button_init	
+
+
+#init
+
+$mode = 0		
+
+
+set_title("◆シーン回想")		
+
+clear_msgbk
+
+syscom.set_auto_mode_onoff_flag(0)
+syscom.set_read_skip_onoff_flag(0)
+
+syscom.set_msg_back_enable_flag(0)
+syscom.set_save_enable_flag(0)
+syscom.set_auto_mode_enable_flag(0)
+
+
+script.set_ctrl_skip_enable
+syscom.set_syscom_menu_disable
+
+
+
+
+$transition(30,"",0,0)
+
+back.object[01].create(_black_half,1,0,0)
+close  			$bg_filename_tmp = bg11_aa 			$time_tmp = 0  			if (bg11_aa == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(1) { 				case(99)	 				default switch(1){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+$multiple_mouse_scroll_init(0) 
+
+
+front.object[10].init
+front.object[10].child.resize(100)
+front.object[10].layer = 100
+front.object[10].disp = 1
+
+
+
+
+
+$create_tate_slider(02)	
+front.object[10].y_rep[00] = -g[1000+02]
+
+$tate_slider_behavior
+$set_tate_slider_param
+
+
+
+
+
+
+$cr_tag_chr($kaisou_chr)
+
+
+
+
+
+
+front.object[170].create(a0_mode_crhd_mode_simple_bg,1,959,539)
+
+
+front.object[198].create(a0_mode_crhd_mode_change_simple,1,165,132,0)
+front.object[198].set_button(3000,0,10,9)
+front.object[199].create(a0_mode_crhd_mode_change_renzoku,1,468,132,0)
+front.object[199].set_button(3001,0,10,9)
+
+
+
+
+
+
+
+$cr_item_create
+$cr_item_get
+$cr_item_disp
+
+
+$cr_bgm_set
+
+
+
+
+
+
+
+
+
+
+
+
+
+front.object[200].create(a0_mode_crhd_exit_bt,1,316,1027)
+front.object[200].set_button(9999,0,11,005)
+
+front.object[200].layer = 200
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$transition(31,"",0,1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#start
+
+if (g[99] == 0) {front.object[190].disp = 0} else {front.object[190].disp = 1}
+
+
+savepoint
+
+
+$ls_btn0_hit = 0 						$ls_btn1_hit = 0 						$ls_btn2_hit = 0 						$ls_btn3_hit = 0 						$ls_btn4_hit = 0 						$ls_btn5_hit = 0 						$ls_btn6_hit = 0  						$ls_btn0_push = 0 						$ls_btn1_push = 0 						$ls_btn2_push = 0 						$ls_btn3_push = 0 						$ls_btn4_push = 0 						$ls_btn5_push = 0 						$ls_btn6_push = 0  						$ls_btn0_decided = 0 						$ls_btn1_decided = 0 						$ls_btn2_decided = 0 						$ls_btn3_decided = 0 						$ls_btn4_decided = 0 						$ls_btn5_decided = 0 						$ls_btn6_decided = 0 						 						$ls_btn_break = 0  						front.objbtngroup[0].init 						front.objbtngroup[1].init 						front.objbtngroup[2].init 						front.objbtngroup[3].init 						front.objbtngroup[4].init 						front.objbtngroup[5].init 						front.objbtngroup[6].init
+front.objbtngroup[0].start_cancel
+
+input.clear
+mouse.clear
+
+
+while(1) {
+
+	$ls_btn0_hit = front.objbtngroup[0].get_hit_no
+	$ls_btn0_push = front.objbtngroup[0].get_pushed_no
+	$ls_btn0_decided = front.objbtngroup[0].get_decided_no
+	
+	
+	$tate_slider_behavior
+	$set_tate_slider_param
+	
+	
+	
+	
+	
+	
+	
+	if ($ls_btn0_hit >= 100 && $ls_btn0_hit <= 1999) {
+	
+		if (g[99] == 0) {
+		
+			
+			
+			
+
+				$help_text(front.object[495],dl,"選択されている項目をクリックすると、#Dシーンを再生します。")
+			
+		
+		}else {
+		
+			$help_text(front.object[495],dl,"選択されている項目をクリックすると、連続回想スロットに項目を挿入します。#Dスロットに空きが無い場合は[消去]ボタンで空きを作ってください。")
+		
+		}
+		
+	
+	
+	
+	}
+	
+	elseif ($ls_btn0_hit >= 4000 && $ls_btn0_hit <= 4009) {
+	
+		l[00] = $ls_btn0_hit - 4000
+	
+		if ($cr_set_index[l[00]] != 0) {
+		
+			
+			
+			
+			
+				k[00] = $cr_set_chr[l[00]] + "" + $cr_set_title[l[00]] + "#D#D#12C【" + $cr_set_action[l[00]] + "】#D#D#255C" + $cr_set_data_comment[l[00]]
+			
+			
+			$help_text_big_image(front.object[495],cc,k[00],$cr_set_cgthm[l[00]],280,150,$cr_set_cgthm_patno[l[00]])
+		
+		}else {
+		
+			$help_text(front.object[495],dr,"[消去]ボタンです。#Dスロットに項目が入っている状態でこのボタンを押すと#Dそのスロットの内容を[未設定]に戻します。")
+		
+		}
+	
+	}else {
+	
+		switch($ls_btn0_hit) {
+	
+			case(2950)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+			case(2951)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+			case(2952)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+			case(2953)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+			case(2954)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+			case(2955)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+			case(2956)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+			case(2957)	$help_text(front.object[495],dr,"項目一覧を切り替えます。")
+	
+			case(3000)	$help_text(front.object[495],dr,"シンプルモードに切り替えます。#Dワンクリックでシーンを再生できるモードです。")
+			case(3001)	$help_text(front.object[495],dr,"連続回想モードに切り替えます。#D連続回想スロットに項目をセットすることで、最大10回連続でシーンを再生できるモードです。")
+	
+			case(5000)	$help_text(front.object[495],dr,"連続回想スロットの内容をすべて[未設定]に戻します。#Dまた、ＢＧＭ設定を初期化します。")
+			case(5001)	$help_text(front.object[495],dr,"連続回想スロットに登録されている順番でシーンを再生します。")
+			
+			case(5002)	$help_text(front.object[495],dr,"連続回想中のＢＧＭを指定のもので統一して再生します。#Dクリックするごとに切り替わります。#D#D[無音にする]：全シーンでＢＧＭが無音になります#D[演出どおりに再生]：シーン本来のＢＧＭが再生されます")
+			
+			case(9000)	$help_text(front.object[495],dr,"★いもうと美姫ちゃん～用特殊設定★#D#Dチャットやト書き、主人公のセリフなど#D表示のON/OFFを切り替えられます。#D※回想モード中のみ有効")
+			
+			case(9999)	$help_text(front.object[495],dr,"タイトル画面に戻ります。")
+			
+	
+			default front.object[495].disp = 0
+		
+		}
+		
+		
+	
+	}
+	
+	front.object[495].layer = 210
+	
+	
+	
+	
+	
+	if ($ls_btn0_decided == -1) {
+		se.play(001)
+		syscom.call_config_menu
+		goto #start
+	}
+
+	if ($ls_btn0_decided == 9000) {	
+		se.play(001)
+		goto #sub_menu
+	}
+
+	if ($ls_btn0_decided == 9999) {
+		se.play(001)
+		returnmenu
+	}
+
+
+	if ($ls_btn0_decided >= 100 && $ls_btn0_decided < 1999) {
+	
+		if (g[99] == 0) {	
+		
+			front.object[$slider_objno].disp = 0
+		
+			se.play(001)
+			$cr_mode = 0
+		
+			$kaisou_mode = $cr_data_tagno[$ls_btn0_decided]
+			
+			$cr_syasei	=	$cr_data_syasei[$ls_btn0_decided]
+			$cr_cancel	=	$cr_data_cancel[$ls_btn0_decided]
+
+			
+			
+			
+
+
+
+
+
+
+
+
+			
+		
+			if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(1000)}
+			close  			$bg_filename_tmp = _white 			$time_tmp = 1000  			if (_white == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+
+			script.set_auto_savepoint_off	
+			syscom.set_msg_back_enable_flag(1)
+			syscom.set_save_enable_flag(0)
+			syscom.set_auto_mode_enable_flag(1)
+			syscom.set_syscom_menu_enable
+
+			
+			farcall($cr_data_ss[$ls_btn0_decided])
+
+
+			$cr_mode = 0
+
+			$kaisou_mode = 0
+
+
+			
+			
+			
+
+
+
+
+
+
+
+			
+			
+			
+
+
+			$all_screen("",0,1,0,255,1) 
+			if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(1000)}
+			pcmch[0].stop(1000) pcmch[1].stop(1000) pcmch[2].stop(1000)
+			pcmch[0].stop(1000)
+			pcmch[1].stop(1000)
+			
+			for($se_tmp = 0,$se_tmp < 6,$se_tmp+=1) {$bgv_stop($se_tmp,500)}                 for($se_tmp = 0,$se_tmp < 3,$se_tmp+=1) {$bgs_oneshot_stop($se_tmp,500)}                 for($se_tmp = 0,$se_tmp < 3,$se_tmp+=1) {$bgs_action_stop($se_tmp,500)}                 for($se_tmp = 0,$se_tmp < 3,$se_tmp+=1) {$bgs_env_stop($se_tmp,500)}
+			
+			script.set_auto_savepoint_on	
+		
+			goto #init
+		
+		
+		}elseif (g[99] == 1) {		
+		
+			se.play(017)
+			for (l[00] = 0,l[00] <= 9,l[00] += 1) {
+			
+				if (g[l[00]+080] == 0) {	
+				
+					$cr_item_set(l[00],$ls_btn0_decided)
+					$cr_item_disp
+					break
+				
+				}
+			}
+			
+			
+		
+		}
+	
+	}
+	
+	if ($ls_btn0_decided == 2950) {$kaisou_chr = 0}
+	if ($ls_btn0_decided == 2951) {$kaisou_chr = 1}
+	if ($ls_btn0_decided == 2952) {$kaisou_chr = 2}
+	if ($ls_btn0_decided == 2953) {$kaisou_chr = 3}
+	if ($ls_btn0_decided == 2954) {$kaisou_chr = 4}
+	if ($ls_btn0_decided == 2955) {$kaisou_chr = 5}
+	if ($ls_btn0_decided == 2956) {$kaisou_chr = 6}
+	if ($ls_btn0_decided == 2957) {$kaisou_chr = 7}
+	
+	if ($ls_btn0_decided >= 2950 && $ls_btn0_decided <= 2957) {
+		
+		$cr_tag_chr($kaisou_chr)
+		
+		g[1000+20] = 0
+		front.object[10].y_rep[00] = -g[1000+20]
+		$tate_slider_behavior
+		$set_tate_slider_param
+		 
+	
+	}
+	
+	
+	
+	if ($ls_btn0_decided == 3000) {g[99] = 0}
+	if ($ls_btn0_decided == 3001) {g[99] = 1}
+	
+	if ($ls_btn0_decided == 4000) {se.play(002) $cr_item_erase(0) $cr_item_disp}
+	if ($ls_btn0_decided == 4001) {se.play(002) $cr_item_erase(1) $cr_item_disp}
+	if ($ls_btn0_decided == 4002) {se.play(002) $cr_item_erase(2) $cr_item_disp}
+	if ($ls_btn0_decided == 4003) {se.play(002) $cr_item_erase(3) $cr_item_disp}
+	if ($ls_btn0_decided == 4004) {se.play(002) $cr_item_erase(4) $cr_item_disp}
+	if ($ls_btn0_decided == 4005) {se.play(002) $cr_item_erase(5) $cr_item_disp}
+	if ($ls_btn0_decided == 4006) {se.play(002) $cr_item_erase(6) $cr_item_disp}
+	if ($ls_btn0_decided == 4007) {se.play(002) $cr_item_erase(7) $cr_item_disp}
+	if ($ls_btn0_decided == 4008) {se.play(002) $cr_item_erase(8) $cr_item_disp}
+	if ($ls_btn0_decided == 4009) {se.play(002) $cr_item_erase(9) $cr_item_disp}
+	
+	if ($ls_btn0_decided == 5000) {
+	
+		se.play(002) 
+
+		$cr_item_erase(0)
+		$cr_item_erase(1)
+		$cr_item_erase(2)
+		$cr_item_erase(3)
+		$cr_item_erase(4)
+		$cr_item_erase(5)
+		$cr_item_erase(6)
+		$cr_item_erase(7)
+		$cr_item_erase(8)
+		$cr_item_erase(9)
+		g[98] = 0
+		$cr_bgm_set
+
+		$cr_item_disp
+		
+		
+		
+	}
+	
+	if ($ls_btn0_decided == 5001) {	
+	
+		se.play(001) 
+
+		front.object[$slider_objno].disp = 0
+	
+		if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(1000)}
+		close  			$bg_filename_tmp = _white 			$time_tmp = 1000  			if (_white == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+		
+		script.set_auto_savepoint_off	
+		syscom.set_msg_back_enable_flag(1)
+		syscom.set_save_enable_flag(0)
+		syscom.set_auto_mode_enable_flag(1)
+		syscom.set_syscom_menu_enable
+
+		$cr_mode = 1
+	
+			
+			
+			
+			
+
+
+
+
+
+
+
+
+
+			
+
+		for (l[00] = 0,l[00] <= 9, l[00] += 1) {
+		
+			if ($cr_set_index[l[00]] != 0) {
+			
+				syscom.set_msg_back_enable_flag(1)
+				syscom.set_save_enable_flag(0)
+				syscom.set_auto_mode_enable_flag(1)
+			
+				$kaisou_mode = $cr_set_tagno[l[00]]
+				
+				$cr_syasei	=	$cr_set_syasei[l[00]]
+				$cr_cancel	=	$cr_set_cancel[l[00]]
+			
+				farcall($cr_set_ss[l[00]])
+				
+				
+				close  			$bg_filename_tmp = _white 			$time_tmp = 500  			if (_white == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+				
+				
+				
+				$all_screen("",0,1,0,255,1) 
+				pcmch[0].stop(1000) pcmch[1].stop(1000) pcmch[2].stop(1000)
+				pcmch[0].stop(1000)
+				pcmch[1].stop(1000)
+				for($se_tmp = 0,$se_tmp < 6,$se_tmp+=1) {$bgv_stop($se_tmp,500)}                 for($se_tmp = 0,$se_tmp < 3,$se_tmp+=1) {$bgs_oneshot_stop($se_tmp,500)}                 for($se_tmp = 0,$se_tmp < 3,$se_tmp+=1) {$bgs_action_stop($se_tmp,500)}                 for($se_tmp = 0,$se_tmp < 3,$se_tmp+=1) {$bgs_env_stop($se_tmp,500)}
+				
+			}
+			
+		}
+		
+		
+		$cr_mode = 0
+		
+		$kaisou_mode = 0
+
+			
+			
+
+			
+
+
+
+
+
+
+
+
+			
+
+		if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(1000)}
+		
+		script.set_auto_savepoint_on	
+
+		goto #init
+	
+	
+	
+	}
+	
+	
+	
+	if ($ls_btn0_decided == 5002) {se.play(017) g[98] = (g[98] + 1) % 14 $cr_bgm_set}
+	
+	if ($ls_btn0_decided > 0) {goto #start}
+	
+	
+	
+	disp
+
+
+}
+
+
+
+
+
+#sub_menu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $make_check_box( property $obj:object, property $xpos, property $ypos, property $btn_no, property $btn_group, property $flag )
+{	
+	$obj.create( a0_mode_crhd_submenu_check, 1, $xpos, $ypos )
+	$obj.set_button( $btn_no, $btn_group, 24, 005 )
+	
+	if( $flag != 0 ){
+		$obj.patno = 10
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command	$cr_tag_create(property $no,property $index,property $patno) {
+
+	if ($index == 0) {
+	
+		front.object[10].child[$no].init
+		return
+	
+	}
+
+	front.object[10].child[$no].create(a0_mode_crhd_masu,1,  955+(($no % 2)*592), 205 + (($no / 2) * 260) ,$patno)
+
+	
+
+
+	if ($mode == 0) {
+
+		if (g[$cr_data_ref_g[$index]] != 1) { front.object[10].child[$no].tr = 128 return }
+	
+	}
+
+	front.object[10].child[$no].set_button($index,0,10,005)
+	
+
+	
+	front.object[10].child[$no].child.resize(30)
+	front.object[10].child[$no].child[0].create($cr_data_cgthm[$index],1,-132,22,$cr_data_cgthm_patno[$index])
+	front.object[10].child[$no].child[0].set_scale(600,600)
+	
+	front.object[10].child[$no].child[1].create_string($cr_data_action[$index],1,-230,-102)
+	front.object[10].child[$no].child[1].set_string_param(25,1,3,0,255,0,0)
+	
+	
+	
+	
+		
+	front.object[10].child[$no].child[2].create_string($cr_data_comment[$index],1,20,-53)
+	front.object[10].child[$no].child[2].set_string_param(22,0,7,11,254,0,0)
+	
+	if ($cr_data_comment[$index].cnt > (11*5)) {front.object[10].child[$no].child[2].y = 52 front.object[10].child[$no].child[2].scale_y = 900 }
+	
+
+}
+
+
+
+
+
+command $cr_tag_chr(property $chr_old) {
+
+	switch($chr_old) {		
+	
+		case(0)	$cr_tag_create(0,100,1)
+				$cr_tag_create(1,110,0)
+				$cr_tag_create(2,120,0)
+				$cr_tag_create(3,130,0)
+				$cr_tag_create(4,140,0)
+				$cr_tag_create(5,150,0)
+				$cr_tag_create(6,160,0)
+				$cr_tag_create(7,170,0)
+				$cr_tag_create(8,180,0)
+				$cr_tag_create(9,190,0)
+				$cr_tag_create(10,200,0)
+				$cr_tag_create(11,210,0)
+				$cr_tag_create(12,220,0)
+				$cr_tag_create(13,230,1)
+				$cr_tag_create(14,240,0)
+				$cr_tag_create(15,250,0)
+				$cr_tag_create(16,260,1)
+				$cr_tag_create(17,270,0)
+				$cr_tag_create(18,280,0)
+				$cr_tag_create(19,290,0)
+				$cr_tag_create(20,300,0)
+				$cr_tag_create(21,310,0)
+				$cr_tag_create(22,320,0)
+				$cr_tag_create(23,330,0)
+				$cr_tag_create(24,340,0)
+				$cr_tag_create(25,350,0)
+				$cr_tag_create(26,360,1)
+				$cr_tag_create(27,370,0)
+				$cr_tag_create(28,380,0)
+				$cr_tag_create(29,390,0)
+				$cr_tag_create(30,400,1)
+				$cr_tag_create(31,410,0)
+				$cr_tag_create(32,420,0)
+				$cr_tag_create(33,430,0)
+				$cr_tag_create(34,440,0)
+				$cr_tag_create(35,450,0)
+				$cr_tag_create(36,460,0)
+
+				
+	}
+
+}
+
+
+
+
+
+
+
+
+command	$cr_item_create {
+
+	front.object[190].create(a0_mode_crhd_mode_renzoku_bg,1,959,539)
+	front.object[190].child.resize(50)
+	
+
+	front.object[190].child[00].create_string("最大１６文字ああああああああああ",1,-875,-337)
+	front.object[190].child[00].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[01].create_string("最大１６文字ああああああああああ",1,-875,-277)
+	front.object[190].child[01].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[02].create_string("最大１６文字ああああああああああ",1,-875,-217)
+	front.object[190].child[02].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[03].create_string("最大１６文字ああああああああああ",1,-875,-157)
+	front.object[190].child[03].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[04].create_string("最大１６文字ああああああああああ",1,-875,-97)
+	front.object[190].child[04].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[05].create_string("最大１６文字ああああああああああ",1,-875,-37)
+	front.object[190].child[05].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[06].create_string("最大１６文字ああああああああああ",1,-875, 23)
+	front.object[190].child[06].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[07].create_string("最大１６文字ああああああああああ",1,-875, 83)
+	front.object[190].child[07].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[08].create_string("最大１６文字ああああああああああ",1,-875,143)
+	front.object[190].child[08].set_string_param(26,-2,0,0,255,0,0)
+	front.object[190].child[09].create_string("最大１６文字ああああああああああ",1,-875,203)
+	front.object[190].child[09].set_string_param(26,-2,0,0,255,0,0)
+
+	front.object[190].child[20].create(a0_mode_crhd_erase_bt,1,-375,-326)
+	front.object[190].child[20].set_button(4000,0,10,001)
+	front.object[190].child[21].create(a0_mode_crhd_erase_bt,1,-375,-266)
+	front.object[190].child[21].set_button(4001,0,10,001)
+	front.object[190].child[22].create(a0_mode_crhd_erase_bt,1,-375,-206)
+	front.object[190].child[22].set_button(4002,0,10,001)
+	front.object[190].child[23].create(a0_mode_crhd_erase_bt,1,-375,-146)
+	front.object[190].child[23].set_button(4003,0,10,001)
+	front.object[190].child[24].create(a0_mode_crhd_erase_bt,1,-375,-86)
+	front.object[190].child[24].set_button(4004,0,10,001)
+	front.object[190].child[25].create(a0_mode_crhd_erase_bt,1,-375,-26)
+	front.object[190].child[25].set_button(4005,0,10,001)
+	front.object[190].child[26].create(a0_mode_crhd_erase_bt,1,-375,34)
+	front.object[190].child[26].set_button(4006,0,10,001)
+	front.object[190].child[27].create(a0_mode_crhd_erase_bt,1,-375,94)
+	front.object[190].child[27].set_button(4007,0,10,001)
+	front.object[190].child[28].create(a0_mode_crhd_erase_bt,1,-375,154)
+	front.object[190].child[28].set_button(4008,0,10,001)
+	front.object[190].child[29].create(a0_mode_crhd_erase_bt,1,-375,214)
+	front.object[190].child[29].set_button(4009,0,10,001)
+
+	
+	
+	front.object[190].child[44].create(a0_mode_crhd_play,1,-645,381)
+	front.object[190].child[44].set_button(5001,0,10,005)
+
+	
+	front.object[190].child[41].create_string("ＢＧＭＢＧＭＢＧＭ",1,-730,277)
+	front.object[190].child[41].set_string_param(26,-1,0,0,255,0,0)
+	front.object[190].child[42].create(a0_mode_crhd_bgmchange_bt,1,-851,290)
+	front.object[190].child[42].set_button(5002,0,10,005)
+
+	front.object[190].child[43].create(a0_mode_crhd_erase_all_bt,1,-385,381)
+	front.object[190].child[43].set_button(5000,0,10,001)
+	
+	if (g[99] == 0) {front.object[190].disp = 0} else {front.object[190].disp = 1}
+
+}
+
+
+
+
+command $cr_item_disp{
+
+	for(l[00] = 0,l[00] <= 9,l[00] += 1) {
+	
+		
+		if ($cr_set_action[l[00]] != "") {
+		
+			
+			
+			k[00] =  $cr_set_action[l[00]]
+			
+			k[01] = k[00].left(20)
+			
+			front.object[190].child[00 + l[00]].set_string(k[01])
+		
+		}else {
+		
+			front.object[190].child[00 + l[00]].set_string("#24C[未設定]")
+		
+		}
+	
+	
+	}
+
+
+}
+
+
+
+
+command	$cr_item_set(property $no,property $index) {
+	
+	g[080 + $no] = $index
+	$cr_item_get
+
+}
+
+command $cr_item_get {
+	for (l[00] = 0,l[00]<10,l[00]+=1) {
+		l[01] = g[080 + l[00]]
+
+		$cr_set_index[l[00]] 		= $cr_data_index[l[01]]
+		$cr_set_ss[l[00]] 			= $cr_data_ss[l[01]]
+		$cr_set_chr[l[00]] 			= $cr_data_chr[l[01]]
+		$cr_set_title[l[00]] 		= $cr_data_title[l[01]]
+		$cr_set_action[l[00]]		= $cr_data_action[l[01]]
+		$cr_set_syasei[l[00]]		= $cr_data_syasei[l[01]]
+		$cr_set_tagno[l[00]] 		= $cr_data_tagno[l[01]]
+		$cr_set_cancel[l[00]] 		= $cr_data_cancel[l[01]]
+		$cr_set_cgthm[l[00]] 		= $cr_data_cgthm[l[01]]
+		$cr_set_cgthm_patno[l[00]] 	= $cr_data_cgthm_patno[l[01]]
+		$cr_set_data_comment[l[00]] = $cr_data_comment[l[01]]
+
+	}
+
+}
+
+
+
+
+
+
+
+command	$cr_item_erase(property $no) {
+
+	g[080 + $no] = 0
+
+	$cr_set_index[$no] 		= 0
+	$cr_set_ss[$no] 		= ""
+	$cr_set_chr[$no] 		= ""
+	$cr_set_title[$no] 		= ""
+	$cr_set_action[$no]		= ""
+	$cr_set_syasei[$no]		= 0
+	$cr_set_tagno[$no] 		= 0
+    $cr_set_cancel[$no] 	= 0
+    $cr_set_cgthm[$no] 		= ""
+    $cr_set_cgthm_patno[$no] = 0
+    $cr_set_data_comment[$no] = ""
+    
+}
+
+
+
+
+
+
+
+
+command $cr_bgm_set{
+
+	switch(g[98]) {
+	
+		case(0)	$cr_bgm = "" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif (bgm10 != "BGM00") {$now_bgm_name = bgm10	bgm.play(bgm10,0,start_pos = -1)}
+				front.object[190].child[41].set_string("[演出どおりに再生]")
+	
+		case(1)	$cr_bgm = "BGM13" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("わからせ１")
+		
+		case(2)	$cr_bgm = "BGM14" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("わからせ２")
+		
+		case(3)	$cr_bgm = "BGM15" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("わからせ３")
+		
+		case(4)	$cr_bgm = "BGM16" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("わからせ３(in dream)")
+		
+		case(5)	$cr_bgm = "BGM11" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("恐怖")
+				
+		case(6)	$cr_bgm = "BGM12" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("畏怖")
+				
+		case(7)	$cr_bgm = "BGM06" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("夜の性活")
+
+		case(8)	$cr_bgm = "BGM01" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("メインテーマ")
+
+		case(9)	$cr_bgm = "BGM10" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("小悪魔娘")
+
+		case(10)	$cr_bgm = "BGM02" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("おだやかな朝")
+
+		case(11)	$cr_bgm = "BGM03" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("明るい学校生活")
+
+		case(12)	$cr_bgm = "BGM04" if ($cr_mode == 1 && $cr_bgm != "") { if($cr_bgm != "BGM00") { bgm.play($cr_bgm,0,start_pos = -1) }} 		elseif ($cr_bgm != "BGM00") {$now_bgm_name = $cr_bgm	bgm.play($cr_bgm,0,start_pos = -1)}
+				front.object[190].child[41].set_string("危うい学校生活")
+		
+		case(13)	$cr_bgm = "BGM00" if ($cr_mode == 1 && $cr_bgm != "") { } 		else {$now_bgm_name = "" bgm.stop(3000)}
+				front.object[190].child[41].set_string("[無音にする]")
+		
+		
+
+	
+	}
+
+
+
+}
+
+
+
+
+
+
+
+

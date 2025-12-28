@@ -46,28 +46,32 @@ class MEDCommand():
         self.idx = reader.readU16()
 
 class DXLibScrFile(object):
-    def __init__(self,data:bytes,key:list=[0],nameset=set()) -> None:
+    def __init__(self,data:bytes,key:list=[0],nameset=set(), filename = "") -> None:
         self.data=data[16:]
         self.length=len(self.data)
         self.key=key
         self.key_length=len(key)
         self.head1=data[:4]# 文件大小
         self.head2=data[4:8] # 文本开始位置(需要再加上文件头的0x10)
-        self.head3=data[8:12] # 文本数量
+        self.head3=data[8:10] # 文本数量
+        self.head3_=data[10:12] # 文本数量
         self.head4=data[12:16]
         self.commandsData = BytesReader(self.data[:from_bytes(self.head2)])
         self.giving_nameset=nameset
+        self.filename = filename
 
     def head(self)->bytes:
-        #self.head1=len(self.data).to_bytes(4,'little')
-        return self.head1+self.head2+self.head3+self.head4
+        self.head1=len(self.data).to_bytes(4,'little')
+        return self.head1+self.head2+self.head3 + self.head3_ +self.head4
     
     def _get_str_list(self):
         #获取文本列表
         self.str_start=int.from_bytes(self.head2,byteorder='little')
-        strs=self.data[self.str_start:].split(b'\x00')
-        if from_bytes(self.head3) > 0x10000:
-            strs = strs[1:]
+        self.app_len = int.from_bytes(self.head3_,byteorder='little')
+        # if self.app_len != 0:
+        #     print(self.filename, self.app_len)
+        self.app_data = self.data[self.str_start:self.str_start + self.app_len * 2]
+        strs=self.data[self.str_start + self.app_len * 2:].split(b'\x00')
         self.str_list=strs
         self.str_num=len(strs)
 
@@ -82,6 +86,8 @@ class DXLibScrFile(object):
 
     def split_command(self):
         self.commands = []
+        if self.commandsData.data == b"\x00":
+            return
         while self.commandsData.p < self.commandsData.length:
             c = MEDCommand()
             c.read_from_bytesReader(self.commandsData)
@@ -102,6 +108,7 @@ class DXLibScrFile(object):
                 out.add_name(text)
             if c.op == 0x04:
                 out.append_dict()
+        out.append_dict()
         out.save_json(path)
         return out.get_names(), out.textcount
 
@@ -112,18 +119,22 @@ class DXLibScrFile(object):
         new_str_list = self.str_list.copy()
         for c in self.commands:
             if c.op == 0x01:
+                textp = from_bytes(c.content)
                 if len(lineBuffer) == 0:
-                    t = transdata.pop(0)
+                    try:
+                        t = transdata.pop(0)
+                    except:
+                        print(new_str_list[textp].decode("932"))
+                        exit(0)
                     transtext = t["message"]
                     lineBuffer = split_text(transtext, t["hangshu"])
-                textp = from_bytes(c.content)
                 new_str_list[textp] = lineBuffer.pop(0).encode("932")
             if c.op == 0x0d:
                 textp = from_bytes(c.content)
                 name = self.str_list[textp].decode("932")
                 transName = namedict[name]
                 new_str_list[textp] = transName.encode("932")
-        self.data = self.data[:self.str_start] + b'\x00'.join(new_str_list)
+        self.data = self.data[:self.str_start] + self.app_data + b'\x00'.join(new_str_list)
 
     def decrypt(self) -> None:
         _data=[]
@@ -206,8 +217,8 @@ class MEDFile(object):
 
     def repack(self,path,outpath='md_scr.med.chs'):
         name_list = self.name_list
-        entry_length = 0x17
-        header = b'MDE0\x17\x00'
+        entry_length = self.entry_length
+        header = b'MDE0' + int.to_bytes(entry_length, 2, "little")
         header += to_bytes(len(name_list), 2) + b'\x00' * 8
         entry_all = []
         file_data = []

@@ -1,0 +1,59 @@
+//	タイトル画面設定
+
+//	背景
+//		image
+image:	title
+
+//	ボタン
+//	id:
+//		tフラグのインデックスに対応
+//		(id:0はt0フラグ)
+//	page:
+//		normal	標準で表示する
+//		extra	extraを選んだときに表示する
+//	tag:
+//		start		スクリプトを開始する(初めから、おまけシナリオ)
+//		continue	ロード画面を開く
+//		cgmode		CGモード画面を開く
+//		scenemode	回想モード画面を開く
+//		bgmmode		BGMモード画面を開く
+//		config		設定画面を開く
+//		extra		extraメニューに切り替え
+//		return		通常メニューに切り替え
+//		exit		ゲーム終了
+//		url			urlをブラウザで開く
+//	image:
+//		ボタンファイル名
+//	x,y:
+//		表示座標
+//	cursor:
+//		マウスオーバー時のカーソル形状
+//		voidを指定するとsetting.txtで指定したデフォルトのまま変更しない
+//	visible:
+//		true:初期設定で表示する
+//	object:
+//		type=start	スクリプト名
+//		type=url	URL
+
+//	page		id	tag			image				x	y	overSE	downSE	cursor	visible	object
+button:	normal	 0	start		title_start_b		940	350	void	void	void	true	start
+button:	normal	 1	continue	title_continue_b	940	400	void	void	void	true
+button:	normal	 2	config		title_config		940	450	void	void	void	true
+button:	normal	 3	extra		title_extra			940	500	void	void	void	true
+button:	normal	 4	url			title_url1			940	550	void	void	void	true	http://masterup.net/ankoku/top.html
+button:	normal	 5	url			title_url2			940	605	void	void	void	true	http://www.masterup.net/ankoku/support/form_survey.html
+button:	normal	 6	exit		title_exit			940	650	void	void	void	true
+button:	extra	 7	cgmode		title_cgmode		940	350	void	void	void	true
+button:	extra	 8	scenemode	title_scenemode		940	400	void	void	void	true
+button:	extra	 9	bgmmode		title_bgmmode		940	450	void	void	void	true
+button:	extra	10	return		title_return_b		940	650	void	void	void	true
+
+//	タイトルで鳴らすファイル名（複数指定すると、いずれかをランダムに再生）
+bgm:bgm03
+//bgm:bgm12
+//bgm:bgm13
+
+//	タイトルコール（voice:ファイル名）（複数指定すると、いずれかをランダムに再生）
+//voice:cv10786
+//voice:cv20783
+//voice:cv30711

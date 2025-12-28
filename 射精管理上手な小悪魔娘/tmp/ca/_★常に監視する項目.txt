@@ -1,0 +1,349 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $mwnd_button_init()
+{
+
+	
+	
+
+	
+	$mwnd_btn_appear = 1
+	
+	set_mwnd(0)	
+	key.clear	
+
+	
+	frame_action_ch[15].start(-1, "$mwnd_btn_check")
+	
+}
+
+
+
+
+
+
+command $mwnd_btn_load_after()
+{
+
+	l[10] = 0 
+	
+	key.clear
+
+	
+	
+	front.mwnd[l[10]].button[000]. x = 200
+	front.mwnd[l[10]].button[001]. x = 200
+	front.mwnd[l[10]].button[002]. x = 200	
+	front.mwnd[l[10]].button[003]. x = 200
+	front.mwnd[l[10]].button[004]. x = 200
+	front.mwnd[l[10]].button[005]. x = 200
+	front.mwnd[l[10]].button[006]. x = 200
+
+	
+		
+	$mwnd_btn_appear = 0
+
+
+	
+	if (g[0009] == 1)	{
+		
+		front.mwnd[l[10]].button[000]. x = 0
+		front.mwnd[l[10]].button[001]. x = 0
+		front.mwnd[l[10]].button[002]. x = 0
+		front.mwnd[l[10]].button[003]. x = 0
+		front.mwnd[l[10]].button[004]. x = 0
+		front.mwnd[l[10]].button[005]. x = 0
+		front.mwnd[l[10]].button[006]. x = 0
+
+		$mwnd_btn_appear = 1
+	}
+	
+}
+
+
+
+
+command $mwnd_btn_check(property $fa : frameaction)		
+{
+
+	l[10] = 0
+
+	if (($novel_mode_flag == 0)) {
+		g[0023] = syscom.get_font_decoration	
+	}
+
+	front.object[493].create(__sys_mark_auto,syscom.get_auto_mode_onoff_flag,1837,17)
+	front.object[494].create(__sys_mark_skip,syscom.get_read_skip_onoff_flag,1689,17)
+	
+	front.object[493].order = 11		
+	front.object[494].order = 11		
+
+	if (g[0022] == 1) {
+
+		if (key[016].is_down == 1) {
+			
+				if (key[067].on_down_up == 1) {	
+				
+					$capture_system(0)
+				
+					key.clear
+				
+				}
+				
+				if (key[086].on_down_up == 1) {	
+				
+					$capture_system(1)
+				
+					
+				
+					key.clear
+				
+				}
+			}
+	}
+	
+	l[0] = mouse.pos_x
+	l[1] = mouse.pos_y
+
+	
+	if ($mwnd_btn_appear == 0)	{
+		if (g[0009] == 1 || (system.check_active && (l[00] >= 1675 && l[1] >= 00)))	{
+			$mwnd_btn_appear = 1	
+			
+			front.mwnd[l[10]].button[000].x_eve.set(0,200,0,2)
+			front.mwnd[l[10]].button[001].x_eve.set(0,200,0,2)
+			front.mwnd[l[10]].button[002].x_eve.set(0,200,0,2)
+			front.mwnd[l[10]].button[003].x_eve.set(0,200,0,2)
+			front.mwnd[l[10]].button[004].x_eve.set(0,200,0,2)
+			front.mwnd[l[10]].button[005].x_eve.set(0,200,0,2)
+			front.mwnd[l[10]].button[006].x_eve.set(0,200,0,2)
+		}
+	}
+	
+	else	{
+		if (g[0009] == 0 && (system.check_active && (l[00] < 1675 || l[1] < 00)))	{
+		
+			$mwnd_btn_appear = 0	
+			
+			front.mwnd[l[10]].button[000].x_eve.set(200,200,0,2)
+			front.mwnd[l[10]].button[001].x_eve.set(200,200,0,2)
+			front.mwnd[l[10]].button[002].x_eve.set(200,200,0,2)
+			front.mwnd[l[10]].button[003].x_eve.set(200,200,0,2)
+			front.mwnd[l[10]].button[004].x_eve.set(200,200,0,2)
+			front.mwnd[l[10]].button[005].x_eve.set(200,200,0,2)
+			front.mwnd[l[10]].button[006].x_eve.set(200,200,0,2)
+		}
+
+		if (front.mwnd[l[10]].button[000].get_button_hit_state == 1) {
+			$help_text_save(0,front.object[497],"01","[SAVE01]にクイックセーブします。")
+		}
+		elseif (front.mwnd[l[10]].button[001].get_button_hit_state == 1) {
+			$help_text_save(0,front.object[497],"01","[SAVE01]をロードします。")
+
+		}
+		elseif (front.mwnd[l[10]].button[002].get_button_hit_state == 1) {
+			$help_text_save(1,front.object[497],"02","[SAVE02]にクイックセーブします。")
+		}
+		elseif (front.mwnd[l[10]].button[003].get_button_hit_state == 1) {
+			$help_text_save(1,front.object[497],"02","[SAVE02]をロードします。")
+
+		}
+		elseif (front.mwnd[l[10]].button[004].get_button_hit_state == 1) {
+			$help_text_save(2,front.object[497],"03","[SAVE03]にクイックセーブします。")
+		}
+		elseif (front.mwnd[l[10]].button[005].get_button_hit_state == 1) {
+			$help_text_save(2,front.object[497],"03","[SAVE03]をロードします。")
+
+		}
+		
+		elseif (front.mwnd[l[10]].button[010].get_button_hit_state == 1) {
+			$help_text(front.object[497],mw,"メッセージウィンドウを一時的に消去します。")
+		}
+		elseif (front.mwnd[l[10]].button[011].get_button_hit_state == 1) {
+			$help_text(front.object[497],mw,"ボイスをもう一度再生します。")
+		}
+		elseif (front.mwnd[l[10]].button[012].get_button_hit_state == 1) {
+			$help_text(front.object[497],mw,"コンフィグを開きます。")
+		}
+		elseif (front.mwnd[l[10]].button[013].get_button_hit_state == 1) {
+			$help_text(front.object[497],mw,"メッセージウィンドウ背景を変更します。#D[通常]→[黒]→[透明]→...　と押すたびに変わります。")
+		}
+		elseif (front.mwnd[l[10]].button[014].get_button_hit_state == 1) {
+			$help_text(front.object[497],mw,"オートモードをONにします。")
+		}
+		elseif (front.mwnd[l[10]].button[015].get_button_hit_state == 1) {
+			$help_text(front.object[497],mw,"オートモードをOFFにします。")
+		}
+		else{
+			front.object[497].disp = 0
+		}
+
+	}
+	
+	$always_monitor_item()
+	
+}
+
+
+
+
+#z01
+
+	
+	
+	g[0009] = 1 - g[0009]
+
+	return
+
+
+
+
+
+
+
+
+
+
+command $always_monitor_item{
+	
+	
+	
+
+}
+
+
+
+
+
+command $help_text_save(property $quick_save_no,property $obj:object,property $position:str,property $moji : str) {
+
+	property $xpos
+	property $ypos
+	property $step
+	property $mes:str
+
+
+	if (g[0016] == 0) {return}
+
+
+	switch($position) {
+
+		case("01")			l[01] = 1200 l[02] = 0
+		case("02")			l[01] = 1200 l[02] = 160
+		case("03")			l[01] = 1200 l[02] = 320
+
+	
+	}
+
+
+	$ex_color_tmp2 = "4e4e4e"  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	$obj.create_rect(0,0,560,540,$ex_color_r,$ex_color_g,$ex_color_b,215,1,l[01],l[02])
+
+	$obj.layer = 495
+	$obj.order = 14
+
+	$obj.child.resize(30)
+	
+	$obj.child[0].create_rect(5,5,555,535,0,15,30,128,1)
+	
+	$obj.child[1].create_string($moji,1,15,20)	
+	$obj.child[1].set_string_param(26,0,7,20,21,0,0)
+	
+	if( syscom.get_quick_save_exist($quick_save_no) == 1 ){	
+
+		$obj.child[3].create_save_thumb($quick_save_no+100, 1, 75, 140)	
+
+		$obj.child[4].create_string("★現在のセーブデータ★",1,130,100)
+		$obj.child[4].set_string_param(26,0,7,20,21,0,0)
+		
+		$xpos = 75
+		$ypos = 380 
+		$step = 16
+
+		
+		$obj.child[05].create_number("__sys_saveload_time", 1, $xpos, $ypos )	
+		$obj.child[05].set_number(syscom.get_quick_save_year($quick_save_no))
+		$obj.child[05].set_number_param(4,1,0,1,1,$step)
+
+		$obj.child[06].create("__sys_saveload_time", 1, $xpos+$step*4, $ypos, 10 )	
+
+		$obj.child[07].create_number("__sys_saveload_time",1,$xpos+$step*5,$ypos)	
+		$obj.child[07].set_number(syscom.get_quick_save_month($quick_save_no))
+		$obj.child[07].set_number_param(2,1,0,1,1,$step)
+
+		$obj.child[08].create("__sys_saveload_time",1,$xpos+$step*7,$ypos,10)	
+
+		$obj.child[09].create_number("__sys_saveload_time",1,$xpos+$step*8,$ypos)	
+		$obj.child[09].set_number(syscom.get_quick_save_day($quick_save_no))
+		$obj.child[09].set_number_param(2,1,0,1,1,$step)
+
+		$obj.child[10].create_number("__sys_saveload_time",1,$xpos+$step*11,$ypos)	
+		$obj.child[10].set_number(syscom.get_quick_save_hour($quick_save_no))
+		$obj.child[10].set_number_param(2,1,0,1,1,$step)
+
+		$obj.child[11].create("__sys_saveload_time",1,$xpos+$step*13,$ypos,11)	
+
+		$obj.child[12].create_number("__sys_saveload_time",1,$xpos+$step*14,$ypos)	
+		$obj.child[12].set_number(syscom.get_quick_save_minute($quick_save_no))
+		$obj.child[12].set_number_param(2,1,0,1,1,$step)
+
+		$obj.child[13].create("__sys_saveload_time",1,$xpos+$step*16,$ypos,11)	
+
+		$obj.child[14].create_number("__sys_saveload_time",1,$xpos+$step*17,$ypos)	
+		$obj.child[14].set_number(syscom.get_quick_save_second($quick_save_no))
+		$obj.child[14].set_number_param(2,1,0,1,1,$step)
+
+		$obj.child[15].create_rect(0,0,408,2,255,255,255,255,1,$xpos,$ypos+37)
+
+		$mes = syscom.get_quick_save_message($quick_save_no)            
+		$mes = $mes.left_len(20*2*3)
+		$obj.child[16].create_string($mes,1,$xpos,$ypos+50)	
+		$obj.child[16].set_string_param( 20, 0, 0, 20, 0, 1, 0 )
+
+		$obj.child[26].create_rect(  5,  5,555,  6,220,240,255,245,1)
+		$obj.child[27].create_rect(  5,534,555,535,220,240,255,245,1)
+
+		$obj.child[28].create_rect(  4,  5,  6,535,  0, 40, 60,245,1)
+		$obj.child[29].create_rect(554,  5,556,535,  0, 40, 60,245,1)
+
+	}else{
+		$obj.child[4].create_string("現在、セーブデータはありません。",1,75,200)
+		$obj.child[4].set_string_param(26,0,7,20,21,0,0)
+	}
+
+
+}
+
+
+
+

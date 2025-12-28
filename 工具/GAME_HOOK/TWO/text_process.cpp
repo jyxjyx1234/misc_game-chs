@@ -126,3 +126,4 @@ void InstallHook_replacetext()
 	hookTitle_main();
 }
 
+

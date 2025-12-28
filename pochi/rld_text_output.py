@@ -178,4 +178,3 @@ def main():
 		_, namedict = rld_output(f, name_table, namedict)
 	# save_json('namedict.json', namedict)
 main()
-

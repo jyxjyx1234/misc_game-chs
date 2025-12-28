@@ -1,0 +1,129 @@
+
+#z00
+
+
+
+
+command $dialog_main( property $stage:stage, property $btn_no:int, property $obj:object, property $no ) : int
+{
+	property $mouse_click
+	property $res
+	property $check
+
+	if( $get_dialog_flag( $no ) != 0 ){
+		return( 1 )
+	}
+
+
+	
+	$check = 0
+	se.play(003)
+
+	$stage.objbtngroup[$btn_no].init
+
+	$obj.init
+	$obj.disp = 1
+	$obj.layer = 10000
+	$obj.child.resize(10)
+
+	$obj.child[0].create_rect( 0, 0, 1920, 1080, 0,0,0,255,1,0,0)
+	$obj.child[0].tr = 128
+	$obj.child[1].create(__sys_dialog_base,  1, 702, 350, 0)
+	$obj.child[2].create(__sys_dialog_base,  1, 702, 350, $get_dialog_patno($no)+1)
+	$obj.child[3].create(__sys_dialog_btn01, 1, 765, 480)
+	$obj.child[4].create(__sys_dialog_btn02, 1, 999, 480)
+	$obj.child[5].create(__sys_dialog_check, 1, 1026, 682, 2 ) 
+
+	if ($no == 10) {$obj.child[1].patno = 20 $obj.child[5].disp = 0}	
+
+	$obj.child[3].set_button(0,$btn_no,24,005)	
+	$obj.child[4].set_button(1,$btn_no,24,005)	
+	$obj.child[5].set_button(2,$btn_no,24,001)	
+
+
+	while(1){
+		$mouse_click = $stage.objbtngroup[$btn_no].sel_cancel
+		switch($mouse_click){
+			case( 0 )	
+				se.play(001)
+				$res = 1
+				break
+			case( 1 )	
+				se.play(002)
+				$res = 0
+				break
+			case( 2 )
+				se.play(017)
+				$check ^= 1
+				$obj.child[5].patno = 2 * ($check^1)
+		}
+		disp
+		input.clear
+	}
+
+	$set_dialog_flag( $no, $check )
+
+	$stage.objbtngroup[$btn_no].end
+	$obj.init
+	return( $res )
+}
+
+command $get_dialog_flag( property $no ) : int
+{
+	property $res
+
+	switch( $no ){
+		case( 8    ) $res = g[2110]
+		case( 9    ) $res = g[2111]
+		case( 0     ) $res = g[2112]
+		case( 1 ) $res = g[2115]
+		case( 2     ) $res = g[2113]  
+		case( 3   ) $res = g[2114]
+		case( 7  ) $res = g[2114]
+		case( 4    ) $res = g[2116] 
+		case( 5   ) $res = g[2116] 
+		case( 6     ) $res = g[2117]  
+		case( 10  ) $res = g[2118]  
+	}
+	return( $res )
+}
+
+
+command $set_dialog_flag( property $no, property $value )
+{
+	switch( $no ){
+		case( 8    ) g[2110]   = $value
+		case( 9    ) g[2111]   = $value
+		case( 0     ) g[2112]    = $value
+		case( 1 ) g[2115]  = $value
+		case( 2     ) g[2113]    = $value
+		case( 3   ) g[2114] = $value
+		case( 7  ) g[2114] = $value
+		case( 4    ) g[2116]   = $value
+		case( 5   ) g[2116]   = $value
+		case( 6     ) g[2117]    = $value
+		case( 10  ) g[2118] = $value
+	}
+}
+
+command $get_dialog_patno( property $no ) : int
+{
+	property $res : int
+
+	switch( $no ){
+		case( 0     ) $res = 0
+		case( 1 ) $res = 1
+		case( 2     ) $res = 2
+		case( 3   ) $res = 3
+		case( 4    ) $res = 4
+		case( 5   ) $res = 5
+		case( 6     ) $res = 6
+		case( 7  ) $res = 7
+		case( 8    ) $res = 8
+		case( 9    ) $res = 9
+		case( 10  ) $res = 10
+	}
+	return( $res )
+}
+
+

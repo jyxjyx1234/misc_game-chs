@@ -1,0 +1,613 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $make_slmenu_base_cg( property $type_sl, property $page )
+{
+	property $loop
+	property $base_name : str
+	property $page_name : str
+	property $page_new_name : str
+	property $exit_name : str
+	property $left_name : str
+	property $right_name : str
+	property $xpos
+	property $ypos
+
+	
+	if( $type_sl == 0 ){	
+		$base_name = "__sys_save_base"
+		$page_name = "__sys_save_page"
+		$page_new_name = "__sys_save_page_new"
+		$exit_name = "__sys_save_exit"
+		$left_name = "__sys_save_rev"
+		$right_name = "__sys_save_next"
+	}
+	else{	
+		$base_name = "__sys_load_base"
+		$page_name = "__sys_load_page"
+		$page_new_name = "__sys_load_page_new"
+		$exit_name = "__sys_load_exit"
+		$left_name = "__sys_load_rev"
+		$right_name = "__sys_load_next"
+	}
+	excall.back.object[99].create($base_name,1,0,0)
+	excall.back.object[99].layer = -100
+
+	$ypos = 970
+
+	for( $loop=0, $loop<10, $loop+=1 ){
+		$xpos = 589 + $loop * 68
+		excall.back.object[$loop].create( $page_name, 1, $xpos, $ypos )
+		excall.back.object[$loop].child.resize(2)
+		excall.back.object[$loop].set_button($loop,0,24,001)
+		excall.back.object[$loop].child[0].create( $page_name, 1, 0, 0, $loop+10 )
+		excall.back.object[$loop].child[1].create( $page_new_name, 0, 0, -20 )
+		excall.back.object[$loop].child[0].layer = 1
+	}
+	excall.back.object[$page].set_button_state_select	
+
+	
+	excall.back.object[80].create($left_name ,   1,  120, 420)
+	excall.back.object[81].create($right_name,   1, 1702, 420)
+	excall.back.object[80].set_button(900,0,24,005)
+	excall.back.object[81].set_button(901,0,24,005)
+
+	
+	excall.back.object[90].create( $exit_name, 1, 1790, 955 )
+	excall.back.object[90].set_button(999,0,24,005)
+
+	$disp_new_mark_page( excall.back )
+
+	excall.back.object[90].set_button(999,0,24,005)
+}
+
+command $disp_new_mark_page( property $stage:stage )
+{
+	property $loop
+
+	for( $loop=0, $loop<10, $loop+=1 ){
+		$stage.object[$loop].child[1].disp = 0
+	}
+	$loop = syscom.get_quick_save_new_no 
+	
+
+	
+	
+
+	if( $loop >= 0 ){
+		$stage.object[$loop/6].child[1].disp = 1
+	}
+}
+
+
+
+
+command $make_slmenu_data( property $type_sl, property $stage:stage, property $page )
+{
+	property $loop
+	property $new_no
+	property $base_name : str
+
+	$new_no = syscom.get_quick_save_new_no 
+	for( $loop=0, $loop<6, $loop+=1){
+
+		if ($page == 0 && $loop <=2){		
+			$base_name = "__sys_quicksave_data"
+		}
+		elseif( $type_sl == 0 ){	
+			$base_name = "__sys_save_data"
+		}
+		else{	
+			$base_name = "__sys_load_data"
+		}
+
+		$stage.object[20+$loop].create( $base_name, 1, 261+($loop%(6/2))*472, 156+($loop/(6/2))*398 )
+		$stage.object[20+$loop].set_button(20+$loop,0,24,001)
+		$mase_sldata_parts( $type_sl, $stage.object[20+$loop], $loop+$page*6, $new_no, 30+$loop, 40+$loop )
+	}
+}
+
+command $mase_sldata_parts( property $type_sl, property $obj:object, property $save_no, property $new_no, property $del_btn, property $lock_btn )
+{
+	property $xpos
+	property $ypos
+	property $mes : str
+	property $step : int
+	property $del_name : str
+	property $new_name : str
+	property $lock_name : str
+	property $thum_name : str
+
+	if( $type_sl == 0 ){	
+		$del_name = "__sys_save_delete"
+		$new_name = "__sys_save_new"
+		$lock_name = "__sys_save_lock"
+		$thum_name = "__sys_save_nodata"
+	}
+	else{
+		$del_name = "__sys_load_delete"
+		$new_name = "__sys_load_new"
+		$lock_name = "__sys_load_lock"
+		$thum_name = "__sys_load_nodata"
+	}
+
+	$obj.child.resize(17)
+	if( syscom.get_quick_save_exist($save_no) == 0 ){	
+		$obj.child[00].create($thum_name,1,22,32)
+		return
+	}
+
+	
+	$obj.child[00].create_save_thumb($save_no+100,1,22,32)	
+
+	$xpos = 22
+	$ypos = 266 
+	$step = 16
+
+	
+	$obj.child[01].create_number("__sys_saveload_time", 1, $xpos, $ypos )	
+	$obj.child[01].set_number(syscom.get_quick_save_year($save_no))
+	$obj.child[01].set_number_param(4,1,0,1,1,$step)
+
+	$obj.child[02].create("__sys_saveload_time", 1, $xpos+$step*4, $ypos, 10 )	
+
+	$obj.child[03].create_number("__sys_saveload_time",1,$xpos+$step*5,$ypos)	
+	$obj.child[03].set_number(syscom.get_quick_save_month($save_no))
+	$obj.child[03].set_number_param(2,1,0,1,1,$step)
+
+	$obj.child[04].create("__sys_saveload_time",1,$xpos+$step*7,$ypos,10)	
+
+	$obj.child[05].create_number("__sys_saveload_time",1,$xpos+$step*8,$ypos)	
+	$obj.child[05].set_number(syscom.get_quick_save_day($save_no))
+	$obj.child[05].set_number_param(2,1,0,1,1,$step)
+
+	$obj.child[06].create_number("__sys_saveload_time",1,$xpos+$step*11,$ypos)	
+	$obj.child[06].set_number(syscom.get_quick_save_hour($save_no))
+	$obj.child[06].set_number_param(2,1,0,1,1,$step)
+
+	$obj.child[07].create("__sys_saveload_time",1,$xpos+$step*13,$ypos,11)	
+
+	$obj.child[08].create_number("__sys_saveload_time",1,$xpos+$step*14,$ypos)	
+	$obj.child[08].set_number(syscom.get_quick_save_minute($save_no))
+	$obj.child[08].set_number_param(2,1,0,1,1,$step)
+
+	$obj.child[09].create("__sys_saveload_time",1,$xpos+$step*16,$ypos,11)	
+
+	$obj.child[10].create_number("__sys_saveload_time",1,$xpos+$step*17,$ypos)	
+	$obj.child[10].set_number(syscom.get_quick_save_second($save_no))
+	$obj.child[10].set_number_param(2,1,0,1,1,$step)
+
+	$ypos += 40
+
+	$mes = syscom.get_quick_save_message($save_no)            
+	$mes = $mes.left_len(20*2*3)
+	$obj.child[12].create_string($mes,1,$xpos,$ypos)	
+	$obj.child[12].set_string_param( 20, 0, 0, 20, 0, 1, 0 )
+
+	if( ($save_no) == $new_no ){
+		$obj.child[14].create( $new_name, 1, 22, 8 )		
+	}
+
+	$obj.child[15].create( $del_name , 1, 350, 8 )	
+	$obj.child[15].set_button( $del_btn , 0, 24, 001 )
+
+	l[00] = ($save_no >= 0) && ($save_no <= 2)
+
+	if (l[00] != 1) {	
+
+		$obj.child[16].create( $lock_name, 1, 262,  8 )	
+		$obj.child[16].set_button( $lock_btn, 0, 24, 005 )
+
+	}
+
+	syscom.get_quick_save_value( $save_no, l, 9, 1 )	
+	if( l[09] == 1 ){	
+		$obj.child[15].set_button_state_disable		
+		$obj.child[16].patno = 2	
+		if( $type_sl == 0 ){	
+			$obj.clear_button
+			$obj.patno = 2
+		}
+	}
+
+}
+
+
+command $save_menu_main()
+{
+	property $mouse_click
+	property $now_page
+	property $value
+	property $loop
+	property $res
+
+	if( excall.check_alloc == 0 ){
+		
+		return( 0 )
+	}
+
+
+	$now_page = math.limit( 0, syscom.get_quick_save_new_no /6, 10-1 )
+
+
+#saveinitstart
+	excall.back.objbtngroup[0].init
+	$make_slmenu_base_cg( 0, $now_page )
+	$make_slmenu_data( 0, excall.back, $now_page )
+	wipe( 0, 100 )
+
+#savemainloop
+	excall.front.objbtngroup[0].start_cancel
+	input.clear
+	while(1){
+		$mouse_click = excall.front.objbtngroup[0].get_decided_no
+		if( mouse.wheel < 0 ){
+			$mouse_click = 900
+		}
+		elseif( mouse.wheel > 0 ){
+			$mouse_click = 901
+		}
+		
+		
+		if( $mouse_click == -2 ){	
+			
+		}
+		elseif( $mouse_click == -1 ){	
+			se.play(002)
+			break
+		}
+		elseif( $mouse_click >= 0 && $mouse_click < 10 ){		
+			if( $mouse_click != $now_page ){
+				se.play(015)
+				$now_page = $mouse_click
+				goto #saveinitstart
+			}
+			goto #savemainloop
+		}
+		elseif( $mouse_click == 999 ){		
+			se.play(002)
+			break
+		}
+		elseif( $mouse_click == 900 ){		
+			se.play(015)
+			$now_page -= 1
+			if( $now_page < 0 ){
+				$now_page = 10 - 1
+			}
+			goto #saveinitstart
+		}
+		elseif( $mouse_click == 901 ){		
+			se.play(015)
+			$now_page += 1
+			if( $now_page >= 10 ){
+				$now_page = 0
+			}
+			goto #saveinitstart
+		}
+		elseif( $mouse_click >= 20 && $mouse_click < 30 ){		
+			$value = ($mouse_click-20) + $now_page * 6
+			if( syscom.get_quick_save_exist($value) == 1 ){
+				syscom.get_quick_save_value( $value, l, 9, 1 )	
+				if( l[09] == 1 ){		
+					
+				}
+				elseif( $dialog_main( excall.front, 2, excall.front.object[98], 0 ) ){
+					$res = syscom.quick_save( $value, 0, 1 )
+				}
+			}
+			else{
+				$res = syscom.quick_save( $value, 0, 1 )
+			}
+			if( $res == 1 ){
+				$make_slmenu_data( 0, excall.front, $now_page )
+				$disp_new_mark_page( excall.front )
+			}
+			goto #savemainloop
+		}
+		elseif( $mouse_click >= 30 && $mouse_click < 40 ){		
+			$value = ($mouse_click-30)+$now_page*6
+			if( $dialog_main( excall.front, 2, excall.front.object[98], 1 ) ){
+				se.play(001)
+				syscom.delete_quick_save( $value )
+				$make_slmenu_data( 0, excall.front, $now_page )
+				$disp_new_mark_page( excall.front )
+			}
+			goto #savemainloop
+		}
+		elseif( $mouse_click >= 40 && $mouse_click < 50 ){		
+			$value=($mouse_click-40)+$now_page*6
+			syscom.get_quick_save_value( $value, l, 9, 1 )
+			l[09] = (l[09] + 1) % 2
+			syscom.set_quick_save_value( $value, l, 9, 1 )
+			$make_slmenu_data( 0, excall.front, $now_page )
+			se.play(017)
+			goto #savemainloop
+		}
+		input.next
+		disp
+	}
+	input.clear
+	return
+
+}
+
+
+
+
+
+
+
+
+
+
+
+command $load_menu_main()
+{
+	property $mouse_click
+	property $now_page
+	property $value
+	property $loop
+	property $res
+
+	if( excall.check_alloc == 0 ){
+		
+		return( 0 )
+	}
+
+	$now_page = math.limit( 0, syscom.get_quick_save_new_no /6, 10-1 )
+
+#loadinitstart
+	excall.back.objbtngroup[0].init
+	$make_slmenu_base_cg( 1, $now_page )
+	$make_slmenu_data( 1, excall.back, $now_page )
+	wipe( 0, 100 )
+
+#loadmainloop
+	excall.front.objbtngroup[0].start_cancel
+	input.clear
+	while(1){
+		$mouse_click = excall.front.objbtngroup[0].get_decided_no
+		if( mouse.wheel < 0 ){
+			$mouse_click = 900
+		}
+		elseif( mouse.wheel > 0 ){
+			$mouse_click = 901
+		}
+		
+		
+		if( $mouse_click == -2 ){	
+			
+		}
+		elseif( $mouse_click == -1 ){	
+			se.play(002)
+			break
+		}
+		elseif( $mouse_click >= 0 && $mouse_click < 10 ){		
+			if( $mouse_click != $now_page ){
+				se.play(015)
+				$now_page = $mouse_click
+				goto #loadinitstart
+			}
+			goto #loadmainloop
+		}
+		elseif( $mouse_click == 999 ){		
+			se.play(002)
+			break
+		}
+		elseif( $mouse_click == 900 ){		
+			se.play(015)
+			$now_page -= 1
+			if( $now_page < 0 ){
+				$now_page = 10 - 1
+			}
+			goto #loadinitstart
+		}
+		elseif( $mouse_click == 901 ){		
+			se.play(015)
+			$now_page += 1
+			if( $now_page >= 10 ){
+				$now_page = 0
+			}
+			goto #loadinitstart
+		}
+		elseif( $mouse_click >= 20 && $mouse_click < 30 ){		
+			$value = ($mouse_click-20) + $now_page * 6
+			if( syscom.get_quick_save_exist($value) == 1 ){
+				if( $dialog_main( excall.front, 2, excall.front.object[98], 2 ) ){
+					syscom.quick_load( $value, 0, 1, 1 )
+				}
+			}
+			goto #loadmainloop
+		}
+		elseif( $mouse_click >= 30 && $mouse_click < 40 ){		
+			$value=($mouse_click-30)+$now_page*10
+			if( $dialog_main( excall.front, 2, excall.front.object[98], 1 ) ){
+				se.play(001)
+				syscom.delete_quick_save( $value )
+				$make_slmenu_data( 1, excall.front, $now_page )
+				$disp_new_mark_page( excall.front )
+			}
+			goto #loadmainloop
+		}
+		elseif( $mouse_click >= 40 && $mouse_click < 50 ){		
+			$value=($mouse_click-40)+$now_page*6
+			syscom.get_quick_save_value( $value, l, 9, 1 )
+			l[09] = (l[09] + 1) % 2
+			syscom.set_quick_save_value( $value, l, 9, 1 )
+			$make_slmenu_data( 1, excall.front, $now_page )
+			se.play(017)
+			goto #loadmainloop
+		}
+		input.next
+		disp
+	}
+	input.clear
+	return
+
+}
+
+
+
+
+command $msgbk_btn_load()
+{
+	
+	if( excall.check_alloc == 0 ){
+		capture
+		excall.alloc
+	}
+
+ 	if( $dialog_main( excall.front, 2, excall.front.object[3], 7 ) ){
+		syscom.msg_back_load(0, 1, 1)
+	}
+
+	excall.free
+	capture_free
+
+	return
+}
+
+
+
+
+
+
+#z980		
+$quick_save_btn(0)
+return
+
+#z981
+$quick_save_btn(1)
+return
+
+#z982
+$quick_save_btn(2)
+return
+
+
+#z990		
+$quick_load_btn(0)
+return
+
+#z991
+$quick_load_btn(1)
+return
+
+#z992
+$quick_load_btn(2)
+return
+
+
+
+
+command $quick_save_btn(property $quick_save_no)
+{
+	if( syscom.check_save_enable == 0 ){	
+		return
+	}
+
+	if( excall.check_alloc == 0 ){
+		excall.alloc
+	}
+	capture
+
+	if( $dialog_main( excall.front, 2, excall.front.object[98], 8 ) == 1 ){
+		excall.front.object[97].init	
+		l[00] = syscom.quick_save( $quick_save_no, 0, 1 )
+		if( l[00] == 1 ){	
+			
+			
+			
+			
+
+			$system_message("◆クイックセーブしました。",30)
+		}
+	}
+	capture_free
+	excall.free
+
+}
+
+
+
+command $quick_load_btn(property $quick_save_no)
+{
+	if( excall.check_alloc == 0 ){
+		excall.alloc
+	}
+	if( syscom.get_quick_save_exist(0) == 1 ){
+		if( $dialog_main( excall.front, 2, excall.front.object[98], 9 ) ){
+			front.object[97].init	
+			syscom.quick_load( $quick_save_no, 0, 1, 1 )
+		}
+	}
+	excall.free
+}
+
+
+
+
+
+
+
+
+#z00
+
+return
+
+
+
+#z10
+
+
+if( excall.check_alloc == 0 ){
+	capture
+	excall.alloc
+}
+
+$save_menu_main()
+
+wipe( 0, 100 )
+
+excall.free
+capture_free
+
+return
+
+
+
+
+#z20
+
+
+if( excall.check_alloc == 0 ){
+	capture
+	excall.alloc
+}
+
+$load_menu_main()
+
+wipe( 0, 100 )
+
+excall.free
+capture_free
+
+
+return
+
+
+

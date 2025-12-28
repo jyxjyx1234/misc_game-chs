@@ -40,6 +40,6 @@ def decrypt(data):
     data_out = data[:16] + b"".join(data_out)
     return data_out
 
-data1 = open_file_b("text.dat_ori")
+data1 = open_file_b("text.dat")
 data1_enc = decrypt(data1)
 save_file_b("text.dat_try", data1_enc)

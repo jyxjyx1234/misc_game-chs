@@ -15,7 +15,7 @@ for file in files:
         continue
     ori_path=ori_folder+file
     out_path=out_folder+file+'.json'
-    f=DXLibScrFile(open_file_b(ori_path))
+    f=DXLibScrFile(open_file_b(ori_path), filename=file)
     names, textcount = f.dump_str(out_path)
     namedict.update(names)
     alltextcount += textcount

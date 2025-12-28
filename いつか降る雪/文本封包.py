@@ -178,4 +178,4 @@ if __name__ == "__main__":
         scd.unpack("scr_unpack_dec")
     if mode == "pack":
         scd = SCD_FILE_pack("scr.scd", b"\xa5")
-        scd.pack("scr_unpack_dec_trans\\", "release\\scr.chs", "932")
+        scd.pack("scr_unpack_dec_trans\\", "release\\scr.chs", "936")

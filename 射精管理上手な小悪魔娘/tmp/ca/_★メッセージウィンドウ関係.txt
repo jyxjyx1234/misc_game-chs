@@ -1,0 +1,205 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $novel_mode_centering(
+			property $str0 : str,
+			property $str1 : str,
+			property $str2 : str,
+			property $str3 : str,
+			property $str4 : str,
+			property $str5 : str,
+			property $str6 : str,
+			property $str7 : str,
+			property $str8 : str,
+			property $str9 : str) {
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	$novel_mode_flag = 3
+	
+	savepoint						
+	
+	script.set_auto_savepoint_off	
+	
+	
+	
+	close
+	
+	set_mwnd(11)
+	
+	
+	
+	
+	
+	$line_str.init
+	$line_posx.init
+	$line_kwt_flag.init
+	$line_max_mojicount = 0
+	$line_number = 0
+	$line_base_x = 0
+	$line_base_y = 0
+	$line_color_flag = 0
+	
+	rep_pos
+	
+	
+	
+	
+	$line_base_x = 960 - (44 / 2)
+	$line_base_y = 540 - (44 / 2)
+	
+	$line_str[0] = $str0
+	$line_str[1] = $str1
+	$line_str[2] = $str2
+	$line_str[3] = $str3
+	$line_str[4] = $str4
+	$line_str[5] = $str5
+	$line_str[6] = $str6
+	$line_str[7] = $str7
+	$line_str[8] = $str8
+	$line_str[9] = $str9
+	
+	
+	
+	
+	
+	if (front.object[282].exist_type == 1) {
+	
+		if (front.object[282].get_file_name == "_white") {
+		
+			$line_color_flag = 1
+			
+			syscom.set_font_decoration(0)
+			
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+
+	for(l[00] = 0,l[00]<=9,l[00]+= 1) {
+	
+		if ($line_str[l[00]] == "") { break }
+	
+		if ($line_str[l[00]].search("R") != -1) {
+		
+			$line_str[l[00]] = $line_str[l[00]].mid(0,($line_str[l[00]].cnt - 1))
+			$line_kwt_flag[l[00]] = 1
+		
+		}
+	
+	
+		if ($line_max_mojicount < $line_str[l[00]].cnt) {
+		
+			$line_max_mojicount = $line_str[l[00]].cnt
+		
+		}
+	
+	}
+	
+	$line_number = l[00] 
+		
+	
+	
+	if ($line_number <= 0) {$line_number = 1}	
+	
+	$line_base_x = $line_base_x - (($line_max_mojicount / 2) * 44)
+	$line_base_y = $line_base_y - (($line_number - 1) * ((44 + 28) / 2))
+	
+	
+	
+	
+	
+	
+	
+
+	
+	for(l[00] = 0,l[00]<$line_number,l[00]+= 1) {
+	
+		
+		
+		l[02] = 0
+		l[03] = 0
+		
+		l[01] = $line_max_mojicount - $line_str[l[00]].cnt
+		
+		if (l[01] % 2 == 1) {l[02] = 44 / 2} 
+		if ($line_str[l[00]].search_last("B") != -1) { l[03] = 44 / 2} 
+		if ($line_str[l[00]].search_last("A") != -1) { l[03] = 44 / 2}
+		
+		
+		
+		$line_posx[l[00]] = $line_base_x + ((l[01] / 2) * 44) + l[02] + l[03]
+		
+		
+		
+		
+
+		if ($line_color_flag == 1) {color(15)}
+
+		rep_pos($line_posx[l[00]],$line_base_y) print($line_str[l[00]])
+
+
+		if ($line_kwt_flag[l[00]] == 1) {size r} else { nl }
+
+	}
+	
+	
+	
+	page
+	
+	if ($line_color_flag == 1) {
+	
+		syscom.set_font_decoration(g[0023])
+		
+		color
+		
+	}
+	
+
+}
+

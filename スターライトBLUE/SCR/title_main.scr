@@ -1,0 +1,165 @@
+::START
+
+#タイトル画面
+bgon("bk_title")
+
+
+btnset(1,"btn_play", 860, 160)		#はじめから
+btnset(2,"btn_load", 883, 271)		#つづきから
+
+^if(%TAIKEN_FLAG1 == 1)
+	# 体験版モード
+	btnset(4,"btn_config", 843, 385)	#コンフィグ
+	btnset(5,"btn_end", 883, 500)	#ゲーム終了
+
+#	btnset(3,"btn_omake", 860, 385)	#おまけ
+#	btnset(4,"btn_config", 843, 500)	#コンフィグ
+#	btnset(5,"btn_end", 883, 611)	#ゲーム終了
+
+^elif(%TAIKEN_FLAG2 == 1)
+	# 体験版モード
+	btnset(4,"btn_config", 843, 385)	#コンフィグ
+	btnset(5,"btn_end", 883, 500)	#ゲーム終了
+
+#	btnset(3,"btn_omake", 860, 385)	#おまけ
+#	btnset(4,"btn_config", 843, 500)	#コンフィグ
+#	btnset(5,"btn_end", 883, 611)	#ゲーム終了
+
+^elif(%COMIKE_FLAG1 == 1)
+	# コミケ用体験版モード
+	btnset(4,"btn_config", 843, 385)	#コンフィグ
+	btnset(5,"btn_end", 883, 500)	#ゲーム終了
+^elif(%TECK_FLAG == 1)
+	# テック用体験版モード
+	btnset(4,"btn_config", 843, 385)	#コンフィグ
+	btnset(5,"btn_end", 883, 500)	#ゲーム終了
+^elif(%PUSH_FLAG == 1)
+	# push体験版モード
+	btnset(4,"btn_config", 843, 385)	#コンフィグ
+	btnset(5,"btn_end", 883, 500)	#ゲーム終了
+^else
+	btnset(3,"btn_omake", 860, 385)	#おまけ
+	btnset(4,"btn_config", 843, 500)	#コンフィグ
+	btnset(5,"btn_end", 883, 611)	#ゲーム終了
+^endi
+
+
+
+
+btnon(ALL)
+ud(0)
+btnenable
+
+
+wait(200)
+btnreset(ALL)
+
+
+^sw(%reg)
+	 ^case(1)
+	 	#★★★初めからボイス
+		 rand(2)
+		 
+		^sw(%reg)
+		^case(0)
+			seon("aa_sys01")			# 非同期単発（システム用トラック）
+		^case(1)
+			seon("aa_sys01")			# 非同期単発（システム用トラック）
+#			seon("ga_sys01")			# 非同期単発（システム用トラック）
+
+		^df
+			seon("aa_sys01")			# 非同期単発（システム用トラック）
+		^ends
+
+		^if(%TAIKEN_FLAG1 == 1)
+			bgon("tai002a1")
+			ud(1, 500)
+			pause
+		^endi
+
+		^if(%TAIKEN_FLAG2 == 1)
+			bgon("tai002d")
+			ud(1, 500)
+			pause
+		^endi
+
+		^if(%COMIKE_FLAG1 == 1)
+			bgon("tai002a2")
+			ud(1, 500)
+			pause
+		^endi
+
+		^if(%TECK_FLAG == 1)
+			bgon("tai002b")
+			ud(1, 500)
+			ud(1, 6000)
+		^endi
+
+		^if(%PUSH_FLAG == 1)
+			bgon("tai002c")
+			ud(1, 500)
+			ud(1, 6000)
+		^endi
+
+		bgon("black")
+		ud(1, 500)
+		mode(1)
+		# セーブ可能、ロード可能
+		mode(0)
+		loadenable
+		saveenable
+		^gsb(WND_ADV)
+		mode(1)
+
+		bgoff
+		ud(1, 1000)
+		bgmoff(0, 700)		# ＢＧＭ終了
+
+		^go(MAIN)
+		^endi
+
+	 ^case(2)
+	 	#★★★続きからボイス
+		 rand(2)
+		 
+		^sw(%reg)
+		^case(0)
+			seon("aa_sys02")	# 非同期単発（システム用トラック）
+		^case(1)
+			seon("aa_sys02")	# 非同期単発（システム用トラック）
+#			seon("ga_sys02")	# 非同期単発（システム用トラック）
+
+		^df
+			seon("aa_sys02")	# 非同期単発（システム用トラック）
+		^ends
+
+		float(2)
+
+	 ^case(3)
+		^if(%TAIKEN_FLAG1 == 1)
+			^go(title_omk)
+#			float(11, "http://www.")
+		^elif(%TAIKEN_FLAG2 == 1)
+			^go(title_omk)
+#			float(11, "http://www.")
+		^elif(%COMIKE_FLAG1 == 1)
+			float(11, "http://www.")
+		^elif(%TECK_FLAG == 1)
+			float(11, "http://www.")
+		^elif(%PUSH_FLAG == 1)
+			float(11, "http://www.")
+		^else
+			^go(title_omk)
+		^endi
+
+	 ^case(4)
+		float(9)
+
+	 ^case(5)
+		exit
+^ends
+
+# タイトルに戻る
+^go(title_main)
+
+::END

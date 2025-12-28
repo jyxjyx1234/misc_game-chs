@@ -1,0 +1,39 @@
+# 夢幻時空エフェクト　ＯＮ
+#%mugen_prm		# 夢幻時空パラメータ（0:OFF 1:START 2:ON）
+#%mugen_check	# 夢幻時空チェック用フラグ（0:ノーマルモード 1:チェックモード）
+
+
+::START
+
+
+^if( %mugen_prm == 0 )
+
+	^if( %mugen_check == 0 )
+		ch(2, ADD, 4)		# 減算合成
+		chon(2, "mugen01", CENTER)
+		#chon(1, "white75", CENTER)
+		ud(34, 2000)
+		%mugen_prm = 2	# 夢幻時空パラメータ（0:OFF 1:START 2:ON）
+	^endi
+
+^elif( %mugen_prm == 1 )
+
+梦幻襪空参数　鍜陞鍮騁
+
+^elif( %mugen_prm == 2 )
+	ch(2, ADD, 4)		# 減算合成
+	chon(2, "mugen01", CENTER)
+	#chon(1, "white75", CENTER)
+^else
+
+梦幻襪空参数鍮騁
+
+^endi
+
+
+%mugen_check = 0	# 夢幻時空チェック用フラグ（0:ノーマルモード 1:チェックモード）
+
+
+^ret
+
+::END

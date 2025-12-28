@@ -10,6 +10,17 @@ typedef int (WINAPI* pMultiByteToWideChar)(
 	int cchWideChar
 	);
 
+typedef int (WINAPI* pWideCharToMultiByte) (
+    UINT CodePage,
+    DWORD dwFlags,
+    LPCWSTR lpWideCharStr,
+    int cchWideChar,
+    LPSTR lpMultiByteStr,
+    int cbMultiByte,
+    LPCSTR lpDefaultChar,
+    LPBOOL lpUsedDefaultChar
+    );
+
 typedef BOOL(WINAPI* pTextOutA)(
     HDC hdc,
     int nXStart,
@@ -200,6 +211,56 @@ typedef BOOL(WINAPI* pModifyMenuA)(
 	UINT_PTR uIDNewItem,
 	LPCSTR lpNewItem
 	);
+
+typedef BOOL(WINAPI* pGetTextExtentExPointA)(
+    HDC    hdc,
+    LPCSTR lpString,
+    int    cchString,
+    int    nMaxExtent,
+    LPINT  lpnFit,
+    LPINT  alpDx,
+    LPSIZE lpSize
+    );
+
+typedef BOOL(WINAPI* pGetTextExtentPoint32A)(
+	HDC hdc,
+	LPCSTR lpString,
+	int c,
+	LPSIZE ps
+	);
+
+typedef HANDLE(WINAPI* pFindFirstFileA) (
+   LPCSTR             lpFileName,
+   LPWIN32_FIND_DATAA lpFindFileData
+ );
+
+typedef BOOL(WINAPI* pFindNextFileA) (
+    HANDLE             hFindFile,
+    LPWIN32_FIND_DATAA lpFindFileData
+    );
+
+typedef BOOL(WINAPI* pFindClose) (
+    HANDLE             hFindFile
+    );
+
+typedef LSTATUS(WINAPI* pRegQueryValueExA) (
+    HKEY    hKey,
+	LPCSTR  lpValueName,
+	LPDWORD lpReserved,
+	LPDWORD lpType,
+	LPBYTE  lpData,
+    LPDWORD   lpcbData
+    );
+
+typedef int(WINAPI* pGdipDrawString)(
+    void* graphics,
+    const wchar_t* string,
+    int length,
+    void* font,
+    void* layoutRect,
+    void* stringFormat,
+    void* brush
+    );
 
 struct hook_stack {
     DWORD pfd;

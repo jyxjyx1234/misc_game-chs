@@ -1,0 +1,187 @@
+############################################
+# ボタン選択ルーチン
+############################################
+::START
+
+
+
+chon(26, "msgwnd1", 0, 432)	#ウインドウ表示
+ud(0)
+wndoff
+ud(0)
+
+btnset(14, "mlsqsave", 243, 681)	# クイックセーブ
+btnset(15, "mlsqload", 349, 681)	# クイックロード
+btnset(16, "mlssave", 462, 681)	# セーブ
+btnset(17, "mlsload", 568, 681)	# ロード
+btnset(18, "mlscnfg", 664, 681)	# コンフィグ
+
+
+
+
+chon(27, "mlsskip2", 785, 681)	#ウインドウ表示
+chon(28, "mlsauto2", 887, 681)	#ウインドウ表示
+chon(29, "mlslog2", 997, 681)	#ウインドウ表示
+
+
+:SEL_BTN_MODE
+
+btnon(ALL)
+ud(0)
+
+# ボタンを選択させる
+btnenable
+
+
+
+
+#返り値設定
+^sw(%reg)
+	 ^case(1)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 0
+
+	 ^case(2)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 1
+
+	 ^case(3)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 2
+
+	 ^case(4)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 3
+
+	 ^case(5)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 4
+
+	 ^case(6)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 5
+
+	 ^case(7)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 6
+
+	 ^case(8)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 7
+
+	 ^case(9)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 8
+
+	 ^case(10)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 9
+
+	 ^case(11)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 10
+
+	 ^case(12)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 11
+
+	 ^case(13)
+		btnreset(ALL)
+		choff(26)	#ウインドウ消去
+		choff(27)	#ウインドウ消去
+		choff(28)	#ウインドウ消去
+		choff(29)	#ウインドウ消去
+		ud(0)
+		%sentaku = 12
+
+	 ^case(14)			# クイックセーブ
+		float(7)
+		^jp(SEL_BTN_MODE)
+
+	 ^case(15)			# クイックロード
+		float(8)
+		^jp(SEL_BTN_MODE)
+
+	 ^case(16)			# セーブ
+		float(1)
+		^jp(SEL_BTN_MODE)
+
+	 ^case(17)			# ロード
+		float(2)
+		^jp(SEL_BTN_MODE)
+
+	 ^case(18)			# コンフィグ
+		float(9)
+		^jp(SEL_BTN_MODE)
+
+	^df
+
+　エラー０１
+
+^ends
+
+
+
+^ret
+
+::END

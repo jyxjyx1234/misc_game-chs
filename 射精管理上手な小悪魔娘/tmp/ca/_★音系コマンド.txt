@@ -1,0 +1,46 @@
+#z00
+
+
+
+command $pcmplay(property $pcmno,property $modeno,property $pcmch) {
+
+	k[00] = math.tostr_zero($pcmno,3)
+	k[01] = "PCM_" + k[00]
+
+	switch($modeno) {
+		
+		case(0)	
+
+			pcmch[$pcmch].play(k[01])
+			pcmch[$pcmch].stop(3000)
+			
+		case(1)	
+		
+			pcmch[$pcmch].play(k[01])
+			pcmch[$pcmch].stop(3000)
+			pcmch[$pcmch].wait_fade_key
+		
+		case(2)	
+
+			pcmch[$pcmch].play(k[01])
+			pcmch[$pcmch].stop(6000)
+		
+		case(3)	
+
+			pcmch[$pcmch].play(k[01])
+			pcmch[$pcmch].stop(9000)
+		
+		case(4)	
+
+			pcmch[$pcmch].play(k[01])
+			pcmch[$pcmch].stop(12000)
+			
+		case(5)	
+
+			pcmch[$pcmch].play(k[01])
+
+	}
+
+
+}
+

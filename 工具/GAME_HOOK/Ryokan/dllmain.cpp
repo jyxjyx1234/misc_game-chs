@@ -25,6 +25,42 @@ VOID __declspec(dllexport) startmessage()
 
 VOID __declspec(dllexport) _(){
 }
+bool IsUserAdmin()
+{
+    BOOL isAdmin = FALSE;
+    PSID adminGroup;
+
+    SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
+    if (AllocateAndInitializeSid(&ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID,
+        DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &adminGroup))
+    {
+        if (!CheckTokenMembership(NULL, adminGroup, &isAdmin))
+        {
+            isAdmin = FALSE;
+        }
+        FreeSid(adminGroup);
+    }
+    return isAdmin == TRUE;
+}
+
+bool RestartAsAdministrator()
+{
+    wchar_t szPath[MAX_PATH];
+    if (GetModuleFileName(NULL, szPath, ARRAYSIZE(szPath)))
+    {
+        SHELLEXECUTEINFO sei = { sizeof(sei) };
+        sei.lpVerb = L"runas"; // 请求管理员权限
+        sei.lpFile = szPath;
+        sei.hwnd = NULL;
+        sei.nShow = SW_NORMAL;
+
+        if (ShellExecuteEx(&sei))
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -35,7 +71,20 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-		install_LE();
+		//install_LE();
+        //if (!IsUserAdmin())
+        //{
+        //    // 如果不是管理员，重新启动程序
+        //    if (RestartAsAdministrator())
+        //    {
+        //        return 0; // 当前实例退出
+        //    }
+        //    else
+        //    {
+        //        MessageBox(NULL, L"需要管理员权限才能运行此程序", L"错误", MB_ICONERROR);
+        //        return 1;
+        //    }
+        //}
         HOOK_main();
         startmessage();
         break;

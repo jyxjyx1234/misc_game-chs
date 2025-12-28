@@ -8,7 +8,7 @@
 #include "HookTitle.h"
 #include "LE.h"
 #include "textReplacer.h"
-//#include "VFS.h"
+#include "VFS.h"
 //#include "FVPSaveChanger.h"
 
 rr::RConfig config;
@@ -34,12 +34,22 @@ void loadfont(){
     }
 }
 
+#define DEFAULT_DEBUG  0
+#define DEFAULT_LE 1
+#define DEFAULT_TEXTREPLACEMODE 7
+#define DEFAULT_VFS 1
+#define DEFAULT_VFS_PACKNAME "kagura_chs.cpk"
+#define DEFAULT_VFS_ENC "kagura"
+#define REPLACE_LIST_NAME "replace.bin"
+
+
+
 void HOOK_main() {
 	config.ReadConfig("hook.ini");
-	if (config.ReadInt("GLOBAL", "DEBUG", 0) == 1) {
+	if (config.ReadInt("GLOBAL", "DEBUG", DEFAULT_DEBUG) == 1) {
 		CreateConsole();
 	}
-	if (config.ReadInt("GLOBAL", "LE", 0) == 1) {
+	if (config.ReadInt("GLOBAL", "LE", DEFAULT_LE) == 1) {
 		install_LE();
 	}
 	LoadLibraryA(config.ReadString("GLOBAL", "LOADDLL", "").c_str());
@@ -64,15 +74,27 @@ void HOOK_main() {
 	installFontHook_main(config.ReadInt("FONT","A", 0), config.ReadInt("FONT", "W", 0), config.ReadInt("FONT", "IA", 0), config.ReadInt("FONT", "IW", 0));
 	//installEnumFontHook_main();
 
-	if (config.ReadInt("WINDOW", "ENABLE", 0) == 1) {
+	if (config.ReadInt("GLOBAL", "MBWC", 0)) {
+		installMBWCHook_main();
+	}
+
+	if (config.ReadInt("WINDOW", "ENABLE", 1) == 0) {
 		changeWindowCfg.oriWindowName = config.ReadString("WINDOW", "ORI", "");
 		changeWindowCfg.newWindowName = GBKStringToWString(config.ReadString("WINDOW", "NEW", ""));
 		changeWindowCfg.modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3.5-sonnet");
-		changeWindowCfg.isCheckOri = config.ReadInt("WINDOW", "CHECKORI", 1);
+		changeWindowCfg.isCheckOri = config.ReadInt("WINDOW", "CHECKORI", 0);
 		hookTitle_main();
 	}
-	if (config.ReadInt("TEXTREPLACE", "MODE", 0) != 0) {
-		install_hook_textreplace(config.ReadInt("TEXTREPLACE", "MODE", 0));
-		//install_hook_textreplaceFromPackEx(config.ReadInt("TEXTREPLACE", "MODE", 0), config.ReadString("VFS", "PACKNAME", ""), "data2.bin", "jyxjyx1234");
+	if (config.ReadInt("TEXTREPLACE", "MODE", DEFAULT_TEXTREPLACEMODE) != 0) {
+		if (config.ReadInt("VFS", "ENABLE", DEFAULT_VFS) == 0) {
+			install_hook_textreplace(config.ReadInt("TEXTREPLACE", "MODE", DEFAULT_TEXTREPLACEMODE));
+		}
+		else {
+			install_hook_textreplaceFromPackEx(config.ReadInt("TEXTREPLACE", "MODE", DEFAULT_TEXTREPLACEMODE), config.ReadString("VFS", "PACKNAME", DEFAULT_VFS_PACKNAME), REPLACE_LIST_NAME, DEFAULT_VFS_ENC);
+		}
+		//install_hook_textreplaceFromPackEx(config.ReadInt("TEXTREPLACE", "MODE", DEFAULT_TEXTREPLACEMODE), config.ReadString("VFS", "PACKNAME", DEFAULT_VFS_PACKNAME), "data2.bin", DEFAULT_VFS_ENC);
+	}
+	if (config.ReadInt("VFS", "ENABLE", DEFAULT_VFS) != 0) {
+		InstallVFS(DEFAULT_VFS_PACKNAME,DEFAULT_VFS_ENC);
 	}
 }

@@ -1,0 +1,99 @@
+#z00
+
+
+
+
+command	$omv_effect_set(property $stage,property $objno_plus,property $filename : str,property $blend,property $loop_flag,property $tr,property $fadein_time,property $fadein_wait_flag,property $deray_time) {
+
+	switch($loop_flag) {	
+	
+		case(0)	stage[$stage].object[251 + $objno_plus].create_movie($filename,0,959,539)
+		case(1)	stage[$stage].object[251 + $objno_plus].create_movie_loop($filename,0,959,539)
+		case(2)	stage[$stage].object[251 + $objno_plus].create_movie($filename,0,959,539,real_time = 0)
+		case(3)	stage[$stage].object[251 + $objno_plus].create_movie_loop($filename,0,959,539,real_time = 0)
+		
+
+	}
+
+	stage[$stage].object[251 + $objno_plus].center_x = 639
+	stage[$stage].object[251 + $objno_plus].center_y = 359
+	
+	stage[$stage].object[251 + $objno_plus].order = 1		
+	stage[$stage].object[251 + $objno_plus].set_scale(1500,1500)
+
+	stage[$stage].object[251 + $objno_plus].tr = 0
+	stage[$stage].object[251 + $objno_plus].blend = $blend
+	stage[$stage].object[251 + $objno_plus].disp = 1
+	
+	stage[$stage].object[251 + $objno_plus].tr_eve.set($tr,$fadein_time,$deray_time,2)
+	
+	if ($fadein_wait_flag == 1) {stage[$stage].object[251 + $objno_plus].tr_eve.wait}
+	
+
+
+
+}
+
+command	$omv_object_set(property $stage,property $filename : str,property $x,property $y,property $layer,property $order,property $child,property $dummy:str, property $blend,property $loop_flag,property $tr,property $fadein_time,property $fadein_wait_flag,property $deray_time) {
+
+	switch($layer) {
+	
+		case(0)	l[00] = 15
+		case(1)	l[00] = 28
+		case(2)	l[00] = 38
+		
+		default l[00] = $layer
+		
+	}
+	
+	if (stage[$stage].object[l[00]].child.get_size < 10)	{
+	
+		stage[$stage].object[l[00]].init
+		stage[$stage].object[l[00]].child.resize(10)
+		stage[$stage].object[l[00]].disp = 1
+		stage[$stage].object[l[00]].layer = l[00]
+		
+	}
+	
+	stage[$stage].object[l[00]].order = $order
+	
+	
+	switch($loop_flag) {	
+	
+		case(0)	stage[$stage].object[l[00]].child[$child].create_movie($filename,0,$x,$y,real_time = 0)
+		case(1)	stage[$stage].object[l[00]].child[$child].create_movie_loop($filename,0,$x,$y)
+		case(2)	stage[$stage].object[l[00]].child[$child].create_movie($filename,0,$x,$y,real_time = 0,auto_free = 0)
+		
+		
+	}
+	
+	stage[$stage].object[l[00]].child[$child].x_rep.resize(5)
+	stage[$stage].object[l[00]].child[$child].y_rep.resize(5)
+	
+	
+	stage[$stage].object[l[00]].child[$child].tr = 0	
+	stage[$stage].object[l[00]].child[$child].blend = $blend
+	stage[$stage].object[l[00]].child[$child].disp = 1
+	
+	stage[$stage].object[l[00]].child[$child].tr_eve.set($tr,$fadein_time,$deray_time,2)
+	
+	if ($fadein_wait_flag == 1) {stage[$stage].object[l[00]].child[$child].tr_eve.wait}
+
+
+}
+
+
+
+command $omv_effect_fade(property $fadeout_time,property $fadeout_wait_flag,property $deray_time,property $mode) {
+
+	front.object[251].tr_eve.set(0,$fadeout_time,$deray_time,$mode)
+	
+	if ($fadeout_wait_flag == 1) {
+	
+		front.object[251].tr_eve.wait
+	
+	}
+
+
+}
+

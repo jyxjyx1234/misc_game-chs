@@ -19,7 +19,7 @@ BOOL WINAPI HookedSetWindowTextA(HWND hWnd, LPCSTR lpString)
     printf("HOOK setWindowTextA sucess!\noriWindowName is %s\n", lpString);
     std::string oriname(lpString);
     if (changeWindowCfg.isCheckOri) {
-        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, 932)) {
+        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, 932) && oriname != changeWindowCfg.oriWindowName) {
              return TruesetWindowTextA(hWnd, lpString);
         }
     }
@@ -44,6 +44,7 @@ BOOL WINAPI HookedSetWindowTextA(HWND hWnd, LPCSTR lpString)
         newWindowNameW = nw;
     }
 #endif
+    std::wcout << newWindowNameW << std::endl;
     return TruesetWindowTextW(hWnd, newWindowNameW.c_str());
 }
 
@@ -160,7 +161,7 @@ HWND WINAPI HookedCreateWindowExA(
 	}
     std::string oriname(lpWindowName);
     if (changeWindowCfg.isCheckOri) {
-        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, 932)) {
+        if (oriname != ANSIToANSI(changeWindowCfg.oriWindowName.c_str(), 936, 932) && oriname != changeWindowCfg.oriWindowName) {
             return  TrueCreateWindowExA(
                 dwExStyle,
                 lpClassName,
@@ -324,14 +325,18 @@ HWND WINAPI HookedCreateWindowExW(
 }
 
 
+
+
 void hookTitle_main() {
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     printf("Title Hook Installed!\n");
     DetourAttach(&(PVOID&)TruesetWindowTextA, HookedSetWindowTextA);
-    DetourAttach(&(PVOID&)TruesetWindowTextW, HookedSetWindowTextW);
+    //DetourAttach(&(PVOID&)TruesetWindowTextW, HookedSetWindowTextW);
     DetourAttach(&(PVOID&)TrueCreateWindowExA, HookedCreateWindowExA);
-    DetourAttach(&(PVOID&)TrueCreateWindowExW, HookedCreateWindowExW);
+    //DetourAttach(&(PVOID&)TrueCreateWindowExW, HookedCreateWindowExW);
     DetourTransactionCommit();
 }
+
+

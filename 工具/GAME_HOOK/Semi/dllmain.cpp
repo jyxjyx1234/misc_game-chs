@@ -11,17 +11,17 @@
 
 VOID __declspec(dllexport) startmessage()
 {
-    std::wstring msg = L"本补丁由jyxjyx1234制作，使用 Claude-3.7-sonnet 进行翻译，免费发布，首发御爱同萌（ai2.moe）、jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n请仔细阅读README.md，如果补丁运行遇到问题，可在御爱评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
-
-#ifndef Release_for_others
-    WCHAR current_path[MAX_PATH] = { 0 };
-    GetModuleFileNameW(NULL, current_path, MAX_PATH);
-    std::wstring current_path_str = current_path;
-    if (std::filesystem::path(current_path_str).filename() != L"KimiIta_CHS.exe")
-    {
-        MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
-    }
-#endif
+//    std::wstring msg = L"本补丁由jyxjyx1234制作，使用 Claude-3.7-sonnet 进行翻译，免费发布，首发御爱同萌（ai2.moe）、jyxjyx1234的博客（jyxjyx1234.github.io)，禁止任何形式的收费转载。\n请仔细阅读README.md，如果补丁运行遇到问题，可在御爱评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从 网赚盘（如飞猫云）、付费网站、付费群 等下载到本补丁，请顺手点个举报。";
+//
+//#ifndef Release_for_others
+//    WCHAR current_path[MAX_PATH] = { 0 };
+//    GetModuleFileNameW(NULL, current_path, MAX_PATH);
+//    std::wstring current_path_str = current_path;
+//    if (std::filesystem::path(current_path_str).filename() != L"KimiIta_CHS.exe")
+//    {
+//        MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
+//    }
+//#endif
 }
 
 VOID __declspec(dllexport) _(){

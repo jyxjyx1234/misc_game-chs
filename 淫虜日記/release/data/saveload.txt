@@ -1,0 +1,53 @@
+//	セーブ、ロード画面
+
+//	背景
+//		page	image
+image:	save	saveimage
+image:	load	loadimage
+
+//	ボタン
+//		最後のページはauto
+//		最後-1のページはquick
+//		backとnextは無くてもよい
+//		逆に各ページが無くてもよい(tag2が数値のボタン)
+
+//		page	tag		image				x	y	overSE	downSE	cursor		tag2
+button:	all		page	saveloadpage1		700	40	void	void	void	0
+button:	all		page	saveloadpage2		840	40	void	void	void	1
+button:	all		page	saveloadpage3		980	40	void	void	void	2
+button:	all		page	saveloadpage4		1120	40	void	void	void	3
+button:	all		page	saveloadpage5		700	80	void	void	void	4
+button:	all		page	saveloadpage6		840	80	void	void	void	5
+button:	all		page	saveloadpage7		980	80	void	void	void	6
+button:	all		page	saveloadpage8		1120	80	void	void	void	7
+button:	all		page	saveloadpagequick	980	120	void	void	void	8
+button:	all		page	saveloadpageauto	1120	120	void	void	void	9
+button:	all		return	title_return_b		940		650	void	void	void
+
+
+//	データレイアウト
+//		page		１ページの項目の配置					(tag/横/縦/ページ数)
+//		caption		表示されているページ名の画像			(tag/image/x/y)
+//					"Page1"とかそんな画像
+//					ファイル名は "%s%d",image,page で作られる
+//		base		ベースのイメージ(ボタン)、座標、間隔	(tag/image/x/y/pitch x/pitch y)
+//		thumbnail	サムネイルの座標、サイズ				(tag/x/y/width/height)
+//		message		メッセージの座標						(tag/x/y/width/height/size/color)
+//		date		日付の座標								(tag/x/y/size/color)
+//		savetitle	セーブタイトルの座標					(tag/x/y/size/color)
+//		cursor		カーソル								(tag/cursor)
+
+//		page		tag
+layout:	all			page		4	3	10
+layout:	all			font		SimHei
+layout:	all			caption		saveloadpagecaption		1010	-84
+layout:	save		base		saveloaditembaseload	60	180	300	160	
+layout:	load		base		saveloaditembaseload	60	180	300	160	
+layout:	all			thumbnail	8	8	128	72
+layout:	all			message		140	24	118	72	16	0xffffff
+layout:	all			date		8	104	16	0xffffff
+layout:	all			savetitle	144	8	16	0xffffff
+layout:	all			overSE		void
+layout:	all			downSE		void
+layout:	all			cursor		void
+layout:	all			newicon		savenew

@@ -53,7 +53,7 @@ class MultipleLineTexts():
     
     def save_trans_json(self,path) -> None:
         outjson=[]
-        l = self.line1.__len__()
+        l = self.line1.ben()
         for i in range(l):
             dic=self._gen_dict(i)
             outjson.append(dic)

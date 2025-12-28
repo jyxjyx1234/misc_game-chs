@@ -1,0 +1,212 @@
+#z00
+
+
+
+
+command	$all_screen(property $rgb : str,property $time,property $mode,property $range,property $power,property $channel) {
+
+	switch($mode) {
+	
+		case(0)	screen.effect[$channel].init	goto #all_screen_color		
+		case(1)	goto #all_screen_clear								
+		case(2)	screen.effect[$channel].init	goto #all_screen_flash		
+		
+		case(3)	screen.effect[$channel].init	goto #all_screen_color		
+		case(4)	screen.effect[$channel].init	goto #all_screen_flash		
+		
+	}
+	
+
+#all_screen_color
+
+	$ex_color_tmp2 = $rgb  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	
+	switch($range) { 	 			case(0)	screen.effect[$channel].begin_layer = 0							 					screen.effect[$channel].end_layer = 299 					screen.effect[$channel].begin_order = 0 					screen.effect[$channel].end_order = 8  			case(1)	screen.effect[$channel].begin_layer = 0		 					screen.effect[$channel].end_layer = 18 					screen.effect[$channel].begin_order = 0 					screen.effect[$channel].end_order = 1 					 			case(2)	screen.effect[$channel].begin_layer = 19		 					screen.effect[$channel].end_layer = 39 					screen.effect[$channel].begin_order = 3 					screen.effect[$channel].end_order = 3 			 			case(3)	screen.effect[$channel].begin_layer = 0		 					screen.effect[$channel].end_layer = 299 					screen.effect[$channel].begin_order = 5 					screen.effect[$channel].end_order = 5 					 			case(4)	screen.effect[$channel].begin_layer = 0		 					screen.effect[$channel].end_layer = 299 					screen.effect[$channel].begin_order = 0 					screen.effect[$channel].end_order = 3 		}
+	
+	
+	if ($mode == 0) {			
+	
+		screen.effect[$channel].color_r = $ex_color_r
+		screen.effect[$channel].color_g = $ex_color_g
+		screen.effect[$channel].color_b = $ex_color_b
+		screen.effect[$channel].color_rate_eve.set($power,$time,0,0)
+		
+	}elseif ($mode == 3) {		
+	
+		screen.effect[$channel].color_add_r_eve.set(math.linear($ex_color_r,0,0,255,$power),$time,0,0)
+		screen.effect[$channel].color_add_g_eve.set(math.linear($ex_color_g,0,0,255,$power),$time,0,0)
+		screen.effect[$channel].color_add_b_eve.set(math.linear($ex_color_b,0,0,255,$power),$time,0,0)
+	
+	}
+	
+	return
+	
+
+#all_screen_flash
+
+	$ex_color_tmp2 = $rgb  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	
+	switch($range) { 	 			case(0)	screen.effect[$channel].begin_layer = 0							 					screen.effect[$channel].end_layer = 299 					screen.effect[$channel].begin_order = 0 					screen.effect[$channel].end_order = 8  			case(1)	screen.effect[$channel].begin_layer = 0		 					screen.effect[$channel].end_layer = 18 					screen.effect[$channel].begin_order = 0 					screen.effect[$channel].end_order = 1 					 			case(2)	screen.effect[$channel].begin_layer = 19		 					screen.effect[$channel].end_layer = 39 					screen.effect[$channel].begin_order = 3 					screen.effect[$channel].end_order = 3 			 			case(3)	screen.effect[$channel].begin_layer = 0		 					screen.effect[$channel].end_layer = 299 					screen.effect[$channel].begin_order = 5 					screen.effect[$channel].end_order = 5 					 			case(4)	screen.effect[$channel].begin_layer = 0		 					screen.effect[$channel].end_layer = 299 					screen.effect[$channel].begin_order = 0 					screen.effect[$channel].end_order = 3 		}
+	
+		
+	l[11] = 6 
+	
+	l[10] = math.max(1,$time / l[11])
+	
+	for (l[00] = 0,l[00] < l[11],l[00] += 1) {	
+	
+		switch(l[00] % 2) {
+		
+			case(0)	if ($mode == 2) {			
+	
+						screen.effect[$channel].color_r = $ex_color_r
+						screen.effect[$channel].color_g = $ex_color_g
+						screen.effect[$channel].color_b = $ex_color_b
+						screen.effect[$channel].color_rate = $power
+						
+												
+					}elseif ($mode == 4) {		
+					
+						screen.effect[$channel].color_add_r = math.linear($ex_color_r,0,0,255,$power)
+						screen.effect[$channel].color_add_g = math.linear($ex_color_g,0,0,255,$power)
+						screen.effect[$channel].color_add_b = math.linear($ex_color_b,0,0,255,$power)
+					
+					}
+					
+			case(1)	if ($mode == 2) {			
+	
+						screen.effect[$channel].color_rate = 0
+						
+					}elseif ($mode == 4) {		
+					
+						screen.effect[$channel].color_add_r = 0
+						screen.effect[$channel].color_add_g = 0
+						screen.effect[$channel].color_add_b = 0
+					
+					}
+			
+			
+		
+		}
+		
+		timewait(l[10])
+		
+	
+	}
+	
+	screen.effect[$channel].init
+	
+
+	return
+	
+
+#all_screen_clear
+
+	
+	
+	screen.effect[$channel].color_rate_eve.set(0,$time,0,0)
+	screen.effect[$channel].color_add_r_eve.set(0,$time,0,0)
+	screen.effect[$channel].color_add_g_eve.set(0,$time,0,0)
+	screen.effect[$channel].color_add_b_eve.set(0,$time,0,0)
+	
+	if ($rgb != "nowait") {
+		if (g[0028] == 1) {timewait_key($time)} else {timewait($time)}
+		screen.effect[$channel].color_rate_eve.end
+		screen.effect[$channel].color_add_r_eve.end
+		screen.effect[$channel].color_add_g_eve.end
+		screen.effect[$channel].color_add_b_eve.end
+	}
+
+	return
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $old_all_screen(property $filename : str,property $objno,property $time) {
+
+	if ($filename == "" || $filename == "nowait") {goto #old_all_screen_clear}
+
+
+	front.object[$objno].create($filename,0)
+	front.object[$objno].tr = 0
+	front.object[$objno].disp = 1
+	front.object[$objno].layer = $objno
+	front.object[$objno].tr_eve.set(255,$time,0,2)
+
+	return
+	
+	
+	#old_all_screen_clear
+	
+	if (front.object[$objno].exist_type == 0) {return}
+	
+	front.object[$objno].tr_eve.set(0,$time,0,2)
+	
+	if ($filename != "nowait") {
+		front.object[$objno].tr_eve.wait
+	}
+
+
+}
+
+
+
+
+
+command $old_all_screen_color(property $rgb : str,property $objno,property $time) {
+
+	$ex_color_tmp2 = $rgb  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	
+	front.object[$objno].create_rect(0,0,1280,720,$ex_color_r,$ex_color_g,$ex_color_b,255,1,0,0)
+	front.object[$objno].tr = 0
+	front.object[$objno].disp = 1
+	front.object[$objno].layer = $objno
+	front.object[$objno].tr_eve.set(255,$time,0,2)
+
+	return
+
+}
+
+

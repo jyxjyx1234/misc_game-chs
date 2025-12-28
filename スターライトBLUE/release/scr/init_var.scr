@@ -1,0 +1,124 @@
+::START
+
+%temp = 0		# 汎用パラメータ
+
+%sentaku = 0	# 選択肢用パラメータ
+
+%day = 0		# 現在の話数パラメータ
+%ic_prm = 0		# アイキャッチ用パラメータ
+
+%iTopChar = 0	# 一番好感度の高いキャラナンバー
+				# 1: 
+				# 2: 
+				# 3: 
+				# 9: ノーマルエンド（ルート判定時に使用）
+
+%iCharSelect = 0		#//パラメータ（どのキャラを選択したか？）
+
+
+
+
+
+%end_flag = 0	# エンディングフラグ（0:見てない 1:見た）
+
+
+
+
+$strbg001 = ""
+$strbg002 = ""
+$strbg003 = ""
+$strbg004 = ""
+$strbg005 = ""
+$strbg006 = ""
+$strbg007 = ""
+$strbg008 = ""
+$strbg101 = ""
+$strbg102 = ""
+$strbg103 = ""
+$strbg104 = ""
+$strbg105 = ""
+$strbg106 = ""
+$strbg107 = ""
+$strbg108 = ""
+$strbg201 = ""
+$strbg202 = ""
+$strbg203 = ""
+$strbg204 = ""
+$strbg205 = ""
+$strbg206 = ""
+$strbg207 = ""
+$strbg208 = ""
+$strbg301 = ""
+$strbg302 = ""
+$strbg303 = ""
+$strbg304 = ""
+$strbg305 = ""
+$strbg306 = ""
+$strbg307 = ""
+$strbg308 = ""
+
+
+
+
+
+#★★★以下、各ループ選択肢・サブルーチン用
+%BIT1ON =  1
+%BIT2ON =  2
+%BIT3ON =  4
+%BIT4ON =  8
+%BIT5ON = 16
+%BIT6ON = 32
+
+%selsub_num = 0		# 選択肢数
+%selsub_status = 0	# 選択状態
+%selsub_org_y = 0	# 第１選択肢左上原点
+%selsub_temp_y = 0	# 
+
+$selsub_text1 = ""	# 
+$selsub_text2 = ""	
+$selsub_text3 = ""	
+$selsub_text4 = ""	
+$selsub_text5 = ""	
+$selsub_text6 = ""	
+#★★★(ここまで以上、各ループ選択肢専用変数)
+
+
+
+
+
+
+
+
+
+#★変身もので使用
+%mugen_prm = 0	# 夢幻時空パラメータ（0:OFF 1:START 2:ON）
+%mugen_check = 0	# 夢幻時空チェック用フラグ（0:ノーマルモード 1:チェックモード）
+%hensin_bgm = 0	# 変身シーンでＢＧＭ変更するかどうか？
+##########################
+
+%H_MODE_FLAG = 0
+
+%DEBUG_FLAG = 0		# デバッグ用パラメータ（メニュー選択による日付ジャンプする）
+%DEBUG_ON = 0		# デバッグ用パラメータ（特殊なものが無い限り使用しない）※今回は選択肢のデバッグモードで使用
+
+%TAIKEN_FLAG1 = 0	# 体験版用パラメータ（１の時は体験版処理となる）
+%TAIKEN_FLAG2 = 0	# 体験版2用パラメータ（１の時は体験版2処理となる）
+%COMIKE_FLAG1 = 0	# コミケ用体験版用パラメータ（１の時は体験版処理となる）
+%TECK_FLAG = 0		# テックジャイアン用パラメータ（１の時はテックジャイアン体験版処理となる）
+%PUSH_FLAG = 0		# PUSH用パラメータ（１の時はPUSH体験版処理となる）
+
+
+
+
+%USE_BTNSEL = 1		# ボタン選択を使用するかどうか？
+
+
+
+
+%H_MENU_00 = 0		# シーン観賞用
+%H_MENU_01 = 0		# シーン観賞用
+
+
+^ret
+
+::END

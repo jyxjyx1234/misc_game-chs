@@ -1,0 +1,396 @@
+#z00
+
+
+
+
+
+command	$obj_moji_init {
+
+	front.object[150].init
+	front.object[150].child.resize(20)
+	front.object[150].order = 13
+	front.object[150].disp = 1
+	
+}
+
+
+
+command	$obj_moji_centering(property $child,property $disp,property $x,property $y,property $color : str,property $fontsize,property $haikei_disp,property $haikei_color : str,property $moji : str) {
+
+	front.object[150].child[$child].init
+	front.object[150].child[$child].child.resize(2)
+	front.object[150].child[$child].disp = $disp
+	front.object[150].child[$child].x_rep.resize(2)
+	front.object[150].child[$child].y_rep.resize(2)
+
+	$ex_color_tmp2 = $color  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	
+	front.object[150].child[$child].child[1].create_string($moji,1,$x,$y)	
+	front.object[150].child[$child].child[1].set_string_param($fontsize,0,0,0,0,0,0,0)
+	front.object[150].child[$child].child[1].color_rate = 255
+	front.object[150].child[$child].child[1].color_r = $ex_color_r
+	front.object[150].child[$child].child[1].color_g = $ex_color_g
+	front.object[150].child[$child].child[1].color_b = $ex_color_b
+	
+	l[00] = $moji.cnt
+	l[01] = $moji.cnt * $fontsize
+	
+	
+	
+	if ($haikei_disp == 1) {
+	
+		$ex_color_tmp2 = $haikei_color  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+		front.object[150].child[$child].child[0].create_rect(-5,-5,l[01] + 5,$fontsize + 5,$ex_color_r,$ex_color_g,$ex_color_b,255,1,$x,$y)
+	
+	}
+	
+	
+	
+	
+	front.object[150].child[$child].x_rep[0] = -((l[00] / 2) * $fontsize)
+		
+	if (l[00] % 2 == 1) {front.object[150].child[$child].x_rep[0] -= $fontsize / 2}	
+	
+}
+
+
+
+
+command	$obj_moji_left_justified(property $child,property $disp,property $x,property $y,property $color : str,property $fontsize,property $haikei_disp,property $haikei_color : str,property $moji : str) {
+	
+	
+
+
+
+
+
+
+	
+	$moji_list.init
+	$moji_tmp = ""
+	$moji_list_count = 0
+	
+
+	if ($moji.search("R") == -1) {
+
+		$moji_list[0] = $moji
+		$moji_list_count = 1
+		
+	}else{
+		
+		$moji_list[0] = $moji.left($moji.search("R"))
+		$moji_list[1] = $moji.mid($moji.search("R") + 1)
+		
+		$moji_list_count = 2
+		
+		if ($moji_list[1].search("R") != -1) {
+			
+			$moji_tmp = $moji_list[1]
+			$moji_list[1] = $moji_list[1].left($moji_tmp.search("R"))
+			$moji_list[2] = $moji_tmp.mid($moji_tmp.search("R") + 1)
+			
+			$moji_list_count = 3
+		
+		}
+	
+	}
+		
+	
+	
+	front.object[150].child[$child].init
+	front.object[150].child[$child].child.resize(6)
+	front.object[150].child[$child].disp = 1
+
+	
+	for(l[10] = 0,l[10] < $moji_list_count,l[10] += 1) {
+
+		l[11] = l[10] * 2
+		l[12] = ($fontsize + ($fontsize / 2)) * l[10]
+		
+		$ex_color_tmp2 = $color  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+		
+		front.object[150].child[$child].child[l[11] + 1].create_string($moji_list[l[10]],1,$x,$y + l[12])	
+		front.object[150].child[$child].child[l[11] + 1].set_string_param($fontsize,0,0,0,0,0,0,0)
+		front.object[150].child[$child].child[l[11] + 1].color_rate = 255
+		front.object[150].child[$child].child[l[11] + 1].color_r = $ex_color_r
+		front.object[150].child[$child].child[l[11] + 1].color_g = $ex_color_g
+		front.object[150].child[$child].child[l[11] + 1].color_b = $ex_color_b
+		
+		if(l[10] == 2) { front.object[150].child[$child].y -= ($fontsize + ($fontsize / 2)) }	
+	
+		l[00] = $moji_list[l[10]].cnt
+		l[01] = $moji_list[l[10]].cnt * $fontsize
+		
+		
+		
+		if ($haikei_disp == 1) {
+		
+			$ex_color_tmp2 = $haikei_color  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+			front.object[150].child[$child].child[l[11] + 0].create_rect(-5,-5,l[01] + 5,$fontsize + 5,$ex_color_r,$ex_color_g,$ex_color_b,255,1,$x,$y + l[12])
+		
+		}
+		
+	}
+	
+
+
+}
+
+
+
+
+
+
+command	$sentaku_two_choices(property $sentaku_file:str , property $cutno1,property $cutno2,property $sel_bun : str,property $sel1 : str,property $sel2 : str,property $sel1_status,property $sel2_status) : int { 
+	
+	close
+	
+	$obj_moji_init
+	
+	front.object[140].init
+	front.object[140].child.resize(30)
+	front.object[140].order = 13
+	front.object[140].disp = 1
+
+	
+	
+	front.object[140].child[0].create(_black,1,0,0)
+	front.object[140].child[0].tr = 0
+	front.object[140].child[0].tr_eve.set(192,1000,0,2)
+
+	
+
+	$ex_color_tmp2 = "2d2c38"  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+
+	front.object[140].child[1].create_rect(0,0,1920,90,$ex_color_r,$ex_color_g,$ex_color_b,255,1,0,0)
+	front.object[140].child[1].y_rep.resize(1)
+	front.object[140].child[1].y_rep[0] = -90
+
+	$ex_color_tmp2 = "2d2c38"  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	
+	front.object[140].child[2].create_rect(0,0,1920,69,$ex_color_r,$ex_color_g,$ex_color_b,255,1,0,1011)
+	front.object[140].child[2].y_rep.resize(1)
+	front.object[140].child[2].y_rep[0] = 69
+	
+	
+	front.object[140].child[1].y_rep_eve[0].set(0,500,500,2)
+	front.object[140].child[2].y_rep_eve[0].set(0,500,500,2)
+	
+	
+	front.object[140].child[2].y_rep_eve[0].wait
+	
+	
+	
+	
+	
+	
+	$obj_moji_centering(0,1,960,33,"FFFFFF",36,0,"000000",$sel_bun)
+	$obj_moji_centering(1,1,960,1038,"FFFFFF",30,0,"000000","▲　どちらかを選択してください　▲")
+
+	
+	
+	k[00] = get_title
+	msgbk.insert_msg("★選択肢★"+$sel_bun)
+	
+	$set_title(k[00]+"★選択肢★"+$sel_bun)
+
+
+
+	
+	
+	
+	front.object[140].child[10].create($sentaku_file,1, 487,552,$cutno1)
+	front.object[140].child[11].create($sentaku_file,1,1434,552,$cutno2)
+	
+	front.object[140].child[10].tr_rep.resize(2)
+	front.object[140].child[11].tr_rep.resize(2)
+		
+	front.object[140].child[10].tr_rep[0] = 255
+	front.object[140].child[11].tr_rep[0] = 255
+	
+	
+	
+	
+	front.object[140].child[10].dark = 128 * ($sel1_status != 1)
+	front.object[140].child[11].dark = 128 * ($sel2_status != 1)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	front.object[140].child[10].x_rep.resize(1)
+	front.object[140].child[11].x_rep.resize(1)
+	
+	front.object[140].child[10].x_rep[0] = -1440
+	front.object[140].child[11].x_rep[0] =  1440
+	
+	front.object[140].child[10].x_rep_eve[0].set(0,500,0,1)
+	front.object[140].child[11].x_rep_eve[0].set(0,500,0,1)
+	
+	front.object[140].child[11].x_rep_eve[0].wait
+
+
+
+
+	$obj_moji_left_justified(2,1,  78,820,"FFFFFF",52,1,"fb46d7",$sel1)
+	$obj_moji_left_justified(3,1,1023,820,"FFFFFF",52,1,"059b22",$sel2)
+
+
+	if ($sel1_status != 1) {front.object[150].child[2].tr = 64 $obj_moji_left_justified(4,1, 237,520,"FFFFFF",52,1,"AAAAAA","（選択できません）")}
+	if ($sel2_status != 1) {front.object[150].child[3].tr = 64 $obj_moji_left_justified(5,1,1200,520,"FFFFFF",52,1,"AAAAAA","（選択できません）")}
+
+	
+	front.object[140].child[20].create_rect(0,0,959,1080,255,255,255,1,1)
+	front.object[140].child[21].create_rect(0,0,959,1080,255,255,255,1,1,959,0)
+	
+	
+	if ($sel1_status == 1) {front.object[140].child[20].set_button(0,0,16,7)}
+	if ($sel2_status == 1) {front.object[140].child[21].set_button(1,0,16,7)}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	l[00] = savepoint
+	
+	
+	
+	
+	front.objbtngroup[0].init
+	front.objbtngroup[0].start
+
+	while(1) {
+	
+		l[00] = front.objbtngroup[0].get_hit_no
+		l[01] = front.objbtngroup[0].get_decided_no
+	
+		
+		switch(l[00]) {
+		
+			case(0)		front.object[140].child[10].tr_rep[0] = 255
+						front.object[140].child[11].tr_rep[0] = 255					
+			
+						if (front.object[140].child[10].bright_eve.check == 0) {
+			
+							front.object[140].child[10].bright_eve.turn_real(40,0,500,0,2)
+						}
+						
+						front.object[140].child[11].bright_eve.end
+						
+			case(1)		front.object[140].child[10].tr_rep[0] = 255
+						front.object[140].child[10].tr_rep[0] = 255					
+			
+						if (front.object[140].child[11].bright_eve.check == 0) {
+			
+							front.object[140].child[11].bright_eve.turn_real(40,0,500,0,2)
+						}
+						
+						front.object[140].child[10].bright_eve.end
+						
+			
+			case(-1)	front.object[140].child[10].tr_rep[0] = 255
+						front.object[140].child[11].tr_rep[0] = 255						
+							
+						front.object[140].child[10].bright_eve.end
+						front.object[140].child[11].bright_eve.end
+						
+		
+		
+		}
+		
+		if (l[01] >= 0) {break}
+	
+	
+		disp
+	
+	}
+	
+	front.object[140].child[10].bright_eve.end
+	front.object[140].child[11].bright_eve.end
+	
+	switch(l[01]) {
+		
+		case(0)	front.object[140].child[10].tr_rep[0] = 255
+				front.object[140].child[11].tr_rep[0] = 64
+
+				front.object[140].child[10].frame_action.start(1000,"$obj_action_flickering2",0,50,50)
+				
+				
+				
+		case(1)	front.object[140].child[10].tr_rep[0] = 64
+				front.object[140].child[11].tr_rep[0] = 255
+
+				front.object[140].child[11].frame_action.start(1000,"$obj_action_flickering2",0,50,50)
+				
+				
+	
+	
+	}
+	
+	timewait(1000)
+	
+	set_title(k[00])	
+	
+	
+	front.object[140].tr_eve.set(0,1000,0,2)
+	front.object[150].tr_eve.set(0,1000,0,2)
+	front.object[150].tr_eve.wait
+	
+	front.object[140].init
+	front.object[150].init
+	
+	return(l[01])
+
+}
+
+
+
+
+command	$obj_moji_centering_obj(property $mojiobj:object,property $disp,property $x,property $y,property $color : str,property $fontsize,property $haikei_disp,property $haikei_color : str,property $moji : str) {
+
+	$mojiobj.init
+	$mojiobj.child.resize(2)
+	$mojiobj.disp = $disp
+	$mojiobj.x_rep.resize(2)
+	$mojiobj.y_rep.resize(2)
+
+	$ex_color_tmp2 = $color  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	
+	$mojiobj.child[1].create_string($moji,1,$x,$y)	
+	$mojiobj.child[1].set_string_param($fontsize,0,0,0,0,0,0,0)
+	$mojiobj.child[1].color_rate = 255
+	$mojiobj.child[1].color_r = $ex_color_r
+	$mojiobj.child[1].color_g = $ex_color_g
+	$mojiobj.child[1].color_b = $ex_color_b
+	
+	l[00] = $moji.cnt
+	l[01] = $moji.cnt * $fontsize
+	
+	
+	
+	if ($haikei_disp == 1) {
+	
+		$ex_color_tmp2 = $haikei_color  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+		$mojiobj.child[0].create_rect(-5,-5,l[01] + 5,$fontsize + 5,$ex_color_r,$ex_color_g,$ex_color_b,255,1,$x,$y)
+	
+	}
+	
+	
+	
+	
+	$mojiobj.x_rep[0] = -((l[00] / 2) * $fontsize)
+		
+	if (l[00] % 2 == 1) {$mojiobj.x_rep[0] -= $fontsize / 2}	
+	
+}
+
+

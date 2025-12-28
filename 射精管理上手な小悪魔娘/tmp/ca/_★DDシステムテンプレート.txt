@@ -1,0 +1,312 @@
+#z00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$dd_init()
+
+
+
+$dd_mass_create(1,88,164,550,139,1)
+$dd_mass_create(2,88,358,550,139,1)
+$dd_mass_create(3,88,554,550,139,1)
+
+$dd_mass_count = 3
+
+
+
+
+
+$dd_btn_create_rule1(1,test_dd_btn001,770,160,1,10)
+$dd_btn_create_rule1(2,test_dd_btn002,770,460,1,20)
+
+
+
+
+$dd_btn_create_rule2(1,test_dd_btn101,1)
+$dd_btn_create_rule2(2,test_dd_btn102,1)
+
+
+
+
+$dd_mass_kotei_create(test_dd_btn999,1,30)
+
+
+
+
+
+
+back.object[20].create_string("0",1,790,680)
+back.object[21].create_string("0",1,820,680)
+back.object[22].create_string("0",1,850,680)
+back.object[23].create_string("0",1,790,710)
+back.object[24].create_string("0",1,820,710)
+back.object[25].create_string("0",1,850,710)
+
+back.object[26].create_string("0",1,950,710)
+
+
+back.object[27].create_string("0",1,25,230)
+back.object[28].create_string("0",1,25,432)
+back.object[29].create_string("0",1,25,604)
+
+back.object[30].create_string("0",1,45,230)
+back.object[31].create_string("0",1,45,432)
+back.object[32].create_string("0",1,45,604)
+
+
+close  			$bg_filename_tmp = test_dd_bg 			$time_tmp = 1000  			if (test_dd_bg == "_") {  				$bg_filename_tmp = front.object[0].get_file_name 				$time_tmp = 500  			}  			back.object[0].create($bg_filename_tmp,1,959,539) 			back.object[0].center_x = back.object[0].get_size_x / 2 			back.object[0].center_y = back.object[0].get_size_y / 2 			back.object[0].layer = 0 			back.object[0].order = 0 			back.object[0].set_scale(1080,1080)  			back.object[0].x_rep.resize(20) 			back.object[0].y_rep.resize(20) 			 			for ($wipecopy_tmp = 20,$wipecopy_tmp < 50,$wipecopy_tmp+= 1) {	 					 			front.object[$wipecopy_tmp].wipe_copy = 0  		}  			switch(0) { 				case(99)	 				default switch(0){ 				case(0) wipe(0,time = $time_tmp,speed_mode = 2,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 				case(1) wipe(100,option=[4,2],time = $time_tmp,start_layer = 0,end_layer = 299, start_order = 0,end_order = 7,wait = 1,key_skip = g[0028]) 			} 			}
+$mouse_rect_index = 0
+
+
+
+mouse.clear
+
+#start
+
+
+front.objbtngroup[0].init
+front.objbtngroup[1].init
+front.objbtngroup[2].init
+front.objbtngroup[0].start_cancel
+front.objbtngroup[1].start
+front.objbtngroup[2].start
+
+while(1) {
+
+	
+	
+
+	$dd_btn0_decide = front.objbtngroup[0].get_decided_no
+	
+	if ($dd_btn0_decide == -1) { syscom.call_syscom_menu  goto #start}
+
+	
+	
+
+	for ($ddtmp[0] = 1, $ddtmp[0] <= $dd_mass_count,$ddtmp[0]+=1) {
+	
+		if ($mouse_rect_flag($dd_mass_x1[$ddtmp[0]],$dd_mass_y1[$ddtmp[0]],$dd_mass_x2[$ddtmp[0]],$dd_mass_y2[$ddtmp[0]]) == 1) {
+
+			$mouse_rect_index = $ddtmp[0]
+			break
+		}
+		
+		$mouse_rect_index = 0
+	
+	}
+
+
+	
+	
+
+	$dd_btn1_push = front.objbtngroup[1].get_pushed_no
+	$dd_btn1_decide = front.objbtngroup[1].get_decided_no
+	$dd_btn1_hit = front.objbtngroup[1].get_hit_no
+
+	
+	
+	
+	if ($dd_btn1_push >= 1) {
+	
+		front.object[200].create(front.object[10].child[$dd_btn1_push].get_file_name,1)
+		front.object[200].tr = 128
+		
+		front.object[200].x = mouse.pos_x - (front.object[200].get_size_x / 2)
+		front.object[200].y = mouse.pos_y - (front.object[200].get_size_y / 2)
+	
+	}
+
+	
+	
+	
+	if ($dd_btn1_decide >= 1) {
+	
+		
+		
+	
+		if ($mouse_rect_index >= 1 && ($dd_mass_group[$mouse_rect_index] == $dd_btn_rule1_group[$dd_btn1_decide])) {
+		
+			front.object[10].child[$dd_btn1_decide].disp = 0
+			
+			
+			
+			
+			if ($dd_mass_property[$mouse_rect_index] >= 1) {
+			
+				front.object[10].child[$dd_mass_property[$mouse_rect_index]].disp = 1
+				front.object[11].child[$dd_mass_property[$mouse_rect_index]].disp = 0
+			
+			}
+			
+			front.object[11].child[$dd_btn1_decide].x = $dd_mass_x1[$mouse_rect_index]
+			front.object[11].child[$dd_btn1_decide].y = $dd_mass_y1[$mouse_rect_index]
+			front.object[11].child[$dd_btn1_decide].disp = 1
+			
+			$dd_mass_property[$mouse_rect_index] = $dd_btn1_decide
+			$dd_mass_element[$mouse_rect_index] = $dd_btn_rule1_element[$dd_btn1_decide]
+			
+		
+		}
+		
+		front.object[200].init
+		goto #start
+	}
+	
+	
+	
+	
+	
+	
+	$dd_btn2_push = front.objbtngroup[2].get_pushed_no
+	$dd_btn2_decide = front.objbtngroup[2].get_decided_no
+	$dd_btn2_hit = front.objbtngroup[2].get_hit_no
+
+	
+	
+	
+	if ($dd_btn2_push >= 1) {
+	
+		front.object[200].create(front.object[11].child[$dd_btn2_push].get_file_name,1)
+		front.object[200].tr = 128
+		
+		front.object[200].x = mouse.pos_x - (front.object[200].get_size_x / 2)
+		front.object[200].y = mouse.pos_y - (front.object[200].get_size_y / 2)
+		
+		if ($dd_btn2_push_instant == 0) {
+		
+			$dd_btn2_push_instant = $mouse_rect_index
+			
+		}
+		
+	}
+	
+	
+	
+	
+	if ($dd_btn2_decide >= 1) {
+		
+		
+		
+	
+		if ($mouse_rect_index >= 1) {
+		
+			
+			
+			
+			if ($dd_mass_property[$mouse_rect_index] == 0 && ($dd_mass_group[$mouse_rect_index] == $dd_btn_rule2_group[$dd_btn2_decide])) {
+			
+				front.object[11].child[$dd_btn2_decide].x = $dd_mass_x1[$mouse_rect_index]
+				front.object[11].child[$dd_btn2_decide].y = $dd_mass_y1[$mouse_rect_index]
+				
+				$dd_mass_property[$mouse_rect_index] = $dd_btn2_decide
+				$dd_mass_property[$dd_btn2_push_instant] = 0
+				
+				$dd_mass_element[$mouse_rect_index] = $dd_mass_element[$dd_btn2_push_instant]
+				$dd_mass_element[$dd_btn2_push_instant] = 0
+				
+			
+			}
+			
+			
+			
+			
+			elseif ($dd_mass_property[$mouse_rect_index] >= 1 && ($dd_mass_group[$mouse_rect_index] == $dd_btn_rule2_group[$dd_btn2_decide])) {
+			
+				front.object[11].child[$dd_btn2_decide].x = $dd_mass_x1[$mouse_rect_index]
+				front.object[11].child[$dd_btn2_decide].y = $dd_mass_y1[$mouse_rect_index]
+				
+				front.object[11].child[$dd_mass_property[$mouse_rect_index]].x = $dd_mass_x1[$dd_btn2_push_instant]
+				front.object[11].child[$dd_mass_property[$mouse_rect_index]].y = $dd_mass_y1[$dd_btn2_push_instant]
+				
+				
+				l[00] = $dd_mass_property[$mouse_rect_index]
+				$dd_mass_property[$mouse_rect_index] = $dd_mass_property[$dd_btn2_push_instant]
+				$dd_mass_property[$dd_btn2_push_instant] = l[00]
+				
+				l[01] = $dd_mass_element[$mouse_rect_index]
+				$dd_mass_element[$mouse_rect_index] = $dd_mass_element[$dd_btn2_push_instant]
+				$dd_mass_element[$dd_btn2_push_instant] = l[01]
+			
+			}
+		
+		
+		}
+		
+		
+		
+		
+		else{
+		
+			
+			
+			front.object[10].child[$dd_btn2_decide].disp = 1
+			front.object[11].child[$dd_btn2_decide].disp = 0
+		
+			$dd_mass_property[$dd_btn2_push_instant] = 0
+			$dd_mass_element[$dd_btn2_push_instant] = 0
+		
+		}
+	
+		front.object[200].init
+		$dd_btn2_push_instant = 0
+		goto #start
+	
+	
+	}
+	
+	
+	
+	
+	front.object[20].set_string(math.tostr($dd_btn1_push))
+	front.object[21].set_string(math.tostr($dd_btn1_decide))
+	front.object[22].set_string(math.tostr($dd_btn1_hit))
+	
+	front.object[23].set_string(math.tostr($dd_btn2_push))
+	front.object[24].set_string(math.tostr($dd_btn2_decide))
+	front.object[25].set_string(math.tostr($dd_btn2_hit))
+
+	front.object[26].set_string(math.tostr($mouse_rect_index))
+	
+	front.object[27].set_string(math.tostr($dd_mass_property[1]))
+	front.object[28].set_string(math.tostr($dd_mass_property[2]))
+	front.object[29].set_string(math.tostr($dd_mass_property[3]))
+
+
+	front.object[30].set_string(math.tostr($dd_mass_element[1]))
+	front.object[31].set_string(math.tostr($dd_mass_element[2]))
+	front.object[32].set_string(math.tostr($dd_mass_element[3]))
+
+
+
+	disp
+
+}
+
+
+
+

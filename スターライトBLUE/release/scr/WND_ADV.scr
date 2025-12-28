@@ -1,0 +1,57 @@
+############################################
+# アドベンチャーモード切替ルーチン（フェイスなし）
+############################################
+::START
+
+mode(3)
+
+#ch(28, SYS, 3)	# システムスプライト指定フラグとなる。（0 or 1 or 2 or 3）
+#choff(27)
+#choff(28)
+##choff(29)
+wndoff
+
+ud(0)
+
+# メッセージウインドウ設定
+wnd(0, SIZE, 1280, 288)
+wnd(0, POS, 0, 432)
+wnd(0, TXT, 220, 132, 3, 0, 3, 27)
+wnd(0, CEL, 60, 58, 600, 126, 0x000000, 44)
+
+#wnd(0, TXT, 133, 0, 24, 0, 5, 25)
+#wnd(0, CEL, 88, 72, 600, 84, 0x000000, 44)
+
+wnd(0, FRM, "msgwnd1")
+wnd(0, FP, "fprompt", 1046, 230)
+wnd(0, PP, "fprompt")
+
+wnd(0, BTN, "")
+wnd(0, BTN, "mlsqsave", "quicksave", 243, 249, "popqsave", 868, 81)
+wnd(0, BTN, "mlsqload", "quickload", 349, 249, "popqload", 868, 81)
+wnd(0, BTN, "mlssave",  "savemenu",  462, 249, "popsave",  868, 81)
+wnd(0, BTN, "mlsload",  "loadmenu",  568, 249, "popload",  868, 81)
+wnd(0, BTN, "mlscnfg",  "config",    664, 249, "popcnfg",  868, 81)
+
+wnd(0, BTN, "mlsskip",  "startskip", 785, 249, "popskip",  868, 81)
+wnd(0, BTN, "mlsauto",  "automode",  887, 249, "popauto",  868, 81)
+wnd(0, BTN, "mlslog",   "calllog",   997, 249, "poplog",   868, 81)
+
+#choff(27)
+##choff(29)
+
+ud(0)
+
+
+
+wndoff
+
+ud(0)
+
+
+mode(1)
+
+
+^ret
+
+::END

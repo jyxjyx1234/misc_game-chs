@@ -1,0 +1,56 @@
+# キャラルートチェックルーチン
+
+
+
+::START
+
+#チェック開始
+
+# まずは好感度の一番高いキャラナンバーを取得
+^gsb(CheckParam)
+
+
+
+
+# 次に直前の選択肢と比較
+# ^sw(%sentaku)
+# 	^case(0)
+# 		# 穂香を選択
+# 		^if(%iTopChar != 1)
+# 			%iTopChar = 9
+# 		^endi
+# 		# もし必須イベントがあったらここでチェック
+# 
+# 	^case(1)
+# 		# 美琴を選択
+# 		^if(%iTopChar != 2)
+# 			%iTopChar = 9
+# 		^endi
+# 		# もし必須イベントがあったらここでチェック
+# 
+# 	^case(2)
+# 		# つくねを選択
+# 		^if(%iTopChar != 3)
+# 			%iTopChar = 9
+# 		^endi
+# 		# もし必須イベントがあったらここでチェック
+# 
+# 	^case(3)
+# 		# つみれを選択
+# 		^if(%iTopChar != 4)
+# 			%iTopChar = 9
+# 		^endi
+# 		# もし必須イベントがあったらここでチェック
+# 
+# 	^df
+# 		%iTopChar = 9
+# ^ends
+
+
+
+
+#チェック終了
+
+^ret
+
+::END

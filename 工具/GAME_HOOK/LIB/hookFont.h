@@ -54,3 +54,5 @@ HFONT WINAPI HookedCreateFontIndirectA(CONST LOGFONTA* lplf);
 
 void installFontHook_main(BOOL A, BOOL W, BOOL IA, BOOL IW);
 void installEnumFontHook_main();
+void installMBWCHook_main();
+std::wstring GetFontNameFromFile(const std::wstring& fontPath);

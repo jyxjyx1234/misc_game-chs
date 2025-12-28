@@ -1,0 +1,445 @@
+
+
+
+#z00
+
+
+
+
+
+command	$smaho_init(property $pos) {
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+	switch($pos) {
+	
+		case(0)
+			$smaho_x = 720
+			$smaho_y = 120
+			
+			$smaho_clip_left  = 720 + 44
+			$smaho_clip_right = 720 + 434
+			
+			$smaho_clip_top    = 120 + 80
+			$smaho_clip_bottom = 120 + 661
+			
+		case(1)
+		
+			$smaho_x = 720 + -600
+			$smaho_y = 120
+			
+			$smaho_clip_left  = 720 + 44 + -600
+			$smaho_clip_right = 720 + 434 + -600
+			
+			$smaho_clip_top    = 120 + 80
+			$smaho_clip_bottom = 120 + 661
+			
+		case(2)
+			$smaho_x = 720 + 550
+			$smaho_y = 120
+			
+			$smaho_clip_left  = 720 + 44 + 550
+			$smaho_clip_right = 720 + 434 + 550
+			
+			$smaho_clip_top    = 120 + 80
+			$smaho_clip_bottom = 120 + 661
+	
+	}
+
+	
+	front.object[180].create(_smaho_base,1,$smaho_x,$smaho_y)
+	
+	front.object[180].child.resize(2)
+	front.object[180].layer = 180
+	front.object[180].order = 7
+	
+	front.object[180].y_rep.resize(1)
+	front.object[180].y_rep[0] = 100
+	front.object[180].tr = 0
+	
+	front.object[180].child[01].init
+	front.object[180].child[01].set_clip(1,$smaho_clip_left,$smaho_clip_top,$smaho_clip_right,$smaho_clip_bottom)
+	
+	
+	front.object[180].child[01].disp = 1
+	
+	
+	front.object[180].y_rep_eve[0].set(0,1000,0,2)
+	front.object[180].tr_eve.set(255,1000,0,2)
+
+	front.object[180].tr_eve.wait_key
+	front.object[180].y_rep_eve[0].end
+	
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+command $hamline_init(property $mode) {
+
+	$pcmplay(652,0,0)
+
+	$ex_color_tmp2 = "1b6ab3"  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	
+	front.object[180].child[01].child.resize(5)
+	
+	front.object[180].child[01].child[00].create_rect(0,0,480,718,$ex_color_r,$ex_color_g,$ex_color_b,255,1)
+	front.object[180].child[01].child[01].create(a0_smaho_hamline_pattern,1,0,0,$mode)
+	
+	front.object[180].child[01].child[02].init
+	front.object[180].child[01].child[02].child.resize(50)
+	front.object[180].child[01].child[02].y_rep.resize(1)
+	front.object[180].child[01].child[02].disp = 1
+	
+	if ($mode == 0) {front.object[180].child[01].child[03].create(_smaho_hamline_base,1,0,0)}
+	front.object[180].child[01].child[04].create(_smaho_kage,1,0,0)
+
+
+	$hamline_y = 140
+	$hamline_message_count = 0
+	$hamline_rep_y = 0
+	
+	
+	timewait_key(1000)
+
+}
+
+
+
+
+
+
+
+
+
+
+
+command $hamline_message_l(property $iconno,property $name : str,property $mess : str) {
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].init
+	front.object[180].child[01].child[02].child[$hamline_message_count].child.resize(5)
+	front.object[180].child[01].child[02].child[$hamline_message_count].x = 48
+	front.object[180].child[01].child[02].child[$hamline_message_count].y = $hamline_y
+	
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[00].create(a0_smaho_hamline_icon,1,0,0,$iconno)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[01].create_string($name,1,80,2)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[01].set_string_param(15,0,0,10,255,0,0)
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[02].create(_smaho_hamline_yajirusi_l,1,70,30)
+	
+	if ($mess.cnt > 13) {
+	
+		l[00] = 13
+	
+	}else {
+	
+		l[00] = $mess.cnt
+	
+	}
+	
+	
+	l[01] = $mess.cnt / 13
+	
+	
+	$hamline_mess_window_width  = 20 + (l[00] * 20) - 2
+	$hamline_mess_window_height = 20 + ((l[01]+ 1) * 20) + (l[01] * 3)
+	
+	$ex_color_tmp2 = "FFFFFF"  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[03].create_rect(0,0,$hamline_mess_window_width,$hamline_mess_window_height,$ex_color_r,$ex_color_g,$ex_color_b,255,1,85,20)
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[04].create_string($mess,1,90,30)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[04].set_string_param(20,0,5,13,254,0,0)
+
+
+	$hamline_y = $hamline_y + ($hamline_mess_window_height + 40) 
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].disp = 1
+
+	if ($hamline_y >= 512) {
+	
+		$hamline_rep_y = 512 - $hamline_y
+		
+		front.object[180].child[01].child[02].y_rep_eve[0].set($hamline_rep_y,200,0,0)
+	
+	}
+
+	$hamline_message_count = ($hamline_message_count + 1) % 50
+	
+	$pcmplay(650,0,0)
+
+	
+}
+
+
+
+
+
+command $hamline_message_r(property $mess : str) {
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].init
+	front.object[180].child[01].child[02].child[$hamline_message_count].child.resize(5)
+	front.object[180].child[01].child[02].child[$hamline_message_count].x = 120
+	front.object[180].child[01].child[02].child[$hamline_message_count].y = $hamline_y
+	
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[02].create(_smaho_hamline_yajirusi_r,1,275,25)
+	
+	if ($mess.cnt > 13) {
+	
+		l[00] = 13
+	
+	}else {
+	
+		l[00] = $mess.cnt
+	
+	}
+	
+	
+	l[01] = $mess.cnt / 13
+	
+	
+	$hamline_mess_window_width  = 20 + (l[00] * 20) - 2
+	$hamline_mess_window_height = 20 + ((l[01]+ 1) * 20) + (l[01] * 3)
+	
+	
+	l[02] = (l[00] * 20)
+	
+	$ex_color_tmp2 = "3cef3c"  		if ($ex_color_tmp2.len > 6) {   			$ex_color_tmp = $ex_color_tmp2.mid(0,3) $ex_color_r = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(4,3) $ex_color_g = $ex_color_tmp.tonum 			$ex_color_tmp = $ex_color_tmp2.mid(8,3) $ex_color_b = $ex_color_tmp.tonum 			 		}else{  		 			$ex_color_r = $hexa_to_deci($ex_color_tmp2.mid(0,2)) 			$ex_color_g = $hexa_to_deci($ex_color_tmp2.mid(2,2)) 			$ex_color_b = $hexa_to_deci($ex_color_tmp2.mid(4,2)) 			 		 		}
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[03].create_rect(0,0,$hamline_mess_window_width,$hamline_mess_window_height,$ex_color_r,$ex_color_g,$ex_color_b,255,1,260 - l[02],16)
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[04].create_string($mess,1,266 - l[02],26)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[04].set_string_param(20,0,5,13,254,0,0)
+
+
+	$hamline_y = $hamline_y + ($hamline_mess_window_height + 40) 
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].disp = 1
+
+	if ($hamline_y >= 512) {
+	
+		$hamline_rep_y = 512 - $hamline_y
+		
+		front.object[180].child[01].child[02].y_rep_eve[0].set($hamline_rep_y,200,0,0)
+	
+	}
+
+	$hamline_message_count = ($hamline_message_count + 1) % 50
+	
+	$pcmplay(650,0,0)
+
+	
+}
+
+
+
+
+
+command $hamline_stamp_l(property $iconno,property $name : str,property $stampno) {
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].init
+	front.object[180].child[01].child[02].child[$hamline_message_count].child.resize(5)
+	front.object[180].child[01].child[02].child[$hamline_message_count].x = 48
+	front.object[180].child[01].child[02].child[$hamline_message_count].y = $hamline_y
+	
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[00].create(a0_smaho_hamline_icon,1,0,0,$iconno)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[01].create_string($name,1,71,2)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[01].set_string_param(10,0,0,10,255,0,0)
+
+	
+	
+
+	$hamline_mess_window_width  = 207
+	$hamline_mess_window_height = 207
+	
+	
+	
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[04].create(a0_smaho_hamline_stamp,1,60,20,$stampno)
+
+
+	$hamline_y = $hamline_y + ($hamline_mess_window_height + 20) 
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].disp = 1
+
+	if ($hamline_y >= 512) {
+	
+		$hamline_rep_y = 512 - $hamline_y
+		
+		front.object[180].child[01].child[02].y_rep_eve[0].set($hamline_rep_y,200,0,0)
+	
+	}
+
+	$hamline_message_count = ($hamline_message_count + 1) % 50
+
+	$pcmplay(650,0,0)
+
+	
+}
+
+
+
+command $hamline_stamp_r(property $stampno) {
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].init
+	front.object[180].child[01].child[02].child[$hamline_message_count].child.resize(5)
+	front.object[180].child[01].child[02].child[$hamline_message_count].x = 120
+	front.object[180].child[01].child[02].child[$hamline_message_count].y = $hamline_y
+	
+	
+	
+	
+	
+	
+	$hamline_mess_window_width  = 165
+	$hamline_mess_window_height = 165
+	
+	
+	
+	
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[04].create(a0_smaho_hamline_stamp,1,100,20,$stampno)
+
+
+	$hamline_y = $hamline_y + ($hamline_mess_window_height + 20) 
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].disp = 1
+
+	if ($hamline_y >= 512) {
+	
+		$hamline_rep_y = 512 - $hamline_y
+		
+		front.object[180].child[01].child[02].y_rep_eve[0].set($hamline_rep_y,200,0,0)
+	
+	}
+
+	$hamline_message_count = ($hamline_message_count + 1) % 50
+	
+	$pcmplay(650,0,0)
+
+	
+}
+
+
+
+command $hamline_image_l(property $iconno,property $name : str,property $filename : str,property $patno) {
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].init
+	front.object[180].child[01].child[02].child[$hamline_message_count].child.resize(5)
+	front.object[180].child[01].child[02].child[$hamline_message_count].x = 48
+	front.object[180].child[01].child[02].child[$hamline_message_count].y = $hamline_y
+	
+	
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[00].create(a0_smaho_hamline_icon,1,0,0,$iconno)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[01].create_string($name,1,71,2)
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[01].set_string_param(10,0,0,10,255,0,0)
+
+	
+	
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].child[04].create($filename,1,72,20,$patno)
+
+	$hamline_mess_window_width  = front.object[180].child[01].child[02].child[$hamline_message_count].child[04].get_size_x($patno)
+	$hamline_mess_window_height = front.object[180].child[01].child[02].child[$hamline_message_count].child[04].get_size_y($patno)
+	
+	
+	
+	
+	
+	
+
+
+	$hamline_y = $hamline_y + ($hamline_mess_window_height + 25) 
+
+	front.object[180].child[01].child[02].child[$hamline_message_count].disp = 1
+
+	if ($hamline_y >= 512) {
+	
+		$hamline_rep_y = 512 - $hamline_y
+		
+		front.object[180].child[01].child[02].y_rep_eve[0].set($hamline_rep_y,200,0,0)
+	
+	}
+
+	$hamline_message_count = ($hamline_message_count + 1) % 50
+
+	$pcmplay(650,0,0)
+
+	
+}
+
+
+
+
+
+
+command $smaho_exit() {
+
+	$pcmplay(651,0,0)
+
+	front.object[180].child[01].init
+
+	front.object[180].y_rep_eve[0].set(100,1000,0,2)
+	front.object[180].tr_eve.set(0,1000,0,2)
+
+
+}
+
+
+
+
+
+
+
+close
+$smaho_init(0)	
+$hamline_init(0)
+
+$hamline_message_r("—pˆÓ‚Å‚«‚½‚©H")size r
+
+$hamline_message_l(1,"—DŠC","‚¤‚ñ@‚¢‚Â‚Å‚às‚¯‚é‚æ")size r
+
+$hamline_message_l(1,"—DŠC","ˆè‚¿‚á‚ñAQ‚Ä‚é‚æ‚ËH")size r
+
+$hamline_message_r("‚ ‚ @‚³‚Á‚«Šm”F‚µ‚Æ‚¢‚½@e•ƒ‚½‚¿‚à‘åä•v")size r
+
+$hamline_stamp_l(1,"—DŠC",1) size r
+
+$hamline_message_l(1,"—DŠC","‚³‚·‚ª‚Å‚·‘å²")size r
+
+$hamline_message_l(1,"—DŠC","‚»‚ê‚¶‚á@‚T•ªŒã‚É•”‰®‘O‚ÉW‡‚Å‚¢‚¢‚æ‚Ë")size r
+
+$hamline_message_r("‚n‚j")size r
+
+
+close
+$smaho_exit() timewait(1000)
+
+
+
+
+
+
+

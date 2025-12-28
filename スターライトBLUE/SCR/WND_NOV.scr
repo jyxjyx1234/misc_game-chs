@@ -1,0 +1,35 @@
+############################################
+# ノベルモード切替ルーチン
+############################################
+::START
+
+mode(2)
+
+wnd(0, SIZE, 1280, 720)
+wnd(0, POS, 0, 0)
+wnd(0, TXT, %temp, 36, 3, 0, 23, 40)
+wnd(0, CEL, 0, 0, 1280, 720, 0x000000, 44)
+
+wnd(0, FRM, "")
+wnd(0, FP, "fprompt", 1136, 664)
+wnd(0, PP, "fprompt")
+
+wnd(0, BTN, "")
+wnd(0, BTN, "mlsqsave", "quicksave", 224, 688, "popqsave", 1081, 688)
+wnd(0, BTN, "mlsqload", "quickload", 333, 688, "popqload", 1081, 688)
+wnd(0, BTN, "mlssave",  "savemenu",  439, 688, "popsave",  1081, 688)
+wnd(0, BTN, "mlsload",  "loadmenu",  549, 688, "popload",  1081, 688)
+wnd(0, BTN, "mlscnfg",  "config",    654, 688, "popcnfg",  1081, 688)
+
+wnd(0, BTN, "mlsskip",  "startskip", 761, 688, "popskip",  1081, 688)
+wnd(0, BTN, "mlsauto",  "automode",  869, 688, "popauto",  1081, 688)
+wnd(0, BTN, "mlslog",   "calllog",   978, 688, "poplog",   1081, 688)
+
+choff(7)
+choff(9)
+
+ud(0)
+
+^ret
+
+::END

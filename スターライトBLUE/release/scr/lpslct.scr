@@ -1,0 +1,145 @@
+::START
+
+#ループ選択肢の実装部分。ＸＹ座標は画面デザインに応じて変更する
+
+#	# ---------------使用方法サンプル---------------
+#	# まず始めに選択肢数と選択テキストを設定
+#	%selsub_num   = 4
+#	
+#	$selsub_text1 = "舞雪。学園生活にはもう慣れた？"
+#	$selsub_text2 = "ちゆり。オカルト部の今後の活動って、どんなの？"
+#	$selsub_text3 = "望月先輩。その後、大丈夫ですか"
+#	$selsub_text4 = "炭谷さん。この前借りた本のことだけど"
+#	^gsb(lpslct_init)	# ループ選択肢パラメータ初期化
+#	
+#	:LOOP_SLCT
+#	^gsb(lpslct)		# ループ選択肢実装開始
+#	
+#	#★★★ここから各選択ファイル
+#	^sw(%sentaku)
+#	^case(0)
+#		^gsb(01_1202)
+#	^case(1)
+#		^gsb(01_1203)
+#	^case(2)
+#		^gsb(01_1204)
+#	^case(3)
+#		^gsb(01_1205)
+#	^ends
+#	#★★★ここまで各選択ファイル
+#	
+#	^if(%selsub_num > 0)	# 全ての選択肢を見るまでループ
+#		^jp(LOOP_SLCT)
+#	^endi
+
+
+
+
+
+
+
+
+^sw(%selsub_num)
+^case(6)
+	%selsub_org_y  = 88		# 選択数６個の時の始めのＹ座標
+^case(5)
+	%selsub_org_y  = 116	# 選択数５個の時の始めのＹ座標
+^case(4)
+	%selsub_org_y  = 144	# 選択数４個の時の始めのＹ座標
+^case(3)
+	%selsub_org_y  = 172	# 選択数３個の時の始めのＹ座標
+^case(2)
+	%selsub_org_y  = 200	# 選択数２個の時の始めのＹ座標
+^case(1)
+	%selsub_org_y  = 228	# 選択数１個の時の始めのＹ座標
+^ends
+
+%selsub_temp_y  = 0
+
+#■選択肢
+
+%temp = %selsub_status & %BIT1ON
+^if(%temp == %BIT1ON)
+	%selsub_temp_y = %selsub_org_y
+	btnset(1,"slctwnd", 304,  %selsub_temp_y, $selsub_text1, 30, 13)	# 固定値のＸ座標、文字の相対ＸＹ座標は直値で入力
+^endi
+
+%temp = %selsub_status & %BIT2ON
+^if(%temp == %BIT2ON)
+	^if(%selsub_temp_y != 0)
+		%selsub_temp_y += 56			# 一段下へＹ座標をずらす。固定値入力です。
+	^else
+		%selsub_temp_y = %selsub_org_y
+	^endi
+	btnset(2,"slctwnd", 304, %selsub_temp_y, $selsub_text2, 30, 13)	# 固定値のＸ座標、文字の相対ＸＹ座標は直値で入力
+^endi
+
+%temp = %selsub_status & %BIT3ON
+^if(%temp == %BIT3ON)
+	^if(%selsub_temp_y != 0)
+		%selsub_temp_y += 56			# 一段下へＹ座標をずらす。固定値入力です。
+	^else
+		%selsub_temp_y = %selsub_org_y
+	^endi
+	btnset(3,"slctwnd", 304, %selsub_temp_y, $selsub_text3, 30, 13)	# 固定値のＸ座標、文字の相対ＸＹ座標は直値で入力
+^endi
+
+%temp = %selsub_status & %BIT4ON
+^if(%temp == %BIT4ON)
+	^if(%selsub_temp_y != 0)
+		%selsub_temp_y += 56			# 一段下へＹ座標をずらす。固定値入力です。
+	^else
+		%selsub_temp_y = %selsub_org_y
+	^endi
+	btnset(4,"slctwnd", 304, %selsub_temp_y, $selsub_text4, 30, 13)	# 固定値のＸ座標、文字の相対ＸＹ座標は直値で入力
+^endi
+
+%temp = %selsub_status & %BIT5ON
+^if(%temp == %BIT5ON)
+	^if(%selsub_temp_y != 0)
+		%selsub_temp_y += 56			# 一段下へＹ座標をずらす。固定値入力です。
+	^else
+		%selsub_temp_y = %selsub_org_y
+	^endi
+	btnset(5,"slctwnd", 304, %selsub_temp_y, $selsub_text5, 30, 13)	# 固定値のＸ座標、文字の相対ＸＹ座標は直値で入力
+^endi
+
+%temp = %selsub_status & %BIT6ON
+^if(%temp == %BIT6ON)
+	^if(%selsub_temp_y != 0)
+		%selsub_temp_y += 56			# 一段下へＹ座標をずらす。固定値入力です。
+	^else
+		%selsub_temp_y = %selsub_org_y
+	^endi
+	btnset(6,"slctwnd", 304, %selsub_temp_y, $selsub_text6, 30, 13)	# 固定値のＸ座標、文字の相対ＸＹ座標は直値で入力
+^endi
+
+^gsb(btnsel)	# ボタン選択ルーチン
+
+
+
+# 選択したビットを下げる
+^if(  %sentaku == 0)
+	%selsub_status -= %BIT1ON
+^elif(%sentaku == 1)
+	%selsub_status -= %BIT2ON
+^elif(%sentaku == 2)
+	%selsub_status -= %BIT3ON
+^elif(%sentaku == 3)
+	%selsub_status -= %BIT4ON
+^elif(%sentaku == 4)
+	%selsub_status -= %BIT5ON
+^elif(%sentaku == 5)
+	%selsub_status -= %BIT6ON
+#^else
+#	%reg = 0
+^endi
+
+%selsub_num -= 1
+
+
+
+
+^ret
+
+::END

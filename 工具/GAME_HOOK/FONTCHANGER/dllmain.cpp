@@ -10,6 +10,7 @@
 #include "LR\LRHook.h"
 #include <thread>
 #include <locale.h>
+#include "VFS.h"
 
 #ifndef Release_for_others
 //#include "resource.h"
@@ -25,7 +26,7 @@ VOID __declspec(dllexport) stratmessage()
 {
     rr::RConfig config;
     config.ReadConfig("hook.ini");
-    std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3.7-sonnet");
+    std::string modeltype = config.ReadString("STARTMESSAGE", "MODELTYPE", "Claude-3.5-sonnet");
     LPCWSTR modeltypew = string2LPCWSTR(modeltype);
     std::wstring msg = L"本补丁由jyxjyx1234制作，使用"
         + std::wstring(modeltypew) 
@@ -33,7 +34,7 @@ VOID __declspec(dllexport) stratmessage()
     //std::wstring t1(L"本补丁由Steins;Gate，julixian，coroz，SUAD，ALyCE，是幼微鸭mua，冥语，魔神海谢拉 等共同出资，使用官方渠道claude-3.5-sonnet进行翻译，免费发布，首发2dfan及github，禁止任何形式的收费转载。\n如果补丁运行遇到问题，可在2dfan评论区留言或发邮件至jyxjyx1234@outlook.com。\n如果从网赚盘（如飞猫云）or 付费下载到本补丁，请顺手点个举报。");
     //msg = L"适度游戏益脑，沉迷游戏伤身\n 仅供学习交流，请于24小时删除 ^ ^";
 #ifndef Release_for_others
-    MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
+    //MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
     //MessageBoxW(NULL, msg.c_str(), L"信息", NULL);
     //if (GetACP() != 936) {
     //    MessageBoxW(NULL, L"请在简体中文 (CP936) 环境下运行！", L"错误", MB_ICONERROR);
@@ -123,20 +124,21 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     case DLL_THREAD_DETACH:
         break;
     case DLL_PROCESS_DETACH:
+        UninstallVFS();
         if (config1.ReadInt("GLOBAL", "TIMER", 0) == 1) FinalizeTimer();
         //while (RemoveFontResourceExA(config1.ReadString("FONT", "FONTFILENAME", "").c_str(), FR_NOT_ENUM, 0)) std::cout << "字体已移除！" << std::endl;
         break;
     }
-
-    if (ul_reason_for_call == DLL_PROCESS_ATTACH){
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
         if (config1.ReadInt("GLOBAL", "NOTSTOP", 0) == 1) {
             std::thread newt(stratmessage);
             newt.detach();
         }
         else {
-			stratmessage();
+            stratmessage();
         }
     }
+
 
     return TRUE;
 }
